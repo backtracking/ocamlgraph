@@ -50,3 +50,4 @@ Examples
 You'll find examples of ocamlgraph use in demo.ml, demo_planar.ml and color.ml 
 (you can compile these programs with "make demo.opt", "make demo_planar.opt"
 and "make color.opt" respectively).
+
