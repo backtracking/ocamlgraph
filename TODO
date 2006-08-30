@@ -1,0 +1,6 @@
+$Id: TODO,v 1.14 2004-10-22 14:42:06 signoles Exp $
+
+* rendre consistant singulier/pluriel vertex/edges
+* supprimer Util.DataV utilisé dans Mcs_m
+* améliorer Mcs_m
+* améliorer Md

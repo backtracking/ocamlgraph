@@ -1,0 +1,311 @@
+#
+# sample Makefile for Objective Caml
+# Copyright (C) 2001 Jean-Christophe FILLIATRE
+# 
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Library General Public
+# License version 2, as published by the Free Software Foundation.
+# 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# 
+# See the GNU Library General Public License version 2 for more details
+# (enclosed in the file LGPL).
+
+# where to install the binaries
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+BINDIR=@bindir@
+
+# where to install the man page
+MANDIR=@mandir@
+
+# other variables set by ./configure
+OCAMLC   = @OCAMLC@
+OCAMLOPT = @OCAMLOPT@
+OCAMLDEP = @OCAMLDEP@
+OCAMLDOC = @OCAMLDOC@
+OCAMLLEX = @OCAMLLEX@
+OCAMLYACC= @OCAMLYACC@
+OCAMLLIB = @OCAMLLIB@
+OCAMLBEST= @OCAMLBEST@
+OCAMLVERSION = @OCAMLVERSION@
+OCAMLWEB = @OCAMLWEB@
+OCAMLWIN32 = @OCAMLWIN32@
+OCAMLFIND = @OCAMLFIND@
+EXE = @EXE@
+LIBEXT = @LIBEXT@
+OBJEXT = @OBJEXT@
+
+INCLUDES = 
+BFLAGS = $(INCLUDES)
+OFLAGS = $(INCLUDES) @FORPACK@
+
+# main target
+#############
+
+NAME=ocamlgraph
+
+all: byte $(OCAMLBEST) 
+
+# bytecode and native-code compilation
+######################################
+
+CMO 	= util unionfind heap bitv \
+	per_imp persistent imperative \
+	delaunay builder classic rand oper \
+	path traverse coloring topological components kruskal flow \
+        graphviz gml pack \
+	gmap minsep cliquetree mcs_m md
+CMO	:= $(addsuffix .cmo, $(CMO))
+CMX = $(CMO:.cmo=.cmx)
+CMA = graph.cma
+CMXA = graph.cmxa
+
+GENERATED = gml.ml version.ml META
+
+byte: $(CMA)
+opt: $(CMXA)
+
+graph.cma: graph.cmo
+	$(OCAMLC) -a -o $@ $^
+
+graph.cmxa: graph.cmx
+	$(OCAMLOPT) -a -o $@ $^
+
+graph.cmo: sig.cmi sig_pack.cmi $(CMO)
+	$(OCAMLC) -pack -o $@ $^
+
+graph.cmx: sig.cmi sig_pack.cmi $(CMX)
+	$(OCAMLOPT) -pack -o $@ $^
+
+.PHONY: demo
+demo: demo.opt
+
+demo.byte: $(CMA) demo.cmo
+	$(OCAMLC) -o $@ $^
+
+demo.opt: $(CMXA) demo.cmx
+	$(OCAMLOPT) -o $@ $^
+
+demo_planar.byte: $(CMA) demo_planar.cmo
+	$(OCAMLC) -o $@ graphics.cma unix.cma $^
+
+demo_planar.opt: $(CMXA) demo_planar.cmx
+	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
+
+color.byte: $(CMA) color.cmo
+	$(OCAMLC) -o $@ graphics.cma unix.cma $^
+
+color.opt: $(CMXA) color.cmx
+	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
+
+sudoku.byte: $(CMA) sudoku.cmo
+	$(OCAMLC) -o $@ graphics.cma unix.cma $^
+
+sudoku.opt: $(CMXA) sudoku.cmx
+	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
+
+test: $(CMA) test.ml
+	ocaml unix.cma graphics.cma $^
+
+test.byte: $(CMA) test.cmo
+	$(OCAMLC) -g -unsafe -o $@ unix.cma graphics.cma $^
+
+test.opt: $(CMXA) test.cmx
+	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa graphics.cmxa $^
+
+test_rand.opt: $(CMXA) time.ml test_rand.ml
+	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa $^
+
+bench: bench.opt
+	./bench.opt
+
+bench.opt: $(CMXA) bench.ml
+	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa $^
+
+check: $(CMA) check.ml
+	ocaml $^
+
+VERSION=0.97
+
+version.ml: Makefile
+	echo "let version = \""$(VERSION)"\"" > version.ml
+	echo "let date = \""`date`"\"" >> version.ml
+
+META: META.in Makefile
+	sed -e s/VERSION/$(VERSION)/ -e s/CMA/$(CMA)/ -e s/CMXA/$(CMXA)/ \
+		META.in > META
+
+# Additional rules
+##################
+
+DPD_GRAPH_ML= demo demo_planar color sudoku test check
+DPD_GRAPH_ML:= $(addsuffix .ml, $(DPD_GRAPH_ML))
+
+$(DPD_GRAPH_ML) $(DPD_GRAPH_ML:.ml=.cmo): $(CMA)
+$(DPD_GRAPH_ML) $(DPD_GRAPH_ML:.ml=.cmx): $(CMXA)
+
+# installation
+##############
+
+install: install-$(OCAMLBEST)
+
+install-byte: 
+	cp -f graph.cmo graph.cmi $(CMA) $(OCAMLLIB)
+
+install-opt: install-byte
+	cp -f graph$(LIBEXT) graph.cmx $(CMXA) $(OCAMLLIB)
+
+install-findlib: META
+ifdef OCAMLFIND
+	$(OCAMLFIND) install ocamlgraph META *.mli \
+		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA)
+endif
+
+# documentation
+###############
+
+DOCFILES=$(NAME).ps $(NAME).html
+
+DOC_CMO	= $(filter-out per_imp.cmo util.cmo bitv.cmo heap.cmo unionfind.cmo, \
+			$(CMO))
+DOC_ML	= sig.mli sig_pack.mli $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
+
+.PHONY: doc
+doc: $(DOC_CMO)
+	mkdir -p doc
+	rm -f doc/*
+	$(OCAMLDOC) -d doc -html $(DOC_ML)
+
+# literate programming
+$(NAME).tex: $(DOC_ML)
+	$(OCAMLWEB) -o $@ $^
+
+wc:
+	ocamlwc -p *.mli *.ml
+
+# export
+########
+
+EXPORTDIR=$(NAME)-$(VERSION)
+TAR=$(EXPORTDIR).tar
+
+FTP = $$HOME/ftp/$(NAME)
+WWW = $$HOME/WWW/$(NAME)
+
+FILES = *.ml* Makefile.in configure configure.in META.in  \
+	.depend README FAQ CREDITS INSTALL COPYING LGPL CHANGES
+
+EXAMPLES = demo.ml color.ml demo_planar.ml sudoku.ml
+
+export: source export-doc export-web export-delaunay
+
+source: 
+	mkdir -p export
+	cd export; rm -rf $(EXPORTDIR)
+	mkdir -p export/$(EXPORTDIR)
+	cp $(FILES) export/$(EXPORTDIR)
+	cd export ; tar cf $(TAR) $(EXPORTDIR) ; gzip -f --best $(TAR)
+	cp export/$(TAR).gz $(FTP)
+	cp README FAQ CREDITS COPYING LGPL CHANGES $(EXAMPLES) $(FTP)
+
+www/version.prehtml: Makefile.in
+	echo "<#def version>$(VERSION)</#def>" > www/version.prehtml
+
+export-web: www/version.prehtml
+	make -C www install
+
+export-doc: $(DOC_CMO)
+	rm -f $(WWW)/doc/*
+	-$(OCAMLDOC) -d $(WWW)/doc -html $(DOC_ML)
+
+MISCFTP = $(HOME)/WWW/ftp/ocaml/misc
+DELAUNAY=delaunay.ml delaunay.mli
+export-delaunay:
+	cp -f $(DELAUNAY) $(MISCFTP)
+	caml2html -d $(MISCFTP) $(DELAUNAY)
+
+# generic rules
+###############
+
+.SUFFIXES: .mli .ml .cmi .cmo .cmx .mll .mly .tex .dvi .ps .html
+
+.mli.cmi:
+	$(OCAMLC) -c $(BFLAGS) $<
+
+.ml.cmo:
+	$(OCAMLC) -c $(BFLAGS) $<
+
+.ml.o:
+	$(OCAMLOPT) -c $(OFLAGS) $<
+
+.ml.cmx:
+	$(OCAMLOPT) -c $(OFLAGS) $<
+
+.mll.ml:
+	$(OCAMLLEX) $<
+
+.mly.ml:
+	$(OCAMLYACC) -v $<
+
+.mly.mli:
+	$(OCAMLYACC) -v $<
+
+.tex.dvi:
+	latex $< && latex $<
+
+.dvi.ps:
+	dvips $< -o $@ 
+
+.tex.html:
+	hevea $<
+
+# Emacs tags
+############
+
+tags:
+	find . -name "*.ml*" | sort -r | xargs \
+	etags "--regex=/let[ \t]+\([^ \t]+\)/\1/" \
+	      "--regex=/let[ \t]+rec[ \t]+\([^ \t]+\)/\1/" \
+	      "--regex=/and[ \t]+\([^ \t]+\)/\1/" \
+	      "--regex=/type[ \t]+\([^ \t]+\)/\1/" \
+              "--regex=/exception[ \t]+\([^ \t]+\)/\1/" \
+	      "--regex=/val[ \t]+\([^ \t]+\)/\1/" \
+	      "--regex=/module[ \t]+\([^ \t]+\)/\1/"
+
+# Makefile is rebuilt whenever Makefile.in or configure.in is modified
+######################################################################
+
+Makefile: Makefile.in config.status
+	if test -e $@; then chmod a+w $@; fi		
+	./config.status
+	chmod a-w $@
+
+config.status: configure
+	./config.status --recheck
+
+configure: configure.in
+	autoconf 
+
+# clean
+#######
+
+clean:
+	rm -f *.cm[iox] *$(OBJEXT) *~ graph.*a graph$(LIBEXT)
+	rm -f $(GENERATED) parser.output
+	rm -f $(NAME).byte $(NAME).opt
+	rm -f *.haux *.aux *.log $(NAME).tex $(NAME).dvi $(DOCFILES)
+
+dist-clean distclean:: clean
+	rm -f Makefile config.cache config.log config.status *.byte *.opt
+
+# depend
+########
+
+.depend depend: $(GENERATED)
+	rm -f .depend
+	$(OCAMLDEP) $(INCLUDES) *.ml *.mli > .depend
+
+include .depend
