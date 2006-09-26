@@ -296,6 +296,11 @@ module DotAttributes : sig
             [1]. *)
     ] 
 
+    type subgraph = {
+      sg_name : string;
+      sg_attributes : vertex list;
+    }
+
 end
 
 module Dot
@@ -315,6 +320,7 @@ module Dot
 
      val default_edge_attributes: t -> DotAttributes.edge list
      val edge_attributes: E.t -> DotAttributes.edge list
+     val get_subgraph : V.t -> DotAttributes.subgraph option
    end) : 
 sig
 
@@ -382,6 +388,11 @@ module NeatoAttributes : sig
         (** Strength of edge spring.  Default value is [1.0]. *)
     ] 
 
+  type subgraph = {
+    sg_name : string;
+    sg_attributes : vertex list;
+  }
+
 end
 
 module Neato 
@@ -401,6 +412,9 @@ module Neato
 
      val default_edge_attributes: t -> NeatoAttributes.edge list
      val edge_attributes: E.t -> NeatoAttributes.edge list
+
+     val get_subgraph : V.t -> NeatoAttributes.subgraph option
+
    end) : 
 sig
 

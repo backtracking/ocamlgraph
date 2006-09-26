@@ -283,6 +283,11 @@ module type ENGINE = sig
     (** Attribute of edges provided by the engine. *)
     type edge
 
+    type subgraph = {
+      sg_name : string;
+      sg_attributes : vertex list;
+    }
+
     val fprint_graph:formatter -> graph -> unit
     val fprint_vertex: formatter -> vertex -> unit
     val fprint_edge: formatter -> edge -> unit
@@ -320,6 +325,9 @@ module MakeEngine
 
      val default_edge_attributes: t -> EN.Attributes.edge list
      val edge_attributes: E.t -> EN.Attributes.edge list
+
+     val get_subgraph : V.t -> EN.Attributes.subgraph option
+
   end) = 
 struct
 
@@ -387,6 +395,7 @@ struct
         the CGL language on the formatter [ppf]. 
      *)
     let fprint_graph ppf graph =
+      let subgraphs = Hashtbl.create 7 in 
 
       (* Printing nodes. *)
 
@@ -396,12 +405,45 @@ struct
 	if default_node_attributes  <> [] then
 	  fprintf ppf "node%a;@ " fprint_node_attributes default_node_attributes;
 
-	X.iter_vertex (function node ->
-	  fprintf ppf "%s%a;@ " 
-	    (X.vertex_name node)
-	    fprint_node_attributes (X.vertex_attributes node);
-        ) graph
+	X.iter_vertex 
+          (function node ->
+             begin match X.get_subgraph node with 
+             | None -> ()
+             | Some sg -> 
+                 try 
+                   let (sg,nodes) = Hashtbl.find subgraphs sg.EN.Attributes.sg_name in
+                   Hashtbl.replace subgraphs sg.EN.Attributes.sg_name (sg,node::nodes)
+                 with Not_found -> 
+                   Hashtbl.add subgraphs sg.EN.Attributes.sg_name (sg,[node]) 
+             end;
+	     fprintf ppf "%s%a;@ " 
+	       (X.vertex_name node)
+	       fprint_node_attributes (X.vertex_attributes node)) 
+          graph
 
+      in
+
+      (* Printing subgraphs *)
+
+      let print_subgraphs ppf = 
+        
+        Hashtbl.iter
+          (fun name (sg,nodes) -> 
+             fprintf ppf "@[<v 2>subgraph cluster_%s { %t%t };@]@\n"
+               name
+               
+               (fun ppf -> 
+                  (List.iter 
+                     (fun n -> fprintf ppf "%a;@\n" EN.Attributes.fprint_vertex n)
+                     sg.EN.Attributes.sg_attributes))
+               (fun ppf -> 
+                  (List.iter 
+                     (fun n -> fprintf ppf "%s;" (X.vertex_name n))
+                     nodes))
+               
+          )
+          subgraphs 
+        
       in
 
       (* Printing edges *)
@@ -413,12 +455,12 @@ struct
 	  fprintf ppf "edge%a;@ " fprint_edge_attributes default_edge_attributes;
 
 	X.iter_edges_e (function edge ->
-	  fprintf ppf "%s %s %s%a;@ "
-	    (X.vertex_name (X.E.src edge))
-	    EN.edge_arrow
-	    (X.vertex_name (X.E.dst edge))
-	    fprint_edge_attributes (X.edge_attributes edge)
-        ) graph
+	                  fprintf ppf "%s %s %s%a;@ "
+	                    (X.vertex_name (X.E.src edge))
+	                    EN.edge_arrow
+	                    (X.vertex_name (X.E.dst edge))
+	                    fprint_edge_attributes (X.edge_attributes edge)
+                       ) graph
 
       in
 
@@ -426,6 +468,7 @@ struct
 	EN.opening
 	fprint_graph_attributes (X.graph_attributes graph);
       fprintf ppf "%t@ " print_nodes;
+      fprintf ppf "%t@ " print_subgraphs;
       fprintf ppf "%t@ " print_edges;
       fprintf ppf "@]}@]"
 
@@ -583,6 +626,11 @@ module DotAttributes = struct
 
 
 
+    type subgraph = {
+      sg_name : string;
+      sg_attributes : vertex list;
+    }
+
   (** {4 Pretty-print of attributes} *)
 
   let rec fprint_string_list ppf = function
@@ -727,6 +775,11 @@ module NeatoAttributes = struct
     ] 
 
 
+
+    type subgraph = {
+      sg_name : string;
+      sg_attributes : vertex list;
+    }
 
   (** {4 Pretty-print of attributes} *)
 

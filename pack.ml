@@ -99,6 +99,7 @@ struct
     let vertex_attributes _ = []
     let default_edge_attributes _ = []
     let edge_attributes _ = []
+    let get_subgraph _ = None
   end
   module Dot = Graphviz.Dot(Display)
   module Neato = Graphviz.Neato(Display)
