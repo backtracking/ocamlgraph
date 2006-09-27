@@ -1,6 +1,7 @@
 
 version 0.98, Sept 27th, 2006
 -----------------------------
+ o rename Sig.IA to Sig.IM
  o add subgraph support in Graphviz 
    (breaks ascendent compatibility if you use Graphviz: by default add
       let get_subgraph _ = None
