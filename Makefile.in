@@ -128,7 +128,7 @@ bench.opt: $(CMXA) bench.ml
 check: $(CMA) check.ml
 	ocaml $^
 
-VERSION=0.97
+VERSION=0.98
 
 version.ml: Makefile
 	echo "let version = \""$(VERSION)"\"" > version.ml

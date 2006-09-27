@@ -1,8 +1,10 @@
 
+version 0.98, Sept 27th, 2006
+-----------------------------
  o add subgraph support in Graphviz 
-      (breaks ascendent compatibility if you use Graphviz: by default add
-	 let get_subgraph _ = None
-       in the argument of Graphviz.Dot and Graphviz.Neato)
+   (breaks ascendent compatibility if you use Graphviz: by default add
+      let get_subgraph _ = None
+   in the argument of Graphviz.Dot and Graphviz.Neato)
 
 version 0.97, July 20th, 2006
 -----------------------------
