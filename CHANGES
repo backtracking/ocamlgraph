@@ -1,4 +1,6 @@
 
+ o Graphviz: little refactoring and documentation improved
+
 version 0.98, Sept 27th, 2006
 -----------------------------
  o rename Sig.IA to Sig.IM

@@ -28,8 +28,6 @@
 
 open Format
 
-
-
 (***************************************************************************)
 (** {2 Common stuff} *)
 
@@ -75,15 +73,28 @@ let fprint_dir ppf = function
     `TopToBottom -> fprintf ppf "TB"
   | `LeftToRight -> fprintf ppf "LR"
 
+(** The [ATTRIBUTES] module type defines the interface for the engines. *)
+module type ATTRIBUTES = sig
 
+  type graph  (** Attributes of graphs. *)
 
-(** The [CommonAttributes] module defines attributes for graphs, nodes and edges
-    that are available in the two engines, dot and neato.
- *)
+  type vertex (** Attributes of vertices. *)
+
+  type edge   (** Attributes of edges. *)
+
+  (** Attributes of (optional) boxes around vertices. *) 
+  type subgraph = {
+    sg_name : string;            (** Box name. *)
+    sg_attributes : vertex list; (** Box attributes. *)
+  }
+
+end
+
+(** The [CommonAttributes] module defines attributes for graphs, nodes and
+    edges that are available in the two engines, dot and neato. *)
 module CommonAttributes = struct
 
-  (** Attributes of graphs.
-   *)
+  (** Attributes of graphs. *)
   type graph =
     [ `Center of bool
         (** Centers the drawing on the page.  Default value is [false]. *)
@@ -149,8 +160,7 @@ module CommonAttributes = struct
         (** Sets the minimum width.  Default value is [0.75]. *)
     ]     
 
-  (** Attributes of edges.
-   *)
+  (** Attributes of edges. *)
   type edge =
     [ `Color of color
         (** Sets the edge stroke color.  Default value is [black]. *)
@@ -183,8 +193,6 @@ module CommonAttributes = struct
             simultaneously. *)
     ]     
 
-
-
   (** Pretty-print. *)
 
   let fprint_orientation ppf = function
@@ -202,8 +210,6 @@ module CommonAttributes = struct
     | `Pagedir a -> fprintf ppf "pagedir=%a" fprint_dir a
     | `Size (x, y) -> fprintf ppf "size=\"%f,%f\"" x y
     | `OrderingOut -> fprintf ppf "ordering=out"
-
-
 
   let fprint_shape ppf = function
     | `Ellipse -> fprintf ppf "ellipse"
@@ -236,8 +242,6 @@ module CommonAttributes = struct
     | `Shape a -> fprintf ppf "shape=%a" fprint_shape a
     | `Style a -> fprintf ppf "style=%a" fprint_node_style a
     | `Width f -> fprintf ppf "width=%f" f
-  
-
 
   let fprint_edge_style = 
     fprint_node_style
@@ -265,49 +269,35 @@ module CommonAttributes = struct
 end
 
 
-
 (*-------------------------------------------------------------------------*)
 (** {3 The [MakeEngine] functor} *)
 
-(** An engine is described by a module of the following signature.
- *)
+(** An engine is described by a module of the following signature. *)
 module type ENGINE = sig
 
   module Attributes : sig
-    (** Attributes of graphs provided by the engine. *)
-    type graph
-
-    (** Attributes of nodes provided by the engine. *)
-    type vertex
-
-    (** Attribute of edges provided by the engine. *)
-    type edge
-
-    type subgraph = {
-      sg_name : string;
-      sg_attributes : vertex list;
-    }
-
+    include ATTRIBUTES 
     val fprint_graph:formatter -> graph -> unit
     val fprint_vertex: formatter -> vertex -> unit
     val fprint_edge: formatter -> edge -> unit
-
   end
 
   (** The litteral name of the engine. *)      
   val name: string
 
   (** The keyword for graphs ("digraph" for dot, "graph" for neato) *)
-    val opening: string
+  val opening: string
 
   (** The litteral for edge arrows ("->" for dot, "--" for neato) *)
   val edge_arrow: string
 
 end
 
+module type GRAPH = sig
 
+end
 
-module MakeEngine 
+module MakeEngine
   (EN: ENGINE)
   (X : sig
      type t
@@ -325,10 +315,8 @@ module MakeEngine
 
      val default_edge_attributes: t -> EN.Attributes.edge list
      val edge_attributes: E.t -> EN.Attributes.edge list
-
      val get_subgraph : V.t -> EN.Attributes.subgraph option
-
-  end) = 
+   end) =
 struct
 
   let command = ref EN.name
@@ -347,12 +335,9 @@ struct
 	  flush stderr;
 	  exit 2
 
-
-
     (** [fprint_graph_attributes ppf list] pretty prints a list of 
         graph attributes on the formatter [ppf].  Attributes are separated
-        by a ";". 
-    *)
+        by a ";". *)
     let fprint_graph_attributes ppf list =
        List.iter (function att ->
 	 fprintf ppf "%a;@ " EN.Attributes.fprint_graph att
@@ -361,8 +346,7 @@ struct
    (** [fprint_graph_attribute printer ppf list] pretty prints a list of 
        attributes on the formatter [ppf], using the printer [printer] for
        each attribute.  The list appears between brackets and attributes
-       are speparated by ",".  If the list is empty, nothing is printed.
-    *)
+       are speparated by ",".  If the list is empty, nothing is printed. *)
     let fprint_attributes fprint_attribute ppf = function
 	[] -> ()
       | hd :: tl ->
@@ -378,22 +362,17 @@ struct
 	    fprint_attributes_rec tl
 
     (** [fprint_graph_attributes ppf list] pretty prints a list of 
-        node attributes using the format of [fprint_attributes].
-     *)
+        node attributes using the format of [fprint_attributes]. *)
     let fprint_node_attributes ppf list = 
       fprint_attributes EN.Attributes.fprint_vertex ppf list
 	 
     (** [fprint_graph_attributes ppf list] pretty prints a list of 
-        edge attributes using the format of [fprint_attributes].
-     *)
+        edge attributes using the format of [fprint_attributes]. *)
     let fprint_edge_attributes ppf list =
       fprint_attributes EN.Attributes.fprint_edge ppf list
 
-
-
     (** [fprint_graph ppf graph] pretty prints the graph [graph] in
-        the CGL language on the formatter [ppf]. 
-     *)
+        the CGL language on the formatter [ppf]. *)
     let fprint_graph ppf graph =
       let subgraphs = Hashtbl.create 7 in 
 
@@ -403,7 +382,8 @@ struct
 
 	let default_node_attributes = X.default_vertex_attributes graph in
 	if default_node_attributes  <> [] then
-	  fprintf ppf "node%a;@ " fprint_node_attributes default_node_attributes;
+	  fprintf ppf "node%a;@ " 
+	    fprint_node_attributes default_node_attributes;
 
 	X.iter_vertex 
           (function node ->
@@ -411,8 +391,11 @@ struct
              | None -> ()
              | Some sg -> 
                  try 
-                   let (sg,nodes) = Hashtbl.find subgraphs sg.EN.Attributes.sg_name in
-                   Hashtbl.replace subgraphs sg.EN.Attributes.sg_name (sg,node::nodes)
+                   let (sg,nodes) = 
+		     Hashtbl.find subgraphs sg.EN.Attributes.sg_name 
+		   in
+                   Hashtbl.replace subgraphs 
+		     sg.EN.Attributes.sg_name (sg,node::nodes)
                  with Not_found -> 
                    Hashtbl.add subgraphs sg.EN.Attributes.sg_name (sg,[node]) 
              end;
@@ -426,7 +409,7 @@ struct
       (* Printing subgraphs *)
 
       let print_subgraphs ppf = 
-        
+
         Hashtbl.iter
           (fun name (sg,nodes) -> 
              fprintf ppf "@[<v 2>subgraph cluster_%s { %t%t };@]@\n"
@@ -434,13 +417,14 @@ struct
                
                (fun ppf -> 
                   (List.iter 
-                     (fun n -> fprintf ppf "%a;@\n" EN.Attributes.fprint_vertex n)
+                     (fun n -> 
+			fprintf ppf "%a;@\n" EN.Attributes.fprint_vertex n)
                      sg.EN.Attributes.sg_attributes))
+
                (fun ppf -> 
                   (List.iter 
-                     (fun n -> fprintf ppf "%s;" (X.vertex_name n))
+		     (fun n -> fprintf ppf "%s;" (X.vertex_name n))
                      nodes))
-               
           )
           subgraphs 
         
@@ -452,7 +436,8 @@ struct
 	
 	let default_edge_attributes = X.default_edge_attributes graph in
 	if default_edge_attributes <> [] then
-	  fprintf ppf "edge%a;@ " fprint_edge_attributes default_edge_attributes;
+	  fprintf ppf "edge%a;@ " 
+	    fprint_edge_attributes default_edge_attributes;
 
 	X.iter_edges_e (function edge ->
 	                  fprintf ppf "%s %s %s%a;@ "
@@ -472,11 +457,8 @@ struct
       fprintf ppf "%t@ " print_edges;
       fprintf ppf "@]}@]"
 
-
-
     (** [output_graph oc graph] pretty prints the graph [graph] in the dot
-	language on the channel [oc].
-     *)
+	language on the channel [oc]. *)
     let output_graph oc graph =
 
       let ppf = formatter_of_out_channel oc in
@@ -485,15 +467,11 @@ struct
 
   end
 
-
-
-
 (***************************************************************************)
 (** {2 Interface with the dot engine} *)
 
 (** The [DotAttributes] module defines attributes for graphs, nodes and edges
-    that are available in the dot engine.
- *)
+    that are available in the dot engine. *)
 module DotAttributes = struct
 
   (** Attributes of graphs.  They include all common graph attributes and
@@ -624,93 +602,87 @@ module DotAttributes = struct
             [1]. *)
     ] 
 
-
-
     type subgraph = {
       sg_name : string;
       sg_attributes : vertex list;
     }
 
-  (** {4 Pretty-print of attributes} *)
+    (** {4 Pretty-print of attributes} *)
 
-  let rec fprint_string_list ppf = function
+    let rec fprint_string_list ppf = function
       [] -> ()
-    | [hd] -> fprintf ppf "%s" hd
-    | hd :: tl -> fprintf ppf "%s,%a" hd fprint_string_list tl
+      | [hd] -> fprintf ppf "%s" hd
+      | hd :: tl -> fprintf ppf "%s,%a" hd fprint_string_list tl
 
-  let fprint_ratio ppf = function
-      `Float f -> fprintf ppf "%f" f
-    | `Fill -> fprintf ppf "fill"
-    | `Compress -> fprintf ppf "compress"
-    | `Auto -> fprintf ppf "auto"
+    let fprint_ratio ppf = function
+	`Float f -> fprintf ppf "%f" f
+      | `Fill -> fprintf ppf "fill"
+      | `Compress -> fprintf ppf "compress"
+      | `Auto -> fprintf ppf "auto"
 
-  let fprint_graph ppf = function
-      #CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
-    | `Bgcolor a -> fprintf ppf "bgcolor=%a" fprint_color a
-    | `Comment s -> fprintf ppf "comment=%a" fprint_string s
-    | `Concentrate b -> fprintf ppf "concentrate=%b" b
-    | `Fontpath s -> fprintf ppf "fontpath=%a" fprint_string s
-    | `Layers s -> fprintf ppf "layers=%a" fprint_string_list s
-    | `Margin f -> fprintf ppf "margin=%f" f
-    | `Mclimit f -> fprintf ppf "mclimit=%f" f
-    | `Nodesep f -> fprintf ppf "nodesep=%f" f
-    | `Nslimit i -> fprintf ppf "nslimit=%i" i
-    | `Nslimit1 i -> fprintf ppf "nslimit1=%i" i
-    | `Ranksep f -> fprintf ppf "ranksep=%f" f
-    | `Quantum f -> fprintf ppf "quantum=%f" f
-    | `Rankdir a -> fprintf ppf "rankdir=%a" fprint_dir a
-    | `Ratio a -> fprintf ppf "ratio=%a" fprint_ratio a
-    | `Samplepoints i -> fprintf ppf "samplepoints=%i" i
-    | `Url s -> fprintf ppf "URL=\"%s\"" s (*(String.escaped s)*)
+    let fprint_graph ppf = function
+	#CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
+      | `Bgcolor a -> fprintf ppf "bgcolor=%a" fprint_color a
+      | `Comment s -> fprintf ppf "comment=%a" fprint_string s
+      | `Concentrate b -> fprintf ppf "concentrate=%b" b
+      | `Fontpath s -> fprintf ppf "fontpath=%a" fprint_string s
+      | `Layers s -> fprintf ppf "layers=%a" fprint_string_list s
+      | `Margin f -> fprintf ppf "margin=%f" f
+      | `Mclimit f -> fprintf ppf "mclimit=%f" f
+      | `Nodesep f -> fprintf ppf "nodesep=%f" f
+      | `Nslimit i -> fprintf ppf "nslimit=%i" i
+      | `Nslimit1 i -> fprintf ppf "nslimit1=%i" i
+      | `Ranksep f -> fprintf ppf "ranksep=%f" f
+      | `Quantum f -> fprintf ppf "quantum=%f" f
+      | `Rankdir a -> fprintf ppf "rankdir=%a" fprint_dir a
+      | `Ratio a -> fprintf ppf "ratio=%a" fprint_ratio a
+      | `Samplepoints i -> fprintf ppf "samplepoints=%i" i
+      | `Url s -> fprintf ppf "URL=\"%s\"" s (*(String.escaped s)*)
 
-  let fprint_vertex ppf = function
-      #CommonAttributes.vertex as att -> CommonAttributes.fprint_vertex ppf att
-    | `Comment s -> fprintf ppf "comment=%a" fprint_string s
-    | `Distortion f -> fprintf ppf "distortion=%f" f
-    | `Fillcolor a -> fprintf ppf "fillcolor=%a" fprint_color a
-    | `Fixedsize b -> fprintf ppf "fixedsize=%b" b
-    | `Layer s -> fprintf ppf "layer=%a" fprint_string s
-    | `Url s -> fprintf ppf "URL=\"%s\"" s (*(String.escaped s)*)
-    | `Z f -> fprintf ppf "z=%f" f
+    let fprint_vertex ppf = function
+	#CommonAttributes.vertex as att -> 
+	  CommonAttributes.fprint_vertex ppf att
+      | `Comment s -> fprintf ppf "comment=%a" fprint_string s
+      | `Distortion f -> fprintf ppf "distortion=%f" f
+      | `Fillcolor a -> fprintf ppf "fillcolor=%a" fprint_color a
+      | `Fixedsize b -> fprintf ppf "fixedsize=%b" b
+      | `Layer s -> fprintf ppf "layer=%a" fprint_string s
+      | `Url s -> fprintf ppf "URL=\"%s\"" s (*(String.escaped s)*)
+      | `Z f -> fprintf ppf "z=%f" f
 
+    let fprint_port ppf = function
+	`N -> fprintf ppf "n"
+      | `NE -> fprintf ppf "ne"
+      | `E -> fprintf ppf "e"
+      | `SE -> fprintf ppf "se"
+      | `S -> fprintf ppf "s"
+      | `SW -> fprintf ppf "sw"
+      | `W -> fprintf ppf "w"
+      | `NW -> fprintf ppf "nw"
 
-
-  let fprint_port ppf = function
-      `N -> fprintf ppf "n"
-    | `NE -> fprintf ppf "ne"
-    | `E -> fprintf ppf "e"
-    | `SE -> fprintf ppf "se"
-    | `S -> fprintf ppf "s"
-    | `SW -> fprintf ppf "sw"
-    | `W -> fprintf ppf "w"
-    | `NW -> fprintf ppf "nw"
-
-  let fprint_edge ppf = function
-      #CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att
-    | `Arrowhead a -> fprintf ppf "arrowhead=%a" fprint_arrow_style a
-    | `Arrowsize f -> fprintf ppf "arrowsize=%f" f
-    | `Arrowtail a -> fprintf ppf "arrowtail=%a" fprint_arrow_style a
-    | `Comment s -> fprintf ppf "comment=%a" fprint_string s
-    | `Constraints b -> fprintf ppf "constraints=%b" b
-    | `Headlabel s -> fprintf ppf "headlabel=%a" fprint_string s
-    | `Headport a -> fprintf ppf "headport=%a" fprint_port a
-    | `Headurl s -> fprintf ppf "headURL=%a" fprint_string s
-    | `Labelangle f -> fprintf ppf "labelangle=%f" f
-    | `Labeldistance f -> fprintf ppf "labeldistance=%f" f
-    | `Labelfloat b -> fprintf ppf "labelfloat=%b" b
-    | `Layer s -> fprintf ppf "layer=%a" fprint_string s
-    | `Minlen i -> fprintf ppf "minlen=%i" i
-    | `Samehead s -> fprintf ppf "samehead=%a" fprint_string s
-    | `Sametail s -> fprintf ppf "sametail=%a" fprint_string s
-    | `Taillabel s -> fprintf ppf "taillabel=%a" fprint_string s
-    | `Tailport a -> fprintf ppf "tailport=%a" fprint_port a
-    | `Tailurl s -> fprintf ppf "tailURL=%a" fprint_string s
-    | `Weight i -> fprintf ppf "weight=%i" i
-
+    let fprint_edge ppf = function
+	#CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att
+      | `Arrowhead a -> fprintf ppf "arrowhead=%a" fprint_arrow_style a
+      | `Arrowsize f -> fprintf ppf "arrowsize=%f" f
+      | `Arrowtail a -> fprintf ppf "arrowtail=%a" fprint_arrow_style a
+      | `Comment s -> fprintf ppf "comment=%a" fprint_string s
+      | `Constraints b -> fprintf ppf "constraints=%b" b
+      | `Headlabel s -> fprintf ppf "headlabel=%a" fprint_string s
+      | `Headport a -> fprintf ppf "headport=%a" fprint_port a
+      | `Headurl s -> fprintf ppf "headURL=%a" fprint_string s
+      | `Labelangle f -> fprintf ppf "labelangle=%f" f
+      | `Labeldistance f -> fprintf ppf "labeldistance=%f" f
+      | `Labelfloat b -> fprintf ppf "labelfloat=%b" b
+      | `Layer s -> fprintf ppf "layer=%a" fprint_string s
+      | `Minlen i -> fprintf ppf "minlen=%i" i
+      | `Samehead s -> fprintf ppf "samehead=%a" fprint_string s
+      | `Sametail s -> fprintf ppf "sametail=%a" fprint_string s
+      | `Taillabel s -> fprintf ppf "taillabel=%a" fprint_string s
+      | `Tailport a -> fprintf ppf "tailport=%a" fprint_port a
+      | `Tailurl s -> fprintf ppf "tailURL=%a" fprint_string s
+      | `Weight i -> fprintf ppf "weight=%i" i
 
 end
-
-
 
 module Dot = 
   MakeEngine (struct
@@ -720,19 +692,16 @@ module Dot =
 		let edge_arrow = "->"
 	      end)
 
-
 (***************************************************************************)
 (** {2 Interface with the neato engine} *)
 
 (** The [NeatoAttributes] module defines attributes for graphs, nodes and edges
-    that are available in the neato engine.
- *)
+    that are available in the neato engine. *)
 module NeatoAttributes = struct
 
   (** Attributes of graphs.  They include all common graph attributes and
       several specific ones.  All attributes described in the "Neato User's
-      manual, April 10, 2002" are handled.
-   *)
+      manual, April 10, 2002" are handled. *)
   type graph =
     [ CommonAttributes.graph
     | `Margin of float * float
@@ -752,8 +721,7 @@ module NeatoAttributes = struct
 
   (** Attributes of nodes.  They include all common node attributes and
       several specific ones.  All attributes described in the "Neato User's
-      manual, April 10, 2002" are handled.
-   *)
+      manual, April 10, 2002" are handled. *)
   type vertex =
     [ CommonAttributes.vertex
     | `Pos of float * float
@@ -762,8 +730,7 @@ module NeatoAttributes = struct
 
   (** Attributes of edges.  They include all common edge attributes and
       several specific ones.  All attributes described in the "Neato User's
-      manual, April 10, 2002" are handled.
-   *)
+      manual, April 10, 2002" are handled. *)
   type edge =
     [ CommonAttributes.edge
     | `Id of string
@@ -774,8 +741,6 @@ module NeatoAttributes = struct
         (** Strength of edge spring.  Default value is [1.0]. *)
     ] 
 
-
-
     type subgraph = {
       sg_name : string;
       sg_attributes : vertex list;
@@ -783,27 +748,26 @@ module NeatoAttributes = struct
 
   (** {4 Pretty-print of attributes} *)
 
-  let fprint_graph ppf = function
-      #CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
-    | `Margin (f1, f2) -> fprintf ppf "margin=\"%f,%f\"" f1 f2
-    | `Start i -> fprintf ppf "start=%i" i
-    | `Overlap b -> fprintf ppf "overlap=%b" b
-    | `Spline b -> fprintf ppf "spline=%b" b
-    | `Sep f -> fprintf ppf "sep=%f" f
+    let fprint_graph ppf = function
+	#CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
+      | `Margin (f1, f2) -> fprintf ppf "margin=\"%f,%f\"" f1 f2
+      | `Start i -> fprintf ppf "start=%i" i
+      | `Overlap b -> fprintf ppf "overlap=%b" b
+      | `Spline b -> fprintf ppf "spline=%b" b
+      | `Sep f -> fprintf ppf "sep=%f" f
 
-  let fprint_vertex ppf = function
-      #CommonAttributes.vertex as att -> CommonAttributes.fprint_vertex ppf att
-    | `Pos (f1, f2) -> fprintf ppf "pos=\"%f,%f\"" f1 f2
+    let fprint_vertex ppf = function
+	#CommonAttributes.vertex as att -> 
+	  CommonAttributes.fprint_vertex ppf att
+      | `Pos (f1, f2) -> fprintf ppf "pos=\"%f,%f\"" f1 f2
 
-  let fprint_edge ppf = function
-      #CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att
-    | `Id s -> fprintf ppf "id=%a" fprint_string s
-    | `Len f -> fprintf ppf "len=%f" f
-    | `Weight f -> fprintf ppf "weight=%f" f
+    let fprint_edge ppf = function
+	#CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att
+      | `Id s -> fprintf ppf "id=%a" fprint_string s
+      | `Len f -> fprintf ppf "len=%f" f
+      | `Weight f -> fprintf ppf "weight=%f" f
 
 end
-
-
 
 module Neato = 
   MakeEngine (struct

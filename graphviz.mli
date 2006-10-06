@@ -30,8 +30,6 @@
 
 open Format
 
-
-
 (***************************************************************************)
 (** {2 Common stuff} *)
 
@@ -43,17 +41,35 @@ open Format
     define attributes specific to dot and neato respectively. *)
 
 (*-------------------------------------------------------------------------*)
-(** {3 Common attributes} *)
+(** {3 Common types and signatures} *)
 
 type color = int
 
 type arrow_style =
   [ `None | `Normal | `Inv | `Dot | `Odot | `Invdot | `Invodot ] 
 
+(** The [ATTRIBUTES] module type defines the interface for the engines. *)
+module type ATTRIBUTES = sig
 
+  type graph  (** Attributes of graphs. *)
 
-(** The [CommonAttributes] module defines attributes for graphs, 
-    vertices and edges that are available in the two engines, dot and neato. *)
+  type vertex (** Attributes of vertices. *)
+
+  type edge   (** Attributes of edges. *)
+
+  (** Attributes of (optional) boxes around vertices. *) 
+  type subgraph = {
+    sg_name : string;            (** Box name. *)
+    sg_attributes : vertex list; (** Box attributes. *)
+  }
+
+end
+
+(*-------------------------------------------------------------------------*)
+(** {3 Common attributes} *)
+
+(** The [CommonAttributes] module defines attributes for graphs, vertices and
+    edges that are available in the two engines, dot and neato. *)
 module CommonAttributes : sig
 
   (** Attributes of graphs. *)
@@ -161,11 +177,10 @@ module CommonAttributes : sig
 
 end
 
-
-
 (***************************************************************************)
 (** {2 Interface with the dot engine} *)
 
+(** [DotAttributes] extends [CommonAttributes] and implements [ATTRIBUTES]. *)
 module DotAttributes : sig
 
   (** Attributes of graphs.  They include all common graph attributes and
@@ -278,7 +293,8 @@ module DotAttributes : sig
     | `Layer of string
         (** Overlay. *)
     | `Minlen of int
-        (** Minimum rank distance between head an tail.  Default value is [1]. *)
+        (** Minimum rank distance between head an tail.  
+	    Default value is [1]. *)
     | `Samehead of string
         (** Tag for head node; edge heads with the same tag are merged onto the
 	    same port. *)
@@ -305,41 +321,47 @@ end
 
 module Dot
   (X : sig
+
+     (** Graph implementation. *)
+
      type t
      module V : sig type t end
      module E : sig type t val src : t -> V.t val dst : t -> V.t end
        
      val iter_vertex : (V.t -> unit) -> t -> unit
      val iter_edges_e : (E.t -> unit) -> t -> unit
+       
+     (** Graph, vertex and edge attributes. *)
 
      val graph_attributes: t -> DotAttributes.graph list
-
+       
      val default_vertex_attributes: t -> DotAttributes.vertex list
      val vertex_name : V.t -> string
      val vertex_attributes: V.t -> DotAttributes.vertex list
 
+     val get_subgraph : V.t -> DotAttributes.subgraph option
+       (** The box (if exists) which the vertex belongs to. Boxes with same
+	   names are not distinguished and so they should have the same
+	   attributes. *)
+       
      val default_edge_attributes: t -> DotAttributes.edge list
      val edge_attributes: E.t -> DotAttributes.edge list
-     val get_subgraph : V.t -> DotAttributes.subgraph option
-   end) : 
+       
+   end) :
 sig
 
   (** [fprint_graph ppf graph] pretty prints the graph [graph] in
-    the CGL language on the formatter [ppf]. 
-  *)
+    the CGL language on the formatter [ppf]. *)
   val fprint_graph: formatter -> X.t -> unit
 
   (** [output_graph oc graph] pretty prints the graph [graph] in the dot
-    language on the channel [oc].
-  *)
+    language on the channel [oc]. *)
   val output_graph: out_channel -> X.t -> unit
 
 end
 
-
 (***************************************************************************)
 (** {2 The neato engine} *)
-
 
 module NeatoAttributes : sig
 
@@ -395,47 +417,52 @@ module NeatoAttributes : sig
 
 end
 
-module Neato 
+module Neato
   (X : sig
+
+     (** Graph implementation. *)
+
      type t
      module V : sig type t end
      module E : sig type t val src : t -> V.t val dst : t -> V.t end
        
      val iter_vertex : (V.t -> unit) -> t -> unit
      val iter_edges_e : (E.t -> unit) -> t -> unit
+       
+     (** Graph, vertex and edge attributes. *)
 
      val graph_attributes: t -> NeatoAttributes.graph list
-
+       
      val default_vertex_attributes: t -> NeatoAttributes.vertex list
      val vertex_name : V.t -> string
      val vertex_attributes: V.t -> NeatoAttributes.vertex list
 
+     val get_subgraph : V.t -> NeatoAttributes.subgraph option
+       (** The box (if exists) which the vertex belongs to. Boxes with same
+	   names are not distinguished and so they should have the same
+	   attributes. *)
+       
      val default_edge_attributes: t -> NeatoAttributes.edge list
      val edge_attributes: E.t -> NeatoAttributes.edge list
-
-     val get_subgraph : V.t -> NeatoAttributes.subgraph option
-
-   end) : 
+       
+   end) :
 sig
 
   (** Several functions provided by this module run the external program
       {i neato}.  By default, this command is supposed to be in the default
       path and is invoked by {i neato}.  The function
-      [set_command] allows to set an alternative path at run time.
-   *)
+      [set_command] allows to set an alternative path at run time. *)
   val set_command: string -> unit
 
   exception Error of string
   val handle_error: ('a -> 'b) -> 'a -> 'b
 
   (** [fprint_graph ppf graph] pretty prints the graph [graph] in
-    the CGL language on the formatter [ppf]. 
-  *)
+    the CGL language on the formatter [ppf]. *)
   val fprint_graph: formatter -> X.t -> unit
 
   (** [output_graph oc graph] pretty prints the graph [graph] in the dot
-    language on the channel [oc].
-  *)
+    language on the channel [oc]. *)
   val output_graph: out_channel -> X.t -> unit
 
 end
