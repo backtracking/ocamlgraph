@@ -1,0 +1,203 @@
+%%
+%% This is the original source file advi.sty
+%%
+%% Package `advi' to use with LaTeX 2e
+%% Copyright Roberto Di Cosmo, Jun Furuse, Didier Remy, and Pierre Weis
+%% All rights reserved.
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{bubble}
+         [2001/29/08 v0.40 Advi Annot Package for advi Previewer]
+
+%%% Bubble
+%% Identification
+%% Preliminary declarations
+
+%% Options
+
+\newif \ifbbb@tricks 
+\DeclareOption {pic}{\bbb@tricksfalse}
+\DeclareOption {ps}{\bbb@trickstrue}
+\DeclareOption {dvips}{\bbb@trickstrue}
+\DeclareOption {dvipdfm}{\bbb@tricksfalse}
+
+\ProcessOptions
+
+% \def \bbb@test {hdvipdfm}\ifx \Hy@driver \bbb@test 
+% \message {*Ignoring package pst-node.sty with dvipdfm driver*}\else 
+\ifbbb@tricks
+\RequirePackage {pst-node}
+\else
+\RequirePackage {color,epic,eepic}\fi
+%\fi
+
+\RequirePackage {array}
+
+%% More declarations
+
+\def \bbb@iftricks {\ifbbb@tricks
+  \expandafter  \@firstoftwo \else \expandafter \@secondoftwo \fi}
+
+\def \bbb@ignore #1{}
+\def \bbb@id #1{#1}
+
+\newdimen \bbb@unit \bbb@unit 2em
+\let \bubbleunit \bbb@unit
+\newdimen \bbb@dima
+\newdimen \bbb@dimb
+
+\def \bbb@x{1}
+\let \bbb@y \bbb@x
+\def \bbb@bg{yellow}
+\def \bbb@col{c}
+\let \bbb@anchor \bbb@id
+\let \bbb@bubble \bbb@id
+\def \bbb@shapebox {\bbb@ovalbox}
+\def \bbb@boxsep {0pt}
+
+\define@key {bubble} {x}  {\def \bbb@x {#1}}
+\define@key {bubble} {y}  {\def \bbb@y {#1}}
+\define@key {bubble} {boxsep}  {\def \bbb@boxsep {#1}}
+\define@key {bubble} {anchor}  {\def \bbb@anchor {#1}}
+\define@key {bubble} {bubble}  {\def \bbb@bubble {#1}}
+\ifbbb@tricks
+\define@key {bubble} {shape}   {\def \bbb@shapenode {#1}}
+\define@key {bubble} {oval}[]{\def \bbb@shapenode {\bbb@ovalnode}}
+\define@key {bubble} {rect}[]{\def \bbb@shapenode {\bbb@rectnode}}
+\define@key {bubble} {round}[]{\def \bbb@shapenode {\bbb@roundnode}}
+\else
+\define@key {bubble} {shape}{\def \bbb@shapebox {#1}}
+\define@key {bubble} {oval}[]{\def \bbb@shapebox {\bbb@ovalbox}}
+\define@key {bubble} {rect}[]{\def \bbb@shapebox {\bbb@rectbox}}
+\define@key {bubble} {round}[]{\def \bbb@shapebox {\bbb@rectbox}}
+\fi
+\define@key {bubble} {unit}  {\bbb@unit=#1\relax}
+\define@key {bubble} {bg} {\def \bbb@bg  {#1}}
+\define@key {bubble} {l}[]{\def \bbb@col {@{}l@{}}}
+\define@key {bubble} {c}[]{\def \bbb@col {@{}c@{}}}
+\define@key {bubble} {r}[]{\def \bbb@col {@{}r@{}}}
+\define@key {bubble} {L}[]{\def \bbb@col {@{}>{$}l<{$}@{}}}
+\define@key {bubble} {C}[]{\def \bbb@col {@{}>{$}c<{$}@{}}}
+\define@key {bubble} {R}[]{\def \bbb@col {@{}>{$}r<{$}@{}}}
+\define@key {bubble} {p}  {\def \bbb@col {@{}p{#1}@{}}}
+\define@key {bubble} {P}  {\def \bbb@col {@{}>{$}p{#1}<{$}@{}}}
+\define@key {bubble} {col}{\def \bbb@col {#1}}
+\def \bbb@from {bbb@from}
+\def \bbb@to {bbb@to}
+\define@key {bubble} {from}[bbb@from]{\edef \bbb@from {#1}}
+\define@key {bubble} {to}[bbb@to]{\edef \bbb@to {#1}}
+
+\newcommand {\BubblePsArc}[2]%
+  {{\psset{linestyle=solid,linewidth=2pt}%
+   \ncarc [arcangleA=-0,arcangleB=-3]{#1}{#2}%
+   \ncarc [arcangleA=-0,arcangleB=-2]{#1}{#2}%
+   \ncarc [arcangleA=-0,arcangleB=-1]{#1}{#2}%
+   \ncarc [arcangleA=-0,arcangleB=0]{#1}{#2}%
+   \ncarc [arcangleA=-0,arcangleB=1]{#1}{#2}%
+   \ncarc [arcangleA=-0,arcangleB=2]{#1}{#2}%
+   \ncarc [arcangleA=-0,arcangleB=3]{#1}{#2}}}
+
+\newcommand {\bbb@}[2][]{%
+   \bgroup
+   \setkeys {bubble}{#1}%
+   \expandafter \newcolumntype \expandafter a\expandafter {\bbb@col}%
+   \ifmmode \let \bbb@math \ensuremath
+   \else \let \bbb@math \relax\fi
+   \setbox0 \hbox {\bbb@math {#2}}\@tempdima \wd0 \@tempdimb \ht0
+   \@tempdimc \dp0
+   \bbb@node {\bbb@anchor {\box0}}%
+   \bbb@i}
+
+\def \bbb@setdefault  {\bbb@set{}}
+
+\newcommand {\bbb@i}[1][linecolor=\bbb@bg,%
+                        linewidth=2pt,fillstyle=solid,fillcolor=\bbb@bg]
+  {\bbb@set{#1}\@ifnextchar({\bbb@ii}{\bbb@ii(\bbb@x,\bbb@y)}}
+
+\def \bbb@ii(#1)#2{%
+  \bbb@bubble {\bbb@put (#1){\begin{tabular}{a}#2\end{tabular}}}\egroup
+}
+
+
+\ifbbb@tricks
+
+\let \bbb@set \psset
+\def \bbb@node {\Rnode {\bbb@from}}
+\def \bbb@shapenode {\bbb@ovalnode}
+\def \bbb@ovalnode {\ovalnode[framesep=0pt]}
+\def \bbb@rectnode #1#2{\Rnode{#1}{\psframebox{#2}}}
+\def \bbb@roundnode #1#2{\Rnode{#1}{\psframebox[framearc=.8]{#2}}}
+\def \bbb@put (#1,#2)#3{%
+   \bbb@iftricks{\NormalCoor \psset{unit=\bbb@unit}}{}%
+   \bbb@dima #2\bbb@unit \ifdim \bbb@dima<0em \@tempdimb -1\@tempdimc\fi
+   \raise \@tempdimb \hb@xt@ \z@ 
+       {\kern -0.5\@tempdima
+        \rput (#1,#2){\bbb@shapenode {\bbb@to}{#3}}%
+        \BubblePsArc{\bbb@from}{\bbb@to}%
+        \hss}%
+}
+
+\else
+
+\let \bbb@set \bbb@ignore
+\let \bbb@node \bbb@id
+
+\newdimen \bbb@dima
+\def \bbb@ovalbox #1#2{%
+    \bgroup
+      \setbox0 \hbox {\fboxsep 0em\colorbox{#1}{#2}}%
+      \@tempdima \ht0 \advance \@tempdima by -\dp0
+      \leavevmode
+      \raise 0.5\@tempdima \hb@xt@ \z@
+         {\kern 0.5\wd0
+          \filltype{black}\color{#1}%
+          \@tempdimb \ht0 \advance \@tempdimb by \dp0
+          \@tempdimb 1.414\@tempdimb
+          \advance \@tempdimb by \bbb@boxsep
+          \@tempdima 1.414\wd0
+          \advance \@tempdima by \bbb@boxsep
+          \let \unitlength \relax
+          \ellipse*{\@tempdima}{\@tempdimb}%
+          \hss}%
+      \box0
+    \egroup}
+\def \bbb@rectbox #1#2{%
+    \bgroup
+      \setbox0 \hbox {\fboxsep \bbb@boxsep\colorbox{#1}{#2}}%
+      \leavevmode
+      \box0
+    \egroup}
+\def \bbb@put (#1,#2)#3{%
+     \setbox0 \hb@xt@ \z@ 
+        {\setbox0 \hbox {\bbb@shapebox{\bbb@bg}{#3}}%
+         \textcolor{\bbb@bg}%
+            {\Thicklines \let \@t \@tempcnta
+             \@t \wd0 \divide \@t by \@gphlinewidth
+             \divide \@t by \@wholewidth
+             \ifnum \@t>5 \@tempcnta 5\fi
+             \ifnum \@t=0 \@tempcnta 1\fi
+             \multiply \@wholewidth by \@t
+             \multiply \@gphlinewidth by \@t
+             \bbb@dima \bbb@unit \bbb@dimb \bbb@dima
+             \bbb@dima #1\bbb@dima \bbb@dimb #2\bbb@dimb
+             \let \unitlength \relax
+             \advance \bbb@dima by -2\@wholewidth
+             \def \@do {\drawline(\z@,\z@)(\bbb@dima,\bbb@dimb)%
+                        \advance \bbb@dima by \@wholewidth}%
+             \@do \@do \@do \@do \@do
+         }%
+         \@tempdimc \bbb@unit
+         \raise #2\@tempdimc \hb@xt@ \z@
+                    {\kern #1\bbb@unit \kern -0.5\wd0 \box0\hss}%
+          \box0
+         \hss}\dp0\z@ \ht0\z@
+     \bbb@dima #2\bbb@unit \ifdim \bbb@dima<0em \@tempdimb -1\@tempdimc\fi
+     \mbox {\raise \@tempdimb \hb@xt@ \z@ {\kern -0.5\@tempdima\box0\hss}}%
+     }
+
+\fi
+
+%% exports
+
+\let \bubble \bbb@
+\newcommand {\bubbleset}{\setkeys{bubble}}

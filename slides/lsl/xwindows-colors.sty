@@ -1,0 +1,765 @@
+%%
+%% This is the original source file advi.sty
+%%
+%% Package `xwindows-colors' to use with LaTeX 2e to get X colors in TeX.
+%% Copyright Pierre Weis.
+%% All rights reserved.
+%% $Id: xwindows-colors.sty,v 1.2 2004/07/15 20:20:14 weis Exp $
+
+\NeedsTeXFormat{LaTeX2e}
+
+\RequirePackage{color}
+
+\DefineNamedColor{named}{snow}{rgb}{1.0,0.98039,0.98039}
+%\DefineNamedColor{named}{ghost white}{rgb}{0.97255,0.97255,1.0}
+\DefineNamedColor{named}{GhostWhite}{rgb}{0.97255,0.97255,1.0}
+%\DefineNamedColor{named}{white smoke}{rgb}{0.96078,0.96078,0.96078}
+\DefineNamedColor{named}{WhiteSmoke}{rgb}{0.96078,0.96078,0.96078}
+\DefineNamedColor{named}{gainsboro}{rgb}{0.86275,0.86275,0.86275}
+%\DefineNamedColor{named}{floral white}{rgb}{1.0,0.98039,0.94118}
+\DefineNamedColor{named}{FloralWhite}{rgb}{1.0,0.98039,0.94118}
+%\DefineNamedColor{named}{old lace}{rgb}{0.99216,0.96078,0.90196}
+\DefineNamedColor{named}{OldLace}{rgb}{0.99216,0.96078,0.90196}
+\DefineNamedColor{named}{linen}{rgb}{0.98039,0.94118,0.90196}
+%\DefineNamedColor{named}{antique white}{rgb}{0.98039,0.92157,0.84314}
+\DefineNamedColor{named}{AntiqueWhite}{rgb}{0.98039,0.92157,0.84314}
+%\DefineNamedColor{named}{papaya whip}{rgb}{1.0,0.93725,0.83529}
+\DefineNamedColor{named}{PapayaWhip}{rgb}{1.0,0.93725,0.83529}
+%\DefineNamedColor{named}{blanched almond}{rgb}{1.0,0.92157,0.80392}
+\DefineNamedColor{named}{BlanchedAlmond}{rgb}{1.0,0.92157,0.80392}
+\DefineNamedColor{named}{bisque}{rgb}{1.0,0.89412,0.76863}
+%\DefineNamedColor{named}{peach puff}{rgb}{1.0,0.8549,0.72549}
+\DefineNamedColor{named}{PeachPuff}{rgb}{1.0,0.8549,0.72549}
+%\DefineNamedColor{named}{navajo white}{rgb}{1.0,0.87059,0.67843}
+\DefineNamedColor{named}{NavajoWhite}{rgb}{1.0,0.87059,0.67843}
+\DefineNamedColor{named}{moccasin}{rgb}{1.0,0.89412,0.7098}
+\DefineNamedColor{named}{cornsilk}{rgb}{1.0,0.97255,0.86275}
+\DefineNamedColor{named}{ivory}{rgb}{1.0,1.0,0.94118}
+%\DefineNamedColor{named}{lemon chiffon}{rgb}{1.0,0.98039,0.80392}
+\DefineNamedColor{named}{LemonChiffon}{rgb}{1.0,0.98039,0.80392}
+\DefineNamedColor{named}{seashell}{rgb}{1.0,0.96078,0.93333}
+\DefineNamedColor{named}{honeydew}{rgb}{0.94118,1.0,0.94118}
+%\DefineNamedColor{named}{mint cream}{rgb}{0.96078,1.0,0.98039}
+\DefineNamedColor{named}{MintCream}{rgb}{0.96078,1.0,0.98039}
+\DefineNamedColor{named}{azure}{rgb}{0.94118,1.0,1.0}
+%\DefineNamedColor{named}{alice blue}{rgb}{0.94118,0.97255,1.0}
+\DefineNamedColor{named}{AliceBlue}{rgb}{0.94118,0.97255,1.0}
+\DefineNamedColor{named}{lavender}{rgb}{0.90196,0.90196,0.98039}
+%\DefineNamedColor{named}{lavender blush}{rgb}{1.0,0.94118,0.96078}
+\DefineNamedColor{named}{LavenderBlush}{rgb}{1.0,0.94118,0.96078}
+%\DefineNamedColor{named}{misty rose}{rgb}{1.0,0.89412,0.88235}
+\DefineNamedColor{named}{MistyRose}{rgb}{1.0,0.89412,0.88235}
+\DefineNamedColor{named}{white}{rgb}{1.0,1.0,1.0}
+\DefineNamedColor{named}{black}{rgb}{0.0,0.0,0.0}
+%\DefineNamedColor{named}{dark slate gray}{rgb}{0.18431,0.3098,0.3098}
+\DefineNamedColor{named}{DarkSlateGray}{rgb}{0.18431,0.3098,0.3098}
+%\DefineNamedColor{named}{dark slate grey}{rgb}{0.18431,0.3098,0.3098}
+\DefineNamedColor{named}{DarkSlateGrey}{rgb}{0.18431,0.3098,0.3098}
+%\DefineNamedColor{named}{dim gray}{rgb}{0.41176,0.41176,0.41176}
+\DefineNamedColor{named}{DimGray}{rgb}{0.41176,0.41176,0.41176}
+%\DefineNamedColor{named}{dim grey}{rgb}{0.41176,0.41176,0.41176}
+\DefineNamedColor{named}{DimGrey}{rgb}{0.41176,0.41176,0.41176}
+%\DefineNamedColor{named}{slate gray}{rgb}{0.43922,0.50196,0.56471}
+\DefineNamedColor{named}{SlateGray}{rgb}{0.43922,0.50196,0.56471}
+%\DefineNamedColor{named}{slate grey}{rgb}{0.43922,0.50196,0.56471}
+\DefineNamedColor{named}{SlateGrey}{rgb}{0.43922,0.50196,0.56471}
+%\DefineNamedColor{named}{light slate gray}{rgb}{0.46667,0.53333,0.6}
+\DefineNamedColor{named}{LightSlateGray}{rgb}{0.46667,0.53333,0.6}
+%\DefineNamedColor{named}{light slate grey}{rgb}{0.46667,0.53333,0.6}
+\DefineNamedColor{named}{LightSlateGrey}{rgb}{0.46667,0.53333,0.6}
+\DefineNamedColor{named}{DarkGray}{rgb}{0.66275,0.66275,0.66275}
+%\DefineNamedColor{named}{dark gray}{rgb}{0.66275,0.66275,0.66275}
+\DefineNamedColor{named}{DarkGrey}{rgb}{0.66275,0.66275,0.66275}
+%\DefineNamedColor{named}{dark grey}{rgb}{0.66275,0.66275,0.66275}
+\DefineNamedColor{named}{gray}{rgb}{0.7451,0.7451,0.7451}
+\DefineNamedColor{named}{grey}{rgb}{0.7451,0.7451,0.7451}
+%\DefineNamedColor{named}{light grey}{rgb}{0.82745,0.82745,0.82745}
+\DefineNamedColor{named}{LightGrey}{rgb}{0.82745,0.82745,0.82745}
+%\DefineNamedColor{named}{light gray}{rgb}{0.82745,0.82745,0.82745}
+\DefineNamedColor{named}{LightGray}{rgb}{0.82745,0.82745,0.82745}
+%\DefineNamedColor{named}{midnight blue}{rgb}{0.09804,0.09804,0.43922}
+\DefineNamedColor{named}{MidnightBlue}{rgb}{0.09804,0.09804,0.43922}
+\DefineNamedColor{named}{navy}{rgb}{0.0,0.0,0.50196}
+%\DefineNamedColor{named}{navy blue}{rgb}{0.0,0.0,0.50196}
+\DefineNamedColor{named}{NavyBlue}{rgb}{0.0,0.0,0.50196}
+%\DefineNamedColor{named}{cornflower blue}{rgb}{0.39216,0.58431,0.92941}
+\DefineNamedColor{named}{CornflowerBlue}{rgb}{0.39216,0.58431,0.92941}
+%\DefineNamedColor{named}{dark slate blue}{rgb}{0.28235,0.23922,0.5451}
+\DefineNamedColor{named}{DarkSlateBlue}{rgb}{0.28235,0.23922,0.5451}
+%\DefineNamedColor{named}{slate blue}{rgb}{0.41569,0.35294,0.80392}
+\DefineNamedColor{named}{SlateBlue}{rgb}{0.41569,0.35294,0.80392}
+%\DefineNamedColor{named}{medium slate blue}{rgb}{0.48235,0.40784,0.93333}
+\DefineNamedColor{named}{MediumSlateBlue}{rgb}{0.48235,0.40784,0.93333}
+%\DefineNamedColor{named}{light slate blue}{rgb}{0.51765,0.43922,1.0}
+\DefineNamedColor{named}{LightSlateBlue}{rgb}{0.51765,0.43922,1.0}
+%\DefineNamedColor{named}{medium blue}{rgb}{0.0,0.0,0.80392}
+\DefineNamedColor{named}{MediumBlue}{rgb}{0.0,0.0,0.80392}
+%\DefineNamedColor{named}{royal blue}{rgb}{0.2549,0.41176,0.88235}
+\DefineNamedColor{named}{RoyalBlue}{rgb}{0.2549,0.41176,0.88235}
+\DefineNamedColor{named}{blue}{rgb}{0.0,0.0,1.0}
+%\DefineNamedColor{named}{dark blue}{rgb}{0.0,0.0,0.5451}
+% Already defined in color.sty
+\DefineNamedColor{named}{DarkBlue}{rgb}{0.0,0.0,0.5451}
+%\DefineNamedColor{named}{dodger blue}{rgb}{0.11765,0.56471,1.0}
+\DefineNamedColor{named}{DodgerBlue}{rgb}{0.11765,0.56471,1.0}
+%\DefineNamedColor{named}{deep sky blue}{rgb}{0.0,0.74902,1.0}
+\DefineNamedColor{named}{DeepSkyBlue}{rgb}{0.0,0.74902,1.0}
+%\DefineNamedColor{named}{sky blue}{rgb}{0.52941,0.80784,0.92157}
+\DefineNamedColor{named}{SkyBlue}{rgb}{0.52941,0.80784,0.92157}
+%\DefineNamedColor{named}{light sky blue}{rgb}{0.52941,0.80784,0.98039}
+\DefineNamedColor{named}{LightSkyBlue}{rgb}{0.52941,0.80784,0.98039}
+%\DefineNamedColor{named}{steel blue}{rgb}{0.27451,0.5098,0.70588}
+\DefineNamedColor{named}{SteelBlue}{rgb}{0.27451,0.5098,0.70588}
+%\DefineNamedColor{named}{light steel blue}{rgb}{0.6902,0.76863,0.87059}
+\DefineNamedColor{named}{LightSteelBlue}{rgb}{0.6902,0.76863,0.87059}
+%\DefineNamedColor{named}{light blue}{rgb}{0.67843,0.84706,0.90196}
+\DefineNamedColor{named}{LightBlue}{rgb}{0.67843,0.84706,0.90196}
+%\DefineNamedColor{named}{powder blue}{rgb}{0.6902,0.87843,0.90196}
+\DefineNamedColor{named}{PowderBlue}{rgb}{0.6902,0.87843,0.90196}
+%\DefineNamedColor{named}{pale turquoise}{rgb}{0.68627,0.93333,0.93333}
+\DefineNamedColor{named}{PaleTurquoise}{rgb}{0.68627,0.93333,0.93333}
+%\DefineNamedColor{named}{dark turquoise}{rgb}{0.0,0.80784,0.81961}
+\DefineNamedColor{named}{DarkTurquoise}{rgb}{0.0,0.80784,0.81961}
+%\DefineNamedColor{named}{medium turquoise}{rgb}{0.28235,0.81961,0.8}
+\DefineNamedColor{named}{MediumTurquoise}{rgb}{0.28235,0.81961,0.8}
+\DefineNamedColor{named}{turquoise}{rgb}{0.25098,0.87843,0.81569}
+\DefineNamedColor{named}{cyan}{rgb}{0.0,1.0,1.0}
+%\DefineNamedColor{named}{dark cyan}{rgb}{0.0,0.5451,0.5451}
+\DefineNamedColor{named}{DarkCyan}{rgb}{0.0,0.5451,0.5451}
+%\DefineNamedColor{named}{light cyan}{rgb}{0.87843,1.0,1.0}
+\DefineNamedColor{named}{LightCyan}{rgb}{0.87843,1.0,1.0}
+%\DefineNamedColor{named}{cadet blue}{rgb}{0.37255,0.61961,0.62745}
+\DefineNamedColor{named}{CadetBlue}{rgb}{0.37255,0.61961,0.62745}
+%\DefineNamedColor{named}{medium aquamarine}{rgb}{0.4,0.80392,0.66667}
+\DefineNamedColor{named}{MediumAquamarine}{rgb}{0.4,0.80392,0.66667}
+\DefineNamedColor{named}{aquamarine}{rgb}{0.49804,1.0,0.83137}
+%\DefineNamedColor{named}{dark green}{rgb}{0.0,0.39216,0.0}
+\DefineNamedColor{named}{DarkGreen}{rgb}{0.0,0.39216,0.0}
+%\DefineNamedColor{named}{light green}{rgb}{0.56471,0.93333,0.56471}
+\DefineNamedColor{named}{LightGreen}{rgb}{0.56471,0.93333,0.56471}
+%\DefineNamedColor{named}{dark olive green}{rgb}{0.33333,0.41961,0.18431}
+\DefineNamedColor{named}{DarkOliveGreen}{rgb}{0.33333,0.41961,0.18431}
+%\DefineNamedColor{named}{dark sea green}{rgb}{0.56078,0.73725,0.56078}
+\DefineNamedColor{named}{DarkSeaGreen}{rgb}{0.56078,0.73725,0.56078}
+%\DefineNamedColor{named}{sea green}{rgb}{0.18039,0.5451,0.34118}
+\DefineNamedColor{named}{SeaGreen}{rgb}{0.18039,0.5451,0.34118}
+%\DefineNamedColor{named}{medium sea green}{rgb}{0.23529,0.70196,0.44314}
+\DefineNamedColor{named}{MediumSeaGreen}{rgb}{0.23529,0.70196,0.44314}
+%\DefineNamedColor{named}{light sea green}{rgb}{0.12549,0.69804,0.66667}
+\DefineNamedColor{named}{LightSeaGreen}{rgb}{0.12549,0.69804,0.66667}
+%\DefineNamedColor{named}{pale green}{rgb}{0.59608,0.98431,0.59608}
+\DefineNamedColor{named}{PaleGreen}{rgb}{0.59608,0.98431,0.59608}
+%\DefineNamedColor{named}{spring green}{rgb}{0.0,1.0,0.49804}
+\DefineNamedColor{named}{SpringGreen}{rgb}{0.0,1.0,0.49804}
+%\DefineNamedColor{named}{lawn green}{rgb}{0.48627,0.98824,0.0}
+\DefineNamedColor{named}{LawnGreen}{rgb}{0.48627,0.98824,0.0}
+\DefineNamedColor{named}{green}{rgb}{0.0,1.0,0.0}
+\DefineNamedColor{named}{chartreuse}{rgb}{0.49804,1.0,0.0}
+%\DefineNamedColor{named}{medium spring green}{rgb}{0.0,0.98039,0.60392}
+\DefineNamedColor{named}{MediumSpringGreen}{rgb}{0.0,0.98039,0.60392}
+%\DefineNamedColor{named}{green yellow}{rgb}{0.67843,1.0,0.18431}
+\DefineNamedColor{named}{GreenYellow}{rgb}{0.67843,1.0,0.18431}
+%\DefineNamedColor{named}{lime green}{rgb}{0.19608,0.80392,0.19608}
+\DefineNamedColor{named}{LimeGreen}{rgb}{0.19608,0.80392,0.19608}
+%\DefineNamedColor{named}{yellow green}{rgb}{0.60392,0.80392,0.19608}
+\DefineNamedColor{named}{YellowGreen}{rgb}{0.60392,0.80392,0.19608}
+%\DefineNamedColor{named}{forest green}{rgb}{0.13333,0.5451,0.13333}
+\DefineNamedColor{named}{ForestGreen}{rgb}{0.13333,0.5451,0.13333}
+%\DefineNamedColor{named}{olive drab}{rgb}{0.41961,0.55686,0.13725}
+\DefineNamedColor{named}{OliveDrab}{rgb}{0.41961,0.55686,0.13725}
+%\DefineNamedColor{named}{dark khaki}{rgb}{0.74118,0.71765,0.41961}
+\DefineNamedColor{named}{DarkKhaki}{rgb}{0.74118,0.71765,0.41961}
+\DefineNamedColor{named}{khaki}{rgb}{0.94118,0.90196,0.54902}
+%\DefineNamedColor{named}{pale goldenrod}{rgb}{0.93333,0.9098,0.66667}
+\DefineNamedColor{named}{PaleGoldenrod}{rgb}{0.93333,0.9098,0.66667}
+%\DefineNamedColor{named}{light goldenrod yellow}{rgb}{0.98039,0.98039,0.82353}
+\DefineNamedColor{named}{LightGoldenrodYellow}{rgb}{0.98039,0.98039,0.82353}
+%\DefineNamedColor{named}{light yellow}{rgb}{1.0,1.0,0.87843}
+\DefineNamedColor{named}{LightYellow}{rgb}{1.0,1.0,0.87843}
+\DefineNamedColor{named}{yellow}{rgb}{1.0,1.0,0.0}
+\DefineNamedColor{named}{gold}{rgb}{1.0,0.84314,0.0}
+%\DefineNamedColor{named}{light goldenrod}{rgb}{0.93333,0.86667,0.5098}
+\DefineNamedColor{named}{LightGoldenrod}{rgb}{0.93333,0.86667,0.5098}
+\DefineNamedColor{named}{goldenrod}{rgb}{0.8549,0.64706,0.12549}
+%\DefineNamedColor{named}{dark goldenrod}{rgb}{0.72157,0.52549,0.04314}
+\DefineNamedColor{named}{DarkGoldenrod}{rgb}{0.72157,0.52549,0.04314}
+%\DefineNamedColor{named}{rosy brown}{rgb}{0.73725,0.56078,0.56078}
+\DefineNamedColor{named}{RosyBrown}{rgb}{0.73725,0.56078,0.56078}
+%\DefineNamedColor{named}{indian red}{rgb}{0.80392,0.36078,0.36078}
+\DefineNamedColor{named}{IndianRed}{rgb}{0.80392,0.36078,0.36078}
+%\DefineNamedColor{named}{saddle brown}{rgb}{0.5451,0.27059,0.07451}
+\DefineNamedColor{named}{SaddleBrown}{rgb}{0.5451,0.27059,0.07451}
+\DefineNamedColor{named}{sienna}{rgb}{0.62745,0.32157,0.17647}
+\DefineNamedColor{named}{peru}{rgb}{0.80392,0.52157,0.24706}
+\DefineNamedColor{named}{burlywood}{rgb}{0.87059,0.72157,0.52941}
+\DefineNamedColor{named}{beige}{rgb}{0.96078,0.96078,0.86275}
+\DefineNamedColor{named}{wheat}{rgb}{0.96078,0.87059,0.70196}
+%\DefineNamedColor{named}{sandy brown}{rgb}{0.95686,0.64314,0.37647}
+\DefineNamedColor{named}{SandyBrown}{rgb}{0.95686,0.64314,0.37647}
+\DefineNamedColor{named}{tan}{rgb}{0.82353,0.70588,0.54902}
+\DefineNamedColor{named}{chocolate}{rgb}{0.82353,0.41176,0.11765}
+\DefineNamedColor{named}{firebrick}{rgb}{0.69804,0.13333,0.13333}
+\DefineNamedColor{named}{brown}{rgb}{0.64706,0.16471,0.16471}
+%\DefineNamedColor{named}{dark salmon}{rgb}{0.91373,0.58824,0.47843}
+\DefineNamedColor{named}{DarkSalmon}{rgb}{0.91373,0.58824,0.47843}
+\DefineNamedColor{named}{salmon}{rgb}{0.98039,0.50196,0.44706}
+%\DefineNamedColor{named}{light salmon}{rgb}{1.0,0.62745,0.47843}
+\DefineNamedColor{named}{LightSalmon}{rgb}{1.0,0.62745,0.47843}
+\DefineNamedColor{named}{orange}{rgb}{1.0,0.64706,0.0}
+%\DefineNamedColor{named}{dark orange}{rgb}{1.0,0.54902,0.0}
+\DefineNamedColor{named}{DarkOrange}{rgb}{1.0,0.54902,0.0}
+\DefineNamedColor{named}{coral}{rgb}{1.0,0.49804,0.31373}
+%\DefineNamedColor{named}{light coral}{rgb}{0.94118,0.50196,0.50196}
+\DefineNamedColor{named}{LightCoral}{rgb}{0.94118,0.50196,0.50196}
+\DefineNamedColor{named}{tomato}{rgb}{1.0,0.38824,0.27843}
+%\DefineNamedColor{named}{orange red}{rgb}{1.0,0.27059,0.0}
+\DefineNamedColor{named}{OrangeRed}{rgb}{1.0,0.27059,0.0}
+\DefineNamedColor{named}{red}{rgb}{1.0,0.0,0.0}
+%\DefineNamedColor{named}{dark red}{rgb}{0.5451,0.0,0.0}
+\DefineNamedColor{named}{DarkRed}{rgb}{0.5451,0.0,0.0}
+%\DefineNamedColor{named}{hot pink}{rgb}{1.0,0.41176,0.70588}
+\DefineNamedColor{named}{HotPink}{rgb}{1.0,0.41176,0.70588}
+%\DefineNamedColor{named}{deep pink}{rgb}{1.0,0.07843,0.57647}
+\DefineNamedColor{named}{DeepPink}{rgb}{1.0,0.07843,0.57647}
+\DefineNamedColor{named}{pink}{rgb}{1.0,0.75294,0.79608}
+%\DefineNamedColor{named}{light pink}{rgb}{1.0,0.71373,0.75686}
+\DefineNamedColor{named}{LightPink}{rgb}{1.0,0.71373,0.75686}
+%\DefineNamedColor{named}{pale violet red}{rgb}{0.85882,0.43922,0.57647}
+\DefineNamedColor{named}{PaleVioletRed}{rgb}{0.85882,0.43922,0.57647}
+\DefineNamedColor{named}{maroon}{rgb}{0.6902,0.18824,0.37647}
+%\DefineNamedColor{named}{medium violet red}{rgb}{0.78039,0.08235,0.52157}
+\DefineNamedColor{named}{MediumVioletRed}{rgb}{0.78039,0.08235,0.52157}
+%\DefineNamedColor{named}{violet red}{rgb}{0.81569,0.12549,0.56471}
+\DefineNamedColor{named}{VioletRed}{rgb}{0.81569,0.12549,0.56471}
+\DefineNamedColor{named}{magenta}{rgb}{1.0,0.0,1.0}
+%\DefineNamedColor{named}{dark magenta}{rgb}{0.5451,0.0,0.5451}
+\DefineNamedColor{named}{DarkMagenta}{rgb}{0.5451,0.0,0.5451}
+\DefineNamedColor{named}{violet}{rgb}{0.93333,0.5098,0.93333}
+\DefineNamedColor{named}{plum}{rgb}{0.86667,0.62745,0.86667}
+\DefineNamedColor{named}{orchid}{rgb}{0.8549,0.43922,0.83922}
+%\DefineNamedColor{named}{medium orchid}{rgb}{0.72941,0.33333,0.82745}
+\DefineNamedColor{named}{MediumOrchid}{rgb}{0.72941,0.33333,0.82745}
+%\DefineNamedColor{named}{dark orchid}{rgb}{0.6,0.19608,0.8}
+\DefineNamedColor{named}{DarkOrchid}{rgb}{0.6,0.19608,0.8}
+%\DefineNamedColor{named}{dark violet}{rgb}{0.58039,0.0,0.82745}
+\DefineNamedColor{named}{DarkViolet}{rgb}{0.58039,0.0,0.82745}
+%\DefineNamedColor{named}{blue violet}{rgb}{0.54118,0.16863,0.88627}
+\DefineNamedColor{named}{BlueViolet}{rgb}{0.54118,0.16863,0.88627}
+\DefineNamedColor{named}{purple}{rgb}{0.62745,0.12549,0.94118}
+%\DefineNamedColor{named}{medium purple}{rgb}{0.57647,0.43922,0.85882}
+\DefineNamedColor{named}{MediumPurple}{rgb}{0.57647,0.43922,0.85882}
+\DefineNamedColor{named}{thistle}{rgb}{0.84706,0.74902,0.84706}
+\DefineNamedColor{named}{snow1}{rgb}{1.0,0.98039,0.98039}
+\DefineNamedColor{named}{snow2}{rgb}{0.93333,0.91373,0.91373}
+\DefineNamedColor{named}{snow3}{rgb}{0.80392,0.78824,0.78824}
+\DefineNamedColor{named}{snow4}{rgb}{0.5451,0.53725,0.53725}
+\DefineNamedColor{named}{seashell1}{rgb}{1.0,0.96078,0.93333}
+\DefineNamedColor{named}{seashell2}{rgb}{0.93333,0.89804,0.87059}
+\DefineNamedColor{named}{seashell3}{rgb}{0.80392,0.77255,0.74902}
+\DefineNamedColor{named}{seashell4}{rgb}{0.5451,0.52549,0.5098}
+\DefineNamedColor{named}{AntiqueWhite1}{rgb}{1.0,0.93725,0.85882}
+\DefineNamedColor{named}{AntiqueWhite2}{rgb}{0.93333,0.87451,0.8}
+\DefineNamedColor{named}{AntiqueWhite3}{rgb}{0.80392,0.75294,0.6902}
+\DefineNamedColor{named}{AntiqueWhite4}{rgb}{0.5451,0.51373,0.47059}
+\DefineNamedColor{named}{bisque1}{rgb}{1.0,0.89412,0.76863}
+\DefineNamedColor{named}{bisque2}{rgb}{0.93333,0.83529,0.71765}
+\DefineNamedColor{named}{bisque3}{rgb}{0.80392,0.71765,0.61961}
+\DefineNamedColor{named}{bisque4}{rgb}{0.5451,0.4902,0.41961}
+\DefineNamedColor{named}{PeachPuff1}{rgb}{1.0,0.8549,0.72549}
+\DefineNamedColor{named}{PeachPuff2}{rgb}{0.93333,0.79608,0.67843}
+\DefineNamedColor{named}{PeachPuff3}{rgb}{0.80392,0.68627,0.58431}
+\DefineNamedColor{named}{PeachPuff4}{rgb}{0.5451,0.46667,0.39608}
+\DefineNamedColor{named}{NavajoWhite1}{rgb}{1.0,0.87059,0.67843}
+\DefineNamedColor{named}{NavajoWhite2}{rgb}{0.93333,0.81176,0.63137}
+\DefineNamedColor{named}{NavajoWhite3}{rgb}{0.80392,0.70196,0.5451}
+\DefineNamedColor{named}{NavajoWhite4}{rgb}{0.5451,0.47451,0.36863}
+\DefineNamedColor{named}{LemonChiffon1}{rgb}{1.0,0.98039,0.80392}
+\DefineNamedColor{named}{LemonChiffon2}{rgb}{0.93333,0.91373,0.74902}
+\DefineNamedColor{named}{LemonChiffon3}{rgb}{0.80392,0.78824,0.64706}
+\DefineNamedColor{named}{LemonChiffon4}{rgb}{0.5451,0.53725,0.43922}
+\DefineNamedColor{named}{cornsilk1}{rgb}{1.0,0.97255,0.86275}
+\DefineNamedColor{named}{cornsilk2}{rgb}{0.93333,0.9098,0.80392}
+\DefineNamedColor{named}{cornsilk3}{rgb}{0.80392,0.78431,0.69412}
+\DefineNamedColor{named}{cornsilk4}{rgb}{0.5451,0.53333,0.47059}
+\DefineNamedColor{named}{ivory1}{rgb}{1.0,1.0,0.94118}
+\DefineNamedColor{named}{ivory2}{rgb}{0.93333,0.93333,0.87843}
+\DefineNamedColor{named}{ivory3}{rgb}{0.80392,0.80392,0.75686}
+\DefineNamedColor{named}{ivory4}{rgb}{0.5451,0.5451,0.51373}
+\DefineNamedColor{named}{honeydew1}{rgb}{0.94118,1.0,0.94118}
+\DefineNamedColor{named}{honeydew2}{rgb}{0.87843,0.93333,0.87843}
+\DefineNamedColor{named}{honeydew3}{rgb}{0.75686,0.80392,0.75686}
+\DefineNamedColor{named}{honeydew4}{rgb}{0.51373,0.5451,0.51373}
+\DefineNamedColor{named}{LavenderBlush1}{rgb}{1.0,0.94118,0.96078}
+\DefineNamedColor{named}{LavenderBlush2}{rgb}{0.93333,0.87843,0.89804}
+\DefineNamedColor{named}{LavenderBlush3}{rgb}{0.80392,0.75686,0.77255}
+\DefineNamedColor{named}{LavenderBlush4}{rgb}{0.5451,0.51373,0.52549}
+\DefineNamedColor{named}{MistyRose1}{rgb}{1.0,0.89412,0.88235}
+\DefineNamedColor{named}{MistyRose2}{rgb}{0.93333,0.83529,0.82353}
+\DefineNamedColor{named}{MistyRose3}{rgb}{0.80392,0.71765,0.7098}
+\DefineNamedColor{named}{MistyRose4}{rgb}{0.5451,0.4902,0.48235}
+\DefineNamedColor{named}{azure1}{rgb}{0.94118,1.0,1.0}
+\DefineNamedColor{named}{azure2}{rgb}{0.87843,0.93333,0.93333}
+\DefineNamedColor{named}{azure3}{rgb}{0.75686,0.80392,0.80392}
+\DefineNamedColor{named}{azure4}{rgb}{0.51373,0.5451,0.5451}
+\DefineNamedColor{named}{SlateBlue1}{rgb}{0.51373,0.43529,1.0}
+\DefineNamedColor{named}{SlateBlue2}{rgb}{0.47843,0.40392,0.93333}
+\DefineNamedColor{named}{SlateBlue3}{rgb}{0.41176,0.34902,0.80392}
+\DefineNamedColor{named}{SlateBlue4}{rgb}{0.27843,0.23529,0.5451}
+\DefineNamedColor{named}{RoyalBlue1}{rgb}{0.28235,0.46275,1.0}
+\DefineNamedColor{named}{RoyalBlue2}{rgb}{0.26275,0.43137,0.93333}
+\DefineNamedColor{named}{RoyalBlue3}{rgb}{0.22745,0.37255,0.80392}
+\DefineNamedColor{named}{RoyalBlue4}{rgb}{0.15294,0.25098,0.5451}
+\DefineNamedColor{named}{blue1}{rgb}{0.0,0.0,1.0}
+\DefineNamedColor{named}{blue2}{rgb}{0.0,0.0,0.93333}
+\DefineNamedColor{named}{blue3}{rgb}{0.0,0.0,0.80392}
+\DefineNamedColor{named}{blue4}{rgb}{0.0,0.0,0.5451}
+\DefineNamedColor{named}{DodgerBlue1}{rgb}{0.11765,0.56471,1.0}
+\DefineNamedColor{named}{DodgerBlue2}{rgb}{0.1098,0.52549,0.93333}
+\DefineNamedColor{named}{DodgerBlue3}{rgb}{0.09412,0.4549,0.80392}
+\DefineNamedColor{named}{DodgerBlue4}{rgb}{0.06275,0.30588,0.5451}
+\DefineNamedColor{named}{SteelBlue1}{rgb}{0.38824,0.72157,1.0}
+\DefineNamedColor{named}{SteelBlue2}{rgb}{0.36078,0.67451,0.93333}
+\DefineNamedColor{named}{SteelBlue3}{rgb}{0.3098,0.58039,0.80392}
+\DefineNamedColor{named}{SteelBlue4}{rgb}{0.21176,0.39216,0.5451}
+\DefineNamedColor{named}{DeepSkyBlue1}{rgb}{0.0,0.74902,1.0}
+\DefineNamedColor{named}{DeepSkyBlue2}{rgb}{0.0,0.69804,0.93333}
+\DefineNamedColor{named}{DeepSkyBlue3}{rgb}{0.0,0.60392,0.80392}
+\DefineNamedColor{named}{DeepSkyBlue4}{rgb}{0.0,0.40784,0.5451}
+\DefineNamedColor{named}{SkyBlue1}{rgb}{0.52941,0.80784,1.0}
+\DefineNamedColor{named}{SkyBlue2}{rgb}{0.49412,0.75294,0.93333}
+\DefineNamedColor{named}{SkyBlue3}{rgb}{0.42353,0.65098,0.80392}
+\DefineNamedColor{named}{SkyBlue4}{rgb}{0.2902,0.43922,0.5451}
+\DefineNamedColor{named}{LightSkyBlue1}{rgb}{0.6902,0.88627,1.0}
+\DefineNamedColor{named}{LightSkyBlue2}{rgb}{0.64314,0.82745,0.93333}
+\DefineNamedColor{named}{LightSkyBlue3}{rgb}{0.55294,0.71373,0.80392}
+\DefineNamedColor{named}{LightSkyBlue4}{rgb}{0.37647,0.48235,0.5451}
+\DefineNamedColor{named}{SlateGray1}{rgb}{0.77647,0.88627,1.0}
+\DefineNamedColor{named}{SlateGray2}{rgb}{0.72549,0.82745,0.93333}
+\DefineNamedColor{named}{SlateGray3}{rgb}{0.62353,0.71373,0.80392}
+\DefineNamedColor{named}{SlateGray4}{rgb}{0.42353,0.48235,0.5451}
+\DefineNamedColor{named}{LightSteelBlue1}{rgb}{0.79216,0.88235,1.0}
+\DefineNamedColor{named}{LightSteelBlue2}{rgb}{0.73725,0.82353,0.93333}
+\DefineNamedColor{named}{LightSteelBlue3}{rgb}{0.63529,0.7098,0.80392}
+\DefineNamedColor{named}{LightSteelBlue4}{rgb}{0.43137,0.48235,0.5451}
+\DefineNamedColor{named}{LightBlue1}{rgb}{0.74902,0.93725,1.0}
+\DefineNamedColor{named}{LightBlue2}{rgb}{0.69804,0.87451,0.93333}
+\DefineNamedColor{named}{LightBlue3}{rgb}{0.60392,0.75294,0.80392}
+\DefineNamedColor{named}{LightBlue4}{rgb}{0.40784,0.51373,0.5451}
+\DefineNamedColor{named}{LightCyan1}{rgb}{0.87843,1.0,1.0}
+\DefineNamedColor{named}{LightCyan2}{rgb}{0.81961,0.93333,0.93333}
+\DefineNamedColor{named}{LightCyan3}{rgb}{0.70588,0.80392,0.80392}
+\DefineNamedColor{named}{LightCyan4}{rgb}{0.47843,0.5451,0.5451}
+\DefineNamedColor{named}{PaleTurquoise1}{rgb}{0.73333,1.0,1.0}
+\DefineNamedColor{named}{PaleTurquoise2}{rgb}{0.68235,0.93333,0.93333}
+\DefineNamedColor{named}{PaleTurquoise3}{rgb}{0.58824,0.80392,0.80392}
+\DefineNamedColor{named}{PaleTurquoise4}{rgb}{0.4,0.5451,0.5451}
+\DefineNamedColor{named}{CadetBlue1}{rgb}{0.59608,0.96078,1.0}
+\DefineNamedColor{named}{CadetBlue2}{rgb}{0.55686,0.89804,0.93333}
+\DefineNamedColor{named}{CadetBlue3}{rgb}{0.47843,0.77255,0.80392}
+\DefineNamedColor{named}{CadetBlue4}{rgb}{0.32549,0.52549,0.5451}
+\DefineNamedColor{named}{turquoise1}{rgb}{0.0,0.96078,1.0}
+\DefineNamedColor{named}{turquoise2}{rgb}{0.0,0.89804,0.93333}
+\DefineNamedColor{named}{turquoise3}{rgb}{0.0,0.77255,0.80392}
+\DefineNamedColor{named}{turquoise4}{rgb}{0.0,0.52549,0.5451}
+\DefineNamedColor{named}{cyan1}{rgb}{0.0,1.0,1.0}
+\DefineNamedColor{named}{cyan2}{rgb}{0.0,0.93333,0.93333}
+\DefineNamedColor{named}{cyan3}{rgb}{0.0,0.80392,0.80392}
+\DefineNamedColor{named}{cyan4}{rgb}{0.0,0.5451,0.5451}
+\DefineNamedColor{named}{DarkSlateGray1}{rgb}{0.59216,1.0,1.0}
+\DefineNamedColor{named}{DarkSlateGray2}{rgb}{0.55294,0.93333,0.93333}
+\DefineNamedColor{named}{DarkSlateGray3}{rgb}{0.47451,0.80392,0.80392}
+\DefineNamedColor{named}{DarkSlateGray4}{rgb}{0.32157,0.5451,0.5451}
+\DefineNamedColor{named}{aquamarine1}{rgb}{0.49804,1.0,0.83137}
+\DefineNamedColor{named}{aquamarine2}{rgb}{0.46275,0.93333,0.77647}
+\DefineNamedColor{named}{aquamarine3}{rgb}{0.4,0.80392,0.66667}
+\DefineNamedColor{named}{aquamarine4}{rgb}{0.27059,0.5451,0.4549}
+\DefineNamedColor{named}{DarkSeaGreen1}{rgb}{0.75686,1.0,0.75686}
+\DefineNamedColor{named}{DarkSeaGreen2}{rgb}{0.70588,0.93333,0.70588}
+\DefineNamedColor{named}{DarkSeaGreen3}{rgb}{0.60784,0.80392,0.60784}
+\DefineNamedColor{named}{DarkSeaGreen4}{rgb}{0.41176,0.5451,0.41176}
+\DefineNamedColor{named}{SeaGreen1}{rgb}{0.32941,1.0,0.62353}
+\DefineNamedColor{named}{SeaGreen2}{rgb}{0.30588,0.93333,0.58039}
+\DefineNamedColor{named}{SeaGreen3}{rgb}{0.26275,0.80392,0.50196}
+\DefineNamedColor{named}{SeaGreen4}{rgb}{0.18039,0.5451,0.34118}
+\DefineNamedColor{named}{PaleGreen1}{rgb}{0.60392,1.0,0.60392}
+\DefineNamedColor{named}{PaleGreen2}{rgb}{0.56471,0.93333,0.56471}
+\DefineNamedColor{named}{PaleGreen3}{rgb}{0.48627,0.80392,0.48627}
+\DefineNamedColor{named}{PaleGreen4}{rgb}{0.32941,0.5451,0.32941}
+\DefineNamedColor{named}{SpringGreen1}{rgb}{0.0,1.0,0.49804}
+\DefineNamedColor{named}{SpringGreen2}{rgb}{0.0,0.93333,0.46275}
+\DefineNamedColor{named}{SpringGreen3}{rgb}{0.0,0.80392,0.4}
+\DefineNamedColor{named}{SpringGreen4}{rgb}{0.0,0.5451,0.27059}
+\DefineNamedColor{named}{green1}{rgb}{0.0,1.0,0.0}
+\DefineNamedColor{named}{green2}{rgb}{0.0,0.93333,0.0}
+\DefineNamedColor{named}{green3}{rgb}{0.0,0.80392,0.0}
+\DefineNamedColor{named}{green4}{rgb}{0.0,0.5451,0.0}
+\DefineNamedColor{named}{chartreuse1}{rgb}{0.49804,1.0,0.0}
+\DefineNamedColor{named}{chartreuse2}{rgb}{0.46275,0.93333,0.0}
+\DefineNamedColor{named}{chartreuse3}{rgb}{0.4,0.80392,0.0}
+\DefineNamedColor{named}{chartreuse4}{rgb}{0.27059,0.5451,0.0}
+\DefineNamedColor{named}{OliveDrab1}{rgb}{0.75294,1.0,0.24314}
+\DefineNamedColor{named}{OliveDrab2}{rgb}{0.70196,0.93333,0.22745}
+\DefineNamedColor{named}{OliveDrab3}{rgb}{0.60392,0.80392,0.19608}
+\DefineNamedColor{named}{OliveDrab4}{rgb}{0.41176,0.5451,0.13333}
+\DefineNamedColor{named}{DarkOliveGreen1}{rgb}{0.79216,1.0,0.43922}
+\DefineNamedColor{named}{DarkOliveGreen2}{rgb}{0.73725,0.93333,0.40784}
+\DefineNamedColor{named}{DarkOliveGreen3}{rgb}{0.63529,0.80392,0.35294}
+\DefineNamedColor{named}{DarkOliveGreen4}{rgb}{0.43137,0.5451,0.23922}
+\DefineNamedColor{named}{khaki1}{rgb}{1.0,0.96471,0.56078}
+\DefineNamedColor{named}{khaki2}{rgb}{0.93333,0.90196,0.52157}
+\DefineNamedColor{named}{khaki3}{rgb}{0.80392,0.77647,0.45098}
+\DefineNamedColor{named}{khaki4}{rgb}{0.5451,0.52549,0.30588}
+\DefineNamedColor{named}{LightGoldenrod1}{rgb}{1.0,0.92549,0.5451}
+\DefineNamedColor{named}{LightGoldenrod2}{rgb}{0.93333,0.86275,0.5098}
+\DefineNamedColor{named}{LightGoldenrod3}{rgb}{0.80392,0.7451,0.43922}
+\DefineNamedColor{named}{LightGoldenrod4}{rgb}{0.5451,0.50588,0.29804}
+\DefineNamedColor{named}{LightYellow1}{rgb}{1.0,1.0,0.87843}
+\DefineNamedColor{named}{LightYellow2}{rgb}{0.93333,0.93333,0.81961}
+\DefineNamedColor{named}{LightYellow3}{rgb}{0.80392,0.80392,0.70588}
+\DefineNamedColor{named}{LightYellow4}{rgb}{0.5451,0.5451,0.47843}
+\DefineNamedColor{named}{yellow1}{rgb}{1.0,1.0,0.0}
+\DefineNamedColor{named}{yellow2}{rgb}{0.93333,0.93333,0.0}
+\DefineNamedColor{named}{yellow3}{rgb}{0.80392,0.80392,0.0}
+\DefineNamedColor{named}{yellow4}{rgb}{0.5451,0.5451,0.0}
+\DefineNamedColor{named}{gold1}{rgb}{1.0,0.84314,0.0}
+\DefineNamedColor{named}{gold2}{rgb}{0.93333,0.78824,0.0}
+\DefineNamedColor{named}{gold3}{rgb}{0.80392,0.67843,0.0}
+\DefineNamedColor{named}{gold4}{rgb}{0.5451,0.45882,0.0}
+\DefineNamedColor{named}{goldenrod1}{rgb}{1.0,0.75686,0.1451}
+\DefineNamedColor{named}{goldenrod2}{rgb}{0.93333,0.70588,0.13333}
+\DefineNamedColor{named}{goldenrod3}{rgb}{0.80392,0.60784,0.11373}
+\DefineNamedColor{named}{goldenrod4}{rgb}{0.5451,0.41176,0.07843}
+\DefineNamedColor{named}{DarkGoldenrod1}{rgb}{1.0,0.72549,0.05882}
+\DefineNamedColor{named}{DarkGoldenrod2}{rgb}{0.93333,0.67843,0.0549}
+\DefineNamedColor{named}{DarkGoldenrod3}{rgb}{0.80392,0.58431,0.04706}
+\DefineNamedColor{named}{DarkGoldenrod4}{rgb}{0.5451,0.39608,0.03137}
+\DefineNamedColor{named}{RosyBrown1}{rgb}{1.0,0.75686,0.75686}
+\DefineNamedColor{named}{RosyBrown2}{rgb}{0.93333,0.70588,0.70588}
+\DefineNamedColor{named}{RosyBrown3}{rgb}{0.80392,0.60784,0.60784}
+\DefineNamedColor{named}{RosyBrown4}{rgb}{0.5451,0.41176,0.41176}
+\DefineNamedColor{named}{IndianRed1}{rgb}{1.0,0.41569,0.41569}
+\DefineNamedColor{named}{IndianRed2}{rgb}{0.93333,0.38824,0.38824}
+\DefineNamedColor{named}{IndianRed3}{rgb}{0.80392,0.33333,0.33333}
+\DefineNamedColor{named}{IndianRed4}{rgb}{0.5451,0.22745,0.22745}
+\DefineNamedColor{named}{sienna1}{rgb}{1.0,0.5098,0.27843}
+\DefineNamedColor{named}{sienna2}{rgb}{0.93333,0.47451,0.25882}
+\DefineNamedColor{named}{sienna3}{rgb}{0.80392,0.40784,0.22353}
+\DefineNamedColor{named}{sienna4}{rgb}{0.5451,0.27843,0.14902}
+\DefineNamedColor{named}{burlywood1}{rgb}{1.0,0.82745,0.60784}
+\DefineNamedColor{named}{burlywood2}{rgb}{0.93333,0.77255,0.56863}
+\DefineNamedColor{named}{burlywood3}{rgb}{0.80392,0.66667,0.4902}
+\DefineNamedColor{named}{burlywood4}{rgb}{0.5451,0.45098,0.33333}
+\DefineNamedColor{named}{wheat1}{rgb}{1.0,0.90588,0.72941}
+\DefineNamedColor{named}{wheat2}{rgb}{0.93333,0.84706,0.68235}
+\DefineNamedColor{named}{wheat3}{rgb}{0.80392,0.72941,0.58824}
+\DefineNamedColor{named}{wheat4}{rgb}{0.5451,0.49412,0.4}
+\DefineNamedColor{named}{tan1}{rgb}{1.0,0.64706,0.3098}
+\DefineNamedColor{named}{tan2}{rgb}{0.93333,0.60392,0.28627}
+\DefineNamedColor{named}{tan3}{rgb}{0.80392,0.52157,0.24706}
+\DefineNamedColor{named}{tan4}{rgb}{0.5451,0.35294,0.16863}
+\DefineNamedColor{named}{chocolate1}{rgb}{1.0,0.49804,0.14118}
+\DefineNamedColor{named}{chocolate2}{rgb}{0.93333,0.46275,0.12941}
+\DefineNamedColor{named}{chocolate3}{rgb}{0.80392,0.4,0.11373}
+\DefineNamedColor{named}{chocolate4}{rgb}{0.5451,0.27059,0.07451}
+\DefineNamedColor{named}{firebrick1}{rgb}{1.0,0.18824,0.18824}
+\DefineNamedColor{named}{firebrick2}{rgb}{0.93333,0.17255,0.17255}
+\DefineNamedColor{named}{firebrick3}{rgb}{0.80392,0.14902,0.14902}
+\DefineNamedColor{named}{firebrick4}{rgb}{0.5451,0.10196,0.10196}
+\DefineNamedColor{named}{brown1}{rgb}{1.0,0.25098,0.25098}
+\DefineNamedColor{named}{brown2}{rgb}{0.93333,0.23137,0.23137}
+\DefineNamedColor{named}{brown3}{rgb}{0.80392,0.2,0.2}
+\DefineNamedColor{named}{brown4}{rgb}{0.5451,0.13725,0.13725}
+\DefineNamedColor{named}{salmon1}{rgb}{1.0,0.54902,0.41176}
+\DefineNamedColor{named}{salmon2}{rgb}{0.93333,0.5098,0.38431}
+\DefineNamedColor{named}{salmon3}{rgb}{0.80392,0.43922,0.32941}
+\DefineNamedColor{named}{salmon4}{rgb}{0.5451,0.29804,0.22353}
+\DefineNamedColor{named}{LightSalmon1}{rgb}{1.0,0.62745,0.47843}
+\DefineNamedColor{named}{LightSalmon2}{rgb}{0.93333,0.58431,0.44706}
+\DefineNamedColor{named}{LightSalmon3}{rgb}{0.80392,0.50588,0.38431}
+\DefineNamedColor{named}{LightSalmon4}{rgb}{0.5451,0.34118,0.25882}
+\DefineNamedColor{named}{orange1}{rgb}{1.0,0.64706,0.0}
+\DefineNamedColor{named}{orange2}{rgb}{0.93333,0.60392,0.0}
+\DefineNamedColor{named}{orange3}{rgb}{0.80392,0.52157,0.0}
+\DefineNamedColor{named}{orange4}{rgb}{0.5451,0.35294,0.0}
+\DefineNamedColor{named}{DarkOrange1}{rgb}{1.0,0.49804,0.0}
+\DefineNamedColor{named}{DarkOrange2}{rgb}{0.93333,0.46275,0.0}
+\DefineNamedColor{named}{DarkOrange3}{rgb}{0.80392,0.4,0.0}
+\DefineNamedColor{named}{DarkOrange4}{rgb}{0.5451,0.27059,0.0}
+\DefineNamedColor{named}{coral1}{rgb}{1.0,0.44706,0.33725}
+\DefineNamedColor{named}{coral2}{rgb}{0.93333,0.41569,0.31373}
+\DefineNamedColor{named}{coral3}{rgb}{0.80392,0.35686,0.27059}
+\DefineNamedColor{named}{coral4}{rgb}{0.5451,0.24314,0.18431}
+\DefineNamedColor{named}{tomato1}{rgb}{1.0,0.38824,0.27843}
+\DefineNamedColor{named}{tomato2}{rgb}{0.93333,0.36078,0.25882}
+\DefineNamedColor{named}{tomato3}{rgb}{0.80392,0.3098,0.22353}
+\DefineNamedColor{named}{tomato4}{rgb}{0.5451,0.21176,0.14902}
+\DefineNamedColor{named}{OrangeRed1}{rgb}{1.0,0.27059,0.0}
+\DefineNamedColor{named}{OrangeRed2}{rgb}{0.93333,0.25098,0.0}
+\DefineNamedColor{named}{OrangeRed3}{rgb}{0.80392,0.21569,0.0}
+\DefineNamedColor{named}{OrangeRed4}{rgb}{0.5451,0.1451,0.0}
+\DefineNamedColor{named}{red1}{rgb}{1.0,0.0,0.0}
+\DefineNamedColor{named}{red2}{rgb}{0.93333,0.0,0.0}
+\DefineNamedColor{named}{red3}{rgb}{0.80392,0.0,0.0}
+\DefineNamedColor{named}{red4}{rgb}{0.5451,0.0,0.0}
+\DefineNamedColor{named}{DeepPink1}{rgb}{1.0,0.07843,0.57647}
+\DefineNamedColor{named}{DeepPink2}{rgb}{0.93333,0.07059,0.53725}
+\DefineNamedColor{named}{DeepPink3}{rgb}{0.80392,0.06275,0.46275}
+\DefineNamedColor{named}{DeepPink4}{rgb}{0.5451,0.03922,0.31373}
+\DefineNamedColor{named}{HotPink1}{rgb}{1.0,0.43137,0.70588}
+\DefineNamedColor{named}{HotPink2}{rgb}{0.93333,0.41569,0.6549}
+\DefineNamedColor{named}{HotPink3}{rgb}{0.80392,0.37647,0.56471}
+\DefineNamedColor{named}{HotPink4}{rgb}{0.5451,0.22745,0.38431}
+\DefineNamedColor{named}{pink1}{rgb}{1.0,0.7098,0.77255}
+\DefineNamedColor{named}{pink2}{rgb}{0.93333,0.66275,0.72157}
+\DefineNamedColor{named}{pink3}{rgb}{0.80392,0.56863,0.61961}
+\DefineNamedColor{named}{pink4}{rgb}{0.5451,0.38824,0.42353}
+\DefineNamedColor{named}{LightPink1}{rgb}{1.0,0.68235,0.72549}
+\DefineNamedColor{named}{LightPink2}{rgb}{0.93333,0.63529,0.67843}
+\DefineNamedColor{named}{LightPink3}{rgb}{0.80392,0.54902,0.58431}
+\DefineNamedColor{named}{LightPink4}{rgb}{0.5451,0.37255,0.39608}
+\DefineNamedColor{named}{PaleVioletRed1}{rgb}{1.0,0.5098,0.67059}
+\DefineNamedColor{named}{PaleVioletRed2}{rgb}{0.93333,0.47451,0.62353}
+\DefineNamedColor{named}{PaleVioletRed3}{rgb}{0.80392,0.40784,0.53725}
+\DefineNamedColor{named}{PaleVioletRed4}{rgb}{0.5451,0.27843,0.36471}
+\DefineNamedColor{named}{maroon1}{rgb}{1.0,0.20392,0.70196}
+\DefineNamedColor{named}{maroon2}{rgb}{0.93333,0.18824,0.6549}
+\DefineNamedColor{named}{maroon3}{rgb}{0.80392,0.16078,0.56471}
+\DefineNamedColor{named}{maroon4}{rgb}{0.5451,0.1098,0.38431}
+\DefineNamedColor{named}{VioletRed1}{rgb}{1.0,0.24314,0.58824}
+\DefineNamedColor{named}{VioletRed2}{rgb}{0.93333,0.22745,0.54902}
+\DefineNamedColor{named}{VioletRed3}{rgb}{0.80392,0.19608,0.47059}
+\DefineNamedColor{named}{VioletRed4}{rgb}{0.5451,0.13333,0.32157}
+\DefineNamedColor{named}{magenta1}{rgb}{1.0,0.0,1.0}
+\DefineNamedColor{named}{magenta2}{rgb}{0.93333,0.0,0.93333}
+\DefineNamedColor{named}{magenta3}{rgb}{0.80392,0.0,0.80392}
+\DefineNamedColor{named}{magenta4}{rgb}{0.5451,0.0,0.5451}
+\DefineNamedColor{named}{orchid1}{rgb}{1.0,0.51373,0.98039}
+\DefineNamedColor{named}{orchid2}{rgb}{0.93333,0.47843,0.91373}
+\DefineNamedColor{named}{orchid3}{rgb}{0.80392,0.41176,0.78824}
+\DefineNamedColor{named}{orchid4}{rgb}{0.5451,0.27843,0.53725}
+\DefineNamedColor{named}{plum1}{rgb}{1.0,0.73333,1.0}
+\DefineNamedColor{named}{plum2}{rgb}{0.93333,0.68235,0.93333}
+\DefineNamedColor{named}{plum3}{rgb}{0.80392,0.58824,0.80392}
+\DefineNamedColor{named}{plum4}{rgb}{0.5451,0.4,0.5451}
+\DefineNamedColor{named}{MediumOrchid1}{rgb}{0.87843,0.4,1.0}
+\DefineNamedColor{named}{MediumOrchid2}{rgb}{0.81961,0.37255,0.93333}
+\DefineNamedColor{named}{MediumOrchid3}{rgb}{0.70588,0.32157,0.80392}
+\DefineNamedColor{named}{MediumOrchid4}{rgb}{0.47843,0.21569,0.5451}
+\DefineNamedColor{named}{DarkOrchid1}{rgb}{0.74902,0.24314,1.0}
+\DefineNamedColor{named}{DarkOrchid2}{rgb}{0.69804,0.22745,0.93333}
+\DefineNamedColor{named}{DarkOrchid3}{rgb}{0.60392,0.19608,0.80392}
+\DefineNamedColor{named}{DarkOrchid4}{rgb}{0.40784,0.13333,0.5451}
+\DefineNamedColor{named}{purple1}{rgb}{0.60784,0.18824,1.0}
+\DefineNamedColor{named}{purple2}{rgb}{0.56863,0.17255,0.93333}
+\DefineNamedColor{named}{purple3}{rgb}{0.4902,0.14902,0.80392}
+\DefineNamedColor{named}{purple4}{rgb}{0.33333,0.10196,0.5451}
+\DefineNamedColor{named}{MediumPurple1}{rgb}{0.67059,0.5098,1.0}
+\DefineNamedColor{named}{MediumPurple2}{rgb}{0.62353,0.47451,0.93333}
+\DefineNamedColor{named}{MediumPurple3}{rgb}{0.53725,0.40784,0.80392}
+\DefineNamedColor{named}{MediumPurple4}{rgb}{0.36471,0.27843,0.5451}
+\DefineNamedColor{named}{thistle1}{rgb}{1.0,0.88235,1.0}
+\DefineNamedColor{named}{thistle2}{rgb}{0.93333,0.82353,0.93333}
+\DefineNamedColor{named}{thistle3}{rgb}{0.80392,0.7098,0.80392}
+\DefineNamedColor{named}{thistle4}{rgb}{0.5451,0.48235,0.5451}
+\DefineNamedColor{named}{gray0}{rgb}{0.0,0.0,0.0}
+\DefineNamedColor{named}{grey0}{rgb}{0.0,0.0,0.0}
+\DefineNamedColor{named}{gray1}{rgb}{0.01176,0.01176,0.01176}
+\DefineNamedColor{named}{grey1}{rgb}{0.01176,0.01176,0.01176}
+\DefineNamedColor{named}{gray2}{rgb}{0.01961,0.01961,0.01961}
+\DefineNamedColor{named}{grey2}{rgb}{0.01961,0.01961,0.01961}
+\DefineNamedColor{named}{gray3}{rgb}{0.03137,0.03137,0.03137}
+\DefineNamedColor{named}{grey3}{rgb}{0.03137,0.03137,0.03137}
+\DefineNamedColor{named}{gray4}{rgb}{0.03922,0.03922,0.03922}
+\DefineNamedColor{named}{grey4}{rgb}{0.03922,0.03922,0.03922}
+\DefineNamedColor{named}{gray5}{rgb}{0.05098,0.05098,0.05098}
+\DefineNamedColor{named}{grey5}{rgb}{0.05098,0.05098,0.05098}
+\DefineNamedColor{named}{gray6}{rgb}{0.05882,0.05882,0.05882}
+\DefineNamedColor{named}{grey6}{rgb}{0.05882,0.05882,0.05882}
+\DefineNamedColor{named}{gray7}{rgb}{0.07059,0.07059,0.07059}
+\DefineNamedColor{named}{grey7}{rgb}{0.07059,0.07059,0.07059}
+\DefineNamedColor{named}{gray8}{rgb}{0.07843,0.07843,0.07843}
+\DefineNamedColor{named}{grey8}{rgb}{0.07843,0.07843,0.07843}
+\DefineNamedColor{named}{gray9}{rgb}{0.0902,0.0902,0.0902}
+\DefineNamedColor{named}{grey9}{rgb}{0.0902,0.0902,0.0902}
+\DefineNamedColor{named}{gray10}{rgb}{0.10196,0.10196,0.10196}
+\DefineNamedColor{named}{grey10}{rgb}{0.10196,0.10196,0.10196}
+\DefineNamedColor{named}{gray11}{rgb}{0.1098,0.1098,0.1098}
+\DefineNamedColor{named}{grey11}{rgb}{0.1098,0.1098,0.1098}
+\DefineNamedColor{named}{gray12}{rgb}{0.12157,0.12157,0.12157}
+\DefineNamedColor{named}{grey12}{rgb}{0.12157,0.12157,0.12157}
+\DefineNamedColor{named}{gray13}{rgb}{0.12941,0.12941,0.12941}
+\DefineNamedColor{named}{grey13}{rgb}{0.12941,0.12941,0.12941}
+\DefineNamedColor{named}{gray14}{rgb}{0.14118,0.14118,0.14118}
+\DefineNamedColor{named}{grey14}{rgb}{0.14118,0.14118,0.14118}
+\DefineNamedColor{named}{gray15}{rgb}{0.14902,0.14902,0.14902}
+\DefineNamedColor{named}{grey15}{rgb}{0.14902,0.14902,0.14902}
+\DefineNamedColor{named}{gray16}{rgb}{0.16078,0.16078,0.16078}
+\DefineNamedColor{named}{grey16}{rgb}{0.16078,0.16078,0.16078}
+\DefineNamedColor{named}{gray17}{rgb}{0.16863,0.16863,0.16863}
+\DefineNamedColor{named}{grey17}{rgb}{0.16863,0.16863,0.16863}
+\DefineNamedColor{named}{gray18}{rgb}{0.18039,0.18039,0.18039}
+\DefineNamedColor{named}{grey18}{rgb}{0.18039,0.18039,0.18039}
+\DefineNamedColor{named}{gray19}{rgb}{0.18824,0.18824,0.18824}
+\DefineNamedColor{named}{grey19}{rgb}{0.18824,0.18824,0.18824}
+\DefineNamedColor{named}{gray20}{rgb}{0.2,0.2,0.2}
+\DefineNamedColor{named}{grey20}{rgb}{0.2,0.2,0.2}
+\DefineNamedColor{named}{gray21}{rgb}{0.21176,0.21176,0.21176}
+\DefineNamedColor{named}{grey21}{rgb}{0.21176,0.21176,0.21176}
+\DefineNamedColor{named}{gray22}{rgb}{0.21961,0.21961,0.21961}
+\DefineNamedColor{named}{grey22}{rgb}{0.21961,0.21961,0.21961}
+\DefineNamedColor{named}{gray23}{rgb}{0.23137,0.23137,0.23137}
+\DefineNamedColor{named}{grey23}{rgb}{0.23137,0.23137,0.23137}
+\DefineNamedColor{named}{gray24}{rgb}{0.23922,0.23922,0.23922}
+\DefineNamedColor{named}{grey24}{rgb}{0.23922,0.23922,0.23922}
+\DefineNamedColor{named}{gray25}{rgb}{0.25098,0.25098,0.25098}
+\DefineNamedColor{named}{grey25}{rgb}{0.25098,0.25098,0.25098}
+\DefineNamedColor{named}{gray26}{rgb}{0.25882,0.25882,0.25882}
+\DefineNamedColor{named}{grey26}{rgb}{0.25882,0.25882,0.25882}
+\DefineNamedColor{named}{gray27}{rgb}{0.27059,0.27059,0.27059}
+\DefineNamedColor{named}{grey27}{rgb}{0.27059,0.27059,0.27059}
+\DefineNamedColor{named}{gray28}{rgb}{0.27843,0.27843,0.27843}
+\DefineNamedColor{named}{grey28}{rgb}{0.27843,0.27843,0.27843}
+\DefineNamedColor{named}{gray29}{rgb}{0.2902,0.2902,0.2902}
+\DefineNamedColor{named}{grey29}{rgb}{0.2902,0.2902,0.2902}
+\DefineNamedColor{named}{gray30}{rgb}{0.30196,0.30196,0.30196}
+\DefineNamedColor{named}{grey30}{rgb}{0.30196,0.30196,0.30196}
+\DefineNamedColor{named}{gray31}{rgb}{0.3098,0.3098,0.3098}
+\DefineNamedColor{named}{grey31}{rgb}{0.3098,0.3098,0.3098}
+\DefineNamedColor{named}{gray32}{rgb}{0.32157,0.32157,0.32157}
+\DefineNamedColor{named}{grey32}{rgb}{0.32157,0.32157,0.32157}
+\DefineNamedColor{named}{gray33}{rgb}{0.32941,0.32941,0.32941}
+\DefineNamedColor{named}{grey33}{rgb}{0.32941,0.32941,0.32941}
+\DefineNamedColor{named}{gray34}{rgb}{0.34118,0.34118,0.34118}
+\DefineNamedColor{named}{grey34}{rgb}{0.34118,0.34118,0.34118}
+\DefineNamedColor{named}{gray35}{rgb}{0.34902,0.34902,0.34902}
+\DefineNamedColor{named}{grey35}{rgb}{0.34902,0.34902,0.34902}
+\DefineNamedColor{named}{gray36}{rgb}{0.36078,0.36078,0.36078}
+\DefineNamedColor{named}{grey36}{rgb}{0.36078,0.36078,0.36078}
+\DefineNamedColor{named}{gray37}{rgb}{0.36863,0.36863,0.36863}
+\DefineNamedColor{named}{grey37}{rgb}{0.36863,0.36863,0.36863}
+\DefineNamedColor{named}{gray38}{rgb}{0.38039,0.38039,0.38039}
+\DefineNamedColor{named}{grey38}{rgb}{0.38039,0.38039,0.38039}
+\DefineNamedColor{named}{gray39}{rgb}{0.38824,0.38824,0.38824}
+\DefineNamedColor{named}{grey39}{rgb}{0.38824,0.38824,0.38824}
+\DefineNamedColor{named}{gray40}{rgb}{0.4,0.4,0.4}
+\DefineNamedColor{named}{grey40}{rgb}{0.4,0.4,0.4}
+\DefineNamedColor{named}{gray41}{rgb}{0.41176,0.41176,0.41176}
+\DefineNamedColor{named}{grey41}{rgb}{0.41176,0.41176,0.41176}
+\DefineNamedColor{named}{gray42}{rgb}{0.41961,0.41961,0.41961}
+\DefineNamedColor{named}{grey42}{rgb}{0.41961,0.41961,0.41961}
+\DefineNamedColor{named}{gray43}{rgb}{0.43137,0.43137,0.43137}
+\DefineNamedColor{named}{grey43}{rgb}{0.43137,0.43137,0.43137}
+\DefineNamedColor{named}{gray44}{rgb}{0.43922,0.43922,0.43922}
+\DefineNamedColor{named}{grey44}{rgb}{0.43922,0.43922,0.43922}
+\DefineNamedColor{named}{gray45}{rgb}{0.45098,0.45098,0.45098}
+\DefineNamedColor{named}{grey45}{rgb}{0.45098,0.45098,0.45098}
+\DefineNamedColor{named}{gray46}{rgb}{0.45882,0.45882,0.45882}
+\DefineNamedColor{named}{grey46}{rgb}{0.45882,0.45882,0.45882}
+\DefineNamedColor{named}{gray47}{rgb}{0.47059,0.47059,0.47059}
+\DefineNamedColor{named}{grey47}{rgb}{0.47059,0.47059,0.47059}
+\DefineNamedColor{named}{gray48}{rgb}{0.47843,0.47843,0.47843}
+\DefineNamedColor{named}{grey48}{rgb}{0.47843,0.47843,0.47843}
+\DefineNamedColor{named}{gray49}{rgb}{0.4902,0.4902,0.4902}
+\DefineNamedColor{named}{grey49}{rgb}{0.4902,0.4902,0.4902}
+\DefineNamedColor{named}{gray50}{rgb}{0.49804,0.49804,0.49804}
+\DefineNamedColor{named}{grey50}{rgb}{0.49804,0.49804,0.49804}
+\DefineNamedColor{named}{gray51}{rgb}{0.5098,0.5098,0.5098}
+\DefineNamedColor{named}{grey51}{rgb}{0.5098,0.5098,0.5098}
+\DefineNamedColor{named}{gray52}{rgb}{0.52157,0.52157,0.52157}
+\DefineNamedColor{named}{grey52}{rgb}{0.52157,0.52157,0.52157}
+\DefineNamedColor{named}{gray53}{rgb}{0.52941,0.52941,0.52941}
+\DefineNamedColor{named}{grey53}{rgb}{0.52941,0.52941,0.52941}
+\DefineNamedColor{named}{gray54}{rgb}{0.54118,0.54118,0.54118}
+\DefineNamedColor{named}{grey54}{rgb}{0.54118,0.54118,0.54118}
+\DefineNamedColor{named}{gray55}{rgb}{0.54902,0.54902,0.54902}
+\DefineNamedColor{named}{grey55}{rgb}{0.54902,0.54902,0.54902}
+\DefineNamedColor{named}{gray56}{rgb}{0.56078,0.56078,0.56078}
+\DefineNamedColor{named}{grey56}{rgb}{0.56078,0.56078,0.56078}
+\DefineNamedColor{named}{gray57}{rgb}{0.56863,0.56863,0.56863}
+\DefineNamedColor{named}{grey57}{rgb}{0.56863,0.56863,0.56863}
+\DefineNamedColor{named}{gray58}{rgb}{0.58039,0.58039,0.58039}
+\DefineNamedColor{named}{grey58}{rgb}{0.58039,0.58039,0.58039}
+\DefineNamedColor{named}{gray59}{rgb}{0.58824,0.58824,0.58824}
+\DefineNamedColor{named}{grey59}{rgb}{0.58824,0.58824,0.58824}
+\DefineNamedColor{named}{gray60}{rgb}{0.6,0.6,0.6}
+\DefineNamedColor{named}{grey60}{rgb}{0.6,0.6,0.6}
+\DefineNamedColor{named}{gray61}{rgb}{0.61176,0.61176,0.61176}
+\DefineNamedColor{named}{grey61}{rgb}{0.61176,0.61176,0.61176}
+\DefineNamedColor{named}{gray62}{rgb}{0.61961,0.61961,0.61961}
+\DefineNamedColor{named}{grey62}{rgb}{0.61961,0.61961,0.61961}
+\DefineNamedColor{named}{gray63}{rgb}{0.63137,0.63137,0.63137}
+\DefineNamedColor{named}{grey63}{rgb}{0.63137,0.63137,0.63137}
+\DefineNamedColor{named}{gray64}{rgb}{0.63922,0.63922,0.63922}
+\DefineNamedColor{named}{grey64}{rgb}{0.63922,0.63922,0.63922}
+\DefineNamedColor{named}{gray65}{rgb}{0.65098,0.65098,0.65098}
+\DefineNamedColor{named}{grey65}{rgb}{0.65098,0.65098,0.65098}
+\DefineNamedColor{named}{gray66}{rgb}{0.65882,0.65882,0.65882}
+\DefineNamedColor{named}{grey66}{rgb}{0.65882,0.65882,0.65882}
+\DefineNamedColor{named}{gray67}{rgb}{0.67059,0.67059,0.67059}
+\DefineNamedColor{named}{grey67}{rgb}{0.67059,0.67059,0.67059}
+\DefineNamedColor{named}{gray68}{rgb}{0.67843,0.67843,0.67843}
+\DefineNamedColor{named}{grey68}{rgb}{0.67843,0.67843,0.67843}
+\DefineNamedColor{named}{gray69}{rgb}{0.6902,0.6902,0.6902}
+\DefineNamedColor{named}{grey69}{rgb}{0.6902,0.6902,0.6902}
+\DefineNamedColor{named}{gray70}{rgb}{0.70196,0.70196,0.70196}
+\DefineNamedColor{named}{grey70}{rgb}{0.70196,0.70196,0.70196}
+\DefineNamedColor{named}{gray71}{rgb}{0.7098,0.7098,0.7098}
+\DefineNamedColor{named}{grey71}{rgb}{0.7098,0.7098,0.7098}
+\DefineNamedColor{named}{gray72}{rgb}{0.72157,0.72157,0.72157}
+\DefineNamedColor{named}{grey72}{rgb}{0.72157,0.72157,0.72157}
+\DefineNamedColor{named}{gray73}{rgb}{0.72941,0.72941,0.72941}
+\DefineNamedColor{named}{grey73}{rgb}{0.72941,0.72941,0.72941}
+\DefineNamedColor{named}{gray74}{rgb}{0.74118,0.74118,0.74118}
+\DefineNamedColor{named}{grey74}{rgb}{0.74118,0.74118,0.74118}
+\DefineNamedColor{named}{gray75}{rgb}{0.74902,0.74902,0.74902}
+\DefineNamedColor{named}{grey75}{rgb}{0.74902,0.74902,0.74902}
+\DefineNamedColor{named}{gray76}{rgb}{0.76078,0.76078,0.76078}
+\DefineNamedColor{named}{grey76}{rgb}{0.76078,0.76078,0.76078}
+\DefineNamedColor{named}{gray77}{rgb}{0.76863,0.76863,0.76863}
+\DefineNamedColor{named}{grey77}{rgb}{0.76863,0.76863,0.76863}
+\DefineNamedColor{named}{gray78}{rgb}{0.78039,0.78039,0.78039}
+\DefineNamedColor{named}{grey78}{rgb}{0.78039,0.78039,0.78039}
+\DefineNamedColor{named}{gray79}{rgb}{0.78824,0.78824,0.78824}
+\DefineNamedColor{named}{grey79}{rgb}{0.78824,0.78824,0.78824}
+\DefineNamedColor{named}{gray80}{rgb}{0.8,0.8,0.8}
+\DefineNamedColor{named}{grey80}{rgb}{0.8,0.8,0.8}
+\DefineNamedColor{named}{gray81}{rgb}{0.81176,0.81176,0.81176}
+\DefineNamedColor{named}{grey81}{rgb}{0.81176,0.81176,0.81176}
+\DefineNamedColor{named}{gray82}{rgb}{0.81961,0.81961,0.81961}
+\DefineNamedColor{named}{grey82}{rgb}{0.81961,0.81961,0.81961}
+\DefineNamedColor{named}{gray83}{rgb}{0.83137,0.83137,0.83137}
+\DefineNamedColor{named}{grey83}{rgb}{0.83137,0.83137,0.83137}
+\DefineNamedColor{named}{gray84}{rgb}{0.83922,0.83922,0.83922}
+\DefineNamedColor{named}{grey84}{rgb}{0.83922,0.83922,0.83922}
+\DefineNamedColor{named}{gray85}{rgb}{0.85098,0.85098,0.85098}
+\DefineNamedColor{named}{grey85}{rgb}{0.85098,0.85098,0.85098}
+\DefineNamedColor{named}{gray86}{rgb}{0.85882,0.85882,0.85882}
+\DefineNamedColor{named}{grey86}{rgb}{0.85882,0.85882,0.85882}
+\DefineNamedColor{named}{gray87}{rgb}{0.87059,0.87059,0.87059}
+\DefineNamedColor{named}{grey87}{rgb}{0.87059,0.87059,0.87059}
+\DefineNamedColor{named}{gray88}{rgb}{0.87843,0.87843,0.87843}
+\DefineNamedColor{named}{grey88}{rgb}{0.87843,0.87843,0.87843}
+\DefineNamedColor{named}{gray89}{rgb}{0.8902,0.8902,0.8902}
+\DefineNamedColor{named}{grey89}{rgb}{0.8902,0.8902,0.8902}
+\DefineNamedColor{named}{gray90}{rgb}{0.89804,0.89804,0.89804}
+\DefineNamedColor{named}{grey90}{rgb}{0.89804,0.89804,0.89804}
+\DefineNamedColor{named}{gray91}{rgb}{0.9098,0.9098,0.9098}
+\DefineNamedColor{named}{grey91}{rgb}{0.9098,0.9098,0.9098}
+\DefineNamedColor{named}{gray92}{rgb}{0.92157,0.92157,0.92157}
+\DefineNamedColor{named}{grey92}{rgb}{0.92157,0.92157,0.92157}
+\DefineNamedColor{named}{gray93}{rgb}{0.92941,0.92941,0.92941}
+\DefineNamedColor{named}{grey93}{rgb}{0.92941,0.92941,0.92941}
+\DefineNamedColor{named}{gray94}{rgb}{0.94118,0.94118,0.94118}
+\DefineNamedColor{named}{grey94}{rgb}{0.94118,0.94118,0.94118}
+\DefineNamedColor{named}{gray95}{rgb}{0.94902,0.94902,0.94902}
+\DefineNamedColor{named}{grey95}{rgb}{0.94902,0.94902,0.94902}
+\DefineNamedColor{named}{gray96}{rgb}{0.96078,0.96078,0.96078}
+\DefineNamedColor{named}{grey96}{rgb}{0.96078,0.96078,0.96078}
+\DefineNamedColor{named}{gray97}{rgb}{0.96863,0.96863,0.96863}
+\DefineNamedColor{named}{grey97}{rgb}{0.96863,0.96863,0.96863}
+\DefineNamedColor{named}{gray98}{rgb}{0.98039,0.98039,0.98039}
+\DefineNamedColor{named}{grey98}{rgb}{0.98039,0.98039,0.98039}
+\DefineNamedColor{named}{gray99}{rgb}{0.98824,0.98824,0.98824}
+\DefineNamedColor{named}{grey99}{rgb}{0.98824,0.98824,0.98824}
+\DefineNamedColor{named}{gray100}{rgb}{1.0,1.0,1.0}
+\DefineNamedColor{named}{grey100}{rgb}{1.0,1.0,1.0}

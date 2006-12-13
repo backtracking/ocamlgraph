@@ -1,0 +1,67 @@
+%%
+%% This is the original source file superpose.sty
+%%
+%% Package `superpose' to use with LaTeX 2e
+%% Copyright Roberto Di Cosmo, Jun Furuse, Didier Remy, and Pierre Weis
+%% All rights reserved.
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{superpose}
+         [2001/29/08 v0.40 supperpose Package]
+
+%% Superpose
+%% Identification
+%% Preliminary declarations
+
+\newif \ifsuper@first
+
+%% Options
+
+\DeclareOption{first}{\super@firsttrue}
+\ProcessOptions
+
+%% More declarations
+
+\RequirePackage {keyval}
+
+%% exports
+
+\newdimen \super@dima
+\newdimen \super@dimb
+
+\def \super@store 
+  {\ifnum \ht0>\super@dima \global \super@dima\ht0\fi
+   \ifnum \dp0>\super@dimb \global \super@dimb\dp0\fi}
+\let \super@left \hfil
+\let \super@right \hfil
+\def \super@empty {}
+\def \super@l@ {\let \super@left \super@empty}
+\def \super@r@ {\let \super@right \super@empty}
+\let \super@c@ \super@empty
+\let \super@math \super@empty
+\let \super@cr \cr
+\newif \ifsuper@ignore
+\let \super@ignore \relax
+
+\newenvironment{superpose}[1][c]%
+  {\ifmmode \let \super@math$\fi 
+   \hbox \bgroup \@tempdima \super@dima  \@tempdimb \super@dimb
+     \let \super@ignore@if  \ifsuper@ignore
+     \vbox \bgroup
+       \@ifundefined {super@#1@}%
+          {\PackageError {Superpose}{Unknown Preamble #1}{}}%
+          {\@nameuse {super@#1@}}%
+       \offinterlineskip \super@dima 0em \super@dimb \super@dima 
+       \super@ignorefalse
+       \let \\\super@cr \halign \bgroup
+         \super@left 
+           \setbox0\hbox{\super@math ##\super@math}\super@store
+            \ifsuper@first
+                 \ifsuper@ignore  \setbox0 \null \else
+                 \global \super@ignoretrue \fi \fi
+           \ht0 0em\dp0 0em\mbox{\box0}%
+         \super@right\cr}
+  {\crcr \egroup \super@dima \@tempdima \super@dima \@tempdimb 
+     \let \ifsuper@ignore  \super@ignore@if \egroup
+   \vbox {\vskip \super@dima}\vtop {\vskip \super@dimb}\egroup}
+
