@@ -270,10 +270,14 @@ namely \texttt{ConcreteBidirectional} for graphs with an efficient
 access to predecessors, and
 \texttt{Matrix.}(\texttt{Graph}, \texttt{Digraph}) for graphs
 implemented as adjacency matrices.
-Putting all together, the code for the 19 graph data structures amounts
-to 1059 lines. This is clearly small enough to be easily
-maintained. In Section~\ref{bench} we will show that this code is also
-quite efficient.
+
+Several functors are used to avoid code duplication among these
+various implementations. For instance, one functor adds labels to
+unlabeled graphs; another one encapsulates concrete vertices into an
+abstract data type; etc.  Putting all together, the code size for the 19
+graph data structures is about 1000 lines. This is clearly small
+enough to be easily maintained. In Section~\ref{bench} we will show
+that this code is also quite efficient.
 
 The graph data structure for our Sudoku solver is thus simply obtained as
 \begin{verbatim}
@@ -282,6 +286,10 @@ module G = Imperative.Graph.Abstract
 \end{verbatim}
 that is an imperative undirected graph with abstract vertices labeled
 with pairs of inteers and unlabeled edges.
+Then we can create the graph itself with \texttt{G.create}, add
+vertices with \texttt{G.add\_vertex} and edges with
+\texttt{G.add\_edge}\footnote{The source for the Sudoku example is
+  available on \ocamlgraph's web page.}.
 
 \section{Algorithms}\label{algos}
 
@@ -312,379 +320,54 @@ duplication for all data structures; second, it allows the user to
 apply an algorithm on its own graph data structure, which is an
 original feature of \ocamlgraph\ w.r.t. other graph libraries.
 
-\begin{comment}
-\subsection{Example: Flow Algorithms}
-\label{algos-flot}
+\subsection{Example: Graph Coloring}
+\label{coloring}
 
-We illustrate the generic implementation of algorithms in \ocamlgraph\
-through two algorithms to compute the maximal flow of a
-network\footnote{that is a directed graph with two distinguished
-  vertices, a source and a terminal.}, namely the
-Ford-Fulkerson~\cite{FF} and Goldberg~\cite{Goldberg} algorithms.
-They appear as two functors with the following signatures:
-\begin{alltt}
-module Ford_Fulkerson 
-  (G: G_FORD_FULKERSON)
-  (F: FLOW with type label = G.E.label) :
-sig
-  val maxflow : 
-    G.t -> G.V.t -> G.V.t -> (G.E.t -> F.t) * F.t
-end
-
-module Goldberg
-  (G: G_GOLDBERG)
-  (F: FLOW with type label = G.E.label) : 
-sig
-  val maxflow : 
-    G.t -> G.V.t -> G.V.t -> (G.E.t -> F.t) * F.t
-end
-\end{alltt}
-Each functor body implements a \texttt{maxflow} function expecting a
-network, a source vertex and a terminal vertex, and returning a
-pair \texttt{(f, delta)} where \texttt{f} maps each edge of the
-network to its new flow and where \texttt{delta} is the difference
-between the computed maximal flow and the initial flow of the network.
-
-The signature of the first parameter \texttt{G} of these two functors
-describes the minimal set of graph operations required for the
-implementation of \texttt{maxflow}. Since the two algorithms are
-different, the signatures \texttt{G\_FORD\_FULKERSON} and
-\texttt{G\_GOLDBERG} are thus different. For instance, Goldberg
-algorithm requires to iterates over the vertices and edges of the graph,
-whereas Ford-Fulkerson algorithm only requires to iterate over the
-successors and predecessors of a vertex. This appears clearly in the
-signatures:
-\begin{alltt}
-module type G_GOLDBERG = sig
+We illustrate the generic programming of graph algorithms on the
+particular example of graph coloring.  For the purpose of our
+algorithm, we assume vertices to be equipped with integer marks, used
+to store the assigned colors. We also need iterators over vertices and
+successors. Thus the minimal signature for a graph
+coloring algorithm is the following:
+\begin{verbatim}
+module type GM = sig
   type t
-  module V : sig type t (* ... *) end
-  module E : sig type t (* ... *) end
-  val iter_vertex : (V.t -> unit) -> t -> unit
-  val iter_edges_e : (E.t -> unit) -> t -> unit
-  (* ... *)
-end
-
-module type G_FORD_FULKERSON = sig
-  type t
-  module V : sig type t (* ... *) end
-  module E : sig type t (* ... *) end
-  val iter_succ_e : 
-    (E.t -> unit) -> t -> V.t -> unit
-  val iter_pred_e : 
-    (E.t -> unit) -> t -> V.t -> unit
-end
-\end{alltt}
-
-The signature of the second parameter \texttt{F} is common to both
-algorithms. It gathers all operations to manipulate the labels on edges
-as flows:
-\begin{alltt}
-module type FLOW = sig
-  type label \hfill(* type of edges labels *)
-  type t \hfill(* type of flow *)
-  val flow : label -> t \hfill(* initial flow *)
-  val max_capacity : label -> t \hfill(* max. capacity *)
-  val min_capacity : label -> t \hfill(* min. capacity *)
-  val add : t -> t -> t \hfill(* addition *)
-  val sub : t -> t -> t \hfill(* subtraction *)
-  val zero : t \hfill (* neutral element *)
-  val compare : t -> t -> int \hfill(* comparison *)
-end
-\end{alltt}
-This signature \texttt{FLOW} is easily implemented, whatever the
-data type is. For instance, a possible implementation for a graph where
-edges are labeled with integers representing the maximal capacities of
-edges and with an initial empty flow would be the following:
-\begin{alltt}
-module Flow = struct
-  type label = int
-  type t = int
-  let max_capacity x = x
-  let min_capacity _ = 0
-  let flow _ = 0
-  let add = (+)
-  let sub = (-)
-  let compare = compare
-  let zero = 0
-end
-\end{alltt}
-\end{comment}
-
-\subsection{Example: Graph Traversal}
-\label{dfs}
-
-We give here another example of generic programming with the classical
-depth-first and breadth-first traversals. To traverse a graph, we
-need very few operations. Basically, we need to iterate over the
-successors of a vertex. To reach all the connected components of the
-graph, we also need to iterate over all vertices. Finally, we have to
-mark the visited vertices. Regarding this last point, the simplest way is
-to use a hash table (when no particular assumption can be made about
-the graph data structure). To build such a hash table, we simply need
-the type of vertices to be equipped with suitable \texttt{hash} and
-\texttt{equal} functions. Therefore, the minimal expected signature
-for traversal algorithms is the following:
-\begin{alltt}
-module type G = sig
-  type t
-  module V : sig type t 
-                 val hash : t -> int 
-                 val equal : t -> t -> bool end
+  module V : sig type t ... end
+  module Mark : sig
+    val get : V.t -> int
+    val set : V.t -> int -> unit
+  end
   val iter_vertex : (V.t -> unit) -> t -> unit
   val iter_succ : (V.t -> unit) -> t -> V.t -> unit
 end
-\end{alltt}
-Then traversal algorithms can be provided with a signature like:
-\begin{alltt}
-module Dfs(G : G) : 
-  sig val iter : (G.V.t -> unit) -> G.t -> unit end
-\end{alltt}
-In practice, however, several variants of each traversal are provided:
-traversal of a single connected component, application of the visitor
-function after the successors are visited (instead of before),
-etc. The depth-first traversal functor also provides a cycle detection
-function. Finally, there is a functor specialized for graphs equipped
-with marks (see signature \texttt{IM} in Section~\ref{interfaces}),
-since such marks can be directly used to mark the visited vertices (and
-for further use by the library client).
+\end{verbatim}
+\ocamlgraph already provides implementations for such a
+signature. This is the case for the graph data structure used in our
+Sudoku solver.
 
-Graph traversals are also provided as \emph{cursors},
-i.e. step-by-step iterators similar to those used in object-oriented
-programming~\cite{coplien92} (e.g. the \textsc{Java}
-\texttt{Iterator} interface).
-Such a cursor is given the following signature:
-\begin{alltt}
-module Dfs(G : G) : sig
-  type iterator
-  val start : G.t -> iterator
-  val step : iterator -> iterator
-  val get : iterator -> G.V.t
-end 
-\end{alltt}
-The abstract type \texttt{iterator} represents a state of the
-iterator, or equivalently a position in the ongoing iteration. We get
-the starting point with the \texttt{start} function. Then we can
-advance in the iteration using the \texttt{step} function and we can
-obtain the currently visited vertex using the \texttt{get} function.
-These two functions raise the \texttt{Exit} exception whenever the
-iteration is over. There is a huge difference w.r.t. usual cursors in
-imperative programming, however: the data type \texttt{iterator} is
-persistent. It means that the iterator is not modified when the step
-function is called, but a new iterator is returned instead. Therefore
-it is easy to use such iterators in \emph{backtracking} algorithms
-that may need to come back to previous positions in an
-iteration~\cite{filliatre06}. 
-
-Here is for instance a simple implementation of a $k$-coloring
-algorithm based on a breadth-first traversal implemented as a
-persistent cursor. We assume that the graph \texttt{g} contains
-integer marks that we use to indicate the color (the value 0 meaning
-that there is no assigned color yet).
-\begin{alltt}
-let coloring g k =
-  Mark.clear g;
-  let try_color v i =
-    iter_succ 
-      (fun w -> 
-        if Mark.get w = i then raise NoColor) 
-      g v;
-    Mark.set v i
-  in
-  let rec iterate iter =
-    let v = Bfs.get iter in
-    for i = 1 to k do
-      try try_color v i; iterate (Bfs.step iter); 
-          assert false
-      with NoColor -> ()
-    done;
-    Mark.set v 0; raise NoColor
-  in
-  try iterate (Bfs.start g); assert false 
-  with Exit -> ()
-\end{alltt}
-The benefits of the persistent cursor are twofold: first, we could use
-an existing traversal function without having to mix its code with the
-coloring algorithm itself; second, the persistent nature of the
-iterator avoids an explicit backtracking in the above code.
-
-\subsection{Building Graphs}\label{builder}
-
-In Section~\ref{interfaces}, we have shown that persistent and
-imperative graphs have creation functions with different
-signatures. However, as we have written algorithms in a generic way,
-we may want to build graphs in a generic way, that is independently of
-the underlying data structure. For instance, we may want to implement
-graph operations (such as union, transitive closure, etc.) or to build
-some classic graphs (such as the full graph with $n$ vertices, the de
-Bruijn graph of order $n$, etc.) or even random graphs. In all these
-cases, the persistent or imperative nature of the graph is not really
-significant but the signature difference disallows genericity.
-
-To solve this issue, we introduce a module \texttt{Builder}. It
-defines a common interface for graphs building:
-\begin{alltt}
-module type S = sig
-  module G : Sig.G
-  val empty : unit -> G.t
-  val copy : G.t -> G.t
-  val add_vertex : G.t -> G.V.t -> G.t
-  val add_edge : G.t -> G.V.t -> G.V.t -> G.t
-  val add_edge_e : G.t -> G.E.t -> G.t
+Then the graph coloring algorithm is implemented as the following functor:
+\begin{verbatim}
+module Coloring(G : GM) : sig
+  val coloring : G.t -> int -> unit
 end
-\end{alltt}
-It is immediate to realize such a signature for persistent or
-imperative graphs:
-\begin{alltt}
-module P(G : Sig.P) : S with module G = G
-module I(G : Sig.I) : S with module G = G
-\end{alltt}
-It is important to notice that for imperative graphs the values
-returned by the functions \texttt{add\_vertex},
-\texttt{add\_edge} and \texttt{add\_edge\_e} are meaningless.
+\end{verbatim}
+It provides a single function \texttt{coloring} which colors a given
+graph with a given number of colors. Some marks may contain initial
+constraints. 
 
-Therefore, it is easy to write a generic algorithm that builds
-graphs. First we write a highly generic version as a functor taking a
-module of signature \texttt{Builder.S} as argument:
+To complete our Sudoku solver, we simply need to apply the above
+functor on our graph module \texttt{G}:
 \begin{alltt}
-module Make(B : Builder.S) = struct ... end
+module C = Coloring(G)
 \end{alltt}
-and then we can trivially provide two variants of this functor for
-both persistent and imperative graphs, with the following two lines:
-\begin{alltt}
-module P(G : Sig.P) = Make(Builder.P(G))
-module I(G : Sig.I) = Make(Builder.I(G))
-\end{alltt}
-Thus the use of the module \texttt{Builder} is entirely hidden from
-the user point of view.
-
-\section{Using \ocamlgraph}\label{exemples}
-
-This section demonstrates how to use \ocamlgraph's functors on two
-typical situations: first, a direct use of \ocamlgraph's data
-structures and algorithms to solve a problem; second, a more complex
-situation where the user applies an \ocamlgraph's algorithm on his own
-graph data structure.
-
-\subsection{Sudoku}
-
-This section illustrates the use of \ocamlgraph\ to solve the Sudoku
-puzzle using graph coloring. This idea is to represent the Sudoku grid
-as an undirected graph with $9\times 9$ vertices, each vertex being
-connected to the other vertices on the same row, column or $3\times 3$
-group. Then solving the Sudoku is equivalent to 9-coloring this graph.
-
-First, we create a new graph data structure where vertices are labeled with
-pairs of integers (the coordinates in the grid, as integers in the
-range 0..8):
-\begin{alltt}
-module G = Imperative.Graph.Abstract
-             (struct type t = int * int end)
-\end{alltt}
-We use the \texttt{Imperative} module since persistence is not
-needed here, the \texttt{Graph} sub-module to indicate undirected
-graphs and the \texttt{Abstract} functor both for efficiency and
-simplicity. Indeed, such graphs come with integers marks on the vertices
-that will be used here to store the colors.
-
-Then we can create the graph itself:
-\begin{alltt}
-let g = G.create ()
-\end{alltt}
-This graph is initially empty. We need to create and add the 81
-vertices. We could do it as simply as:
-\begin{alltt}
-for i = 0 to 8 do for j = 0 to 8 do 
-  G.add_vertex g (G.V.create (i,j))
-done done
-\end{alltt}
-but in order to access the vertices in the remaining of the code we
-store them in a matrix:
-\begin{alltt}
-let vert = 
-  let new_vertex i j = 
-    let v = G.V.create (i, j) in 
-    G.add_vertex g v; v in
-  Array.init 9 (fun i -> Array.init 9 (new_vertex i))
-\end{alltt}
-Then we add the edges, connecting the vertices on a same row, column or group:
-\begin{alltt}
-for i = 0 to 8 do for j = 0 to 8 do
-  for k = 0 to 8 do
-    if k <> i then 
-      G.add_edge g vert.(i).(j) vert.(k).(j);
-    if k <> j then 
-      G.add_edge g vert.(i).(j) vert.(i).(k);
-  done;
-  let gi = 3 * (i / 3) and gj = 3 * (j / 3) in
-  for di = 0 to 2 do for dj = 0 to 2 do
-    let i' = gi + di and j' = gj + dj in
-    if i' <> i || j' <> j then 
-      G.add_edge g vert.(i).(j) vert.(i').(j')
-  done done
-done done
-\end{alltt}
-The initial constraints in the Sudoku puzzle are set using the
-\texttt{G.Mark.set} function.
-
-To get the coloring algorithm for our graph data structure, we simply
-apply the \texttt{Coloring.Mark} functor on \texttt{G}:
-\begin{alltt}
-module C = Coloring.Mark(G)
-\end{alltt}
-Finally, solving the Sudoku amounts to 9-coloring the graph \texttt{g}:
+If \texttt{g} contains the Sudoku graph, and
+assuming that the initial constraints are set in \texttt{g}'s marks, 
+solving the Sudoku amounts to 9-coloring the graph \texttt{g}:
 \begin{alltt}
 C.coloring g 9
 \end{alltt}
-
 This code is almost as efficient as a hand-coded Sudoku solver: on the
 average, a Sudoku puzzle is solved in 0.2 seconds (on a Pentium 4 2.4 GHz).
-
-\begin{comment}
-\subsection{Topological Sorting}
-
-This section illustrates the use of one of \ocamlgraph's traversal
-algorithms to perform some topological sorting on a set of files
-dependencies. We assume given the following user-defined data
-structure representing a file with its dependencies:
-\begin{alltt}
-type file = 
-  \{ name : string ; mutable deps : file list \} 
-\end{alltt}
-In order to get the set of dependencies for a given file, we just have
-to visit the underlying graph using a depth-first traversal. For that
-purpose, we can use \ocamlgraph's \texttt{Graph.Traverse.Dfs}
-functor (which is similar to the one presented Section~\ref{dfs}). To
-do so, we need to build a 
-module that implements the required graph operations.
-First, we embed the \texttt{file} data type in a \texttt{Vertex} module:
-\begin{alltt}
-module Vertex = struct 
-  type t = file 
-  let compare n1 n2 = compare n1.name n2.name
-  let hash n = Hashtbl.hash n.name
-  let equal n1 n2 = n1.name = n2.name
-end
-\end{alltt}
-Then viewing a list of files as a graph is easily implemented by the
-following module: 
-\begin{alltt}
-module G = struct
-  type t = file list
-
-  module V = Vertex
-
-  let iter_vertex = List.iter
-  let fold_vertex = List.fold_right
-  let iter_succ f _ v = List.iter f v.deps
-  let fold_succ f _ v = List.fold_right f v.deps
-end
-\end{alltt}
-Finally, we obtain the depth-first traversal module as a functor
-instantiation: 
-\begin{alltt}
-module Dfs = Graph.Traverse.Dfs(G)
-\end{alltt}
-\end{comment}
 
 \section{Benchmarks}\label{bench}
 
@@ -803,4 +486,4 @@ library where data structures and algorithms are separated.
 % \end{thebibliography}
 
 \end{document}
-1-59593-090-6/05/0007
+%1-59593-090-6/05/0007
