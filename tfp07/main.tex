@@ -161,669 +161,127 @@ several existing graph libraries.
   \label{comparison:tab}
 \end{figure*}
 
-\begin{comment}
-\paragraph{\textsc{Jdsl~\cite{Jdsl}}} This \textsc{Java} library
-provides implementations and algorithms for various data structures
-(lists, vectors, priority queues, dictionaries and
-graphs). Regarding graphs, JDSL introduces several distinct signatures
-for access and modification to the underlying data structure: one can
-find \emph{accessors} for constant-time access to graph elements,
-\emph{iterators} to traverse the graph structure, and \emph{modifiers}
-to add or suppress vertices and edges. The use of \textsc{Java}
-interfaces makes JDSL algorithms highly generic. However, the library
-only provides an implementation of graphs as adjacency lists and there
-is no notion of persistent graph. Moreover, there is no way to
-distinguish between directed and undirected graphs (edges and arcs
-may coexist within a same graph). Finally, vertices and edges may be
-labeled with values in the class \texttt{Object} which is the usual
-but risky and inefficient way to get polymorphism in \textsc{Java}
-(at least before generics were introduced in \textsc{Java} 1.5).
-
-\paragraph{\textsc{Mlrisc~\cite{Mlrisc}}}  This generic compiler
-back-end provides a graph library for SML which contains a unique
-signature for directed multi-graphs together with a unique imperative
-implementation. Vertices and edges may be labeled with information of any
-type. Modifiers and iterators allow respectively to update and
-traverse the graph data structure. Combinators are also provided to
-build different \emph{views} of a single graph. One may for instance
-build a view where arcs are reversed, where vertices are renamed or where
-vertices are gathered in subsets of the initial set of vertices, etc. A
-mechanism of behavioral views, similar to the principles of aspect
-programming, allows to connect actions to the modifiers of a graph. It
-is therefore possible to perform some given action before the addition
-of a new vertex, for instance. The library also contains many
-algorithms implemented as functors to be abstracted over specific
-operations independent of the graph data structure. For instance, the
-flow algorithm of \textsc{Mlrisc} is parameterized by a structure of
-Abelian group, as \ocamlgraph's ones presented in
-Section~\ref{algos-flot}.
-
-
-\paragraph{\textsc{Leda~\cite{Leda}}} This \textsc{C++} library
-provides several data structures (graphs, lists, sets, dictionaries,
-trees, partitions, priority queues, etc.) and several algorithms
-related to graphs, geometry, networks and graphics. \textsc{Leda}'s
-graphs are imperative. They may be directed or not, planar or not, and
-vertices and edges may be parameterized by user types. Macros are
-provided to iterate over vertices and edges. Many operations are
-implemented, such as access functions, modifiers, graph generators and
-property tests (cyclicity, planarity, convexity, etc.). Unfortunately,
-the algorithms are not generic and only one implementation is provided
-(using double-linked lists for vertices and edges).
-
-\paragraph{\textsc{Fgl~\cite{Fgl,Erwig}}} This \textsc{Haskell}
-library --- the SML version does not seem to be maintained anymore ---
-provides an inductive representation of graphs and a set of graph
-algorithms for this data structure. FGL's graphs are multi-graphs,
-directed or not, persistent, with vertices and edges labeled with any
-type. The graph data structure is implemented using purely applicative
-arrays and AVLs. This library is the only one with \ocamlgraph\ and
-\textsc{Baire} (see below) to provide persistent graphs. However, the
-purely applicative philosophy of \textsc{Fgl} makes a huge difference
-with our approach. Indeed, \ocamlgraph\ includes out-of-the-box
-imperative algorithms over graphs, thanks to a common interface
-between persistent and imperative graphs.
-
-\paragraph{\textsc{Bgl~\cite{Bgl}}} This C++ library provides generic
-algorithms implemented as \emph{templates} (a purely syntactic
-counterpart of \ocaml's functors). The parameters of these templates
-describe the minimal interface that the graph data structure must
-implement for the algorithm to apply. This library is the only one,
-with \ocamlgraph, to implement such generic algorithms. However, only
-two graph data structures are provided and the interface of
-\textsc{Bgl}'s graphs is less complete than \ocamlgraph's one. For
-instance, the labeling of vertices and edges is not part of the interface
-and is instead realized as external dictionaries passed to the
-algorithms as additional parameters. 
-
-\paragraph{\textsc{Baire~\cite{Baire}}} This \ocaml\ library provides
-8 different implementations of graph data structures, without any code
-sharing (functors are not used in \textsc{Baire}). Each data structure
-implements directed graphs with labeled edges (there is no unlabeled
-graphs). Operations over vertices and edges are provided, and so are
-iterators and observers. \textsc{Baire} does not provide any graph
-algorithm. 
-
-\paragraph{\textsc{Gtl~\cite{Gtl}}} This C++ library provides a unique
-imperative data structure for directed and unlabeled graphs
-(undirected graphs can be obtained by ``canceling'' the direction of
-edges). As in \textsc{Bgl} the labeling is realized by external
-dictionaries. \textsc{Gtl} provides several graph algorithms which
-only apply to its own data structure.
-  
-\end{comment}
-
-
-\begin{comment}
-\section{\ocaml Module System}\label{systememodules}
-
-This section quickly describes the \ocaml module system. Any reader
-familiar with \ocaml can safely skip this section.
-
-The module system of \ocaml is a language by itself, on top of the
-core \ocaml language, which only fulfills software engineering
-purposes: separate compilation, names space structuring, encapsulation
-and genericity. This language appears to be independent of the core
-language~\cite{leroy00} and may be unfolded statically.  It is a
-strongly typed higher-order functional language. Its terms are called
-\emph{modules} or \emph{structures}.  They are the basic blocks in
-\ocaml programs, that package together types, values, exceptions
-and sub-modules. 
-
-\subsection{Structures}
-
-Modules are introduced using the \texttt{struct...end} construct and
-the (optional) \texttt{module} binding is used to give them a name.
-Outside a module, its components can be referred to using the
-\emph{dot notation}: \texttt{M.c} denotes the component
-\texttt{c} defined in the module \texttt{M}.
-
-For instance, a module packaging together a type for a graph data
-structure and some basic operations can be implemented in the
-following way:
-\begin{alltt}
-module Graph = struct
-  type label = int 
-  type t = (int * label) list array
-  let create n = Array.create n []
-  let add_edge g v1 v2 l = g.(v1) <- (v2,l)::g.(v1)
-  let iter_succ g f v = List.iter f g.(v)
-end
-\end{alltt}
-The type \texttt{Graph.t} defines a naive graph data structure using
-adjacency lists with edges labeled with integers: a graph is an array
-(indexed by integers representing vertices) whose elements are lists of
-pairs of integers and labels (declared as an alias for the type
-\texttt{int}). 
-
-\subsection{Signatures}
-
-The type of a module is called a \emph{signature} or an
-\emph{interface}\footnote{with the same meaning as in \textsc{Modula}
-  but not as in \textsc{Java}} and can be used to hide some components
-or the definition of a type (then called an \emph{abstract data
-  type}). Signatures are defined using the \texttt{sig...end}
-construct and the (optional) \texttt{module type} binding is used to
-give them a name. Constants and functions are declared 
-via the keyword \texttt{val} and types via the keyword \texttt{type}.
-
-For instance, a possible signature for the \texttt{Graph} module
-above, that hides the graph representation and the type of labels,
-could be the following:
-\begin{alltt}
-module type GRAPH = sig
-  type label
-  type t
-  val create : int -> t
-  val add_edge : t -> int -> int -> label -> unit 
-  val iter_succ : 
-    t -> (int * label -> unit) -> int -> unit
-end
-\end{alltt}
-Restricting a structure by a signature results in another view of the
-structure. This is done as follows:
-\begin{alltt}
-module G' = (G : GRAPH)
-\end{alltt}
-Since interfaces and structures are clearly separated, it is possible
-to have several implementations for the same interface. Conversely, a
-structure may have several signatures (hiding and restricting more
-or less components). 
-
-\subsection{Functors}
-
-The functions of the module system are called \emph{functors} and
-allow us to define modules parameterized by other modules. Then they
-can be applied one or several times to particular modules with the
-expected signature. The benefits of functors in software engineering
-are appreciated as soon as one has to parameterize a \emph{set} of
-types and functions by another \emph{set} of types and functions, in a
-sound way\footnote{See for instance Norman Ramsey's \emph{ML Module
-    Mania}~\cite{ramsey05} as an example of a massive use of ML
-  functors.}. 
-For instance, to implement Dijkstra's shortest path
-algorithm for any graph implementation where edges are labeled with
-integers, one can write a functor looking like:
-\begin{alltt}
-module type S = sig
-  type label
-  type t
-  val iter_succ : 
-    t -> (int * label -> unit) -> int -> unit
-end
-
-module Dijkstra (G : S with type label = int) = 
-  struct
-    let dijkstra g v1 v2 = (* ... *)
-  end
-\end{alltt}
-The \texttt{with type} annotation is used here to unify the abstract
-type \texttt{label} from the signature \texttt{S} with the type
-\texttt{int}. One may also notice that the signature \texttt{S}
-required for the functor's argument only contains what is necessary to
-implement the algorithm. However, we can apply the functor to any
-module whose signature contains \emph{at least} \texttt{S} i.e. is a
-\emph{subtype} of \texttt{S}.
-
-Functors are also first-class values, i.e they can be passed as
-arguments to other functors. Finally, it is possible to aggregate
-signatures or modules using the \texttt{include} construct which can
-be naively seen as a textual inclusion.
-\end{comment}
-
 \section{Motivating Example and Design Overview}
 
 As a running example, we consider a Sudoku solver based on graph
-coloring.  This idea is to represent the Sudoku grid as an undirected
+coloring.  The idea is to represent the Sudoku grid as an undirected
 graph with $9\times 9$ vertices, each vertex being connected to the
 other vertices on the same row, column or $3\times 3$ group. Then
 solving the Sudoku is equivalent to 9-coloring this graph.
+What we should expect from a good graph library is thus:
+\begin{enumerate}
+\item the ability to easily build an undirected graph where each
+  vertex is labeled with a pair of integers (the cell coordinates);
+\item an efficient graph coloring algorithm that can be applied to the
+  above data structure. 
+\end{enumerate}
+If a graph library is providing only directed graphs or only
+unlabeled vertices, one has to adapt to the existing data structure.
+Generally speaking, the user may want
+to choose any combination of the following features:
+\begin{itemize}
+\item \emph{directed} or \emph{undirected} graphs;
+\item \emph{labeled} or \emph{unlabeled} vertices and edges;
+\item \emph{types} for the labels, when any;
+\item \emph{persistent} or \emph{imperative} data structure;
+\end{itemize}
+The strong point in \ocamlgraph is to provide \emph{all} possible
+combinations, as ML modules sharing a common signature \texttt{G}.
+Then algorithms are provided as ML functors whose arguments must have
+signatures compatible with \texttt{G}.
 
 \section{Implementation}
 
-\subsection{}
+We now describe the implementation of
+\ocamlgraph. First Section~\ref{interface} describes the common
+signature for all graph data structures.
+Then Section~\ref{structuresdedonnees} details the various graph
+implementations. Finally Section~\ref{algos} explains how
+generic algorithms are provided.
 
-\subsection{}
+\subsection{Common Signature}\label{interface}
 
-\section{Graph Data Structures}\label{structuresdedonnees}
+The common signature for all graph data structures includes an
+abstract type \texttt{t} for the graphs, two modules \texttt{V} and
+\texttt{E} for vertices and edges respectively, and all the
+observers. The latter include several functions to iterate over
+vertices and edges, which are massively used in graph algorithms. 
+The common signature thus looks like:
+\begin{verbatim}
+module type G = sig
+  type t
+  module V : sig type t ... end
+  module E : sig type t ... end
+  val iter_vertex : (V.t -> unit) -> t -> unit
+  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
+  ...
+end
+\end{verbatim}
+Then we distinguish two signatures for persistent and imperative
+graphs, \texttt{P} and \texttt{I} respectively, since the modifiers do
+not have the same types:
+\begin{verbatim}
+module type P = sig
+  include G
+  val empty : t
+  val add_vertex : t -> vertex -> t
+  val add_edge : t -> vertex -> vertex -> t
+  ...
+end
+module type I = sig
+  include G
+  val create : unit -> t
+  val add_vertex : t -> vertex -> unit
+  val add_edge : t -> vertex -> vertex -> unit
+  ...
+end
+\end{verbatim}
 
-\ocamlgraph does not provide a single data structure for graphs but a
-set of functors to build customized data structures. More precisely,
-the user must answer the following questions:
+\subsection{Graph Data Structures}\label{structuresdedonnees}
+
+\ocamlgraph provides 16 graph data structures, which are all the
+possible combinations of the following 4 criteria:
 \begin{itemize}
-\item \emph{What are the graph's vertices?} 
-  The user must define the type of the values stored in each vertex.
-  He also has to choose between \emph{concrete} vertices (where vertices and
-  their values are identical) and \emph{abstract} vertices (where the
-  values are hidden inside an abstract data type for vertices). In the
-  latter case, it allows a more efficient implementation of some
-  operations. 
-
-\item \emph{Are the graphs directed or not?}
-
-\item \emph{Are the edges labeled or not?} 
-  When they are labeled, the user must define the type of these labels.
-
-\item \emph{Are the graphs imperative or persistent?}  An imperative
-  graph is a mutable data structure where modifications are performed
-  in-place, while a persistent graph is an immutable data structure.
-  In the latter case, operations such as adding or removing edges and
-  vertices are still available but are returning new
-  graphs\footnote{Implementing persistent (sometimes also called
-    \emph{functional}) data structures can be done efficiently; see
-    for instance Okasaki's book~\cite{okasaki98}.}.
+\item \emph{directed} or \emph{undirected} graphs;
+\item \emph{labeled} or \emph{unlabeled} edges;
+\item \emph{persistent} or \emph{imperative} data structure;
+\item \emph{concrete} or \emph{abstract} type for the vertices.
 \end{itemize}
+The last point requires some explanation: vertices are always labeled
+but the user may choose between \emph{concrete} vertices where vertices and
+their values are identical and \emph{abstract} vertices where the
+values are hidden inside an abstract data type for vertices. The
+former allows a more immediate use of the data structure and the
+latter allows a more efficient implementation.
 
-Altogether, not less than 16 different data structures must be
-implemented to provide all possible combinations. They are provided as
-functors, since they are parameterized by user types. These 16
+Each graph data structure is provided as a
+functor, parameterized by user types for vertex labels and possibly edge
+labels. These 16 
 functors are displayed Figure~\ref{fig:interfaces} as square boxes
 mapping signatures of input modules to signatures of output modules.
-For instance, a persistent directed graph with abstract vertices and
-labeled edges is obtained by applying the functor
-\begin{center}
-  \texttt{Persistent.Digraph.AbstractLabelled}
-\end{center}
-to a module defining the type for the vertices values (with signature
-\texttt{ANY\_TYPE} defined as \texttt{sig type t end}) 
-and to a module defining the type for the edges 
-labels (with signature \texttt{ORDERED\_TYPE\_DFT} that declares a
-type \texttt{t}, a total order over \texttt{t} and a default value of
-type \texttt{t}).
-
 \begin{figure*}
   \centering
   %\includegraphics[width=\textwidth]{interface.pdf}    
   \includegraphics[width=\textwidth]{interface.eps} 
   \caption{\ocamlgraph's data structures components}\label{fig:interfaces}
 \end{figure*}
-
 Three other implementations complete the set of graph data structures,
 namely \texttt{ConcreteBidirectional} for graphs with an efficient
 access to predecessors, and
-\texttt{Matrix.}(\texttt{Graph},\texttt{Digraph}) for graphs
+\texttt{Matrix.}(\texttt{Graph}, \texttt{Digraph}) for graphs
 implemented as adjacency matrices.
-
-The remaining of this section details the signatures and the modules
-displayed Figure~\ref{fig:interfaces}. More precisely,
-Section~\ref{interfaces} shows how the interfaces for all the
-data structures are unified in order to ease the access to the library.
-Then Section~\ref{codesharing} explains how the code is shared between
-the various implementations.
-
-\subsection{Interfaces}\label{interfaces}
-
-The various graph data structures interfaces are gathered in the
-module \texttt{Sig}. There are three main signatures: a common
-signature \texttt{G} for all data structures, a signature \texttt{P}
-for persistent data structures and a signature \texttt{I} for
-imperative data structures. The common interface \texttt{G} contains
-all access operations. The interfaces \texttt{P} and \texttt{I} extend
-\texttt{G} by adding creation and modification operations, obviously
-different for persistent and imperative data structures.
-
-The common interface \texttt{G} introduces an abstract data type
-\texttt{t} for graphs:
-\begin{alltt}
-module type G = sig
-  type t  \hfill(* the type of graphs *)
-\end{alltt}
-The type of vertices is also an abstract type\footnote{The type of
-  vertices is abstract in this generic interface but a particular
-  implementation may declare a manifest type.}.
-Since we do not know yet whether the vertices will be labeled or not,
-we also introduce a type for vertices labels. (One could have
-considered a polymorphic type for vertices but polymorphism does not
-marry nicely with functors.) Finally, most graph algorithms require to
-store vertices in data structures such as sets or dictionaries and
-thus it is convenient to have the type of vertices equipped with
-comparison and hashing functions. We gather all these types and
-functions within a sub-module \texttt{V}:
-\begin{alltt}
-  module V : sig
-    type t  \hfill(* the type of vertices *)
-    type label  \hfill(* vertices labels *)
-    val create : label -> t
-    val label : t -> label
-    val compare : t -> t -> int 
-    val hash : t -> int 
-    val equal : t -> t -> bool
-  end
-\end{alltt}
-Introducing a sub-module has several advantages: first, it avoids
-polluting the name space; second, it allows this sub-module to be
-directly used as an argument of functors from \ocaml's
-standard library. Yet we introduce an alias for the type
-\texttt{V.t} for a greater clarity in the following:
-\begin{alltt}
-  type vertex = V.t
-\end{alltt}
-For graphs where vertices are unlabeled, we will identify the types
-\texttt{V.t} and \texttt{V.label} and we will implement the operations
-\texttt{V.create} and \texttt{V.label} as the identity.
-
-Similarly, we introduce a sub-module \texttt{E} for edges. Again, we
-assume that the edges may be labeled and an edge is thus built from
-two vertices and a label. Finally, we equip the edges type with a
-comparison function as we did for vertices.
-\begin{alltt}
-  module E : sig
-    type t   \hfill(* the type of edges *)
-    type label \hfill(* edges labels *)
-    val create : vertex -> label -> vertex -> t
-    val src : t -> vertex
-    val dst : t -> vertex
-    val label : t -> label
-    val compare : t -> t -> int
-  end
-  type edge = E.t
-\end{alltt}
-For unlabeled edges, we will implement the type \texttt{E.t} as
-\texttt{V.t * V.t} and we will ignore the type \texttt{E.label}
-(implementing it with the \texttt{unit} type for instance).
-
-Then we introduce a large set of test, access and iteration
-functions over vertices and edges, whose meaning is immediate:
-\begin{alltt}
-  val is_directed : bool
-  val nb_vertex : t -> int
-  val out_degree : t -> vertex -> int
-  val iter_vertex : (vertex -> unit) -> t -> unit
-  (* ... *)
-\end{alltt}
-The central part of the interface is the set of functions giving
-access to the graph structure. One can find for instance a function
-returning the successors of a vertex as a list of vertices:
-\begin{alltt}
-  val succ : t -> vertex -> vertex list
-  (* ... *)
-\end{alltt}
-In practice, however, it is more useful to iterate a given function
-over the successors (or the predecessors), to avoid building a list
-that would be immediately deconstructed.  This set of iterators
-completes the signature \texttt{G}:
-\begin{alltt}
-  val iter_succ : 
-    (vertex -> unit) -> t -> vertex -> unit
-  val fold_succ : 
-    (vertex -> 'a -> 'a) -> t -> vertex -> 'a -> 'a
-  (* ... *)
-end
-\end{alltt}
-As demonstrated in Section~\ref{algos}, implementing a graph algorithm
-usually requires a small subset of these operations. Using signatures
-sub-typing, any implementation of the signature \texttt{G} will also
-be an adequate signature for our algorithms.
-
-The interface \texttt{P} for persistent graphs then extends the interface
-\texttt{G} with a set of creation functions:
-\begin{alltt}
-module type P = sig
-  include G
-  val empty : t
-  val add_vertex : t -> vertex -> t
-  val remove_vertex : t -> vertex -> t
-  val add_edge : t -> vertex -> vertex -> t
-  (* ... *)
-end
-\end{alltt}
-Similarly, the interface \texttt{I} for imperative graphs extends
-\texttt{G} with creation and modification functions:
-\begin{alltt}
-module type I = sig
-  include G
-  val create : unit -> t
-  val copy : t -> t
-  val add_vertex : t -> vertex -> unit
-  val add_edge : t -> vertex -> vertex -> unit
-  (* ... *)
-end
-\end{alltt}
-One can notice the \texttt{copy} function which has no counterpart in
-the interface \texttt{P}.
-
-In Section~\ref{builder} we will show how to give a common interface
-to graphs creation, whatever their persistent or imperative nature is,
-in order to share code in some algorithms that need to build graphs.
-But it would have been unfortunate to do it here, since the mutability
-of the graph must appear clearly to the user when looking at the signature.
-
-Finally, the module \texttt{Sig} introduces a fourth (and last)
-signature for graphs, \texttt{IM}, for imperative data structures
-where vertices are equipped with integers \emph{marks} which can be
-modified in-place:
-\begin{alltt}
-module type IM = sig
-  include I
-  module Mark : sig
-    val clear : t -> unit \hfill (* set all marks to 0 *)
-    val get : vertex -> int
-    val set : vertex -> int -> unit
-  end
-end
-\end{alltt}
-Such a signature is useful when one wants to provide an efficient
-implementation of an algorithm based on a specific marking of the
-vertices. Moreover, such marks can then be exploited by the user once the 
-algorithm's run is completed, since they are exposed in the signature.
-The typical example is a depth-first traversal.
-
-One can notice that the directed nature of the graph does appear
-nowhere in the signature. Only the \emph{implementations} will set
-it. 
-
-\subsection{Code Sharing}\label{codesharing}
-
-The implementations of the various data structures for graphs are
-gathered in the two modules \texttt{Persistent} and
-\texttt{Imperative}. Each of these two modules is divided into two
-sub-modules: \texttt{Graph} for undirected graphs and \texttt{Digraph}
-for directed ones. Each of these sub-modules contains four functors,
-corresponding to concrete or abstract data types\footnote{An abstract
-  graph hides the representation of vertices and edges, allowing an
-  optimized implementation of some operations.} with labeled or
-unlabeled edges (vertices are always labeled). These functors are
-parameterized by a module \texttt{V} giving the type of the vertices and,
-when meaningful, by a module \texttt{E} giving the type of the edges.
-For instance, the functor \texttt{Persistent.Digraph.Abstract}
-implements directed persistent graphs, implemented as an abstract data
-type and with no labels on edges. Its signature is the following:
-\begin{alltt}
-  module Abstract(V: sig type t end) : 
-    Sig.P with type V.label = V.t
-\end{alltt}
-
-In the remaining of this section, we show how functors are used to
-share as much code as possible among these 16 data structures. Note
-the code presented here is not useful (and actually not visible) for
-the user of the library.
-
-The module \texttt{Per\_imp}, which is internal to \ocamlgraph,
-gathers a few functors implementing operations that are common to
-persistent and imperative graphs. Each functor has a dedicated task,
-such as adding labels on edges (functor \texttt{Labelled}), makes the
-graph abstract (functor \texttt{Make\_Abstract}) or adding the
-operations on predecessors (functor \texttt{Pred}). Then implementing
-a given graph data structure is a matter of assembling the various
-functors as in a construction game and adding the few operations that
-could not be factorized.
-
-\paragraph{Abstracting the persistent or imperative nature.}
-In our library, graphs are represented as dictionaries mapping each
-vertex to the set of its successors (with the corresponding edge's label
-if any). These dictionaries are either persistent or imperative. In
-\ocaml, it results in operations with different types. Indeed, adding
-a mapping into an hash table does not return any value but adding it
-into a persistent map (an AVL for instance) returns a new map. 
-Yet it is possible to give these persistent and imperative maps a
-common signature using an explicit \texttt{'a return} type for the
-returned value:
-\begin{alltt}
-module type HM = sig
-  type 'a return 
-  \hfill (* return type for [add] and [remove] *)
-  type 'a t
-  type key
-  val add: key -> 'a -> 'a t -> 'a return
-  val mem: key -> 'a t -> bool
-  val find: key -> 'a t -> 'a
-  (* ... *)
-end
-\end{alltt}
-It is then possible to get a persistent implementation of \texttt{HM}
-using \ocaml's \texttt{Map} module by instantiating the type
-\texttt{'a return} with the type of persistent maps:
-\begin{alltt}
-module Make_Map(X: (* ... *) ) = struct
-  include Map.Make(X)
-  type 'a return = 'a t
-  (* ... *)
-end
-\end{alltt}
-Beside, it is also possible to get an imperative implementation using
-\ocaml's \texttt{Hashtbl} module by instantiating the type \texttt{'a
-  return} with \texttt{unit}:
-\begin{alltt}
-module Make_Hashtbl(X: (* ... *) ) = struct
-  include Hashtbl.Make(X)
-  type 'a return = unit
-  let add k v h = replace h k v
-  (* ... *)
-end
-\end{alltt}
-
-Now, using an implementation of \texttt{HM} together with an
-implementation of finite sets, it is possible to write a functor
-implementing the operations which are common to all graphs:
-\begin{alltt}
-module Minimal(S: Set.S)(HM: HM) = struct
-  let mem_vertex g v = 
-    HM.mem v g
-  let unsafe_add_edge g v1 v2 = 
-    HM.add v1 (S.add v2 (HM.find v1 g)) g
-  (* ... *)
-end
-\end{alltt}
-
-\paragraph{Functors as building blocks.}
-Operations over predecessors are always implemented the same way. They
-are provided by the \texttt{Pred} functor:
-\begin{alltt}
-module Pred(S: (* ... *) ) = struct
-  let fold_pred f g v = (* ... *)
-  let pred g v = 
-    fold_pred (fun v l -> v :: l) g v []
-  (* ... *)
-end
-\end{alltt}
-% JCF: je supprimme ceci car ce n'est pas fait ainsi dans le code
-% 
-% En outre, dans le cas des graphes non orientés, les opérations sur les
-% prédécesseurs peuvent être optimisées en tenant compte du fait que l'ensemble
-% des prédécesseurs d'un sommet $s$ est égal à l'ensemble des successeurs de $s$.
-% On peut alors redéfinir \texttt{Pred}:
-% \begin{alltt}
-% module Pred(S: (* ... *) ) = struct
-%   let fold_pred = S.fold_succ
-%   let pred = S.succ
-%   (* ... *)
-% end
-% \end{alltt}
-Similarly, two functors \texttt{Labeled} and \texttt{Unlabeled}
-introduce all operations that depend on the presence or absence of
-labels on edges, such as iterating over the edges, over the successors
-of some vertex, etc.
-
-The abstraction of a graph data structure is an operation that
-encapsulates the type of vertices given by the user in some more
-efficient data structure (typically a record with a unique integer).
-When this is done, some operations can be optimized, such as counting
-the number of vertices in the graph, since the user does not have a
-direct access to the vertices anymore. The functor
-\texttt{Make\_Abstract} realizes such an optimization:
-\begin{alltt}
-module Make_Abstract(G: Sig.G) = struct
-  module I = struct
-    type t = \{ edges: G.t; mutable size: int \}
-    let iter_vertex f g = G.iter_vertex f g.edges
-    (* ... *)
-  end
-  include I
-  include Pred(I)
-  let nb_vertex g = g.size \hfill (* optimization *)
-  (* ... *)
-end
-\end{alltt}
-
-Finally, it is possible to implement the concrete version of the
-module \texttt{V} and the corresponding association table, given a
-user data type for the vertices, using a higher-order functor:
-\begin{alltt}
-module ConcreteVertex
-  (F: functor(X: (* ... *) ) -> 
-      HM with type key = X.t)
-  (V: (* ... *) ) =
-struct
-  module V = struct
-    include V
-    type label = t
-    let label v = v
-    let create v = v
-  end
-  module HM = F(V)
-end
-\end{alltt}
-
-\paragraph{Assembling the blocks.}
-Using all these functors, it is now possible to implement in a generic
-and easy way the major part of the modules \texttt{Digraph} and
-\texttt{Graph} as the following higher-order functor: 
-\begin{alltt}
-module Make(F: functor(X: (* ... *) ) -> 
-               HM with type key = X.t) = 
-struct
-  module Digraph = struct
-    module Concrete(V: (* ... *) ) = struct
-      include ConcreteVertex(F)(V) 
-        \hfill (* vertices are concrete *)
-      include Unlabeled(V)(HM) 
-        \hfill (* edges are unlabeled *)
-      include Minimal(S)(HM) 
-        \hfill (* common operations *)
-    end
-    module ConcreteLabelled = (* ... *)
-    module Abstract = (* ... *)
-    module AbstractLabelled = (* ... *)
-    end
-  end
-  module Graph = struct (* ... *) end
-end
-\end{alltt}
-The persistent and imperative implementations are then obtained by
-applying this functor respectively to \texttt{Make\_Map} and
-\texttt{Make\_Hashtbl}:
-\begin{alltt}
-module P = Make(Make_Map)
-module I = Make(Make_Hashtbl)
-\end{alltt}
-Finally, to get the functors provided to the user, we simply need to
-add the operations that could not be factorized:
-\begin{alltt}
-module Digraph = struct
-  module Concrete(V: (* ... *) ) = struct
-    include P.Digraph.Concrete(V) 
-    let add_vertex g v1 v2 = 
-      if HM.mem v g then g else add_vertex g v
-    (* ... *)
-  end
-  (* ... *)
-end
-\end{alltt}
-
 Putting all together, the code for the 19 graph data structures amounts
 to 1059 lines. This is clearly small enough to be easily
 maintained. In Section~\ref{bench} we will show that this code is also
 quite efficient.
+
+The graph data structure for our Sudoku solver is thus simply obtained as
+\begin{verbatim}
+module G = Imperative.Graph.Abstract
+             (struct type t = int * int end) 
+\end{verbatim}
+that is an imperative undirected graph with abstract vertices labeled
+with pairs of inteers and unlabeled edges.
 
 \section{Algorithms}\label{algos}
 
