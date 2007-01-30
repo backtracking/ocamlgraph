@@ -114,6 +114,31 @@ module Make_Map(X: COMPARABLE) = struct
   let find_and_raise k h s = try find k h with Not_found -> invalid_arg s
 end
 
+(* Common implementation to all (directed) graph implementations. *)
+module Minimal(S: Set.S)(HM: HM) = struct
+
+  type vertex = HM.key
+
+  let is_directed = true
+  let empty = HM.empty
+  let create = HM.create
+  let is_empty = HM.is_empty
+
+  let nb_vertex g = HM.fold (fun _ _ -> succ) g 0
+  let nb_edges g = HM.fold (fun _ s n -> n + S.cardinal s) g 0
+  let out_degree g v = 
+    S.cardinal (try HM.find v g with Not_found -> invalid_arg "out_degree")
+
+  let mem_vertex g v = HM.mem v g
+
+  let unsafe_add_vertex g v = HM.add v S.empty g
+  let unsafe_add_edge g v1 v2 = HM.add v1 (S.add v2 (HM.find v1 g)) g
+
+  let iter_vertex f = HM.iter (fun v _ -> f v)
+  let fold_vertex f = HM.fold (fun v _ -> f v)
+    
+end
+
 (* All the predecessor operations from the iterators on the edges *)
 module Pred(S: sig
 	      module PV: COMPARABLE
@@ -153,31 +178,6 @@ struct
       
   let pred_e g v = fold_pred_e (fun v l -> v :: l) g v []
 
-end
-
-(* Common implementation to all (directed) graph implementations. *)
-module Minimal(S: Set.S)(HM: HM) = struct
-
-  type vertex = HM.key
-
-  let is_directed = true
-  let empty = HM.empty
-  let create = HM.create
-  let is_empty = HM.is_empty
-
-  let nb_vertex g = HM.fold (fun _ _ -> succ) g 0
-  let nb_edges g = HM.fold (fun _ s n -> n + S.cardinal s) g 0
-  let out_degree g v = 
-    S.cardinal (try HM.find v g with Not_found -> invalid_arg "out_degree")
-
-  let mem_vertex g v = HM.mem v g
-
-  let unsafe_add_vertex g v = HM.add v S.empty g
-  let unsafe_add_edge g v1 v2 = HM.add v1 (S.add v2 (HM.find v1 g)) g
-
-  let iter_vertex f = HM.iter (fun v _ -> f v)
-  let fold_vertex f = HM.fold (fun v _ -> f v)
-    
 end
 
 (* Common implementation to all the unlabeled (directed) graphs. *)
