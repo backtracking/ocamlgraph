@@ -66,7 +66,7 @@
 \maketitle
 
 \begin{abstract}
-  This article details the design and implementation of \ocamlgraph, a
+  This article details the design and implementation of \ocamlgraph, a highly
   generic graph library for the programming language \ocaml. This
   library features a large set of graph data structures---directed or
   undirected, with or without labels on vertices and edges, as persistent
@@ -162,19 +162,21 @@ several existing graph libraries.
     \hline
      &          & graph data & persistent / & generic    \\
      & language & structures & imperative   & algorithms \\\hline\hline
-     LEDA & C++    & 2  & I & \absent   \\\hline
-     GTL & C++     & 1  & I & \absent   \\\hline
-     MLRisc & SML  & 1  & I & \absent   \\\hline
-     FGL & Haskell & 1  & P & \present  \\\hline
-     Baire & \ocaml & 8 &P/I& ---      \\\hline
-     JDSL & Java   & 1  & I & \present  \\\hline
-     BGL & C++     & 1  & I & \present  \\\hline
+     GTL \cite{Gtl} & C++     & 1  & I & \absent   \\\hline
+     LEDA \cite{Leda} & C++    & 2  & I & \absent   \\\hline
+     BGL \cite{Bgl} & C++     & 2  & I & \present  \\\hline
+     JDSL \cite{Jdsl} & Java   & 1  & I & \present  \\\hline
+     FGL \cite{Fgl} & Haskell & 1  & P & \present  \\\hline
+     MLRisc \cite{Mlrisc} & SML  & 1  & I & \absent   \\\hline
+     Baire \cite{Baire}\footnotemark & \ocaml & 8 &P/I& ---      \\\hline
 %     \ocamlgraph& \ocaml &P/I& \present & 19 \\\hline
   \end{tabular}
   \medskip
   \caption{Comparison with other graph libraries}
   \label{comparison:tab}
 \end{figure*}
+\footnotetext{The Baire library seems to be no longer available from the
+  Internet at this day.}
 
 \section{Motivating Example and Design Overview}
 
@@ -211,8 +213,7 @@ We now describe the implementation of
 \ocamlgraph. First Section~\ref{interface} describes the common
 signature for all graph data structures.
 Then Section~\ref{structuresdedonnees} details the various graph
-implementations. Finally Section~\ref{algos} explains how
-generic algorithms are provided.
+implementations.
 
 \subsection{Common Signature}\label{interface}
 
@@ -299,11 +300,11 @@ The graph data structure for our Sudoku solver is thus simply obtained as
 module G = Imperative.Graph.Abstract
              (struct type t = int * int end) 
 \end{verbatim}
-that is an imperative undirected graph with abstract vertices labeled
-with pairs of inteers and unlabeled edges.
+That is an imperative undirected graph with abstract vertices labeled
+with pairs of integers and unlabeled edges.
 Then we can create the graph itself with \texttt{G.create}, add
 vertices with \texttt{G.add\_vertex} and edges with
-\texttt{G.add\_edge}\footnote{The source for the Sudoku example is
+\texttt{G.add\_edge}\footnote{The full source code for the Sudoku example is
   available on \ocamlgraph's web page.}.
 
 \section{Algorithms}\label{algos}
@@ -332,8 +333,8 @@ provided as an additional functor parameter.
 Such a ``functorization'' of algorithms has two benefits: first, it
 allows to quickly add a new algorithm to the library, without code
 duplication for all data structures; second, it allows the user to
-apply an algorithm on its own graph data structure, which is an
-original feature of \ocamlgraph\ w.r.t. other graph libraries.
+apply an algorithm on its own graph data structure%% , which is an
+%% original feature of \ocamlgraph\ w.r.t. other graph libraries.
 
 \subsection{Example: Graph Coloring}
 \label{coloring}
@@ -409,15 +410,18 @@ Regarding memory consumption, all four data structures roughly use 5
 machine words (typically 20 bytes) per edge.
 
 \begin{figure*}
-  \centering\hspace*{-2em}
-  \begin{tabular}{cc}
-  \begin{minipage}{0.5\linewidth}
-    \input{./bench1c.tex}
-  \end{minipage} &
-  \begin{minipage}{0.5\linewidth}
+  \centering%\hspace*{-2em}
+  \input{./bench1c.tex}
+
   \input{./bench1d.tex}
-  \end{minipage}
-  \end{tabular}
+%%   \begin{tabular}{cc}
+%%   \begin{minipage}{0.5\linewidth}
+%%     \input{./bench1c.tex}
+%%   \end{minipage} &
+%%   \begin{minipage}{0.5\linewidth}
+%%   \input{./bench1d.tex}
+%%   \end{minipage}
+%%   \end{tabular}
   \caption{Benchmarking creation (left) and deletion (right)}
   \label{fig:bench:build}
 \end{figure*}
@@ -434,15 +438,18 @@ between 500,000 and 1 million traversed edges per second.
 % \input{./bench2dij}
 
 \begin{figure*}
-  \centering\hspace*{-2em}
-  \begin{tabular}{cc}
-  \begin{minipage}{0.5\linewidth}
-\input{./bench2dfs}
-  \end{minipage} &
-  \begin{minipage}{0.5\linewidth}
-\input{./bench2bfs}
-  \end{minipage}
-  \end{tabular}
+  \centering%% \hspace*{-2em}
+%%   \begin{tabular}{cc}
+%%   \begin{minipage}{0.5\linewidth}
+%% \input{./bench2dfs}
+%%   \end{minipage} &
+%%   \begin{minipage}{0.5\linewidth}
+%% \input{./bench2bfs}
+%%   \end{minipage}
+%%   \end{tabular}
+  \input{./bench2dfs}
+
+  \input{./bench2bfs}
   \caption{Benchmarking DFS (left) and BFS (right)}
   \label{fig:bench:maze}
 \end{figure*}
@@ -463,7 +470,7 @@ vertices and edges types. Thus they are much more representative of
 
 \section{Conclusion}
 
-We have presented \ocamlgraph, a generic graph library for \ocaml\
+We have presented \ocamlgraph, a highly generic graph library for \ocaml\
 providing several graph data structures and, independently, several
 graph algorithms. This genericity is obtained using \ocaml's module
 system and especially its functors which allow to share large pieces
