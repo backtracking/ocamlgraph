@@ -252,20 +252,35 @@ let () = C.coloring g 9
 
 \section{Signatures and Graph Data Structures}\label{implementation}
 
-We now describe the implementation of
-\ocamlgraph. First Section~\ref{interface} describes the common
-signature for all graph data structures.
-Then Section~\ref{structuresdedonnees} details the various graph
-implementations.
+Managing many variants of graph data structures without proper
+parameterization results in unmanageable code.
+%
+Here we show how to factorize the \ocamlgraph implementation to avoid
+such a pitfall.  Section~\ref{interface} describes the common
+sub-signatures shared by all graphs. Section~\ref{structuresdedonnees}
+details their various implementations.
 
-\subsection{A Common Signature for All Graphs}\label{interface}
+% First Section~\ref{interface} describes the common signatures for all
+% graph data structures.  Then Section~\ref{structuresdedonnees} details
+% the various graph implementations.
 
-The common signature for all graph data structures includes an
-abstract type \texttt{t} for the graphs, two modules \texttt{V} and
-\texttt{E} for vertices and edges respectively, and all the
-observers. The latter include several functions to iterate over
-vertices and edges, which are massively used in graph algorithms. 
-The common signature thus looks like:
+\subsection{Sharing Signatures for All Graphs}\label{interface}
+
+
+All graph data structures share a common sub-signature \texttt{G} for
+observers. Two other signatures (\texttt{P} and \texttt{I})
+distinguish the modifiers for respectively persistent and imperative
+graphs.
+
+The common signature \texttt{G} includes an abstract type \texttt{t}
+for graphs datatype, two modules \texttt{V} and \texttt{E} for
+vertices and edges respectively, and all the observers. The latter
+include several functions to iterate over vertices and edges, which
+are massively used in graph algorithms.  The common signature thus
+looks like:
+
+\newpage 
+
 \begin{ocaml}
 module type G = sig
   type t
@@ -313,9 +328,8 @@ values are hidden inside an abstract data type for vertices. The
 former allows a more immediate use of the data structure and the
 latter allows a more efficient implementation.
 
-Each graph data structure is provided as a
-functor, parameterized by user types for vertex labels and possibly edge
-labels. These 16 
+Each graph data structure is provided as a functor, parameterized by
+user types for vertex labels and possibly edge labels. These 16
 functors are displayed Figure~\ref{fig:interfaces} as square boxes
 mapping signatures of input modules to signatures of output modules.
 \begin{figure*}
@@ -355,8 +369,7 @@ vertices with \texttt{G.add\_vertex} and edges with
 This section introduces the second use of functors in \ocamlgraph: the
 generic programming of graph algorithms.
 
-\subsection{Making Algorithms Independent From Graph Data
-  Structures}
+\subsection{Decoupling Algorithms and Graph Data Structures}
 
 As demonstrated in the previous section, our library provides many
 graph data structures. Therefore, it is necessary to figure out how to
