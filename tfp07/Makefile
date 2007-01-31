@@ -1,12 +1,12 @@
 
-all: main.ps
+all: main-pp.ps
 
-main.ps: main.tex
-	latex main
-	bibtex main
-	latex main
-	latex main
-	dvips main.dvi -o $@
+main-pp.ps: main-pp.tex
+	latex main-pp
+	bibtex main-pp
+	latex main-pp
+	latex main-pp
+	dvips main-pp.dvi -o $@
 
 OCAMLOPT=ocamlopt.opt -unsafe -inline 1000
 
@@ -31,3 +31,9 @@ bench_build.byte: bench_build.ml
 
 export: main.ps
 	cp main.ps $$HOME/ftp/publis/ocamlgraph.ps
+
+%-pp.tex: pp.ml %.tex 
+	ocaml $^ > $@
+
+pp.ml: pp.mll
+	ocamllex pp.mll

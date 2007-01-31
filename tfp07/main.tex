@@ -107,27 +107,26 @@ these criteria.
 % library, this article demonstrates how \ocaml has been used to
 \ocamlgraph\ introduces genericity at two levels. First, \ocamlgraph
 does not provide a single data structure for graphs but many of them,
-enumerating all possible variations---directed or undirected graphs,
-persistent or mutable data structures, user-defined labels on vertices
-or edges, etc.---under a common interface.
-Second, \ocamlgraph provides a large set of graph algorithms that are
-written independently of the underlying graph data structure. Then
-they can be applied on the data structures provided by \ocamlgraph
-itself but also on user-defined data structures as soon as they
-implement a minimal set of functionalities.
+enumerating all possible variations (19 all together)---directed or
+undirected graphs, persistent or mutable data structures, user-defined
+labels on vertices or edges, etc.---under a common interface.  Second,
+\ocamlgraph provides a large set of graph algorithms that are written
+independently of the underlying graph data structure. Then they can be
+applied on the data structures provided by \ocamlgraph itself but also
+on user-defined data structures as soon as they implement a minimal
+set of functionalities.
 
 Without proper parameterization, such a large set of variants may
-easily result into an unmanageable code. We avoid this pitfall
-using the \ocaml module system~\cite{leroy00}, which
-appears to be the tool of choice to do such meta-programming. 
-The genericity of \ocamlgraph is indeed achieved through a massive use
-of \ocaml functors. In the first case, they are used to avoid code
-duplication between the many variations of graph data structures,
-which is mandatory here seen the high number of similar but all
-different implementations. In the second case, they are used to write
-the graph algorithms independently of the underlying graph data
-structure, with as much genericity as possible but also with an
-efficiency concern in mind. 
+easily result into an unmanageable code. We avoid this pitfall using
+the \ocaml module system~\cite{leroy00}, which appears to be the tool
+of choice to do such meta-programming.  The genericity of \ocamlgraph
+is indeed achieved through a massive use of \ocaml functors. On one
+hand, they are used to avoid code duplication between the many
+variations of graph data structures, which is mandatory here seen the
+high number of similar but all different implementations. On the other
+hand, they are used to write the graph algorithms independently of the
+underlying graph data structure, with as much genericity as possible
+but also with an efficiency concern in mind.
 
 % TODO
 This article is organized as follows. Section~\ref{systememodules}
@@ -175,37 +174,86 @@ several existing graph libraries.
   \caption{Comparison with other graph libraries}
   \label{comparison:tab}
 \end{figure*}
-\footnotetext{The Baire library seems to be no longer available from the
-  Internet at this day.}
+\footnotetext{The Baire library seems to be no longer available from
+  Internet.}
 
-\section{Motivating Example and Design Overview}
+\section{Motivating Example}
 
 As a running example, we consider a Sudoku solver based on graph
 coloring.  The idea is to represent the Sudoku grid as an undirected
 graph with $9\times 9$ vertices, each vertex being connected to the
 other vertices on the same row, column or $3\times 3$ group. Then
 solving the Sudoku is equivalent to 9-coloring this graph.
-What we should expect from a good graph library is thus:
+
+The code in Figure~\ref{fig:sudoku} is the sketch of the solution to
+this problem using \ocamlgraph\footnote{The full source code for the
+  Sudoku example is available on \ocamlgraph's web page.}. There are
+four steps in the solution:
 \begin{enumerate}
-\item the ability to easily build an undirected graph where each
-  vertex is labeled with a pair of integers (the cell coordinates);
-\item an efficient graph coloring algorithm that can be applied to the
-  above data structure. 
+\item We choose a graph data structure for our Sudoku solver: it is an
+  imperative undirected graph with vertices labeled with pairs of
+  integers and unlabeled edges. In this structure, vertices are also
+  equipped with integer marks, that are used to store the assigned
+  colors.
+\item We create the sudoku grid and fill it with the initial
+  constraints.
+\item We obtain a coloring algorithm for our graph data structure.
+\item We solve the Sudoku problem by 9-coloring the graph.
 \end{enumerate}
-If a graph library is providing only directed graphs or only
-unlabeled vertices, one has to adapt to the existing data structure.
-Generally speaking, the user may want
-to choose any combination of the following features:
-\begin{itemize}
-\item \emph{directed} or \emph{undirected} graphs;
-\item \emph{labeled} or \emph{unlabeled} vertices and edges;
-\item \emph{types} for the labels, when any;
-\item \emph{persistent} or \emph{imperative} data structure;
-\end{itemize}
-The strong point in \ocamlgraph is to provide \emph{all} possible
-combinations, as ML modules sharing a common signature \texttt{G}.
-Then algorithms are provided as ML functors whose arguments must have
-signatures compatible with \texttt{G}.
+
+This code is almost as efficient as a hand-coded Sudoku solver: on the
+average, a Sudoku puzzle is solved in 0.2 seconds (on a Pentium 4 2.4 GHz).
+
+
+\begin{figure}[htbp]
+\hrule
+
+~
+
+\begin{center}
+\begin{ocaml}
+module G = Imperative.Graph.Abstract
+             (struct type t = int * int end) 
+
+let g = G.create ()
+
+(* vertices with initial constraints and edges are 
+   added to [g] using [G.add\_vertex] and [G.add\_edge]. 
+   It amounts to 20 lines of code. *)
+
+module C = Coloring(G)       
+let () = C.coloring g 9
+\end{ocaml}
+\end{center}
+\hrule
+
+  \caption{A Sudoku solver using \ocamlgraph}
+  \label{fig:sudoku}
+\end{figure}
+ 
+
+
+% What we should expect from a good graph library is thus:
+% \begin{enumerate}
+% \item the ability to easily build an undirected graph where each
+%   vertex is labeled with a pair of integers (the cell coordinates);
+% \item an efficient graph coloring algorithm that can be applied to the
+%   above data structure. 
+% \end{enumerate}
+% If a graph library is providing only directed graphs or only
+% unlabeled vertices, one has to adapt to the existing data structure.
+% Generally speaking, the user may want
+% to choose any combination of the following features:
+% \begin{itemize}
+% \item \emph{directed} or \emph{undirected} graphs;
+% \item \emph{labeled} or \emph{unlabeled} vertices and edges;
+% \item \emph{types} for the labels, when any;
+% \item \emph{persistent} or \emph{imperative} data structure;
+% \end{itemize}
+% The strong point in \ocamlgraph is to provide \emph{all} possible
+% combinations, as ML modules sharing a common signature \texttt{G}.
+% Then algorithms are provided as ML functors whose arguments must have
+% signatures compatible with \texttt{G}.
 
 \section{Implementation}
 
@@ -223,7 +271,7 @@ abstract type \texttt{t} for the graphs, two modules \texttt{V} and
 observers. The latter include several functions to iterate over
 vertices and edges, which are massively used in graph algorithms. 
 The common signature thus looks like:
-\begin{verbatim}
+\begin{ocaml}
 module type G = sig
   type t
   module V : sig type t ... end
@@ -232,11 +280,11 @@ module type G = sig
   val iter_succ : (V.t -> unit) -> t -> V.t -> unit
   ...
 end
-\end{verbatim}
+\end{ocaml}
 Then we distinguish two signatures for persistent and imperative
 graphs, \texttt{P} and \texttt{I} respectively, since the modifiers do
 not have the same types:
-\begin{verbatim}
+\begin{ocaml}
 module type P = sig
   include G
   val empty : t
@@ -251,7 +299,7 @@ module type I = sig
   val add_edge : t -> vertex -> vertex -> unit
   ...
 end
-\end{verbatim}
+\end{ocaml}
 
 \subsection{Graph Data Structures}\label{structuresdedonnees}
 
@@ -296,10 +344,10 @@ enough to be easily maintained. In Section~\ref{bench} we will show
 that this code is also quite efficient.
 
 The graph data structure for our Sudoku solver is thus simply obtained as
-\begin{verbatim}
+\begin{ocaml}
 module G = Imperative.Graph.Abstract
              (struct type t = int * int end) 
-\end{verbatim}
+\end{ocaml}
 That is an imperative undirected graph with abstract vertices labeled
 with pairs of integers and unlabeled edges.
 Then we can create the graph itself with \texttt{G.create}, add
@@ -345,7 +393,7 @@ algorithm, we assume vertices to be equipped with integer marks, used
 to store the assigned colors. We also need iterators over vertices and
 successors. Thus the minimal signature for a graph
 coloring algorithm is the following:
-\begin{verbatim}
+\begin{ocaml}
 module type GM = sig
   type t
   module V : sig type t ... end
@@ -356,17 +404,17 @@ module type GM = sig
   val iter_vertex : (V.t -> unit) -> t -> unit
   val iter_succ : (V.t -> unit) -> t -> V.t -> unit
 end
-\end{verbatim}
+\end{ocaml}
 \ocamlgraph already provides implementations for such a
 signature. This is the case for the graph data structure used in our
 Sudoku solver.
 
 Then the graph coloring algorithm is implemented as the following functor:
-\begin{verbatim}
+\begin{ocaml}
 module Coloring(G : GM) : sig
   val coloring : G.t -> int -> unit
 end
-\end{verbatim}
+\end{ocaml}
 It provides a single function \texttt{coloring} which colors a given
 graph with a given number of colors. Some marks may contain initial
 constraints. 
