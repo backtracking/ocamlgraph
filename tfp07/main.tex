@@ -175,20 +175,21 @@ Finally Section~\ref{bench} presents some benchmarks.
 
 \section{Motivating Example}\label{motivatingexample}
 
-As a running example, we consider a Sudoku solver based on graph
+To illustrate the use of \ocamlgraph, we consider a Sudoku solver
+based on graph 
 coloring.  The idea is to represent the Sudoku grid as an undirected
 graph with $9\times 9$ vertices, each vertex being connected to the
-other vertices on the same row, column or $3\times 3$ group. Then
+other vertices on the same row, column and $3\times 3$ group. Then
 solving the Sudoku is equivalent to 9-coloring this graph.
-
-The code in Figure~\ref{fig:sudoku} is the sketch of the solution to
+Figure~\ref{fig:sudoku} displays the sketch of a solution to
 this problem using \ocamlgraph\footnote{The full source code for the
   Sudoku example is available on \ocamlgraph's web page.}. There are
-four steps in the solution:
+four steps in this code:
 \begin{enumerate}
 \item We choose a graph data structure for our Sudoku solver: it is an
   imperative undirected graph with vertices labeled with pairs of
-  integers and unlabeled edges. In this structure, vertices are also
+  integers (the cells coordinates) and unlabeled edges. 
+  In this structure, vertices are also
   equipped with integer marks, that are used to store the assigned
   colors.
 \item We create the sudoku grid and fill it with the initial
@@ -196,16 +197,12 @@ four steps in the solution:
 \item We obtain a coloring algorithm for our graph data structure.
 \item We solve the Sudoku problem by 9-coloring the graph.
 \end{enumerate}
-
 This code is almost as efficient as a hand-coded Sudoku solver: on the
-average, a Sudoku puzzle is solved in 0.2 seconds (on a Pentium 4 2.4 GHz).
+average, a Sudoku puzzle is solved in 0.2 seconds (on a Pentium IV 2.4 GHz).
+The remaining of this paper will explain the above code in more details.
 
-
-\begin{figure}[htbp]
-\hrule
-
-~
-
+\begin{figure}[t]
+\hrulefill\\[-2em]
 \begin{center}
 \begin{ocaml}
 module G = Imperative.Graph.Abstract
@@ -213,11 +210,13 @@ module G = Imperative.Graph.Abstract
 
 let g = G.create ()
 
-(* vertices with initial constraints and edges are 
-   added to [g] using [G.add\_vertex] and [G.add\_edge]. 
-   It amounts to 20 lines of code. *)
+let () = 
+  ... creation of g's vertices and edges with
+      G.add_vertex and G.add_edge, and initial
+      constraints (20 lines of code) ...
 
 module C = Coloring(G)       
+
 let () = C.coloring g 9
 \end{ocaml}
 \end{center}
