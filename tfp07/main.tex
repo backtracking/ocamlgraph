@@ -128,18 +128,14 @@ hand, they are used to write the graph algorithms independently of the
 underlying graph data structure, with as much genericity as possible
 but also with an efficiency concern in mind.
 
-% TODO
-This article is organized as follows. Section~\ref{systememodules}
-briefly introduces the \ocaml module system. Then
-Section~\ref{structuresdedonnees} exposes the design of the common
+This article is organized as follows. Section~\ref{motivatingexample}
+presents a Sudoku solver for motivating the use of \ocamlgraph.
+Section~\ref{implementation} exposes the design of the common
 interface for all graph data structures and explains how the code is
-shared among the various implementations. Section~\ref{algos}
+shared among the various implementations.  Section~\ref{algos}
 describes the algorithms provided in \ocamlgraph and how the
 genericity with respect to the graph data structure is obtained.
-Section~\ref{exemples} illustrates the use of \ocamlgraph\ on two
-typical situations.  Finally Section~\ref{bench} presents some
-benchmarks and Section~\ref{comparaison} compares \ocamlgraph with
-several existing graph libraries.
+Finally Section~\ref{bench} presents some benchmarks.
 
 % \section{Related Work}
 % \label{comparaison}
@@ -177,7 +173,7 @@ several existing graph libraries.
 \footnotetext{The Baire library seems to be no longer available from
   Internet.}
 
-\section{Motivating Example}
+\section{Motivating Example}\label{motivatingexample}
 
 As a running example, we consider a Sudoku solver based on graph
 coloring.  The idea is to represent the Sudoku grid as an undirected
@@ -255,7 +251,7 @@ let () = C.coloring g 9
 % Then algorithms are provided as ML functors whose arguments must have
 % signatures compatible with \texttt{G}.
 
-\section{Implementation}
+\section{Implementation}\label{implementation}
 
 We now describe the implementation of
 \ocamlgraph. First Section~\ref{interface} describes the common
