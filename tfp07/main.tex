@@ -250,7 +250,7 @@ let () = C.coloring g 9
 % Then algorithms are provided as ML functors whose arguments must have
 % signatures compatible with \texttt{G}.
 
-\section{Implementation}\label{implementation}
+\section{Signatures and Graph Data Structures}\label{implementation}
 
 We now describe the implementation of
 \ocamlgraph. First Section~\ref{interface} describes the common
@@ -258,7 +258,7 @@ signature for all graph data structures.
 Then Section~\ref{structuresdedonnees} details the various graph
 implementations.
 
-\subsection{Common Signature}\label{interface}
+\subsection{A Common Signature for All Graphs}\label{interface}
 
 The common signature for all graph data structures includes an
 abstract type \texttt{t} for the graphs, two modules \texttt{V} and
@@ -296,7 +296,7 @@ module type I = sig
 end
 \end{ocaml}
 
-\subsection{Graph Data Structures}\label{structuresdedonnees}
+\subsection{19 Graph Data Structures in 1000 Lines of Code}\label{structuresdedonnees}
 
 \ocamlgraph provides 16 graph data structures, which are all the
 possible combinations of the following 4 criteria:
@@ -350,12 +350,13 @@ vertices with \texttt{G.add\_vertex} and edges with
 \texttt{G.add\_edge}\footnote{The full source code for the Sudoku example is
   available on \ocamlgraph's web page.}.
 
-\section{Algorithms}\label{algos}
+\section{Generic Algorithms}\label{algos}
 
 This section introduces the second use of functors in \ocamlgraph: the
 generic programming of graph algorithms.
 
-\subsection{Generic Programming}
+\subsection{Making Algorithms Independent From Graph Data
+  Structures}
 
 As demonstrated in the previous section, our library provides many
 graph data structures. Therefore, it is necessary to figure out how to
