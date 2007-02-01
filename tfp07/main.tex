@@ -66,15 +66,17 @@
 \maketitle
 
 \begin{abstract}
-  This article details the design and implementation of \ocamlgraph, a
+  This paper details the design and implementation of \ocamlgraph, a
   highly generic graph library for the programming language \ocaml.
   This library features a large set of graph data
   structures---directed or undirected, with or without labels on
   vertices and edges, as persistent or mutable data structures,
-  etc.---and a large set of graph algorithms written independently of
-  the graph data structure. This genericity is obtained through
-  massive use of the \ocaml module system and of its functions, the
-  so-called \emph{functors}.
+  etc.---and a large set of graph algorithms.  Algorithms are written
+  independently from graph data structures, which allows combining
+  user data structure (resp. algorithm) with \ocamlgraph algorithm
+  (resp. data structure).  Genericity is obtained through massive use
+  of the \ocaml module system and its functions, the so-called
+  \emph{functors}.
 \end{abstract}
 
 %\category{D.2}{Software Engineering}{Software Architectures; Design;
@@ -93,48 +95,48 @@ usually easy. But applying the provided algorithms to one's own graph
 data structure or building undirected persistent graphs with vertices
 and edges labeled with data other than integers is likely to be more
 difficult. Figure~\ref{comparison:tab} quickly compares several graph
-libraries according to the following criteria: the number of graph
-data structures; the purely applicative or imperative nature of the
-structures; and the ability to apply the provided algorithms to a
-user-defined graph data structure.  As we can notice, none of these
-libraries gives full satisfaction.  This article introduces
+libraries according to the following criteria: number of graph data
+structures; purely applicative or imperative nature of the structures;
+and ability to apply the provided algorithms to a user-defined graph
+data structure.  As one can notice, none of these libraries gives full
+satisfaction.  This paper introduces
 \ocamlgraph\footnote{\url{http://www.lri.fr/~filliatr/ocamlgraph/}}, a
 highly generic graph library for the programming language
 \ocaml~\cite{ObjectiveCaml}, which intends to fulfill all these
 criteria.
 
 % Beside the mere presentation of this
-% library, this article demonstrates how \ocaml has been used to
+% library, this paper demonstrates how \ocaml has been used to
 \ocamlgraph\ introduces genericity at two levels. First, \ocamlgraph
 does not provide a single data structure for graphs but many of them,
-enumerating all possible variations (19 all together)---directed or
+enumerating all possible variations (19 altogether)---directed or
 undirected graphs, persistent or mutable data structures, user-defined
-labels on vertices or edges, etc.---under a common interface.  Second,
-\ocamlgraph provides a large set of graph algorithms that are written
-independently of the underlying graph data structure. These can then
-be applied to the data structures provided by \ocamlgraph itself and
-also on user-defined data structures as soon as they implement a
-minimal set of functionalities.
+labels on vertices or edges, etc.---under a common interface.
+Secondly, \ocamlgraph provides a large set of graph algorithms that
+are written independently from the underlying graph data structure.
+These can then be applied naturally to the data structures provided by
+\ocamlgraph itself and also on user-defined data structures as soon as
+these implement a minimal set of functionalities.
 
 Without proper parameterization, such a large set of variants may
-easily result into unmanageable code. We avoid this pitfall using the
+easily result in unmanageable code. We avoid this pitfall using the
 \ocaml module system~\cite{leroy00}, which appears to be the tool of
 choice for this kind of meta-programming.  The genericity of
 \ocamlgraph is indeed achieved through a massive use of \ocaml
 functors. On one hand, they are used to avoid code duplication between
 the many variations of graph data structures, which is mandatory here
-seen the high number of similar but all different implementations. On
-the other hand, they are used to write the graph algorithms
-independently of the underlying graph data structure, with as much
-genericity as possible but also with efficiency in mind.
+due to the high number of similar but different implementations.  On
+the other hand, they are used to write graph algorithms independently
+from the underlying graph data structure, with as much genericity as
+possible while keeping efficiency in mind.
 
-This article is organized as follows. Section~\ref{motivatingexample}
+This paper is organized as follows. Section~\ref{motivatingexample}
 demonstrates the use of \ocamlgraph through an example.
 Section~\ref{implementation} exposes the design of the common
 interface for all graph data structures and explains how the code is
-shared among the various implementations.  Section~\ref{algos}
-describes the algorithms provided in \ocamlgraph and how the
-genericity with respect to the graph data structure is obtained.
+shared among various implementations.  Section~\ref{algos}
+describes the algorithms provided in \ocamlgraph and how
+genericity  is obtained with respect to the graph data structure.
 Finally Section~\ref{bench} presents some benchmarks.
 
 % \section{Related Work}
@@ -178,12 +180,12 @@ Finally Section~\ref{bench} presents some benchmarks.
 To illustrate the use of \ocamlgraph, we consider a Sudoku solver
 based on graph 
 coloring.  The idea is to represent the Sudoku grid as an undirected
-graph with $9\times 9$ vertices, each vertex being connected to the
-other vertices on the same row, column and $3\times 3$ group. Then
-solving the Sudoku is equivalent to 9-coloring this graph.
+graph with $9\times 9$ vertices, each vertex being connected to all
+other vertices on the same row, column and $3\times 3$ group.
+Solving the Sudoku is equivalent to 9-coloring this graph.
 Figure~\ref{fig:sudoku} displays the sketch of a solution to
-this problem using \ocamlgraph\footnote{The full source code for the
-  Sudoku example is available on \ocamlgraph's web page.}. There are
+this problem using \ocamlgraph\footnote{Full source code for the
+  Sudoku example is available on the web page of \ocamlgraph.}. There are
 four steps in this code:
 \begin{enumerate}
 \item We choose a graph data structure for our Sudoku solver: it is an
@@ -199,8 +201,8 @@ four steps in this code:
 \end{enumerate}
 This code is almost as efficient as a hand-coded Sudoku solver: on the
 average, a Sudoku puzzle is solved in 0.2 seconds (on a Pentium IV 2.4
-GHz).  The remainder of this paper will explain the above code in more
-detail.
+GHz).  The remainder of this paper goes into more details about the
+code above.
 
 \begin{figure}[t]
 \hrulefill\\[-2em]
@@ -212,8 +214,8 @@ module G = Imperative.Graph.Abstract
 let g = G.create ()
 
 let () = 
-  ... creation of g's vertices and edges with
-      G.add_vertex and G.add_edge, and initial
+  ... add vertices to g with G.add_vertex,
+      edges with G.add_edge and initial
       constraints (20 lines of code) ...
 
 module C = Coloring(G)       
@@ -256,8 +258,8 @@ let () = C.coloring g 9
 Managing many variants of graph data structures without proper
 parameterization results into unmanageable code.
 %
-Here we show how to factorize the \ocamlgraph implementation to avoid
-such a pitfall.  Section~\ref{interface} describes the common
+Here we show how we factorized the \ocamlgraph implementation to avoid
+such pitfall.  Section~\ref{interface} describes the common
 sub-signatures shared by all graphs. Section~\ref{structuresdedonnees}
 details their various implementations.
 
@@ -273,7 +275,7 @@ observers. Two other signatures distinguish the modifiers for
 persistent and imperative graphs, respectively.
 
 The common signature \texttt{G} includes an abstract type \texttt{t}
-for graphs datatype and two modules \texttt{V} and \texttt{E} for
+for the graph datatype and two modules \texttt{V} and \texttt{E} for
 vertices and edges respectively. The signature for \texttt{E} always
 includes a type \texttt{label} which is instantiated by the singleton
 type \texttt{unit} for unlabeled graphs. Modules \texttt{V} and
@@ -282,7 +284,7 @@ functions so that graph algorithms may easily construct data
 structures containing vertices and edges.  \texttt{G} also includes
 usual observers such as functions to iterate over vertices and edges,
 which are massively used in graph algorithms.  The common signature
-thus looks like:
+looks like:
 
 %\newpage 
 
@@ -301,10 +303,9 @@ module type G = sig
   ...
 end
 \end{ocaml}
-
-Then we distinguish two signatures for persistent and imperative
-graphs, \texttt{P} and \texttt{I} respectively, since the modifiers do
-not have the same types:
+We distinguish the signature \texttt{P} for persistent graphs
+from the signature \texttt{I} for imperative graphs, since the modifiers do
+not have the same type in both:
 \begin{ocaml}
 module type P = sig
   include G
@@ -324,89 +325,88 @@ end
 
 \subsection{19 Graph Data Structures in 1000 Lines of Code}\label{structuresdedonnees}
 
-\ocamlgraph provides 16 graph data structures, which are all the
+\ocamlgraph provides 19 graph data structures, which include all the
 possible combinations of the following 4 criteria:
 \begin{itemize}
-\item \emph{directed} or \emph{undirected} graphs;
+\item \emph{directed} or \emph{undirected} graph;
 \item \emph{labeled} or \emph{unlabeled} edges;
 \item \emph{persistent} or \emph{imperative} data structure;
-\item \emph{concrete} or \emph{abstract} type for the vertices.
+\item \emph{concrete} or \emph{abstract} type for vertices.
 \end{itemize}
-The last point requires some explanation: vertices are always labeled
-but the user may choose between \emph{concrete} vertices where
-vertices and their values are identical and \emph{abstract} vertices
-where the values are hidden inside an abstract data type for vertices.
-The former allows a more immediate use of the data structure and the
-latter allows a more efficient implementation. In particular,
-imperative graphs with abstract vertices can be equipped with mutable
-marks.
+The last point requires some explanations. Vertices are always labeled
+internally with the value provided by the user. Accessing this value
+depends on the choice of concrete or abstract vertices.  Concrete
+vertices allow unrestricted access to their value.  Abstract vertices
+hide their value inside an abstract data type.  The former allows a
+more immediate use of the data structure and the latter a more
+efficient implementation. In particular, imperative graphs with
+abstract vertices can be equipped with integer mutable marks, which
+are used in our Sudoku solver.
 
-Each graph data structure is provided as a functor, parameterized by
+A functor is provided for each data structure. It is parameterized by
 user types for vertex labels and possibly edge labels. These functors
 are displayed in Figure~\ref{fig:interfaces} as square boxes mapping
-signatures of input modules to signatures of output modules.
+signatures of input modules to the signature of the graph module.
+Of these, 8 functors exist in both directed and undirected versions.
 \begin{figure*}
   \centering
   %\includegraphics[width=\textwidth]{interface.pdf}    
   \includegraphics[width=\textwidth]{interface.eps} 
-  \caption{\ocamlgraph's data structures components}\label{fig:interfaces}
+  \caption{\ocamlgraph data structures components}\label{fig:interfaces}
 \end{figure*}
 Input signatures \texttt{ANY\_TYPE}, \texttt{ORDERED\_TYPE\_DFT} and
-\texttt{COMPARABLE} define the user-types for vertices and edges
+\texttt{COMPARABLE} define the user types for vertices and edges
 labels. Output signature \texttt{IM} extends signature \texttt{I} with
 mutable marks. Three other implementations complete the set of graph
 data structures, namely \texttt{ConcreteBidirectional} for graphs with
 an efficient access to predecessors, and
 \texttt{Matrix.}(\texttt{Graph}, \texttt{Digraph}) for graphs
-implemented as adjacency matrices.
+implemented as adjacency matrices. For efficiency reasons, these three
+implementations do not offer the same combination of criteria as the
+previous ones.
 
-Several functors are used to avoid code duplication among these
-various implementations. For instance, one functor adds labels to
+Several functors are used internally to avoid code duplication among the
+functors presented in Figure~\ref{fig:interfaces}. For instance, a
+functor adds labels to 
 unlabeled graphs; another one encapsulates concrete vertices into an
 abstract data type; etc.  Putting it all together, the code size for
 the 19 graph data structures is about 1000 lines. This is clearly
 small enough to be easily maintained. In Section~\ref{bench} we will
 show that this code is also quite efficient.
 
-The graph data structure for our Sudoku solver is thus simply obtained as
+The graph data structure for our Sudoku solver is simply an imperative
+undirected graph with abstract vertices labeled with pairs of integers
+and unlabeled edges. It is obtained as:
 \begin{ocaml}
 module G = Imperative.Graph.Abstract
              (struct type t = int * int end) 
 \end{ocaml}
-That is an imperative undirected graph with abstract vertices labeled
-with pairs of integers and unlabeled edges.
-Then we can create the graph itself with \texttt{G.create}, add
-vertices with \texttt{G.add\_vertex} and edges with
-\texttt{G.add\_edge}\footnote{The full source code for the Sudoku example is
-  available on \ocamlgraph's web page.}.
 
 \section{Generic Algorithms}\label{algos}
 
-This section introduces the second use of functors in \ocamlgraph: the
+This section introduces the second use of functors in \ocamlgraph:
 generic programming of graph algorithms.
 
 \subsection{Decoupling Algorithms and Graph Data Structures}
 
-As demonstrated in the previous section, our library provides many
-graph data structures. Therefore, it is necessary to figure out how to
-implement graph algorithms without duplicating code for each data
-structure. Exactly as functors helped factorizing code in the previous
-section, they provide a nice way to code the algorithms in a generic
-way.
+As demonstrated in Section~\ref{implementation}, our library provides
+many graph data structures. It makes it necessary to factorize the
+code for graph algorithms that operate on these structures. Again,
+functors provide a nice encoding of generic algorithms.
 
-The basic idea is to code an algorithm without worrying about the
-underlying graph data structure but focusing only on the required
-operations over this data structure. Then the algorithm is naturally a
-functor parameterized by these operations. Such operations usually
-form a subset of the operations provided by \ocamlgraph's own data
-structures, but some algorithms may require specific operations,
-independent of the graph data structure. In such a case, they will be
-provided as an additional functor parameter.
+The basic idea when coding an algorithm is to focus only on the
+required operations that this algorithm imposes on the graph data
+structure. Then this algorithm can be expressed naturally as a functor
+parameterized by these operations. These operations usually form a
+subset of the operations provided by \ocamlgraph graph data
+structures. In a few cases, the algorithm requires specific operations
+that are independent of the graph data structure. In such a case, the
+specific operations are provided as an additional functor parameter.
 
 Such a ``functorization'' of algorithms has two benefits: first, it
-allows to quickly add a new algorithm to the library, without code
-duplication for all data structures; second, it allows the user to
-apply an algorithm on its own graph data structure.
+allows to add quickly new algorithms to the library, without
+duplicating code for all data structures; secondly, it allows the user to
+apply an existing algorithm on his own graph data structure.
 
 %% , which is an original feature of \ocamlgraph\ w.r.t. other graph
 %% libraries.
@@ -416,10 +416,11 @@ apply an algorithm on its own graph data structure.
 
 We illustrate the generic programming of graph algorithms on the
 particular example of graph coloring.  For the purpose of our
-algorithm, we assume vertices to be equipped with integer marks, used
-to store the assigned colors. We also need iterators over vertices and
-successors. Thus the minimal signature for a graph
-coloring algorithm is the following:
+algorithm, we require the presence of \texttt{get} and \texttt{set}
+operations on integer marks associated to vertices. We use these marks
+to store the color assigned to each vertex. We also need iterators
+over vertices and successors. Thus the minimal signature for a graph
+data structure used in our graph coloring algorithm is the following:
 \begin{ocaml}
 module type GM = sig
   type t
@@ -435,7 +436,6 @@ end
 \ocamlgraph already provides implementations for such a
 signature. This is the case for the graph data structure used in our
 Sudoku solver.
-
 Then the graph coloring algorithm is implemented as the following functor:
 \begin{ocaml}
 module Coloring(G : GM) : sig
@@ -445,15 +445,14 @@ end
 It provides a single function \texttt{coloring} which colors a given
 graph with a given number of colors. Some marks may contain initial
 constraints. 
-
 To complete our Sudoku solver, we simply need to apply the above
 functor on our graph module \texttt{G}:
 \begin{alltt}
 module C = Coloring(G)
 \end{alltt}
 If \texttt{g} contains the Sudoku graph, and
-assuming that the initial constraints are set in \texttt{g}'s marks, 
-solving the Sudoku amounts to 9-coloring the graph \texttt{g}:
+assuming that the initial constraints are set in \texttt{g} marks, 
+solving the Sudoku amounts to 9-coloring graph \texttt{g}:
 \begin{alltt}
 C.coloring g 9
 \end{alltt}
@@ -461,24 +460,24 @@ C.coloring g 9
 \section{Benchmarks}\label{bench}
 
 Surprisingly, we could not find any standard benchmark for graph
-libraries. Thus we present here the results of a little benchmark of
-our own, mostly to give the reader a rough idea of \ocamlgraph efficiency.
-We test four different data structures for undirected
-graphs with unlabeled edges, that are either persistent (P) or
-imperative (I) and with either abstract (A) or concrete (C) vertices. In
-the following they are referred to as PA, PC, IA and IC, respectively.
-All tests were performed on a Pentium 4 2.4 GHz.
+libraries. In order to give an idea of \ocamlgraph efficiency, we
+present here the results of a little benchmark of our own.  We test
+four different data structures for undirected graphs with unlabeled
+edges, that are either persistent (P) or imperative (I) and with
+either abstract (A) or concrete (C) vertices. In the following, these
+are referred to as PA, PC, IA and IC, respectively.  All tests were
+performed on a Pentium 4 2.4 GHz.
 
 We first test the efficiency of graph creation and mutation.  For that
-purpose, we build full graphs with $V$ vertices (and thus $E=V(V+1)/2$
+purpose, we build cliques of $V$ vertices (and thus $E=V(V+1)/2$
 edges since we include self loops).  Then we repeatedly delete all
 edges and vertices in these graphs.  Figure~\ref{fig:bench:build}
 displays the creation and deletion timings in seconds up to $V=1000$
-(that is half a million of edges).  The creation speed observed is
+(that is half a million edges).  The speed of creation observed is
 roughly 100,000 edges per second for imperative graphs. The creation
 of persistent graphs is slower but within a constant factor (less than
-2). Deletion is roughly twice as fast as creation.  Regarding memory
-consumption, all four data structures roughly use 5 machine words
+2). Deletion is twice as fast as creation.  Regarding memory
+consumption, all four data structures use approximately 5 machine words
 (typically 20 bytes) per edge.
 
 \begin{figure*}
@@ -494,7 +493,7 @@ consumption, all four data structures roughly use 5 machine words
 %%   \input{./bench1d.tex}
 %%   \end{minipage}
 %%   \end{tabular}
-  \caption{Benchmarking creation (left) and deletion (right)}
+  \caption{Benchmarking creation (top) and deletion (bottom)}
   \label{fig:bench:build}
 \end{figure*}
 
@@ -522,7 +521,7 @@ speed is between 500,000 and 1 million traversed edges per second.
   \input{./bench2dfs}
 
   \input{./bench2bfs}
-  \caption{Benchmarking DFS (left) and BFS (right)}
+  \caption{Benchmarking DFS (top) and BFS (bottom)}
   \label{fig:bench:maze}
 \end{figure*}
 
@@ -542,19 +541,22 @@ vertices and edges types. Thus they are much more representative of
 
 \section{Conclusion}
 
-We have presented \ocamlgraph, a highly generic graph library for \ocaml\
-providing several graph data structures and, independently, several
-graph algorithms. This genericity is obtained using \ocaml's module
-system and especially its functors which allow to share large pieces
+We presented \ocamlgraph, a highly generic graph library for \ocaml\
+providing several graph data structures and graph algorithms. 
+Algorithms are written independently from graph data structures, which
+allows combining user data structure (resp. algorithm) with
+\ocamlgraph algorithm (resp. data structure).
+This genericity is obtained using \ocaml module
+system and especially its functors which allow sharing large pieces
 of code.
 
 To our knowledge, there is no library for any applicative language as
 generic as \ocamlgraph. Regarding imperative languages, graph
-libraries are rarely as generic and, anyway, never provide as many
+libraries are rarely as generic and never provide as many
 different data structures.
 
-Since its first release (Feb. 2004), the number of \ocamlgraph's users
-is steadily increasing and several of them contributed code to the
+Since its first release (Feb. 2004), the number of \ocamlgraph users
+has been increasing steadily and several of them contributed code to the
 library. Some of them provided new graph data structures (such as
 \texttt{ConcreteBidirectional}) and others new algorithms
 (e.g. minimal separators). It clearly shows the benefits of a generic
