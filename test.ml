@@ -174,6 +174,33 @@ let l = K.spanningtree g
 let _ = List.iter (fun e -> printf "%d - %d\n" (G.E.src e) (G.E.dst e) ) l
 	*)
 
+open Graph
+module IntInt = struct
+  type t = int * int
+end
+module String = struct
+  type t = string
+  let compare = compare
+  let hash = Hashtbl.hash
+  let equal = (=)
+  let default = ""
+end
+module G = Imperative.Graph.AbstractLabeled(IntInt)(String)
+module Display = struct
+  include G
+  let vertex_name v = 
+    let x,y = V.label v in string_of_int x^","^string_of_int y
+  let graph_attributes _ = []
+  let default_vertex_attributes _ = []
+  let vertex_attributes _ = []
+  let default_edge_attributes _ = []
+  let edge_attributes e = let s = E.label e in [`Label s]
+  let get_subgraph _ = None
+end
+module Dot = Graphviz.Dot(Display)
+module Neato = Graphviz.Neato(Display)
+
+(*
 module Int = struct 
   type t = int 
   let compare = compare 
@@ -217,3 +244,4 @@ module Toposort = Topological.Make(G)
 
 let _ = Toposort.iter (fun v-> Printf.printf "%d " v) g
 
+*)

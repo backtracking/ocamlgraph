@@ -57,7 +57,7 @@ CMO 	= util unionfind heap bitv \
 	delaunay builder classic rand oper \
 	path traverse coloring topological components kruskal flow \
         graphviz gml pack \
-	gmap minsep cliquetree mcs_m md
+	gmap minsep cliquetree mcs_m md strat
 CMO	:= $(addsuffix .cmo, $(CMO))
 CMX = $(CMO:.cmo=.cmx)
 CMA = graph.cma
@@ -118,6 +118,9 @@ test.opt: $(CMXA) test.cmx
 
 test_rand.opt: $(CMXA) time.ml test_rand.ml
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa $^
+
+test_strat.opt: $(CMXA) test_strat.ml
+	$(OCAMLOPT) -unsafe -inline 100 -o $@ $^
 
 bench: bench.opt
 	./bench.opt

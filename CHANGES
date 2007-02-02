@@ -1,4 +1,5 @@
 
+ o new module Strat implementing simple game strategies
  o Graphviz: little refactoring and documentation improved
 
 version 0.98, Sept 27th, 2006
