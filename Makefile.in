@@ -38,7 +38,7 @@ EXE = @EXE@
 LIBEXT = @LIBEXT@
 OBJEXT = @OBJEXT@
 
-INCLUDES = 
+INCLUDES = -I +lablgtk2 -I +threads
 BFLAGS = $(INCLUDES)
 OFLAGS = $(INCLUDES) @FORPACK@
 
@@ -47,7 +47,7 @@ OFLAGS = $(INCLUDES) @FORPACK@
 
 NAME=ocamlgraph
 
-all: byte $(OCAMLBEST) 
+all: byte $(OCAMLBEST) editor-@LABLGTK2@
 
 # bytecode and native-code compilation
 ######################################
@@ -130,6 +130,21 @@ bench.opt: $(CMXA) bench.ml
 
 check: $(CMA) check.ml
 	ocaml $^
+
+# gtk2 graph editor
+
+editor-no:
+editor-yes: editor/editor.$(OCAMLBEST)
+
+EDCMO = editor/editor.cmo
+EDCMX = $(EDCMO:.cmo=.cmx)
+
+editor/editor.byte: $(CMA) $(EDCMO)
+	$(OCAMLC) -g -o $@ -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma $^
+
+editor/editor.opt: $(CMXA) $(EDCMX)
+	$(OCAMLOPT) -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa $^
+
 
 VERSION=0.98
 

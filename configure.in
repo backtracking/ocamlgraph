@@ -140,6 +140,9 @@ AC_CHECK_PROG(OCAMLWEB,ocamlweb,ocamlweb,true)
 
 AC_CHECK_PROG(OCAMLFIND,ocamlfind,ocamlfind)
 
+# checking for lablgtk2
+AC_CHECK_PROG(LABLGTK2,lablgtk2,yes,no)
+
 # platform
 AC_MSG_CHECKING(Win32 platform)
 if echo "let _ = Sys.os_type;;" | ocaml | grep -q Win32; then
@@ -167,6 +170,7 @@ AC_SUBST(OCAMLBEST)
 AC_SUBST(OCAMLVERSION)
 AC_SUBST(OCAMLLIB)
 AC_SUBST(OCAMLWEB)
+AC_SUBST(LABLGTK2)
 AC_SUBST(OCAMLWIN32)
 AC_SUBST(EXE)
 AC_SUBST(LIBEXT)
