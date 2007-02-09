@@ -13,7 +13,7 @@ module type GTREE = sig
   val label : t -> label
   val string_of_label : label -> string
 
-  val show_tree : t -> int -> int -> unit
+  val show_tree : GnoCanvas.canvas -> t -> int -> int -> unit
 end
 
 module Make(T : TREE) = struct
@@ -25,7 +25,7 @@ module Make(T : TREE) = struct
 
   module HT = Htree.Make(T)
 
-  let show_tree t width height =
+  let show_tree canvas t width height =
     let rlimit = 0.98
     and xzoom = float(width)/.2.0
     and yzoom = float(height)/.2.0 in
