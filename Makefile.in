@@ -38,7 +38,7 @@ EXE = @EXE@
 LIBEXT = @LIBEXT@
 OBJEXT = @OBJEXT@
 
-INCLUDES = -I +lablgtk2 -I +threads
+INCLUDES = -I +lablgtk2 -I +threads -I editor
 BFLAGS = $(INCLUDES)
 OFLAGS = $(INCLUDES) @FORPACK@
 
@@ -136,7 +136,7 @@ check: $(CMA) check.ml
 editor-no:
 editor-yes: editor/editor.$(OCAMLBEST)
 
-EDCMO = editor/editor.cmo
+EDCMO = editor/htree.cmo editor/gtree.cmo editor/editor.cmo
 EDCMX = $(EDCMO:.cmo=.cmx)
 
 editor/editor.byte: $(CMA) $(EDCMO)
@@ -324,6 +324,6 @@ dist-clean distclean:: clean
 
 .depend depend: $(GENERATED)
 	rm -f .depend
-	$(OCAMLDEP) $(INCLUDES) *.ml *.mli > .depend
+	$(OCAMLDEP) $(INCLUDES) *.ml *.mli editor/*.mli editor/*.ml > .depend
 
 include .depend

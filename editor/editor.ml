@@ -1,46 +1,92 @@
 
-module G = Graph.Pack.Graph
+open Format
 
 let _ = GMain.Main.init ()
 
-let file = Sys.argv.(1)
-let g = G.parse_gml_file file
+
+let print msg () =
+  print_endline msg;
+  flush stdout
+
+
+let create_menu label menubar =
+  let item = GMenu.menu_item ~label ~packing:menubar#append () in
+  GMenu.menu ~packing:item#set_submenu ()
+
 
 let main () =
-  (* toplevel window *)
-  let window =GWindow.window ~border_width: 10 ~title:"Graph Editor" () in
-  let _ = window#connect#destroy ~callback:(fun () -> exit 0) in
-  let vbox = GPack.vbox ~homogeneous:false ~packing:window#add () in
-  (* Menu *)
-  let menubar = GMenu.menu_bar ~packing:vbox#pack () in
-  let factory = new GMenu.factory menubar in
-  let accel_group = factory#accel_group in
-  let file_menu = factory#add_submenu "_File" in
-  let file_factory = new GMenu.factory file_menu ~accel_group in
-  let _ = 
-    file_factory#add_image_item ~label:"_Load graph"
-      ~callback:(fun () -> print_endline "load_graph(todo)"; (* TODO *) ()) 
-      ~key:GdkKeysyms._L () 
-  in
-  let _ = file_factory#add_separator () in
-  let _ = 
-    file_factory#add_image_item ~key:GdkKeysyms._Q ~label:"_Quit" 
-      ~callback:(fun () -> exit 0) () 
-  in
-  (* canvas *)
+  
+  (* Initialisation du fichier de graph *)
+
+  if Sys.argv.(1) = "--help" then
+    begin
+      printf "usage: %s file.gml   # browse graph of file.gml@." Sys.argv.(0) ;
+      printf "@." ;
+      exit 0
+    end ;
+  if Array.length Sys.argv > 2 then
+    eprintf "%s: ignoring trailing arguments@." Sys.argv.(0) ;
+  if Sys.argv.(1) = ".gml" 
+  then
+      printf "yeah trouvé un gml@."  
+  else
+      printf "merd pas trouvé un gml@."  ;
+  
+(*  let module GT = Gtree.Make(DirTree) in
+    GT.show_tree (DirTree.from_dir "" Sys.argv.(1)) width height ;;
+*)
+
+
+
+
+
+
+
+  (* la Fenetre principale *)
+  let window =
+    GWindow.window ~border_width: 10 ~title:"Edit'OcamlGraph" () in
+  let _ =
+    window#connect#destroy~callback:GMain.Main.quit in
+
+ 
+  (* une Verticale Box  pour contenir le menu de la fenetre principale *)
+  let v_box =
+    GPack.vbox ~homogeneous:false ~spacing:30  ~packing:window#add () in
+  
+  (* la barre de Menu ajoutée dans la V_box *)
+  let menu_bar =
+    GMenu.menu_bar ~packing:v_box#pack () in
+
+  (* le menu file : la description puis l'ajout au menu_bar *)
+  let menu_files = 
+    [
+      `I ("_New Graph", print "todo new graph");
+      `I ("_Open Graph", print "todo open graph");
+      `I ("_Save Graph", print "todo save graph");
+      `I ("Save Graph _As ...", print "todo save graph as...");
+      `S;
+      `I ("_Quit", GMain.Main.quit )
+    ]
+  
+  and menu = 
+    create_menu "File" menu_bar in
+  
+  GToolbox.build_menu menu ~entries:menu_files ;
+
+
+
+  (* la zone d'affichage du graph, le canvas *)
   let canvas = 
-    GnoCanvas.canvas ~width:500 ~height:350 ~packing:vbox#add () 
+    GnoCanvas.canvas ~width:500 ~height:500 ~packing:v_box#add () 
   in
   let root = canvas#root in
-  let p = [| 0.; 0.; 100.; 100.; |] in
-  let big_arrow = GnoCanvas.line root
-      ~props:[ `POINTS p ; `FILL_COLOR "mediumseagreen" ;
-	       `LAST_ARROWHEAD true ] 
-  in
-  (* ... *)
-  (* show all and enter event loop *)
-  window#add_accel_group accel_group;
+
+
+
+  (* l'affichage de la fenetre principale *)
+
+  
   window#show ();
   GMain.Main.main ()
 
-let _ = Printexc.print main()
+let _ = main ()
