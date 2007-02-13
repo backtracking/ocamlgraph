@@ -13,6 +13,7 @@ let create_menu label menubar =
   let item = GMenu.menu_item ~label ~packing:menubar#append () in
   GMenu.menu ~packing:item#set_submenu ()
 
+module GT = Gtree.Make(DirTree)
 
 let main () =
   
@@ -69,16 +70,17 @@ let main () =
   let canvas = 
     GnoCanvas.canvas ~width:500 ~height:500 ~packing:v_box#add () 
   in
-
+  let root = canvas#root in
   
-  let module GT = Gtree.Make(DirTree) in
-  let _ =  GT.show_tree canvas (DirTree.from_dir "" Sys.argv.(1)) (canvas#width) (canvas#height)
-  in
-
   (* l'affichage de la fenetre principale *)
 
   
   window#show ();
+
+
+  let _ =  GT.show_tree root (DirTree.from_dir "" Sys.argv.(1)) (canvas#width) (canvas#height) in
+
+
   GMain.Main.main ()
 
 let _ = main ()

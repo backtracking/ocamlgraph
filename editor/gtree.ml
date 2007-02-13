@@ -13,7 +13,7 @@ module type GTREE = sig
   val label : t -> label
   val string_of_label : label -> string
 
-  val show_tree : GnoCanvas.canvas -> t -> int -> int -> unit
+  val show_tree : #GnoCanvas.group -> t -> int -> int -> unit
 end
 
 
@@ -28,7 +28,7 @@ module Make(T : TREE) = struct
   module HT = Htree.Make(T)
 
   let show_tree canvas t width height =
-(*    let rlimit = 0.98
+    let rlimit = 0.98
     and xzoom = float(width)/.2.0
     and yzoom = float(height)/.2.0 in
 
@@ -82,7 +82,8 @@ module Make(T : TREE) = struct
 	   x0 y0
 	  (float x1) (float y1)
 	  (float x2) (float y2)
-	  (float x3) (float y3) in
+	  (float x3) (float y3) 
+    in
 
     let gtk_curveto (zx1, zy1) (zx2, zy2) (zx3, zy3) =
       let x1 = truncate (zx1*.xzoom +. xzoom)
@@ -91,7 +92,8 @@ module Make(T : TREE) = struct
       and y1 = truncate (zy1*.yzoom +. yzoom)
       and y2 = truncate (zy2*.yzoom +. yzoom)
       and y3 = truncate (zy3*.yzoom +. yzoom) in
-      curveto x1 y1 x2 y2 x3 y3 in
+      curveto x1 y1 x2 y2 x3 y3 
+    in
 
     let drag_label item ev = 
       begin match ev with
@@ -109,10 +111,11 @@ module Make(T : TREE) = struct
 	    item#ungrab (GdkEvent.Button.time ev)
 	| _ -> ()
       end ;
-      false in
+      false 
+    in
 
-
-  let gtk_draw_label lab (zx, zy) facteur_reduction =
+    
+    let gtk_draw_label lab (zx, zy) facteur_reduction =
       let x = (zx*.xzoom +. xzoom)
       and y = (zy*.yzoom +. yzoom) in
       let name = string_of_label lab in
@@ -126,39 +129,41 @@ module Make(T : TREE) = struct
       let sigs = label#connect in
       sigs#event (drag_label label) ;
       label;
-      () in
+      () 
+    in
 
       
-      let gtk_draw_init_edge_pass () = ()
-	
-      and gtk_draw_init_label_pass () = () in
+    let gtk_draw_init_edge_pass () = ()
+      
+    and gtk_draw_init_label_pass () = () in
+    
+    let draw_drv = {
+		     HT.rlimit = rlimit ;
+		     HT.moveto = gtk_moveto ;
+		     HT.lineto = gtk_lineto ;
+		     HT.curveto = gtk_curveto ;
+		     HT.draw_label = gtk_draw_label ;
+		     HT.init_edge_pass = gtk_draw_init_edge_pass ;
+		     HT.init_label_pass = gtk_draw_init_label_pass ;
+		     HT.finalize = (fun () -> ())
+		   } 
+    in
+      
+    
+    let xy2c x y =
+      let zx = (float(x) -. xzoom)/.xzoom
+      and zy = (float(y) -. yzoom)/.yzoom in
+      let zn = sqrt(zx*.zx +. zy*.zy) in
+      if zn > rlimit then
+	(rlimit*.zx/.zn, rlimit*.zy/.zn)
+      else
+	(zx, zy)
+	  
+    and draw_linear_tree = HT.draw_linear_tree draw_drv
+    and draw_curved_tree = HT.draw_curved_tree draw_drv
 
-      let draw_drv = {
-		       HT.rlimit = rlimit ;
-		       HT.moveto = gtk_moveto ;
-		       HT.lineto = gtk_lineto ;
-		       HT.curveto = gtk_curveto ;
-		       HT.draw_label = gtk_draw_label ;
-		       HT.init_edge_pass = gtk_draw_init_edge_pass ;
-		       HT.init_label_pass = gtk_draw_init_label_pass ;
-		       HT.finalize = (fun () -> ())
-		     } in
-      
-      
-      let xy2c x y =
-	let zx = (float(x) -. xzoom)/.xzoom
-	and zy = (float(y) -. yzoom)/.yzoom in
-	let zn = sqrt(zx*.zx +. zy*.zy) in
-	if zn > rlimit then
-	  (rlimit*.zx/.zn, rlimit*.zy/.zn)
-	else
-	  (zx, zy)
-	    
-      and draw_linear_tree = HT.draw_linear_tree draw_drv
-      and draw_curved_tree = HT.draw_curved_tree draw_drv
-	*)
-      
-	  assert false (*TODO*)
+    in
+    draw_curved_tree t (0.0,0.0) 0.0
      
 end
 

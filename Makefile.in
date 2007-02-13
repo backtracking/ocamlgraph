@@ -136,14 +136,14 @@ check: $(CMA) check.ml
 editor-no:
 editor-yes: editor/editor.$(OCAMLBEST)
 
-EDCMO = editor/dirtree.cmo editor/htree.cmo editor/gtree.cmo editor/editor.cmo
+EDCMO = editor/dirTree.cmo editor/htree.cmo editor/gtree.cmo editor/editor.cmo
 EDCMX = $(EDCMO:.cmo=.cmx)
 
 editor/editor.byte: $(CMA) $(EDCMO)
-	$(OCAMLC) -g -o $@ -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma $^
+	$(OCAMLC) -g -o $@ -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma unix.cma $^
 
 editor/editor.opt: $(CMXA) $(EDCMX)
-	$(OCAMLOPT) -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa $^
+	$(OCAMLOPT) -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
 
 
 VERSION=0.98
