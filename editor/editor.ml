@@ -24,20 +24,10 @@ let main () =
       printf "@." ;
       exit 0
     end ;
+(*
   if Array.length Sys.argv > 2 then
     eprintf "%s: ignoring trailing arguments@." Sys.argv.(0) ;
-  if Sys.argv.(1) = ".gml" 
-  then
-      printf "yeah trouvé un gml@."  
-  else
-      printf "merd pas trouvé un gml@."  ;
-  
-(*  let module GT = Gtree.Make(DirTree) in
-    GT.show_tree (DirTree.from_dir "" Sys.argv.(1)) width height ;;
-*)
-
-
-
+  *)
 
 
 
@@ -79,9 +69,11 @@ let main () =
   let canvas = 
     GnoCanvas.canvas ~width:500 ~height:500 ~packing:v_box#add () 
   in
-  let root = canvas#root in
 
-
+  
+  let module GT = Gtree.Make(DirTree) in
+  let _ =  GT.show_tree canvas (DirTree.from_dir "" Sys.argv.(1)) (canvas#width) (canvas#height)
+  in
 
   (* l'affichage de la fenetre principale *)
 
