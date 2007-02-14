@@ -78,7 +78,7 @@ let main () =
   window#show ();
 
 
-  let _ =  GT.show_tree root (DirTree.from_dir "" Sys.argv.(1)) (canvas#width) (canvas#height) in
+  let _ =  GT.show_tree root (DirTree.from_dir "" Sys.argv.(1)) 640 640 in
 
 
   GMain.Main.main ()
