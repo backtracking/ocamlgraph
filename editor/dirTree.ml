@@ -1,9 +1,13 @@
 open Unix ;;
 
 type t = {
+    id : int;
     name : string ;
     children : t list Lazy.t
   } ;;
+let id t = t.id
+
+let newid = let r = ref 0 in fun () -> incr r; !r
 
 type label = string ;;
 
@@ -36,7 +40,7 @@ and tree_list_from_handle path handle =
   | Some name ->
       let path' = path ^ "/" ^ name in
       if name <> "." && name <> ".." && is_dir path' then
-	{ name = name ; children = lazy (tree_list_from_path path') } ::
+	{ id = newid(); name = name ; children = lazy (tree_list_from_path path') } ::
 	tree_list_from_handle path handle
       else
 	tree_list_from_handle path handle ;;
@@ -45,7 +49,7 @@ let from_dir path name =
   try
     let path' = path ^ "/" ^ name in
     if is_dir path' then
-      { name = name ;
+      { id = newid(); name = name ;
 	children = lazy (tree_list_from_path path') }
     else invalid_arg "DirTree.from_dir"
   with _ -> failwith "DirTree.from_dir" ;;

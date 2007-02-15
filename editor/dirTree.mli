@@ -1,5 +1,7 @@
-type t ;;
-type label ;;
+type t
+val id : t -> int
+
+type label 
 
 val children : t -> t list ;;
 val label : t -> label ;;
