@@ -66,7 +66,7 @@ let main () =
 
   (* la zone d'affichage du graph, le canvas *)
   let canvas = 
-    GnoCanvas.canvas ~aa:false ~width:640 ~height:640 ~packing:v_box#add () 
+    GnoCanvas.canvas ~aa:true ~width:640 ~height:640 ~packing:v_box#add () 
   in
   let root = canvas#root in
   
@@ -76,7 +76,7 @@ let main () =
   window#show ();
 
 
-  let _ =  Gtree.show_tree root (DirTree.from_dir "" Sys.argv.(1)) 640 640 in
+  let _ =  Gtree.show_tree root Gtree.T.root 640 640 in
 
 
   GMain.Main.main ()

@@ -1,7 +1,9 @@
+(*
 module T =
 struct
   type t = DirTree.t
   type label = DirTree.t
+  let id = DirTree.id 
   let edges = Hashtbl.create 97
   let children t = 
     let l = DirTree.children t in
@@ -9,9 +11,10 @@ struct
     l
   let label x = x
   let string_of_label x = DirTree.string_of_label (DirTree.label x)
+ 
+  let root = DirTree.from_dir "" Sys.argv.(1)
 end
-  
-module HT = Htree.Make(T)
+*)
 
 type drag_box = 
     { db_rect : GnoCanvas.rect;
@@ -19,9 +22,48 @@ type drag_box =
       mutable db_y : float;
       db_w : float;
       db_h : float;
+      mutable db_viewable : bool;
     }
       
 let drag_boxes = Hashtbl.create 97
+
+module T =
+struct
+  open Graph.Pack.Graph
+  let g = parse_gml_file Sys.argv.(1)
+
+  exception Choose of V.t
+  let root = 
+    try
+      iter_vertex (fun v -> raise (Choose v)) g;
+      Format.eprintf "empty graph@."; exit 0
+    with Choose v ->
+      v
+
+  type t = V.t
+  type label = V.t
+
+  module H = Hashtbl.Make(V)
+  let ids = H.create 97
+  let id = 
+    let r = ref 0 in
+    fun v -> try H.find ids v with Not_found -> incr r; H.add ids v !r; !r
+
+  let edges = Hashtbl.create 97
+  let children v = 
+    let l = succ g v in
+    List.iter (fun i -> Hashtbl.replace edges (id v, id i) ()) l;
+    List.filter 
+      (fun w -> 
+	 try not (Hashtbl.find drag_boxes (id w)).db_viewable
+	 with Not_found -> true) 
+      l
+  let label x = x
+  let string_of_label x = string_of_int (V.label x)
+end
+
+module HT = Htree.Make(T)
+
 let lines = Hashtbl.create 97
 
 let show_tree canvas t width height =
@@ -54,10 +96,19 @@ let show_tree canvas t width height =
 	    l
 	in
 	let p = [| dbi.db_x; dbi.db_y; dbj.db_x; dbj.db_y |] in
-	l#set [`POINTS p]
+	l#set [`POINTS p];
+	l#lower_to_bottom ()
+
       with Not_found -> 
-	()
+	  try
+	    let l= Hashtbl.find lines (i,j) in
+	    l#destroy();
+	    Hashtbl.remove lines (i,j)
+	  with Not_found ->
+	    ()
+
     in
+ 
     Hashtbl.iter draw_edge T.edges
   in
   let rec draw_label lab (zx,zy) facteur_reduction = 
@@ -69,20 +120,21 @@ let show_tree canvas t width height =
     and y0 = y - h/2 in
     let fx,fy = xy2gtk x0 y0 in
     try
-      let db = Hashtbl.find drag_boxes (DirTree.id lab) in
+      let db = Hashtbl.find drag_boxes (T.id lab) in
       db.db_x <- fx;
       db.db_y <- fy;
-      db.db_rect#set [ `X1 fx; `Y1 fy; `X2 (fx +. db.db_w) ; `Y2 (fy +. db.db_h) ]
+      db.db_viewable <- true;
+      db.db_rect#set [ `X1 (fx-.30.); `Y1 (fy-.20.); `X2 (fx +. db.db_w) ; `Y2 (fy +. db.db_h) ]
       (*db#set [ `X (fx -. 2.) ; `Y (fy +. float h -. 5.) ]*)
     with Not_found ->
       let rect = 
-	GnoCanvas.rect 
-	  ~props:[ `X1 fx; `Y1 fy; `X2 (fx +. float w) ; `Y2 (fy +. float h) ;
-		   `FILL_COLOR "blue" ; `OUTLINE_COLOR "black" ; `WIDTH_PIXELS 0 ] canvas 
-	(*GnoCanvas.text	~props:[ `X (fx+.20.) ; `Y fy; `TEXT name;  `FILL_COLOR "white"] canvas*)
+	let _ = GnoCanvas.text	~props:[ `X (fx-.20.) ; `Y (fy+.30.); `TEXT name;  `FILL_COLOR "blue"] canvas in
+	GnoCanvas.ellipse 
+	  ~props:[ `X1  (fx-.30.); `Y1 (fy-.20.); `X2 (fx +. float w) ; `Y2 (fy +. float h) ;
+		   `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; `WIDTH_PIXELS 0 ] canvas 
       in
-      let db = { db_rect = rect; db_x = fx; db_y = fy; db_w = float w; db_h = float h } in
-      Hashtbl.add drag_boxes (DirTree.id lab) db;
+      let db = { db_rect = rect; db_x = fx; db_y = fy; db_w = float w; db_h = float h; db_viewable = true } in
+      Hashtbl.add drag_boxes (T.id lab) db;
       let sigs = rect#connect in
       let _ = sigs#event (drag_label db) in
       () 
@@ -98,18 +150,25 @@ let show_tree canvas t width height =
     } 
   and draw_linear_tree t c f = 
     (* mettre toutes les boites à faux *)
+    Hashtbl.iter (fun _ db -> db.db_viewable <- false) drag_boxes;
     HT.draw_linear_tree draw_drv t c f;
     (* détruire toutes les boites restées à faux et les aretes correspondantes *)
+    let l = Hashtbl.fold 
+      (fun i db acc -> 
+	 if not db.db_viewable then begin db.db_rect#destroy (); i::acc end else acc) 
+      drag_boxes []
+    in
+    List.iter (fun i -> Hashtbl.remove drag_boxes i) l;
     draw_edges ()
   and drag_label db ev =
     let item = db.db_rect in
     begin match ev with
       | `ENTER_NOTIFY _ ->
-	  item#set [ `FILL_COLOR "red" ]
+	  item#set [ `FILL_COLOR "steelblue" ]
       | `LEAVE_NOTIFY ev ->
 	  let state = GdkEvent.Crossing.state ev in
 	  if not (Gdk.Convert.test_modifier `BUTTON1 state)
-	  then item#set [ `FILL_COLOR "white" ; ]
+	  then item#set [ `FILL_COLOR "grey" ; ]
       | `BUTTON_PRESS ev ->
 	  let curs = Gdk.Cursor.create `FLEUR in
 	  item#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs 

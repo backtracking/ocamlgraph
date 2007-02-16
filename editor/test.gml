@@ -3,34 +3,22 @@ graph [
     directed 1
     id 42
     label "Hello, I am a graph"
-    node [
-        id 1
-        label "Node 1"
-        thisIsASampleAttribute 42
-    ]
-    node [
-        id 2
-        label "node 2"
-        thisIsASampleAttribute 43
-    ]
-    node [
-        id 3
-        label "node 3"
-        thisIsASampleAttribute 44
-    ]
-    edge [
-        source 1
-        target 2
-        label "Edge from node 1 to node 2"
-    ]
-    edge [
-        source 2
-        target 3
-        label "Edge from node 2 to node 3"
-    ]
-    edge [
-        source 3
-        target 1
-        label "Edge from node 3 to node 1"
-    ]
+    node [ id 1 label "Node 1" ]
+    node [ id 2 label "node 2" ]
+    node [ id 3 label "node 3" ]
+    node [ id 4 label "node 3" ]
+    node [ id 5 label "node 3" ]
+    node [ id 6 label "node 3" ]
+    node [ id 7 label "node 3" ]
+    node [ id 8 label "node 3" ]
+    edge [ source 1 target 2 ]
+    edge [ source 1 target 4 ]
+    edge [ source 1 target 5 ]
+    edge [ source 1 target 6 ]
+    edge [ source 1 target 7 ]
+    edge [ source 2 target 7 ]
+    edge [ source 3 target 7 ]
+    edge [ source 1 target 8 ]
+    edge [ source 2 target 3 ]
+    edge [ source 3 target 1 ]
 ]
