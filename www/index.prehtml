@@ -120,22 +120,23 @@ Graph.</#fr>
 <a href="FAQ">FAQ</a>
 
 <p>
-<#fr>Un article présenté aux <a
-href="http://pauillac.inria.fr/jfla/2005/">JFLA 2005</a> décrit 
-ocamlgraph: <a
-href="http://www.lri.fr/~filliatr/ftp/publis/jfla05.ps.gz">Le foncteur
-sonne toujours deux fois</a> (PostScript compressé). <br>
-Une version plus complète en anglais :
-</#fr> 
-<#en>
-There is a paper describing ocamlgraph:
-</#en> 
+<#fr>Articles présentant ocamlgraph :</#fr> 
+<#en>Papers describing ocamlgraph:</#en> 
+<ul> 
+<#fr>
+<li> <a href="http://www.lri.fr/~filliatr/ftp/publis/jfla05.ps.gz">Le foncteur
+sonne toujours deux fois</a> (<a
+href="http://pauillac.inria.fr/jfla/2005/">JFLA 2005</a>) 
+</#fr>
+<li>
 <a href="http://www.lri.fr/~filliatr/ftp/publis/ocamlgraph.ps">
-Designing a Generic Graph Library using ML Functors</a> (PostScript) 
+Designing a Generic Graph Library using ML Functors</a> 
+(<a href="http://cs.shu.edu/tfp2007/">TFP 2007</a>) 
+</ul>
 
 <p>
 
-<#fr>Exemples :</#fr><#en>Examples:</#en>
+<#fr>Exemples de code :</#fr><#en>Code Examples:</#en>
 <ul>
 <li><a href="sudoku.ml">sudoku.ml</a> :
   <#fr>résolution du Sudoku en utilisant le module de coloration </#fr>

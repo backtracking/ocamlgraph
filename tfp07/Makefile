@@ -29,8 +29,8 @@ bench_build.byte: bench_build.ml
 	ocamlc -g -I .. unix.cma ../graph.cma $^
 	ocamlrun -bt ./a.out
 
-export: main.ps
-	cp main.ps $$HOME/ftp/publis/ocamlgraph.ps
+export: main-pp.ps
+	cp main-pp.ps $$HOME/ftp/publis/ocamlgraph-tfp07.ps
 
 %-pp.tex: pp.ml %.tex 
 	ocaml $^ > $@
