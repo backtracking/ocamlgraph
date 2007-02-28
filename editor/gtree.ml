@@ -1,3 +1,5 @@
+
+
 (*
 module T =
 struct
@@ -16,8 +18,9 @@ struct
 end
 *)
 
+
 type drag_box = 
-    { db_rect : GnoCanvas.rect;
+    { db_noeud : GnoCanvas.ellipse;
       mutable db_x : float;
       mutable db_y : float;
       db_w : float;
@@ -30,6 +33,7 @@ let drag_boxes = Hashtbl.create 97
 module T =
 struct
   open Graph.Pack.Graph
+
   let g = parse_gml_file Sys.argv.(1)
 
   exception Choose of V.t
@@ -50,19 +54,28 @@ struct
     fun v -> try H.find ids v with Not_found -> incr r; H.add ids v !r; !r
 
   let edges = Hashtbl.create 97
+
+  let order_children l =
+    l (*TODO*)
+
   let children v = 
     let l = succ g v in
     List.iter (fun i -> Hashtbl.replace edges (id v, id i) ()) l;
-    List.filter 
-      (fun w -> 
-	 try not (Hashtbl.find drag_boxes (id w)).db_viewable
-	 with Not_found -> true) 
-      l
+    let l = 
+      List.filter 
+	(fun w -> 
+	   try not (Hashtbl.find drag_boxes (id w)).db_viewable
+	   with Not_found -> true) 
+	l
+    in
+    order_children l
+
   let label x = x
   let string_of_label x = string_of_int (V.label x)
 end
 
 module HT = Htree.Make(T)
+
 
 let lines = Hashtbl.create 97
 
@@ -121,23 +134,38 @@ let show_tree canvas t width height =
     let fx,fy = xy2gtk x0 y0 in
     try
       let db = Hashtbl.find drag_boxes (T.id lab) in
+      let bounds =  db.db_noeud#parent#get_bounds in 
       db.db_x <- fx;
       db.db_y <- fy;
       db.db_viewable <- true;
-      db.db_rect#set [ `X1 (fx-.30.); `Y1 (fy-.20.); `X2 (fx +. db.db_w) ; `Y2 (fy +. db.db_h) ]
-      (*db#set [ `X (fx -. 2.) ; `Y (fy +. float h -. 5.) ]*)
+      db.db_noeud#parent#set [ `X fx; `Y fy; ];
+      db.db_noeud#parent#move ~x:zx ~y:zy;
+
+
     with Not_found ->
-      let rect = 
-	let _ = GnoCanvas.text	~props:[ `X (fx-.20.) ; `Y (fy+.30.); `TEXT name;  `FILL_COLOR "blue"] canvas in
+      let noeud = GnoCanvas.group ~x:fx ~y:fy  canvas in
+      let ellipse = GnoCanvas.ellipse 
+	~props:[ `X1  ( float (-w/2)); `Y1 (float (-h/2)); `X2  (float (w/2)) ; `Y2 ( float (h/2)) ;
+		   `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; `WIDTH_PIXELS 0 ] noeud
+      in
+      let _ = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT name;  `FILL_COLOR "blue"] noeud in
+      let sigs = noeud#connect in
+      let db = { db_noeud = ellipse; db_x = fx; db_y = fy; db_w = float w; db_h = float h; db_viewable = true } in
+      let _ = sigs#event (drag_label db) in
+      Hashtbl.add drag_boxes (T.id lab) db;
+
+(*      let rect = 
+	 let _ = GnoCanvas.text ~props:[ `X (fx-.20.) ; `Y (fy+.30.); `TEXT name;  `FILL_COLOR "blue"]canvas in
 	GnoCanvas.ellipse 
 	  ~props:[ `X1  (fx-.30.); `Y1 (fy-.20.); `X2 (fx +. float w) ; `Y2 (fy +. float h) ;
 		   `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; `WIDTH_PIXELS 0 ] canvas 
       in
-      let db = { db_rect = rect; db_x = fx; db_y = fy; db_w = float w; db_h = float h; db_viewable = true } in
+        let db = { db_rect = rect; db_x = fx; db_y = fy; db_w = float w; db_h = float h; db_viewable = true } in
       Hashtbl.add drag_boxes (T.id lab) db;
       let sigs = rect#connect in
       let _ = sigs#event (drag_label db) in
       () 
+*)
   and draw_drv = 
     { HT.rlimit = rlimit ;
       HT.moveto = (fun _ -> ());
@@ -155,13 +183,21 @@ let show_tree canvas t width height =
     (* détruire toutes les boites restées à faux et les aretes correspondantes *)
     let l = Hashtbl.fold 
       (fun i db acc -> 
-	 if not db.db_viewable then begin db.db_rect#destroy (); i::acc end else acc) 
+	 if not db.db_viewable 
+	 then 
+	   begin 
+	     db.db_noeud#parent#destroy (); 
+	     db.db_noeud#destroy (); 
+
+	     i::acc 
+	   end 
+	 else acc) 
       drag_boxes []
     in
     List.iter (fun i -> Hashtbl.remove drag_boxes i) l;
     draw_edges ()
   and drag_label db ev =
-    let item = db.db_rect in
+    let item = db.db_noeud in 
     begin match ev with
       | `ENTER_NOTIFY _ ->
 	  item#set [ `FILL_COLOR "steelblue" ]
@@ -169,29 +205,29 @@ let show_tree canvas t width height =
 	  let state = GdkEvent.Crossing.state ev in
 	  if not (Gdk.Convert.test_modifier `BUTTON1 state)
 	  then item#set [ `FILL_COLOR "grey" ; ]
-      | `BUTTON_PRESS ev ->
-	  let curs = Gdk.Cursor.create `FLEUR in
-	  item#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs 
-	    (GdkEvent.Button.time ev)
       | `BUTTON_RELEASE ev ->
-	  item#ungrab (GdkEvent.Button.time ev)
+	  item#parent#ungrab (GdkEvent.Button.time ev)
       | `MOTION_NOTIFY ev ->
 	  let state = GdkEvent.Motion.state ev in
 	  if Gdk.Convert.test_modifier `BUTTON1 state then 
 	    begin
+	      let curs = Gdk.Cursor.create `FLEUR in
+	      item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs 
+		(GdkEvent.Button.time ev);
 	      let z1 = xy2c (gtk2xy db.db_x db.db_y) in
 	      let mx = GdkEvent.Motion.x ev in
 	      let my = GdkEvent.Motion.y ev in
 	      let z2 = xy2c (gtk2xy mx my) in
-	      item#set [`X1 mx; `Y1 my; `X2 (mx+.db.db_w);  `Y2 (my+.db.db_h)];
+	      item#parent#move ~x:mx ~y:my;
+	      item#parent#set [`X mx; `Y my];	      (* inutil ? *)
 	      db.db_x <- mx;
 	      db.db_y <- my;
 	      origin := HT.drag_origin !origin z1 z2;
-	      draw_linear_tree t !origin 0.0
+	      draw_linear_tree t !origin 0.0;
 	    end
       | _ ->
 	  ()
     end;
-    false
+    true
   in
   draw_linear_tree t !origin 0.0
