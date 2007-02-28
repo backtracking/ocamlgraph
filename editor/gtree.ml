@@ -56,7 +56,20 @@ struct
   let edges = Hashtbl.create 97
 
   let order_children l =
-    l (*TODO*)
+    let edge v w = mem_edge g v w || mem_edge g w v in
+    let gl = create () in
+    List.iter (fun v -> add_vertex gl v) l;
+    List.iter (fun v -> List.iter (fun w -> if edge v w then add_edge gl v w) l) l; (* TODO: efficacite *)
+    let scc = Components.scc_list gl in
+    List.flatten scc
+     
+    (*
+    let no_neighboor v = 
+      List.for_all (fun w -> V.equal v w || not (edge w v)) l
+    in
+    let l1,l2 = List.partition no_neighboor l in
+    l1 @ l2
+    *)
 
   let children v = 
     let l = succ g v in
@@ -134,7 +147,6 @@ let show_tree canvas t width height =
     let fx,fy = xy2gtk x0 y0 in
     try
       let db = Hashtbl.find drag_boxes (T.id lab) in
-      let bounds =  db.db_noeud#parent#get_bounds in 
       db.db_x <- fx;
       db.db_y <- fy;
       db.db_viewable <- true;
@@ -220,6 +232,13 @@ let show_tree canvas t width height =
 	      let z2 = xy2c (gtk2xy mx my) in
 	      item#parent#move ~x:mx ~y:my;
 	      item#parent#set [`X mx; `Y my];	      (* inutil ? *)
+	      let bounds = item#parent#get_bounds in 
+(*
+	      Format.eprintf "@.";
+	      Format.eprintf "G %f   H %f   D %f   B %f@." bounds.(0) bounds.(1) bounds.(2) bounds.(3);
+	      Format.eprintf "G+D/2 %f   H+B/2 %f @." ((bounds.(0)+.bounds.(2))/.2.) ((bounds.(1)+. bounds.(3))/.2.);
+	      Format.eprintf "mx    %f    my   %f  @." mx my ;
+*)
 	      db.db_x <- mx;
 	      db.db_y <- my;
 	      origin := HT.drag_origin !origin z1 z2;
