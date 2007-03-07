@@ -55,12 +55,34 @@ struct
 
   let edges = Hashtbl.create 97
 
-  let order_children l =
+  let make_subgraph l =
     let edge v w = mem_edge g v w || mem_edge g w v in
     let gl = create () in
     List.iter (fun v -> add_vertex gl v) l;
-    List.iter (fun v -> List.iter (fun w -> if edge v w then add_edge gl v w) l) l; (* TODO: efficacite *)
+    List.iter 
+      (fun v -> List.iter (fun w -> if edge v w then add_edge gl v w) l) 
+      l; 
+      (* TODO: efficacite *)
+    gl
+
+  let order_children l =
+    let gl = make_subgraph l in
     let scc = Components.scc_list gl in
+    let order_component c =
+      let gc = make_subgraph c in
+      let v = match c with
+	| v :: l ->
+	    List.fold_left 
+	      (fun m v -> if out_degree gc v < out_degree gc m then v else m)
+	      v l
+	| [] -> 
+	    assert false
+      in
+      let l = ref [] in
+      Dfs.prefix_component (fun w -> l := w :: !l) gc v;
+      !l
+    in
+    let scc = List.map order_component scc in
     List.flatten scc
      
     (*
@@ -81,7 +103,11 @@ struct
 	   with Not_found -> true) 
 	l
     in
-    order_children l
+    let l = order_children l in
+    Format.printf "children %d: " (V.label v);
+    List.iter (fun w -> Format.printf "%d " (V.label w)) l;
+    Format.printf "@.";
+    l
 
   let label x = x
   let string_of_label x = string_of_int (V.label x)
@@ -89,6 +115,7 @@ end
 
 module HT = Htree.Make(T)
 
+let step = ref 0
 
 let lines = Hashtbl.create 97
 
@@ -138,6 +165,7 @@ let show_tree canvas t width height =
     Hashtbl.iter draw_edge T.edges
   in
   let rec draw_label lab (zx,zy) facteur_reduction = 
+    Format.printf "draw_label %d@." (T.id lab);
     let x = truncate (zx*.xzoom +. xzoom)
     and y = truncate (zy*.yzoom +. yzoom) in
     let name = T.string_of_label lab in
@@ -152,8 +180,6 @@ let show_tree canvas t width height =
       db.db_viewable <- true;
       db.db_noeud#parent#set [ `X fx; `Y fy; ];
       db.db_noeud#parent#move ~x:zx ~y:zy;
-
-
     with Not_found ->
       let noeud = GnoCanvas.group ~x:fx ~y:fy  canvas in
       let ellipse = GnoCanvas.ellipse 
@@ -220,8 +246,9 @@ let show_tree canvas t width height =
       | `BUTTON_RELEASE ev ->
 	  item#parent#ungrab (GdkEvent.Button.time ev)
       | `MOTION_NOTIFY ev ->
+	  incr step;
 	  let state = GdkEvent.Motion.state ev in
-	  if Gdk.Convert.test_modifier `BUTTON1 state then 
+	  if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 10=0 then 
 	    begin
 	      let curs = Gdk.Cursor.create `FLEUR in
 	      item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs 
