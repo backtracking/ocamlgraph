@@ -168,7 +168,7 @@ $(DPD_GRAPH_ML) $(DPD_GRAPH_ML:.ml=.cmx): $(CMXA)
 # installation
 ##############
 
-install: install-$(OCAMLBEST)
+install: install-$(OCAMLBEST) install-byte
 
 install-byte: 
 	cp -f graph.cmo graph.cmi $(CMA) $(OCAMLLIB)
