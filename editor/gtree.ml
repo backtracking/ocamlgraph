@@ -18,9 +18,13 @@ struct
 end
 *)
 
+let debug = ref true
+
 
 type drag_box = 
-    { db_noeud : GnoCanvas.ellipse;
+    {
+      db_nom : string;
+      db_noeud : GnoCanvas.ellipse;
       mutable db_x : float;
       mutable db_y : float;
       db_w : float;
@@ -62,7 +66,7 @@ struct
     List.iter 
       (fun v -> List.iter (fun w -> if edge v w then add_edge gl v w) l) 
       l; 
-      (* TODO: efficacite *)
+    (* TODO: efficacite *)
     gl
 
   let order_children l =
@@ -84,14 +88,7 @@ struct
     in
     let scc = List.map order_component scc in
     List.flatten scc
-     
-    (*
-    let no_neighboor v = 
-      List.for_all (fun w -> V.equal v w || not (edge w v)) l
-    in
-    let l1,l2 = List.partition no_neighboor l in
-    l1 @ l2
-    *)
+
 
   let children v = 
     let l = succ g v in
@@ -104,10 +101,13 @@ struct
 	l
     in
     let l = order_children l in
-    Format.printf "children %d: " (V.label v);
-    List.iter (fun w -> Format.printf "%d " (V.label w)) l;
-    Format.printf "@.";
-    l
+    if !debug then  
+      (
+	Format.printf "children %d: " (V.label v);
+	List.iter (fun w -> Format.printf "%d " (V.label w)) l;
+	Format.printf "@.";
+      );
+	l
 
   let label x = x
   let string_of_label x = string_of_int (V.label x)
@@ -142,11 +142,26 @@ let show_tree canvas t width height =
 	let dbj = Hashtbl.find drag_boxes j in
 	let l =
 	  try
-	    Hashtbl.find lines (i,j)
+	    Hashtbl.find lines (i,j);
+(*	    
+	    if !debug 
+	    then Format.printf "find edge %s ---- %s@." (dbi.db_nom)(dbj.db_nom)
+	    else ();
+*)      
 	  with Not_found-> 
-	    let l = GnoCanvas.line canvas ~props:[ `FILL_COLOR "black" ;`WIDTH_PIXELS 1; `SMOOTH true]  in
-	    Hashtbl.add lines (i,j) l;
-	    l
+	    try 
+	      Hashtbl.find lines (j,i);
+(*	      if !debug 
+	      then Format.printf "find edge %s ---- %s@." (dbi.db_nom)(dbj.db_nom)
+	      else ();
+*)
+	    with Not_found ->
+	      let l = GnoCanvas.line canvas ~props:[ `FILL_COLOR "black" ;`WIDTH_PIXELS 1; `SMOOTH true]  in
+	      Hashtbl.add lines (i,j) l;
+	      if !debug 
+	      then Format.printf "draw_edge %s ---- %s@." (dbi.db_nom)(dbj.db_nom)
+	      else ();	      
+	      l
 	in
 	let p = [| dbi.db_x; dbi.db_y; dbj.db_x; dbj.db_y |] in
 	l#set [`POINTS p];
@@ -159,13 +174,14 @@ let show_tree canvas t width height =
 	    Hashtbl.remove lines (i,j)
 	  with Not_found ->
 	    ()
-
+	      
     in
- 
     Hashtbl.iter draw_edge T.edges
   in
+
   let rec draw_label lab (zx,zy) facteur_reduction = 
-    Format.printf "draw_label %d@." (T.id lab);
+    if !debug then    
+      Format.printf "draw_label %d@." (T.id lab);
     let x = truncate (zx*.xzoom +. xzoom)
     and y = truncate (zy*.yzoom +. yzoom) in
     let name = T.string_of_label lab in
@@ -188,22 +204,10 @@ let show_tree canvas t width height =
       in
       let _ = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT name;  `FILL_COLOR "blue"] noeud in
       let sigs = noeud#connect in
-      let db = { db_noeud = ellipse; db_x = fx; db_y = fy; db_w = float w; db_h = float h; db_viewable = true } in
+      let db = { db_nom = name; db_noeud = ellipse; db_x = fx; db_y = fy; db_w = float w; db_h = float h; db_viewable = true } in
       let _ = sigs#event (drag_label db) in
       Hashtbl.add drag_boxes (T.id lab) db;
 
-(*      let rect = 
-	 let _ = GnoCanvas.text ~props:[ `X (fx-.20.) ; `Y (fy+.30.); `TEXT name;  `FILL_COLOR "blue"]canvas in
-	GnoCanvas.ellipse 
-	  ~props:[ `X1  (fx-.30.); `Y1 (fy-.20.); `X2 (fx +. float w) ; `Y2 (fy +. float h) ;
-		   `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; `WIDTH_PIXELS 0 ] canvas 
-      in
-        let db = { db_rect = rect; db_x = fx; db_y = fy; db_w = float w; db_h = float h; db_viewable = true } in
-      Hashtbl.add drag_boxes (T.id lab) db;
-      let sigs = rect#connect in
-      let _ = sigs#event (drag_label db) in
-      () 
-*)
   and draw_drv = 
     { HT.rlimit = rlimit ;
       HT.moveto = (fun _ -> ());
@@ -214,10 +218,14 @@ let show_tree canvas t width height =
       HT.init_label_pass = (fun () -> ());
       HT.finalize = (fun () -> ())
     } 
+
   and draw_linear_tree t c f = 
+
     (* mettre toutes les boites à faux *)
     Hashtbl.iter (fun _ db -> db.db_viewable <- false) drag_boxes;
+
     HT.draw_linear_tree draw_drv t c f;
+
     (* détruire toutes les boites restées à faux et les aretes correspondantes *)
     let l = Hashtbl.fold 
       (fun i db acc -> 
@@ -234,6 +242,7 @@ let show_tree canvas t width height =
     in
     List.iter (fun i -> Hashtbl.remove drag_boxes i) l;
     draw_edges ()
+
   and drag_label db ev =
     let item = db.db_noeud in 
     begin match ev with
@@ -259,13 +268,6 @@ let show_tree canvas t width height =
 	      let z2 = xy2c (gtk2xy mx my) in
 	      item#parent#move ~x:mx ~y:my;
 	      item#parent#set [`X mx; `Y my];	      (* inutil ? *)
-	      let bounds = item#parent#get_bounds in 
-(*
-	      Format.eprintf "@.";
-	      Format.eprintf "G %f   H %f   D %f   B %f@." bounds.(0) bounds.(1) bounds.(2) bounds.(3);
-	      Format.eprintf "G+D/2 %f   H+B/2 %f @." ((bounds.(0)+.bounds.(2))/.2.) ((bounds.(1)+. bounds.(3))/.2.);
-	      Format.eprintf "mx    %f    my   %f  @." mx my ;
-*)
 	      db.db_x <- mx;
 	      db.db_y <- my;
 	      origin := HT.drag_origin !origin z1 z2;
