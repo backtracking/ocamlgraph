@@ -1,0 +1,85 @@
+\documentclass{beamer}
+
+\usepackage{pgf}
+\usepackage{calc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[latin1]{inputenc}
+\usepackage{beamerthemesplit}
+
+\usetheme{Cea}
+
+\title{Designing a Generic Graph Library using ML Functors}
+\author{S. Conchon \and J.-C. Filli\^atre \and J. Signoles}
+\date{April 4$^{\mbox{th}}$, 2007}
+
+\begin{document}
+
+\setbeamertemplate{navigation symbols}{}
+
+\newtheorem{prop}{Property}
+
+\frame{\titlepage}
+
+\section[Outline]{}
+\frame{\tableofcontents}
+
+\section{Goal}
+
+
+\frame{
+  \frametitle{Facts}
+  \begin{itemize}
+  \item SystemC has a top level loop which simulates events.
+  \item A loss of accuracy on the top level loop of a simulation
+yields immediately a bad result.
+  \end{itemize}
+}
+
+\frame{
+  \frametitle{What we want}
+\begin{center}
+\fbox{Put graphic in here!}
+\end{center}
+}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Simple example of goal}
+\begin{minipage}{5cm}
+\begin{verbatim}
+int main(int i) {
+  int j=0;
+  j=2*i;
+  if (2*i==j) {
+    return 314;
+  }
+  return 2;
+}
+\end{verbatim}
+\end{minipage}
+\begin{minipage}{5cm}
+
+Represention of the return value:
+\begin{center}
+\fbox{Put graphic in here!}
+\end{center}
+\end{minipage}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Example of a property}
+\begin{prop}
+First assert in {\tt checkTwoDigitAdder} is always true.
+\end{prop}
+\begin{proof}
+According to data hypergraph, formula to prove is:
+$$(a+b)\& 1 = 0 \mathtt{xor} ( (a\& 1) \mathtt{xor} (b\& 1))$$
+which becomes:
+$$(a_1+a_2<<1 + b_1+b_2<<1)\& 1 =  (a\& 1) \mathtt{xor} (b\& 1)$$
+$$(a_1+ b_1)\& 1 =  a_1 \mathtt{xor} b_1$$
+\end{proof}
+\end{frame}
+
+\end{document}
+    
