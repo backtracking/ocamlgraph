@@ -89,7 +89,7 @@
 
 \bigskip
     \begin{center}
-      \bleu{our solution: ML functors}
+      \bleu{massive use of Ocaml's module system, especially functors}
     \end{center}
   \end{itemize}
 \end{frame}
@@ -260,6 +260,17 @@ end
 \end{frame}
 
 \begin{frame}
+  \frametitle{Benefits of functorized algorithms}
+
+  \begin{itemize}
+  \item clearly \emph{separates} algorithm from data structure\vskip8pt
+  \item possible use on \emph{non-\ocamlgraph} data structures\vskip8pt
+  \item easy \emph{extension} with new algorithms\vskip8pt
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
   \frametitle{Existing algorithms}
   \begin{itemize}
   \item traversal: 7 DFS, 2 BFS, 2 cycle detections
@@ -270,7 +281,7 @@ end
     \end{itemize}
   \item Dijkstra's shortest path
   \item strongly connected components
-  \item Goldberg's and Ford-Fulkerson's maximal flow.
+  \item Goldberg's and Ford-Fulkerson's maximal flow
   \item $k$-coloring
   \item topological sorting
   \item Kruskal's minimum spanning tree
@@ -278,17 +289,6 @@ end
     neighborhood, \dots
   \item interfaces with Graphviz and GML
 \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Benefits of functorized algorithms}
-
-  \begin{itemize}
-  \item clearly \emph{separates} algorithm from data structure\vskip8pt
-  \item possible use on \emph{non-\ocamlgraph} data structures\vskip8pt
-  \item easy \emph{extension} with new algorithms\vskip8pt
-  \end{itemize}
-
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -305,12 +305,15 @@ end
 \end{frame}
 
 \begin{frame}
-  \frametitle{Graph Data Structures}
+  \frametitle{Software Engineering}
   \begin{center}
-    \bleu{How to provide 19 implementations \\ 
-      without code duplication?}
+    \bleu{How to code and to maintain 19 implementations \\ 
+      and so many algorithms without difficulty?}
   \end{center}
-  \pause
+\end{frame}
+
+\begin{frame}
+  \frametitle{Factorizing Code with Functors}
   \begin{enumerate}
   \item 
     abstracting the underlying implementation (AVL or hash table) by using a
@@ -339,8 +342,7 @@ persistent or imperative unlabeled directed graphs
 
 \begin{alltt}
 \motcle{module} Make
-  (F: \motcle{functor}(X: COMPARABLE) \fleche
-      HM \motcle{with type} key = X.t) = 
+  (F: \motcle{functor}(X: COMPARABLE) \fleche HM \motcle{with type} key = X.t) = 
 \motcle{struct}
   \motcle{module} Digraph = \motcle{struct}
     \motcle{module} Concrete(V: COMPARABLE) = \motcle{struct}
@@ -348,8 +350,9 @@ persistent or imperative unlabeled directed graphs
       \motcle{include} \emph{Unlabeled}(V)(HM)
       \motcle{include} \emph{Minimal}(S)(HM)
     \motcle{end}
-    ...
 \motcle{end}
+\motcle{module} I = Make(Make_Hashtbl)
+\motcle{module} P = Make(Make_Map)
 \end{alltt}
 \end{frame}
 
@@ -357,7 +360,7 @@ persistent or imperative unlabeled directed graphs
   \frametitle{Code Factorization}
 
   \begin{center}
-    all together, 19 data structures with 45 operations \\[1em]
+    all together, 19 data structures with 45 operations each \\[1em]
     
     \emph{855 operations in 1000 lines of code}
   \end{center}
