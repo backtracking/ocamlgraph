@@ -10,9 +10,10 @@
 \usepackage{alltt}
 \usepackage{graphics}
 
-\usetheme{Cea}
+%\usetheme{Cea}
+\usetheme{Madrid}
 
-\newcommand{\rouge}[1]{{\color{orange}#1}}
+%\newcommand{\rouge}[1]{{\color{orange}#1}}
 \newcommand{\bleu}[1]{{\color{blue}#1}}
 \newcommand{\monvert}[1]{{\color{blue}#1}}
 \newcommand{\motcle}[1]{{\color{blue}#1}}
@@ -23,12 +24,15 @@
 
 \newcommand{\excode}[1]{\monvert{\texttt{#1}}}
 \newcommand{\present}{{\monvert{\large\boldmath $\surd$}}}
-\newcommand{\absent}{\rouge{\large\boldmath $\oslash$}}
+\newcommand{\absent}{\textcolor{red}{\large\boldmath $\oslash$}}
 
-\newcommand{\oemph}[1]{\textcolor{orange}{#1}}
+\newcommand{\oemph}[1]{\textcolor{red}{#1}}
 \let\emph\oemph
 
-\title{Designing a Generic Graph Library using ML Functors}
+\author{Julien Signoles}
+\institute{CEA}
+\title{Designing a Generic Graph Library}
+\date{April 4th, 2007}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -40,15 +44,17 @@
 
 \begin{frame}
   \begin{center}
-    \textcolor{orange}{\Large Designing a Generic Graph Library \\[0.7em]
+    \textcolor{red}{\LARGE Designing a Generic Graph Library \\[0.7em]
       using ML Funtors}\\[2em]
 
-    \textcolor{orange}{\large Sylvain Conchon, Jean-Christophe Filliâtre}
+    {\large Sylvain Conchon, Jean-Christophe Filliâtre}
     \\[0.7em]
-    \textcolor{blue}{\large LRI, Paris Sud University}\\[1.4em]
-    \textcolor{orange}{\large \textit{Julien Signoles}}\\[0.7em]
+    \textcolor{blue}{\large LRI, Paris Sud University CNRS}\\[1.4em]
+    \textcolor{red}{\large \textit{Julien Signoles}}\\[0.7em]
     \textcolor{blue}{\large CEA LIST}
   \end{center}
+  \includegraphics[width=0.15\textwidth]{cealist.pdf}\\[-0.5em]
+  \hfill\includegraphics[width=0.15\textwidth]{lrilogo.jpg}\\[-0.5em]
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -58,29 +64,29 @@
 \begin{frame}
   \frametitle{OcamlGraph}
   \begin{itemize}
-  \item \emph{What is \ocamlgraph}
-    \begin{center}
-      A  graph library for Ocaml
-      
-      \bleu{\url{http://www.lri.fr/~filliatr/ocamlgraph}}
-    \end{center}
+  \item \emph{What is \ocamlgraph?} 
+ 
+    \qquad a  graph library for Ocaml (\bleu{\url{ocamlgraph.lri.fr}})
+
     \pause\vskip10pt
   \item
     \emph{Why \ocamlgraph?}
-    \begin{center}
-      Before, no graph library for Ocaml.
-    \end{center}
+    
+    \qquad no graph library for Ocaml
+
     \pause\vskip10pt
-  \item \emph{Why \textsl{a talk about} \ocamlgraph?}
-    \begin{center}
-      Designing a generic graph library is not so easy:
-    \end{center}
+  \item \emph{Why a talk about \ocamlgraph?}
+
+%    \qquad designing a generic graph library is not so easy:
+
     \begin{itemize}
-    \item How to easily provide many different graph data structures?
-    \item How to provide reusable graph algorithms? 
+    \item how to provide many different graph data structures?
+    \item how to provide reusable graph algorithms? 
     \end{itemize}
+
+\bigskip
     \begin{center}
-      \bleu{Our solution: ML functors.}
+      \bleu{our solution: ML functors}
     \end{center}
   \end{itemize}
 \end{frame}
@@ -88,9 +94,10 @@
 \begin{frame}
   \frametitle{Outline}
   \begin{itemize}
-  \item Graph data structures: interface\vskip15pt
-  \item Graph data structures: implementation\vskip15pt
-  \item Graph algorithms\vskip15pt
+  \item Using OcamlGraph
+    \vskip15pt
+  \item Implementing OcamlGraph
+    \vskip15pt
   \item Conclusion
   \end{itemize}
 \end{frame}
@@ -99,71 +106,181 @@
 
 %\section[Interface]{}
 
-\begin{frame}
-  \frametitle{Outline}
-  \begin{itemize}
-  \item Graph data structures: interface\vskip15pt
-  \item \textcolor{black!30}{Graph data structures: implementation\vskip15pt
-  \item Graph algorithms\vskip15pt
-  \item Conclusion}
-  \end{itemize}
-\end{frame}
-
 \begin{frame}[containsverbatim]
-  \frametitle{Interfaces}
-  \emph{Common interface for all graphs:}
-  \begin{alltt}
-    module type \bleu{G} = sig ... end    
-  \end{alltt}
-  \emph{Interface for persistent graphs:}
-  \begin{alltt}
-    module type \bleu{P} = sig
-      include \bleu{G}
-      ...
-    end
-  \end{alltt}
-  \emph{Interface for imperative graphs:}
-  \begin{alltt}
-    module type \bleu{I} = sig
-      include \bleu{G}
-      ...
-    end
-  \end{alltt}
-\end{frame}
-
-\begin{frame}[containsverbatim]
-  \frametitle{Kinds of graph}
+  \frametitle{Using a graph library}
   \begin{center}
-    \bleu{What kind of graph do you want to use?}
+    \bleu{What kind of graphs do you need?}
   \end{center}
+\bigskip
   \begin{itemize}
-  \item Mutable graph or not?
+  \item Mutable graph?
     \hfill \excode{Imperative} or \excode{Persistent}
     \vskip10pt
-  \item Directed or not?
+  \item Directed?
     \hfill \excode{Digraph} or \excode{Graph}
     \vskip10pt
-  \item Abstract vertices or not?
+  \item Labels on edges?
+    \hfill \excode{Labeled} (or unlabeled)
+    \vskip10pt
+  \item Abstract data type for vertices?
     \hfill \excode{Abstract} or \excode{Concrete}
     \vskip10pt
-  \item Label on edges or not?
-    \hfill \excode{Labeled} (or nothing)
   \end{itemize}
-  \begin{center}
-    Example: \excode{Imperative.Digraph.AbstractLabeled}\vskip10pt
-  \end{center}
 \end{frame}
 
-\begin{frame}\frametitle{Components}
+\begin{frame}[fragile]
+  \frametitle{Examples}
+  \begin{itemize}
+  \item imperative directed graphs with integer vertices and unlabeled edges
+\medskip
+    \begin{alltt}
+module G = 
+  \emph{Imperative.Digraph.Abstract}(struct type t = int end)
+    \end{alltt}
+
+  \item persistent undirected graphs with string vertices and edges
+\medskip
+    \begin{alltt}
+module S = struct type t = string ... end
+module G = \emph{Persistent.Graph.ConcreteLabeled}(S)(S)
+    \end{alltt}
+  \end{itemize}
+\end{frame}
+
+% \begin{frame}[containsverbatim]
+%   \frametitle{Interfaces}
+%   \emph{Common interface for all graphs:}
+%   \begin{alltt}
+%     module type \bleu{G} = sig ... end    
+%   \end{alltt}
+%   \emph{Interface for persistent graphs:}
+%   \begin{alltt}
+%     module type \bleu{P} = sig
+%       include \bleu{G}
+%       ...
+%     end
+%   \end{alltt}
+%   \emph{Interface for imperative graphs:}
+%   \begin{alltt}
+%     module type \bleu{I} = sig
+%       include \bleu{G}
+%       ...
+%     end
+%   \end{alltt}
+% \end{frame}
+
+
+\begin{frame}\frametitle{All graph data structures}
   \includegraphics[width=\textwidth]{interface.pdf} 
 \vskip-1pt
 \begin{itemize}
-\item 8 \bleu{persistent}: implemented with \texttt{Map}.
-\item 8 \bleu{imperative}: implemented with \texttt{Hashtable}.
-\item 3 \bleu{specialized}: adjacency matrices and bidirectional graphs.
+\item 8 \bleu{persistent}: implemented with AVLs
+\item 8 \bleu{imperative}: implemented with hash tables
+\item 3 \bleu{specialized}: adjacency matrices and bidirectional graphs
 \end{itemize}
 \vskip-3pt
-\begin{center}\emph{All together, 19 data structures}.\end{center}
+\begin{center}\emph{all together, 19 data structures}\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Graph operations}
+  \begin{itemize}
+  \item \emph{creation} (insertion, suppression, etc.)
+    \begin{alltt}
+      val add_vertex : t \fleche\ vertex \fleche\ unit
+    \end{alltt}
+  \item \emph{test functions}
+    \begin{alltt}
+      val mem_edge : t \fleche\ vertex \fleche\ vertex \fleche\ bool
+    \end{alltt}
+  \item \emph{iterators} (vertices, edges, successors, etc.)
+    \begin{alltt}
+      val iter_vertex : (vertex \fleche\ unit) \fleche\ t \fleche\ unit
+    \end{alltt}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Graph algorithms}
+
+  \begin{center}
+    written independently of the graph implementation\\[1.2em]
+    \emph{algorithm = functor}\\[1em]
+  \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example: Shortest Path}
+
+  \begin{enumerate}
+  \item instantiating the functor
+  \begin{alltt}
+    module W = struct
+      type t = int
+      let zero = 0
+      let add = (+)
+      ...
+    end
+    module Dij = \emph{Path.Dijkstra}(G)(W)
+  \end{alltt}
+
+  \item using the resulting module
+  \begin{alltt}
+    let path,w = \emph{Dij.shortest_path} g v1 v2
+  \end{alltt}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Minimal Functor Signature}
+only the \emph{required operations} as functor parameters
+  \begin{alltt}
+module type G = sig
+  type t 
+  module V : sig type t ... end
+  module E : sig type t ... end
+  val \emph{iter_succ_e} : (E.t -> unit) -> t -> V.t -> unit
+end
+module Dijkstra
+  (G: G)
+  (W: sig type t val \emph{weight} : G.E.t -> t ... end)
+sig
+  val shortest_path : G.t -> G.V.t -> G.V.t -> 
+                      G.E.t list * W.t
+end
+  \end{alltt}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Existing algorithms}
+  \begin{itemize}
+  \item Traversal: 7 DFS, 2 BFS, 2 cycle detections
+  \item Building:
+    \begin{itemize}
+    \item 4 classics (ex. de Bruijn's graph)
+    \item 2 randoms (ex. planar graph) 
+    \end{itemize}
+  \item Dijkstra's shortest path
+  \item Strongly connected components
+  \item Goldberg's and Ford-Fulkerson's maximal flow.
+  \item $k$-coloring
+  \item Topological sorting
+  \item Kruskal's minimum spanning tree
+  \item Misc. operations: transitive closure, complementary, miror,
+    neighbourhood, \dots
+  \item Interfaces with Graphviz and GML.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Benefits of functorized algorithms}
+
+  \begin{itemize}
+  \item clearly \emph{separates} algorithm from data structure\vskip8pt
+  \item possible use on \emph{non-\ocamlgraph} data structures\vskip8pt
+  \item easy \emph{extension} with new algorithms\vskip8pt
+  \end{itemize}
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -173,18 +290,17 @@
 \begin{frame}
   \frametitle{Outline}
   \begin{itemize}
-  \item \textcolor{black!30}{Graph data structures: interface\vskip15pt}
-  \item Graph data structures: implementation\vskip15pt
-  \item \textcolor{black!30}{Graph algorithms\vskip15pt
-  \item Conclusion}
+  \item \textcolor{black!30}{Using OcamlGraph\vskip15pt}
+  \item Implementing OcamlGraph\vskip15pt
+  \item \textcolor{black!30}{Conclusion\vskip15pt}
   \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Providing specialized blocks}
   \begin{center}
-    \bleu{How to provide 19 implementations of the same signature without code
-    dupplication?}
+    \bleu{How to provide 19 implementations \\ 
+      without code duplication?}
   \end{center}
   \pause
   \begin{enumerate}
@@ -260,49 +376,6 @@
   \item Graph algorithms\vskip15pt
   \item \textcolor{black!30}{Conclusion}
   \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Generic programming}
-
-  \begin{center}
-    Write algorithms independently of the graph implementation.\\[1.2em]
-    \emph{Algorithm = functor}\\
-    in which parameters only contain the required operations.
-  \end{center}
-
-  \pause
-  \begin{itemize}
-  \item \emph{Use} it on non-\ocamlgraph\ data structures.\vskip8pt
-  \item \emph{Implement} it more safely.\vskip8pt
-  \item \emph{Extend} the library more easily.\vskip8pt
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Existing algorithms}
-  \begin{itemize}
-  \item Traversal: 7 DFS, 2 BFS, 2 cycle detections
-  \item Building:
-    \begin{itemize}
-    \item 4 classics (ex. de Bruijn's graph)
-    \item 2 randoms (ex. planar graph) 
-    \end{itemize}
-  \item Dijkstra's shortest path
-  \item Strongly connected components
-  \item Goldberg's and Ford-Fulkerson's maximal flow.
-  \item $k$-coloring
-  \item Topological sorting
-  \item Kruskal's minimum spanning tree
-  \item Misc. operations: transitive closure, complementary, miror,
-    neighbourhood, \dots
-  \item Interfaces with Graphviz and GML.
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Example}
-  \begin{center}Flow algorithms\end{center}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
