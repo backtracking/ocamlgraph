@@ -40,7 +40,7 @@ OBJEXT = @OBJEXT@
 
 INCLUDES = -I +lablgtk2 -I +threads -I editor
 BFLAGS = $(INCLUDES)
-OFLAGS = $(INCLUDES) @FORPACK@
+OFLAGS = $(INCLUDES) -p @FORPACK@
 
 # main target
 #############
@@ -143,7 +143,7 @@ editor/editor.byte: $(CMA) $(EDCMO)
 	$(OCAMLC) -g -o $@ -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma unix.cma $^
 
 editor/editor.opt: $(CMXA) $(EDCMX)
-	$(OCAMLOPT) -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
+	$(OCAMLOPT) -p -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
 
 
 VERSION=0.98
@@ -214,7 +214,7 @@ FTP = $$HOME/ftp/$(NAME)
 WWW = $$HOME/WWW/$(NAME)
 
 FILES = *.ml* Makefile.in configure configure.in META.in  \
-	.depend README FAQ CREDITS INSTALL COPYING LGPL CHANGES
+	.depend README FAQ CREDITS INSTALL COPYING LICENSE CHANGES
 
 EXAMPLES = demo.ml color.ml demo_planar.ml sudoku.ml
 
@@ -227,7 +227,7 @@ source:
 	cp $(FILES) export/$(EXPORTDIR)
 	cd export ; tar cf $(TAR) $(EXPORTDIR) ; gzip -f --best $(TAR)
 	cp export/$(TAR).gz $(FTP)
-	cp README FAQ CREDITS COPYING LGPL CHANGES $(EXAMPLES) $(FTP)
+	cp README FAQ CREDITS COPYING LICENSE CHANGES $(EXAMPLES) $(FTP)
 
 www/version.prehtml: Makefile.in
 	echo "<#def version>$(VERSION)</#def>" > www/version.prehtml
