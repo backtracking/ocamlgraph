@@ -14,7 +14,7 @@ let root =
     iter_vertex (fun v -> raise (Choose v)) graph;
     Format.eprintf "empty graph@."; exit 0
   with Choose v ->
-    v
+    ref v
 
 
 (* [step_from n] computes the best `distance' for solving the
@@ -161,7 +161,7 @@ and  draw_edges t pas angle canvas= function
 
 let draw origine tortue canvas=
   H.clear pos;
-  draw_graph  root tortue canvas
+  draw_graph  !root tortue canvas
 
 open Gobject.Data
 let cols = new GTree.column_list
@@ -185,8 +185,15 @@ let create_model () =
 
 let node_selection ~(model : GTree.tree_store) path =
   let row = model#get_iter path in
-  let s = model#get ~row ~column:name in
-  Format.eprintf "node_selection %s@." s
+  let v = model#get ~row ~column: vertex in
+  root := v;
+(*  let tortue =
+    let (x,y) = from_tortue !origine in
+    moveto_gtk x y;
+    make_turtle !origine 0.0 
+  and     
+  draw origine tortue canvas_root
+*)
 
 open GtkTree
 
