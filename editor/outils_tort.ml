@@ -45,15 +45,59 @@ let turn_right turtle angle =
   turn turtle (expi (-.angle))           (*** a comprendre pourquoi je dois inverser + et - de l'angle ***) 
 
 let to_tortue(x,y)=
-  ((float x*.(2./.w) -. 1.),(float y *.(2./.h) -. 1.))
+  ((float x*.(2./.w) -. 1.),(1. -. float y *.(2./.h)))
+(*  ((float x*.(2./.w) ),(float y *.(2./.h) ))*)
 
 let from_tortue (x,y) =
   let xzoom = (w/.2.)
   and yzoom = (h/.2.) in
-  (truncate (x*.xzoom +. xzoom), truncate(y*.yzoom +. yzoom))
+  (truncate (x*.xzoom +. xzoom), truncate(yzoom -. y*.yzoom))
 
-let origine =ref (to_tortue (truncate(w/.2.),truncate(h/.2.)))
+let origine =ref (to_tortue (truncate(w/.2.), truncate(h/.2.)))
 
+
+
+
+(* GTK *)
+let point_courant = ref (0,0)
+(*let canvas = graphEdGTK.root *)
+
+let moveto_gtk x y = point_courant := (x,y)
+
+let tmoveto_gtk tor = 
+  let (x,y)= from_tortue tor.pos in
+  point_courant := (x,y)
+
+let tlineto_gtk tor couleur canvas=
+  let (x,y) = !point_courant in
+  let (x',y')= from_tortue tor.pos in
+  let p = [|(float x); (float y); (float x'); (float y') |] in
+  (*Format.eprintf "tlineto %d,%d - %d,%d@." x y x' y';*)
+  let l = GnoCanvas.line canvas ~props:[`POINTS p; `FILL_COLOR couleur ;`WIDTH_PIXELS 1; `SMOOTH true]  in
+  l#lower_to_bottom ();
+  point_courant := (x',y')
+
+
+
+
+
+
+
+(* avance la tortue en traçant, d'une distance d, en n pas, et retourne la nouvelle
+   position de la tortue *)
+let tdraw_edge_gtk tor d n couleur canvas=
+  let d = d /. float n in
+  let rec move t = function
+    | 0 -> t
+    | n -> let t = advance t d in tlineto_gtk t couleur canvas; move t (n-1)
+  in
+  tmoveto_gtk tor;
+  move tor n
+
+
+
+
+(*
 (* graphics *)
 
 let tmoveto tor =
@@ -79,3 +123,4 @@ let tdraw_edge tor d n =
   in
   tmoveto tor;
   move tor n
+*)
