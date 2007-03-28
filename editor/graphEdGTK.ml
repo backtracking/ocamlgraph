@@ -166,6 +166,7 @@ let draw origine tortue canvas=
 open Gobject.Data
 let cols = new GTree.column_list
 let name = cols#add string
+let vertex = cols#add caml
 
 let create_model () =
   let model = GTree.tree_store cols in
@@ -173,6 +174,7 @@ let create_model () =
     (fun v -> 
       let row = model#append () in
       model#set ~row ~column:name (string_of_int (V.label v));
+      model#set ~row ~column:vertex v;
       iter_succ
 	(fun w ->
           let row = model#append ~parent:row () in
