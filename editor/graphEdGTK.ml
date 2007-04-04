@@ -1,7 +1,6 @@
 open Format
 open Graph.Pack.Graph
 open Outils_tort
-open PosGraph
 open Outils_math
 
 

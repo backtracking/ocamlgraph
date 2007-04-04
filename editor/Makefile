@@ -7,7 +7,7 @@ graphEd.opt : outils_math.ml outils_tort.ml graphEd.ml
 	ocamlopt -o $@ graphics.cmxa -I .. ../graph.cmxa $^
 
 
-graphEdGTK : outils_math.ml outils_tort.ml posGraph.ml graphEdGTK.ml
+graphEdGTK : outils_math.ml outils_tort.ml graphEdGTK.ml
 	ocamlopt -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa -I .. ../graph.cmxa $^
 
 editor.opt:
