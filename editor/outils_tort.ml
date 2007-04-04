@@ -74,6 +74,7 @@ let tlineto_gtk tor line =
   let p = [|(float x); (float y); (float x'); (float y') |] in
   (*Format.eprintf "tlineto %d,%d - %d,%d@." x y x' y';*)
   line#set [`POINTS p];
+  line#show();
   point_courant := (x',y')
 
 let tdraw_string_gtk tor (ellipse : GnoCanvas.ellipse) =

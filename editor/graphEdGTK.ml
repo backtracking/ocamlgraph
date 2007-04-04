@@ -164,7 +164,9 @@ let ellipses = H.create 97
 let tdraw_string_gtk v tor canvas =
   let ellipse =
     try
-      H.find ellipses v
+      let item = H.find ellipses v in
+      item#parent#show();
+      item
     with Not_found ->
       let (w,h) = (40,15) in
       let noeud = GnoCanvas.group ~x:0.0 ~y:0.0 canvas in
@@ -246,7 +248,11 @@ let rec draw_graph depth noeud tortue canvas =
 	  ()
 	end
     end
-  else Format.eprintf"je devrai pas etre la"
+  else
+    try
+      let ellipse = tdraw_string_gtk noeud tortue canvas in
+      ellipse#parent#hide();
+    with Not_found -> Format.eprintf"je devrai pas etre la@."
 
 and draw_edges noeud depth t pas angle canvas= function
   | [] -> 
@@ -288,7 +294,7 @@ and drag_label item ev =
 	      moveto_gtk (truncate x) (truncate y);
 	      make_turtle (to_tortue(!point_courant)) 0.0;
 	    in
-	    let l =  canvas_root#get_items in
+	    let _ =  canvas_root#get_items in
 	    (*Format.eprintf "il y a %d elements dans le canvas @." (List.length l);*)
 	    (* List.iter (fun v -> if v then v#destroy())l; *)
 	  
@@ -312,7 +318,18 @@ and draw tortue canvas =
 	 let lw,tw = H.find pos w in
 	 if abs (lw - lv) <> 1 then draw_grey_edge (v,w) tv tw canvas
        with Not_found ->
-	 begin try let l = H2.find grey_edges (v,w) in () (*TODO l#set [`VISIBLE false]*) with Not_found -> () end) 
+	 begin 
+	   Format.eprintf"Je vais tenter de détruire un edge@.";
+
+	   try
+	     let l = H2.find grey_edges (w,v) in  l#hide();
+	     Format.eprintf"J'ai détruit un grey edge@."
+	   with Not_found -> ();
+	     try 
+	       let l = H2.find black_edges (v,w) in List.iter (fun v -> v#hide()) l ;
+	       Format.eprintf"J'ai détruit un black edge@."
+	     with Not_found -> ()
+	 end) 
     graph
 
 
@@ -327,7 +344,7 @@ let node_selection ~(model : GTree.tree_store) path =
   in
   let l =  canvas_root#get_items in
   (*Format.eprintf "il y a %d elements dans le canvas @." (List.length l);*)
-  (*List.iter (fun v -> v#destroy())l;*)
+  List.iter (fun v -> v#hide())l;
   draw tortue canvas_root
 
     
