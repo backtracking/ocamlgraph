@@ -159,10 +159,69 @@ module H = Hashtbl.Make(V)
 (* table donnant pour chaque noeud sa profondeur et sa tortue *)
 let pos = H.create 97
 
+(* table des ellipses existantes *)
+let ellipses = H.create 97
+
+let tdraw_string_gtk v tor canvas =
+  let ellipse =
+    try
+      H.find ellipses v
+    with Not_found ->
+      let (w,h) = (40,15) in
+      let noeud = GnoCanvas.group ~x:0.0 ~y:0.0 canvas in
+      let ellipse = GnoCanvas.ellipse 
+	~props:[ `X1  ( float_of_int (-w/2)); `Y1 (float_of_int (-h/2)); 
+		 `X2  (float_of_int (w/2)) ; `Y2 ( float_of_int (h/2)) ;
+		 `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; `WIDTH_PIXELS 0 ] noeud  in
+      let s = string_of_label v in
+      let _ = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT s;  `FILL_COLOR "blue"] noeud in
+      H.add ellipses v ellipse;
+      ellipse
+  in
+  tdraw_string_gtk tor ellipse;
+  ellipse
+
+module H2 = Hashtbl.Make(struct type t = V.t * V.t
+		 	        let hash (v,w) = Hashtbl.hash (V.hash v, V.hash w)
+			        let equal (v1,w1) (v2,w2) = V.equal v1 v2 && V.equal w1 w2 end)
+
+let black_edges = H2.create 97
+
+let tdraw_edge_gtk vw t pas n color canvas =
+  let ll =
+    try
+      H2.find black_edges vw
+    with Not_found ->
+      let rec create_line = function
+	| 0 -> []
+	| n -> 
+	    let l = GnoCanvas.line canvas ~props:[ `FILL_COLOR color ;`WIDTH_PIXELS 1; `SMOOTH true] in
+	    l#lower_to_bottom ();
+	    l :: create_line (n-1)
+      in
+      let ll = create_line n in
+      H2.add black_edges vw ll;
+      ll
+  in
+  tdraw_edge_gtk t pas ll
+
+
+let grey_edges = H2.create 97
+
+let draw_grey_edge vw tv tw canvas =
+  let l =
+    try
+      H2.find grey_edges vw
+    with Not_found ->
+      let l = GnoCanvas.line canvas ~props:[ `FILL_COLOR "grey" ;`WIDTH_PIXELS 1; `SMOOTH true] in
+      l#lower_to_bottom ();
+      H2.add grey_edges vw l;
+      l
+  in
+  tmoveto_gtk tv; tlineto_gtk tw l 
+
 
 let step = ref 0
-
-
 
 let rec draw_graph depth noeud tortue canvas =
   if hspace_dist_sqr tortue <= rlimit_sqr then
@@ -170,7 +229,7 @@ let rec draw_graph depth noeud tortue canvas =
       H.add pos noeud (depth,tortue);
       tmoveto_gtk tortue;
       (* draw label *)
-      let ellipse = tdraw_string_gtk tortue (string_of_label noeud) canvas in
+      let ellipse = tdraw_string_gtk noeud tortue canvas in
       let sigs = ellipse#parent#connect in
       let _ = sigs#event (drag_label ellipse) in
       
@@ -184,21 +243,21 @@ let rec draw_graph depth noeud tortue canvas =
 	  let pas = step_from (max 3 n)
 	  and angle = (if depth = 0 then 2. else 1.) *. pi /. (float_of_int n) in
 	  let tortue = if depth = 0 then tortue else turn_right tortue ((pi -. angle) /. 2.) in
-	  let ll = draw_edges (depth+1) tortue pas angle canvas l  in
+	  let _ = draw_edges noeud (depth+1) tortue pas angle canvas l in
 	  ()
 	end
     end
   else Format.eprintf"je devrai pas etre la"
 
-and draw_edges depth t pas angle canvas= function
+and draw_edges noeud depth t pas angle canvas= function
   | [] -> 
       []
   | v :: l -> 
-      let tv = tdraw_edge_gtk t pas 10 "black" canvas in 
+      let tv = tdraw_edge_gtk (noeud,v) t pas 10 "black" canvas in 
       (*if hspace_dist_sqr t <= rlimit_sqr then H.add pos v (depth,tv);*)
       let t = turn_left t angle in
       draw_graph depth v tv canvas;
-      (v,tv) :: draw_edges depth t pas angle canvas l
+      (v,tv) :: draw_edges noeud depth t pas angle canvas l
 
 and drag_label item ev =
   begin match ev with
@@ -213,7 +272,7 @@ and drag_label item ev =
     | `MOTION_NOTIFY ev ->
 	incr step;
 	let state = GdkEvent.Motion.state ev in
-	if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 1=0 then 
+	if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 10 = 0 then 
 	  begin
 	    let curs = Gdk.Cursor.create `FLEUR in
 	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs 
@@ -221,7 +280,7 @@ and drag_label item ev =
 	    let mx = GdkEvent.Motion.x ev in
 	    let my = GdkEvent.Motion.y ev in
 	    moveto_gtk (truncate mx) (truncate my);
-	    Format.eprintf "drag_label %f,%f @." mx my;
+	    (*Format.eprintf "drag_label %f,%f @." mx my;*)
 	    item#parent#move ~x: mx ~y: my;
 	    item#parent#set  [`X mx; `Y my];
 	    let tor =
@@ -231,8 +290,8 @@ and drag_label item ev =
 	      make_turtle (to_tortue(!point_courant)) 0.0;
 	    in
 	    let l =  canvas_root#get_items in
-	    Format.eprintf "il y a %d elements dans le canvas @." (List.length l);
-	    List.iter (fun v -> v#destroy())l;
+	    (*Format.eprintf "il y a %d elements dans le canvas @." (List.length l);*)
+	    (* List.iter (fun v -> if v then v#destroy())l; *)
 	  
 	    draw tor canvas_root;
 	    
@@ -252,9 +311,9 @@ and draw tortue canvas =
        try
 	 let lv,tv = H.find pos v in
 	 let lw,tw = H.find pos w in
-	 if abs (lw - lv) <> 1 then begin tmoveto_gtk tv; tlineto_gtk tw "grey" canvas end
+	 if abs (lw - lv) <> 1 then draw_grey_edge (v,w) tv tw canvas
        with Not_found ->
-	 ()) 
+	 begin try let l = H2.find grey_edges (v,w) in () (*TODO l#set [`VISIBLE false]*) with Not_found -> () end) 
     graph
 
 
@@ -268,8 +327,8 @@ let node_selection ~(model : GTree.tree_store) path =
     make_turtle !origine 0.0;
   in
   let l =  canvas_root#get_items in
-  Format.eprintf "il y a %d elements dans le canvas @." (List.length l);
-  List.iter (fun v -> v#destroy())l;
+  (*Format.eprintf "il y a %d elements dans le canvas @." (List.length l);*)
+  (*List.iter (fun v -> v#destroy())l;*)
   draw tortue canvas_root
 
     

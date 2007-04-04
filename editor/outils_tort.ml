@@ -68,40 +68,32 @@ let tmoveto_gtk tor =
   let (x,y)= from_tortue tor.pos in
   point_courant := (x,y)
 
-let tlineto_gtk tor color canvas=
+let tlineto_gtk tor line =
   let (x,y) = !point_courant in
   let (x',y')= from_tortue tor.pos in
   let p = [|(float x); (float y); (float x'); (float y') |] in
   (*Format.eprintf "tlineto %d,%d - %d,%d@." x y x' y';*)
-  let l = GnoCanvas.line canvas ~props:[`POINTS p; `FILL_COLOR color ;`WIDTH_PIXELS 1; `SMOOTH true] in
-  l#lower_to_bottom ();
+  line#set [`POINTS p];
   point_courant := (x',y')
 
-
-let tdraw_string_gtk tor s canvas =
-  let(w,h) = (40,15) in
-  let (x,y)= from_tortue tor.pos in
+let tdraw_string_gtk tor (ellipse : GnoCanvas.ellipse) =
+  let (x,y) = from_tortue tor.pos in
   (*Format.eprintf "tdraw_string_gtk s=%s x=%d y=%d@." s x y;*)
   moveto_gtk x y;
-  let noeud = GnoCanvas.group ~x: (float x) ~y: (float y)  canvas in
-  let ellipse = GnoCanvas.ellipse 
-    ~props:[ `X1  ( float (-w/2)); `Y1 (float (-h/2)); `X2  (float (w/2)) ; `Y2 ( float (h/2)) ;
-	     `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; `WIDTH_PIXELS 0 ] noeud  in
-  let _ = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT s;  `FILL_COLOR "blue"] noeud in
-  ellipse
-
+  ellipse#parent#move ~x:(float x) ~y:(float y);
+  ellipse#parent#set  [`X (float x); `Y (float y)]
 
 
 (* avance la tortue en traçant, d'une distance d, en n pas, et retourne la nouvelle
    position de la tortue *)
-let tdraw_edge_gtk tor d n couleur canvas=
-  let d = d /. float n in
+let tdraw_edge_gtk tor d ll =
+  let d = d /. float (List.length ll) in
   let rec move t = function
-    | 0 -> t
-    | n -> let t = advance t d in tlineto_gtk t couleur canvas; move t (n-1)
+    | [] -> t
+    | l :: ll -> let t = advance t d in tlineto_gtk t l; move t ll
   in
   tmoveto_gtk tor;
-  move tor n
+  move tor ll
 
 
 
