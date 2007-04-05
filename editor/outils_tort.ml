@@ -69,13 +69,10 @@ let tmoveto_gtk tor =
   point_courant := (x,y)
 
 let tlineto_gtk tor line =
-  let (x,y) = !point_courant in
   let (x',y')= from_tortue tor.pos in
-  let p = [|(float x); (float y); (float x'); (float y') |] in
-  (*Format.eprintf "tlineto %d,%d - %d,%d@." x y x' y';*)
-  line#set [`POINTS p];
-  line#show();
-  point_courant := (x',y')
+  point_courant := (x',y');
+  List.append line [(float x'); (float y') ] 
+
 
 let tdraw_string_gtk tor (ellipse : GnoCanvas.ellipse) =
   let (x,y) = from_tortue tor.pos in
@@ -87,14 +84,19 @@ let tdraw_string_gtk tor (ellipse : GnoCanvas.ellipse) =
 
 (* avance la tortue en traçant, d'une distance d, en n pas, et retourne la nouvelle
    position de la tortue *)
-let tdraw_edge_gtk tor d ll =
-  let d = d /. float (List.length ll) in
-  let rec move t = function
-    | [] -> t
-    | l :: ll -> let t = advance t d in tlineto_gtk t l; move t ll
+let tdraw_edge_gtk tor d etapes line =
+  let d = d /. (float etapes) in
+  let rec list_points t liste = function
+    | 0 -> (t,liste)
+    | n -> let t = advance t d in 
+	   list_points  t (tlineto_gtk t liste) (n-1)
   in
-  tmoveto_gtk tor;
-  move tor ll
+  let l = let (x,y) = !point_courant in [(float x); (float y)] in 
+  let t,lpoints = list_points tor l etapes in
+  Format.eprintf "taille %d @." (List.length lpoints);
+  let p = Array.of_list lpoints in
+  line#set [`POINTS p];
+  t
 
 
 
