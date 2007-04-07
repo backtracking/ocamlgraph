@@ -4,13 +4,10 @@ open Outils_tort
 open Outils_math
 
 
+let debug_graphEdGTK = ref false
+
 let _ = GMain.Main.init ()
  
-
-
-
-
-
 let graph = parse_gml_file Sys.argv.(1)
 
 exception Choose of V.t
@@ -185,37 +182,29 @@ module H2 = Hashtbl.Make(struct type t = V.t * V.t
 let grey_edges = H2.create 97
 
 let draw_grey_edge vw tv tw canvas =
-  let l =
-    try
-      H2.find grey_edges vw
-    with Not_found ->
-      let l = GnoCanvas.line canvas ~props:[ `FILL_COLOR "grey" ;`WIDTH_PIXELS 1; `SMOOTH true] in
-      l#lower_to_bottom ();
-      H2.add grey_edges vw l;
-      l
-  in
-  tmoveto_gtk tv;
-  let _ =  tdraw_edge_gtk tw 1.0 1 l in ()
+  let (x,y) = let (x ,y ) = from_tortue tv.pos in ((float_of_int x),(float_of_int y)) in
+  let (x',y') = let (x',y') = from_tortue tw.pos in ((float_of_int x'),(float_of_int y')) in
+  let rapport = 1.95 in
+  let p = GnomeCanvas.PathDef.new_path () in
+  GnomeCanvas.PathDef.moveto p x y ;
+  GnomeCanvas.PathDef.curveto p ((x+. x')/.rapport) ((y +. y')/.rapport) 
+				 ((x  +.x')/.rapport) ((y +. y')/.rapport)
+				 x' y' ;
+  try
+    let l = H2.find grey_edges vw in
+    l#set [`BPATH p];
+    l
+  with Not_found ->
 
+    let l = GnoCanvas.bpath canvas
+      ~props:[ `BPATH p ; `OUTLINE_COLOR "grey" ; `WIDTH_PIXELS 1 ] in
+    l#lower_to_bottom ();
+    H2.add grey_edges vw l;
+    l
+ 
 let black_edges = H2.create 97
 
 let tdraw_edge_gtk vw t distance etapes canvas =
- (* let ll =
-    try
-      H2.find black_edges vw
-    with Not_found ->
-      let rec create_line = function
-	| 0 -> []
-	| n -> 
-	    let l = GnoCanvas.line canvas ~props:[ `FILL_COLOR color ;`WIDTH_PIXELS 1; `SMOOTH true] in
-	    l#lower_to_bottom ();
-	    l :: create_line (n-1)
-      in
-      let ll = create_line n in
-      H2.add black_edges vw ll;
-      ll
-  in
-  tdraw_edge_gtk t pas ll*)
  let line =
     try
       H2.find black_edges vw
@@ -223,7 +212,6 @@ let tdraw_edge_gtk vw t distance etapes canvas =
       let color = "black" in 
       let l = GnoCanvas.line canvas ~props:[ `FILL_COLOR color ;`WIDTH_PIXELS 1; `SMOOTH true] in
       H2.add black_edges vw l;
-    
       l
  in
  tdraw_edge_gtk t distance etapes line
@@ -291,30 +279,20 @@ and drag_label item ev =
     | `MOTION_NOTIFY ev ->
 	incr step;
 	let state = GdkEvent.Motion.state ev in
-	if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 7 = 0 then 
+	if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 5 = 0 then 
 	  begin
 	    let curs = Gdk.Cursor.create `FLEUR in
-	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs 
-	      (GdkEvent.Button.time ev);
+	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs (GdkEvent.Button.time ev);
+	    let ibounds = item#parent#get_bounds in
+ 	    let z1 =  to_tortue(truncate((ibounds.(0)+.ibounds.(2))/.2.),
+				truncate((ibounds.(1)+. ibounds.(3))/.2.)) in
 	    let mx = GdkEvent.Motion.x ev in
 	    let my = GdkEvent.Motion.y ev in
-	    moveto_gtk (truncate mx) (truncate my);
-	    (*Format.eprintf "drag_label %f,%f @." mx my;*)
-	    item#parent#move ~x: mx ~y: my;
-	    item#parent#set  [`X mx; `Y my];
-	    let tor =
-	      let (x,y) = !point_courant in
-	      let (x,y) = ((float_of_int x), (float_of_int y)) in
-	      moveto_gtk (truncate x) (truncate y);
-	      make_turtle (to_tortue(!point_courant)) 0.0;
-	    in
-	    (* let _ =  canvas_root#get_items in*)
-	    (*Format.eprintf "il y a %d elements dans le canvas @." (List.length l);*)
-	    (* List.iter (fun v -> if v then v#destroy())l; *)
-	  
+	    let z2 = to_tortue (truncate mx, truncate my) in
+	    let (x,y) = drag_origin !origine z1 z2 in
+	    origine := (x,y);
+	    let  tor = make_turtle !origine 0.0 in
 	    draw tor canvas_root;
-	    
-	    
 	  end
     | _ ->
 	()
@@ -330,7 +308,17 @@ and draw tortue canvas =
        try
 	 let lv,tv = H.find pos v in
 	 let lw,tw = H.find pos w in
-	 if abs (lw - lv) <> 1 then draw_grey_edge (v,w) tv tw canvas
+	 if abs (lw - lv) <> 1 
+	 then
+	   (if !debug_graphEdGTK 
+	    then
+	       (Format.eprintf "tortue : %s\t\t\t tortue : %s@." (string_of_label v) (string_of_label w);
+		let (x ,y ) = from_tortue tv.pos 
+		and (x',y') = from_tortue tw.pos in
+		Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';
+	       );	    
+	    ignore(draw_grey_edge (v,w) tv tw canvas)
+	   );
        with Not_found ->
 	 begin 
 	   Format.eprintf"Je vais tenter de détruire un edge@.";
@@ -359,6 +347,8 @@ let node_selection ~(model : GTree.tree_store) path =
   let l =  canvas_root#get_items in
   (*Format.eprintf "il y a %d elements dans le canvas @." (List.length l);*)
   List.iter (fun v -> v#hide())l;
+H2.clear grey_edges;
+H2.clear black_edges;
   draw tortue canvas_root
 
     

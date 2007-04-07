@@ -2,7 +2,7 @@
 open Graphics
 open Outils_math
 
-let debug =  ref true
+let debug_outil_tort =  ref false
 
 let (w,h)= (600.,600.)
 
@@ -76,56 +76,34 @@ let tlineto_gtk tor line =
 
 let tdraw_string_gtk tor (ellipse : GnoCanvas.ellipse) =
   let (x,y) = from_tortue tor.pos in
-  (*Format.eprintf "tdraw_string_gtk s=%s x=%d y=%d@." s x y;*)
+  if !debug_outil_tort then Format.eprintf "tdraw_string_gtk x=%d y=%d@." x y;
   moveto_gtk x y;
   ellipse#parent#move ~x:(float x) ~y:(float y);
   ellipse#parent#set  [`X (float x); `Y (float y)]
 
 
-(* avance la tortue en traçant, d'une distance d, en n pas, et retourne la nouvelle
-   position de la tortue *)
+(* avance la tortue en traçant, d'une distance d, en un certain nombre d'etapes,
+   et retourne la nouvelle position de la tortue *)
 let tdraw_edge_gtk tor d etapes line =
   let d = d /. (float etapes) in
   let rec list_points t liste = function
     | 0 -> (t,liste)
-    | n -> let t = advance t d in 
+    | n ->let t = advance t d in
 	   list_points  t (tlineto_gtk t liste) (n-1)
   in
-  let l = let (x,y) = !point_courant in [(float x); (float y)] in 
+  let l = let (x,y) =from_tortue tor.pos in [(float x); (float y)] in 
   let t,lpoints = list_points tor l etapes in
-  Format.eprintf "taille %d @." (List.length lpoints);
+
+(*            debug            *)
+  if (!debug_outil_tort) 
+  then
+    (let ltext=
+      let rec chaine = function
+	|[]->""
+	|e::l->(string_of_float e)^" "^chaine l
+      in chaine lpoints in
+      Format.eprintf "taille %d %s @." (List.length lpoints) ltext);
+
   let p = Array.of_list lpoints in
   line#set [`POINTS p];
   t
-
-
-
-
-
-(*
-(* graphics *)
-
-let tmoveto tor =
-  let (x,y)= from_tortue tor.pos in
-  moveto x y
-
-let tlineto tor =
-  let (x,y)= from_tortue tor.pos in
-  lineto x y
-  
-let tdraw_string tor s =
-  let (x,y)= from_tortue tor.pos in
-  moveto x y;
-  draw_string s
-
-(* avance la tortue en traçant, d'une distance d, en n pas, et retourne la nouvelle
-   position de la tortue *)
-let tdraw_edge tor d n =
-  let d = d /. float n in
-  let rec move t = function
-    | 0 -> t
-    | n -> let t = advance t d in tlineto t; move t (n-1)
-  in
-  tmoveto tor;
-  move tor n
-*)
