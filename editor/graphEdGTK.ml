@@ -32,7 +32,7 @@ let step_from n =
 let hspace_dist_sqr turtle =
   let (ax, ay) = turtle.pos
   and (dx, dy) = turtle.dir in
-  if ax*.dx +. ay*.dy < 0.0 then 0.0 else
+ (* if ax*.dx +. ay*.dy < 0.0 then 0.0 else*)
   begin
     let ux = dy and uy = -.dx in
     let alpha = ax*.ax +. ay*.ay
@@ -190,14 +190,25 @@ let draw_grey_edge vw tv tw canvas =
   GnomeCanvas.PathDef.curveto p ((x+. x')/.rapport) ((y +. y')/.rapport) 
 				 ((x  +.x')/.rapport) ((y +. y')/.rapport)
 				 x' y' ;
+  (*            debug            *)
+  if  !debug_graphEdGTK 
+  then 
+    ( 
+      let (v,w)=  
+	let (v,w) = vw in 
+	(string_of_label v, string_of_label w) in
+      eprintf "tortue %s \t tortue %s@." v w
+    );
+  (*            /debug            *)
   try
     let l = H2.find grey_edges vw in
+    l#show();
     l#set [`BPATH p];
     l
   with Not_found ->
 
     let l = GnoCanvas.bpath canvas
-      ~props:[ `BPATH p ; `OUTLINE_COLOR "grey" ; `WIDTH_PIXELS 1 ] in
+      ~props:[ `BPATH p ; `OUTLINE_COLOR "SlateGrey" ; `WIDTH_PIXELS 1 ] in
     l#lower_to_bottom ();
     H2.add grey_edges vw l;
     l
@@ -216,13 +227,47 @@ let tdraw_edge_gtk vw t distance etapes canvas =
  in
  tdraw_edge_gtk t distance etapes line
 
+let color_change_intern_edge color node = 
+iter_edges
+    (fun _ w ->
+       try
+	 let n = H2.find grey_edges (node,w) in
+	 n#set [`OUTLINE_COLOR color]
+       with Not_found ->
+	 try
+	 let n = H2.find grey_edges (w,node) in
+	 n#set [`OUTLINE_COLOR color]
+	 with Not_found ->
+	   ()
+    )
+  graph
 
 
-    
+let color_change_direct_edge color node = 
+iter_edges
+    (fun _ w ->
+       try
+	 let n = H2.find black_edges (node,w) in
+	 n#set [`FILL_COLOR color]
+       with Not_found ->
+	 try
+	   let n = H2.find black_edges (w,node) in
+	   n#set [`FILL_COLOR color]
+	 with Not_found ->
+	   ()
+    )
+    graph
+  
 
 let step = ref 0
-
+  
 let rec draw_graph depth noeud tortue canvas =
+  if !debug_graphEdGTK 
+  then 
+    (let (x,y) = tortue.pos in
+     Format.eprintf "  hspace : %f\t pos : %f %f \tnoeud : %s@."
+       ( hspace_dist_sqr tortue )x y(string_of_label noeud);
+    ); 
   if hspace_dist_sqr tortue <= rlimit_sqr then
     begin
       H.add pos noeud (depth,tortue);
@@ -230,7 +275,7 @@ let rec draw_graph depth noeud tortue canvas =
       (* draw label *)
       let ellipse = tdraw_string_gtk noeud tortue canvas in
       let sigs = ellipse#parent#connect in
-      let _ = sigs#event (drag_label ellipse) in
+      let _ = sigs#event (drag_label noeud ellipse) in
       
       let l = succ graph noeud in 
       let l = List.filter (fun x -> not (H.mem pos x) ) l in
@@ -251,13 +296,14 @@ let rec draw_graph depth noeud tortue canvas =
     try
       let ellipse = tdraw_string_gtk noeud tortue canvas in
       ellipse#parent#hide();
+     (* H.remove pos noeud*)
     with Not_found -> Format.eprintf"je devrai pas etre la@."
 
 and draw_edges noeud depth t distance angle canvas= function
   | [] -> 
       []
   | v :: l -> 
-      let etapes = 4 in
+      let etapes = 1 in
       let tv = tdraw_edge_gtk (noeud,v) t distance etapes canvas in 
       (*if hspace_dist_sqr t <= rlimit_sqr then H.add pos v (depth,tv);*)
       let t = turn_left t angle in
@@ -266,20 +312,24 @@ and draw_edges noeud depth t distance angle canvas= function
       l
 
 
-and drag_label item ev =
+and drag_label noeud item ev =
   begin match ev with
     | `ENTER_NOTIFY _ ->
-	  item#set [ `FILL_COLOR "steelblue" ]
-    | `LEAVE_NOTIFY ev ->
+	item#set [ `FILL_COLOR "steelblue" ];
+	color_change_intern_edge "LightSteelBlue" noeud ; 
+	color_change_direct_edge "LightSteelBlue" noeud 
+	| `LEAVE_NOTIFY ev ->
 	let state = GdkEvent.Crossing.state ev in
-	  if not (Gdk.Convert.test_modifier `BUTTON1 state)
-	  then item#set [ `FILL_COLOR "grey" ; ]
+	if not (Gdk.Convert.test_modifier `BUTTON1 state)
+	then item#set [ `FILL_COLOR "grey" ; ];
+	color_change_intern_edge "SlateGrey" noeud ;
+	color_change_direct_edge "black" noeud 
     | `BUTTON_RELEASE ev ->
 	item#parent#ungrab (GdkEvent.Button.time ev)
     | `MOTION_NOTIFY ev ->
 	incr step;
 	let state = GdkEvent.Motion.state ev in
-	if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 5 = 0 then 
+	if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 3 = 0 then 
 	  begin
 	    let curs = Gdk.Cursor.create `FLEUR in
 	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs (GdkEvent.Button.time ev);
@@ -301,37 +351,50 @@ and drag_label item ev =
 
 and draw tortue canvas =
   H.clear pos;
+
   draw_graph 0 !root tortue canvas;
   (* draw intern edges *)
   iter_edges
     (fun v w ->
        try
 	 let lv,tv = H.find pos v in
-	 let lw,tw = H.find pos w in
-	 if abs (lw - lv) <> 1 
+	 let lw,tw = H.find pos w in 
+	 if abs (lw - lv) <> 1 && (lv <> 0 || lw <> 0)
 	 then
+	   (*            debug            *)
 	   (if !debug_graphEdGTK 
 	    then
-	       (Format.eprintf "tortue : %s\t\t\t tortue : %s@." (string_of_label v) (string_of_label w);
-		let (x ,y ) = from_tortue tv.pos 
-		and (x',y') = from_tortue tw.pos in
-		Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';
-	       );	    
+		(Format.eprintf "tortue : %s\t\t\t tortue : %s@." (string_of_label v) (string_of_label w);
+		 let (x ,y ) = from_tortue tv.pos 
+		 and (x',y') = from_tortue tw.pos in
+		 Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';
+		);	    
 	    ignore(draw_grey_edge (v,w) tv tw canvas)
 	   );
+	 (*            /debug             *)
        with Not_found ->
 	 begin 
-	   Format.eprintf"Je vais tenter de détruire un edge@.";
-
+	   (*            debug            *)
+	   if !debug_graphEdGTK then Format.eprintf"Je vais tenter de détruire un edge@.";
+	   (*            /debug           *)
 	   try
 	     let l = H2.find grey_edges (w,v) in  l#hide();
-	     Format.eprintf"J'ai détruit un grey edge@."
+	     (*            debug            *)
+	     if !debug_graphEdGTK then Format.eprintf"J'ai détruit un grey edge@.";
+	     (*            /debug           *)
+	   with Not_found -> ();
+	   try
+	     let l = H2.find grey_edges (v,w) in  l#hide();
+	     (*            debug            *)
+	     if !debug_graphEdGTK then Format.eprintf"J'ai détruit un grey edge@.";
+	     (*            /debug           *)
 	   with Not_found -> ();
 	(*     try 
 	       let l = H2.find black_edges (v,w) in List.iter (fun v -> v#hide()) l ;
 	       Format.eprintf"J'ai détruit un black edge@."
 	     with Not_found -> ()*)
-	 end) 
+	 end
+    ) 
     graph
 
 

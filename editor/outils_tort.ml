@@ -76,7 +76,9 @@ let tlineto_gtk tor line =
 
 let tdraw_string_gtk tor (ellipse : GnoCanvas.ellipse) =
   let (x,y) = from_tortue tor.pos in
+(*            debug            *)
   if !debug_outil_tort then Format.eprintf "tdraw_string_gtk x=%d y=%d@." x y;
+(*            /debug            *)
   moveto_gtk x y;
   ellipse#parent#move ~x:(float x) ~y:(float y);
   ellipse#parent#set  [`X (float x); `Y (float y)]
@@ -103,7 +105,7 @@ let tdraw_edge_gtk tor d etapes line =
 	|e::l->(string_of_float e)^" "^chaine l
       in chaine lpoints in
       Format.eprintf "taille %d %s @." (List.length lpoints) ltext);
-
+(*            /debug            *)
   let p = Array.of_list lpoints in
   line#set [`POINTS p];
   t
