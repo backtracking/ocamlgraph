@@ -35,6 +35,10 @@ let space = [' ' '\t' '\r' '\n']+
 rule token = parse
   | space
       { token lexbuf }
+  | ('#' | "//") [^ '\n']* '\n'
+      { token lexbuf }
+  | "/*"
+      { comment lexbuf; token lexbuf }
   | ":" 
       { COLON }
   | "," 
@@ -51,6 +55,8 @@ rule token = parse
       { LSQ }
   | "]" 
       { RSQ }
+  | "--" | "->"
+      { EDGEOP }
   | "strict" 
       { STRICT }
   | "graph" 
@@ -102,3 +108,11 @@ and html = parse
 	html lexbuf }
   | eof
       { failwith ("Dot_lexer: unterminated html literal") }
+
+and comment = parse
+  | "*/"
+      { () }
+  | _ 
+      { comment lexbuf }
+  | eof
+      { failwith "Dot_lexer: unterminated comment" }

@@ -101,12 +101,12 @@ struct
     let edge_attributes _ = []
     let get_subgraph _ = None
   end
-  module Dot = Graphviz.Dot(Display)
+  module Dot_ = Graphviz.Dot(Display)
   module Neato = Graphviz.Neato(Display)
 
   let dot_output g f = 
     let oc = open_out f in
-    if is_directed then Dot.output_graph oc g else Neato.output_graph oc g;
+    if is_directed then Dot_.output_graph oc g else Neato.output_graph oc g;
     close_out oc
 
   let display_with_gv g =
@@ -127,6 +127,25 @@ struct
        end)
 
   let parse_gml_file = GmlParser.parse
+
+  module DotParser =
+    Dot.Parse
+      (Builder)
+      (struct
+ 	 let nodes = Hashtbl.create 97
+	 let new_node = ref 0
+	 let node (id,_) _ = 
+	   try 
+	     Hashtbl.find nodes id
+	   with Not_found -> 
+	     incr new_node;
+	     Hashtbl.add nodes id !new_node;
+	     !new_node
+	 let edge _ =
+	   0
+      end)
+
+  let parse_dot_file = DotParser.parse
 
   open Format
 

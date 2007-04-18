@@ -364,6 +364,7 @@ module type S = sig
         and returns when gv's window is closed *)
 
   val parse_gml_file : string -> t
+  val parse_dot_file : string -> t
 
   val print_gml_file : t -> string -> unit
 

@@ -23,7 +23,7 @@
 %} 
 
 %token <Dot_ast.id> ID
-%token COLON COMMA EQUAL SEMICOLON
+%token COLON COMMA EQUAL SEMICOLON EDGEOP
 %token STRICT GRAPH DIGRAPH LBRA RBRA LSQ RSQ NODE EDGE SUBGRAPH EOF
 
 %type <Dot_ast.file> file
@@ -62,11 +62,26 @@ semicolon_opt:
 
 stmt:
 | node_stmt { $1 }
+| edge_stmt { $1 }
 ;
 
 node_stmt:
 | node_id attr_list { Node_stmt ($1, $2) }
 ;
+
+edge_stmt:
+| node edge_rhs attr_list { Edge_stmt ($1, $2, $3) }
+;
+
+edge_rhs:
+| /* epsilon */ { [] }
+| EDGEOP node edge_rhs { $2 :: $3 }
+;
+
+node:
+| node_id { NodeId $1 }
+/* TODO subgraph */
+; 
 
 node_id:
 | ID port_opt { $1, $2 }
