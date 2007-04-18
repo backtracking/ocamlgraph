@@ -16,7 +16,7 @@ type t = V.t
 type label = V.t
 let label x = x
 let string_of_label x = string_of_int (V.label x)
-
+let label_of_string x = try int_of_string x with Failure _ -> 0
 
 (* [step_from n] computes the best `distance' for solving the
    dictator's problem in the complex hyperbolic plane for [n]
@@ -89,27 +89,45 @@ let order_children l =
 let rlimit = 0.90 
 let rlimit_sqr = rlimit *. rlimit
 
+module Model = struct
 
+  open Gobject.Data
+  let cols = new GTree.column_list
+  let name = cols#add string
+  let vertex = cols#add caml
+    
+  let model = GTree.tree_store cols
 
-open Gobject.Data
-let cols = new GTree.column_list
-let name = cols#add string
-let vertex = cols#add caml
+  let rows = Hashtbl.create 97
 
-let create_model () =
-  let model = GTree.tree_store cols in
-  iter_vertex
-    (fun v -> 
-      let row = model#append () in
-      model#set ~row ~column:name (string_of_int (V.label v));
-      model#set ~row ~column:vertex v;
-      iter_succ
-	(fun w ->
-          let row = model#append ~parent:row () in
-          model#set ~row ~column:name (string_of_int (V.label w)))
-	graph v)
-    graph;
-  model
+  let add_vertex v =
+    let row = model#append () in
+    model#set ~row ~column:name (string_of_int (V.label v));
+    model#set ~row ~column:vertex v;
+    Hashtbl.add rows v row;
+    row
+
+  let add_edge_1 row_v w =
+    let row = model#append ~parent:row_v () in
+    model#set ~row ~column:name (string_of_int (V.label w))
+
+  let () =
+    iter_vertex
+      (fun v -> 
+	 let row = add_vertex v in
+	 iter_succ (add_edge_1 row) graph v)
+      graph
+
+  let add_edge v w =
+    let row_v = Hashtbl.find rows v in
+    add_edge_1 row_v w;
+    if not is_directed then 
+      let row_w = Hashtbl.find rows w in
+      add_edge_1 row_w v
+
+end
+
+let model = Model.model
 
 open GtkTree
 
@@ -122,7 +140,6 @@ let sw = GBin.scrolled_window ~shadow_type:`ETCHED_IN ~hpolicy:`NEVER
   ~vpolicy:`AUTOMATIC ~packing:h_box#add () 
 let canvas = GnoCanvas.canvas ~aa:true ~width:(truncate w) ~height:(truncate h) ~packing:h_box#add () 
 let canvas_root = canvas#root 
-
 
 
 
@@ -253,6 +270,9 @@ iter_edges
     graph
   
 
+
+  
+
 let step = ref 0
   
 let rec draw_graph depth noeud tortue canvas =
@@ -312,7 +332,7 @@ and drag_label noeud item ev =
 	item#set [ `FILL_COLOR "steelblue" ];
 	color_change_intern_edge "LightSteelBlue" noeud ; 
 	color_change_direct_edge "LightSteelBlue" noeud 
-	| `LEAVE_NOTIFY ev ->
+    | `LEAVE_NOTIFY ev ->
 	let state = GdkEvent.Crossing.state ev in
 	if not (Gdk.Convert.test_modifier `BUTTON1 state)
 	then item#set [ `FILL_COLOR "grey" ; ];
@@ -338,10 +358,45 @@ and drag_label noeud item ev =
 	    let  tor = make_turtle !origine 0.0 in
 	    draw tor canvas_root;
 	  end
+    | `BUTTON_PRESS ev ->
+	if (GdkEvent.Button.button ev) = 3
+        then
+	  begin
+            let loc_menu = GMenu.menu () in
+            let factory =
+              new GMenu.factory loc_menu in
+            ignore (factory#add_item "  Ajouter un successeur" ~callback: (ajout_successeur noeud));
+            loc_menu#popup
+              ~button:3
+              ~time:(GdkEvent.Button.time ev);
+          end
     | _ ->
 	()
   end;
   true
+
+and ajout_successeur noeud () =
+  let window = GWindow.window ~title: "Choix du nom du label" ~width: 300 ~height: 50 () in
+  let vbox = GPack.vbox ~packing: window#add () in
+  
+  let entry = GEdit.entry ~max_length: 50 ~packing: vbox#add () in
+  entry#set_text "Label";
+  entry#select_region ~start:0 ~stop:entry#text_length;
+  window#show ();
+  let _ = entry#connect#activate 
+    ~callback: (fun () ->
+		  let text = entry#text in
+		  let label = label_of_string text in
+		  let vertex = V.create label in
+		  add_vertex graph vertex;
+		  add_edge graph noeud vertex;
+		  window#destroy ();
+		  ignore (Model.add_vertex vertex);
+		  Model.add_edge noeud vertex;
+		  let  tor = make_turtle !origine 0.0 in
+		  draw tor canvas_root)
+  in
+  ()
 
 and draw tortue canvas =
   H.clear pos;
@@ -394,7 +449,7 @@ and draw tortue canvas =
 
 let node_selection ~(model : GTree.tree_store) path =
   let row = model#get_iter path in
-  let v = model#get ~row ~column: vertex in
+  let v = model#get ~row ~column: Model.vertex in
   root := v;
   let tortue =
     let (x,y) = from_tortue !origine in
@@ -412,7 +467,7 @@ H2.clear black_edges;
 let add_columns ~(view : GTree.view) ~model =
   let renderer = GTree.cell_renderer_text [`XALIGN 0.] in
   let vc =
-    GTree.view_column ~title:"Nodes" ~renderer:(renderer, ["text", name]) ()
+    GTree.view_column ~title:"Nodes" ~renderer:(renderer, ["text", Model.name]) ()
   in
   ignore (view#append_column vc);
   vc#set_sizing `FIXED;
@@ -429,7 +484,6 @@ let add_columns ~(view : GTree.view) ~model =
 let _ = window#connect#destroy~callback:GMain.Main.quit 
 
 
-let model = create_model ()
 let treeview = GTree.view ~model ~packing:sw#add ()
 let () = treeview#set_rules_hint true
 let () = treeview#selection#set_mode `MULTIPLE
