@@ -85,15 +85,9 @@ let order_children l =
   let scc = List.map order_component scc in
   List.flatten scc
 
+
 let rlimit = 0.90 
 let rlimit_sqr = rlimit *. rlimit
-
-
-
-
-
-
-
 
 
 
@@ -456,9 +450,4 @@ let () = window#show ()
 
 let _ = draw tortue canvas_root
 
-
-
 let () = GMain.Main.main ()
-
-
-

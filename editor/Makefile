@@ -1,3 +1,7 @@
+
+test: graphEdGTK
+	./graphEdGTK tests/full10.gml
+
 tortue.opt: tortue.ml 
 	ocamlopt outils_math.ml
 	ocamlopt -o $@ graphics.cmxa outils_math.cmx $^
