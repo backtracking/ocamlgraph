@@ -47,7 +47,8 @@ OFLAGS = $(INCLUDES) -p @FORPACK@
 
 NAME=ocamlgraph
 
-all: byte $(OCAMLBEST) editor-@LABLGTK2@
+all: byte $(OCAMLBEST)
+#all: byte $(OCAMLBEST) editor-@LABLGTK2@
 
 # bytecode and native-code compilation
 ######################################
@@ -56,7 +57,7 @@ CMO 	= util unionfind heap bitv \
 	per_imp persistent imperative \
 	delaunay builder classic rand oper \
 	path traverse coloring topological components kruskal flow \
-        graphviz gml pack \
+        graphviz gml dot_parser dot_lexer pack \
 	gmap minsep cliquetree mcs_m md strat
 CMO	:= $(addsuffix .cmo, $(CMO))
 CMX = $(CMO:.cmo=.cmx)

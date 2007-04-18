@@ -1,4 +1,5 @@
 
+ o slight change in the license (no more clause 6 of the LGPL; see LICENSE)
  o new module Strat implementing simple game strategies
  o Graphviz: little refactoring and documentation improved
 
