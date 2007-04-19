@@ -12,7 +12,7 @@ graphEd.opt : outils_math.ml outils_tort.ml graphEd.ml
 
 
 graphEdGTK : outils_math.ml outils_tort.ml graphEdGTK.ml
-	ocamlopt.opt -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa -I .. ../graph.cmxa $^
+	ocamlopt.opt -p -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa -I .. ../graph.cmxa $^
 
 graphEdGTK.byte : outils_math.ml outils_tort.ml graphEdGTK.ml
 	ocamlc.opt -g -o $@ -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma unix.cma -I .. ../graph.cma $^

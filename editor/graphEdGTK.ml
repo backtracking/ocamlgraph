@@ -251,14 +251,6 @@ module H2 =
 let grey_edges = H2.create 97
 
 let draw_grey_edge vw tv tw canvas =
-  let (x,y) = let (x ,y ) = from_tortue tv.pos in ((float_of_int x),(float_of_int y)) in
-  let (x',y') = let (x',y') = from_tortue tw.pos in ((float_of_int x'),(float_of_int y')) in
-  let rapport = 1.95 in
-  let p = GnomeCanvas.PathDef.new_path () in
-  GnomeCanvas.PathDef.moveto p x y ;
-  GnomeCanvas.PathDef.curveto p ((x+. x')/.rapport) ((y +. y')/.rapport) 
-				 ((x  +.x')/.rapport) ((y +. y')/.rapport)
-				 x' y' ;
   (*            debug            *)
   if  !debug_graphEdGTK 
   then 
@@ -269,17 +261,32 @@ let draw_grey_edge vw tv tw canvas =
       eprintf "tortue %s \t tortue %s@." v w
     );
   (*            /debug            *)
-  try
-    let l = H2.find grey_edges vw in
-    l#show();
-    l#set [`BPATH p];
-    l
-  with Not_found ->
-    let l = GnoCanvas.bpath canvas
-      ~props:[ `BPATH p ; `OUTLINE_COLOR "SlateGrey" ; `WIDTH_PIXELS 1 ] in
-    l#lower_to_bottom ();
-    H2.add grey_edges vw l;
-    l
+
+  let p,l = 
+    try
+      let _,l as pl = H2.find grey_edges vw in
+      l#show();
+      pl
+    with Not_found ->
+      let p = GnomeCanvas.PathDef.new_path () in
+      let l = GnoCanvas.bpath canvas
+	~props:[ `BPATH p ; `OUTLINE_COLOR "SlateGrey" ; `WIDTH_PIXELS 1 ] in
+      l#lower_to_bottom ();
+      H2.add grey_edges vw (p,l);
+      p,l
+  in
+
+  let (x,y) = let (x ,y ) = from_tortue tv.pos in ((float_of_int x),(float_of_int y)) in
+  let (x',y') = let (x',y') = from_tortue tw.pos in ((float_of_int x'),(float_of_int y')) in
+  let rapport = 1.95 in
+  GnomeCanvas.PathDef.reset p;
+  GnomeCanvas.PathDef.moveto p x y ;
+  GnomeCanvas.PathDef.curveto p ((x+. x')/.rapport) ((y +. y')/.rapport) 
+				 ((x  +.x')/.rapport) ((y +. y')/.rapport)
+				 x' y';
+  l#set [`BPATH p]
+
+
  
 let black_edges = H2.create 97
 
@@ -303,11 +310,11 @@ let color_change_intern_edge color node =
   iter_edges
     (fun _ w ->
        try
-	 let n = H2.find grey_edges (node,w) in
+	 let _,n = H2.find grey_edges (node,w) in
 	 n#set [`OUTLINE_COLOR color]
        with Not_found ->
 	 try
-	   let n = H2.find grey_edges (w,node) in
+	   let _,n = H2.find grey_edges (w,node) in
 	   n#set [`OUTLINE_COLOR color]
 	 with Not_found ->
 	   ()
@@ -494,13 +501,13 @@ and draw tortue canvas =
 	     Format.eprintf"Je vais tenter de détruire un edge@.";
 	   (*            /debug           *)
 	   try
-	     let l = H2.find grey_edges (w,v) in l#hide();
+	     let _,l = H2.find grey_edges (w,v) in l#hide();
 	     (*            debug            *)
 	     if !debug_graphEdGTK then Format.eprintf"J'ai effacé un grey edge@.";
 	     (*            /debug           *)
 	   with Not_found -> ();
 	   try
-	     let l = H2.find grey_edges (v,w) in l#hide();
+	     let _,l = H2.find grey_edges (v,w) in l#hide();
 	     (*            debug            *)
 	     if !debug_graphEdGTK then Format.eprintf"J'ai effacé un grey edge@.";
 	     (*            /debug           *)
