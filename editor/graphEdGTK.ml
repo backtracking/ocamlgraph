@@ -8,7 +8,7 @@ let debug_graphEdGTK = ref false
 
 let _ = GMain.Main.init ()
  
-let graph = parse_gml_file Sys.argv.(1)
+let graph = ref (parse_gml_file Sys.argv.(1))
 
 exception Choose of V.t
 
@@ -54,7 +54,7 @@ let hspace_dist_sqr turtle =
 
 
 
-let edge v w = mem_edge graph v w || mem_edge graph w v 
+let edge v w = mem_edge !graph v w || mem_edge !graph w v 
 
 let make_subgraph l =
   let gl = create () in
@@ -111,12 +111,14 @@ module Model = struct
     let row = model#append ~parent:row_v () in
     model#set ~row ~column:name (string_of_int (V.label w))
 
-  let () =
+  let reset () =
+    Hashtbl.clear rows;
+    (* TODO effacer tout le contenu du model *)
     iter_vertex
       (fun v -> 
 	 let row = add_vertex v in
-	 iter_succ (add_edge_1 row) graph v)
-      graph
+	 iter_succ (add_edge_1 row) !graph v)
+      !graph
 
   let add_edge v w =
     let row_v = Hashtbl.find rows v in
@@ -127,6 +129,7 @@ module Model = struct
 
 end
 
+let () = Model.reset ()
 let model = Model.model
 
 open GtkTree
@@ -135,22 +138,30 @@ open GtkTree
 
 (* Ouverture fenetre GTK *)
 let window = GWindow.window ~border_width: 10 ~title:"GraphEd" ~position: `CENTER () 
-let h_box = GPack.hbox ~homogeneous:false ~spacing:30  ~packing:window#add ()
+(* une Verticale Box  pour contenir le menu de la fenetre principale *)
+let v_box = GPack.vbox ~homogeneous:false ~spacing:30  ~packing:window#add ()
+(* la barre de Menu ajoutée dans la V_box *)
+let menu_bar = GMenu.menu_bar ~packing:v_box#pack () 
+let h_box = GPack.hbox ~homogeneous:false ~spacing:30  ~packing:v_box#add ()
 let sw = GBin.scrolled_window ~shadow_type:`ETCHED_IN ~hpolicy:`NEVER
   ~vpolicy:`AUTOMATIC ~packing:h_box#add () 
 let canvas = GnoCanvas.canvas ~aa:true ~width:(truncate w) ~height:(truncate h) ~packing:h_box#add () 
 let canvas_root = canvas#root 
 
 
-
-let root = 
+let choose_root () =
   try
-    iter_vertex (fun v -> raise (Choose v)) graph;
+    iter_vertex (fun v -> raise (Choose v)) !graph;
     Format.eprintf "empty graph@."; exit 0
   with Choose v ->
-    ref v
+    v
 
+let root = ref (choose_root ())
 
+let load_graph f =
+  graph := parse_gml_file f;
+  Model.reset ();
+  root := choose_root ()
 
 module Vset = Set.Make(V)
 let vset_of_list = List.fold_left (fun s x -> Vset.add x s) Vset.empty
@@ -251,7 +262,7 @@ iter_edges
 	 with Not_found ->
 	   ()
     )
-  graph
+  !graph
 
 
 let color_change_direct_edge color node = 
@@ -267,7 +278,7 @@ iter_edges
 	 with Not_found ->
 	   ()
     )
-    graph
+    !graph
   
 
 
@@ -291,7 +302,7 @@ let rec draw_graph depth noeud tortue canvas =
       let sigs = ellipse#parent#connect in
       let _ = sigs#event (drag_label noeud ellipse) in
       
-      let l = succ graph noeud in 
+      let l = succ !graph noeud in 
       let l = List.filter (fun x -> not (H.mem pos x) ) l in
       List.iter (fun w -> H.add pos w (depth+1, tortue)) l;
       let l = order_children l in
@@ -388,8 +399,8 @@ and ajout_successeur noeud () =
 		  let text = entry#text in
 		  let label = label_of_string text in
 		  let vertex = V.create label in
-		  add_vertex graph vertex;
-		  add_edge graph noeud vertex;
+		  add_vertex !graph vertex;
+		  add_edge !graph noeud vertex;
 		  window#destroy ();
 		  ignore (Model.add_vertex vertex);
 		  Model.add_edge noeud vertex;
@@ -444,7 +455,7 @@ and draw tortue canvas =
 	     with Not_found -> ()*)
 	 end
     ) 
-    graph
+    !graph
 
 
 let node_selection ~(model : GTree.tree_store) path =
@@ -489,7 +500,96 @@ let () = treeview#set_rules_hint true
 let () = treeview#selection#set_mode `MULTIPLE
 let _ = add_columns ~view:treeview ~model
 (*let _ = treeview#misc#connect#realize ~callback:treeview#expand_all*)
- 
+
+
+
+
+let open_graph()  =
+
+  let default d = function
+    | None -> d
+    | Some v -> v
+  in
+  let all_files () =
+    let f = GFile.filter ~name:"All" () in
+    f#add_pattern "*" ;
+    f
+  in
+  let is_string_prefix s1 s2 =
+    let l1 = String.length s1 in
+    let l2 = String.length s2 in
+    l1 <= l2 && s1 = String.sub s2 0 l1
+  in
+  let image_filter () =
+    let f = GFile.filter ~name:"Images" () in
+    f#add_custom [ `MIME_TYPE ]
+      (fun info ->
+	 let mime = List.assoc `MIME_TYPE info in
+	 is_string_prefix "image/" mime) ;
+    f
+  in
+  let text_filter () = 
+    GFile.filter 
+      ~name:"Caml source code" 
+      ~patterns:[ "*.ml"; "*.mli"; "*.mly"; "*.mll" ] ()
+  in
+  let ask_for_file parent =
+    let dialog = GWindow.file_chooser_dialog 
+      ~action:`OPEN 
+      ~title:"Open File"
+      ~parent () in
+    dialog#add_button_stock `CANCEL `CANCEL ;
+    dialog#add_select_button_stock `OPEN `OPEN ;
+    dialog#add_filter (all_files ()) ;
+    dialog#add_filter (image_filter ()) ;
+    dialog#add_filter (text_filter ()) ;
+    let f = match dialog#run () with
+      | `OPEN ->default "<none>" dialog#filename 
+      | `DELETE_EVENT | `CANCEL -> "<none>"
+    in
+    dialog#destroy ();
+    f
+  in
+  let fichier = ask_for_file window in
+  if fichier <> "<none>"
+  then 
+    load_graph fichier;
+  let tortue =
+    let (x,y) = from_tortue !origine in
+    moveto_gtk x y;
+    make_turtle !origine 0.0
+  in
+  draw tortue canvas_root
+
+
+
+let create_menu label menubar =
+  let item = GMenu.menu_item ~label ~packing:menubar#append () in
+  GMenu.menu ~packing:item#set_submenu ()
+    
+let print msg () =
+  print_endline msg;
+  flush stdout
+
+
+(* le menu file : la description puis l'ajout au menu_bar *)
+let menu_files = 
+  [
+    `I ("_New Graph", print "todo new graph");
+    `I ("_Open Graph", open_graph);
+    `I ("_Save Graph", print "todo save graph");
+    `I ("Save Graph _As ...", print "todo save graph as...");
+    `S;
+    `I ("_Quit", GMain.Main.quit )
+  ]
+  
+let menu = 
+  create_menu "File" menu_bar
+
+let _ = GToolbox.build_menu menu ~entries:menu_files 
+
+
+
 (* la zone d'affichage du graph, le canvas *)
 let tortue =
   let (x,y) = from_tortue !origine in
