@@ -27,7 +27,8 @@ module type S = sig
     Sig.I with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t
 
   (** Abstract Imperative Unlabeled Graphs *)
-  module Abstract(V: sig type t end) : Sig.IM with type V.label = V.t
+  module Abstract(V: sig type t end) : 
+    Sig.IM with type V.label = V.t and type E.label = unit
 
   (** Imperative Labeled Graphs *)
   module ConcreteLabeled (V: COMPARABLE)(E: ORDERED_TYPE_DFT) :

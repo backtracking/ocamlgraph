@@ -1,22 +1,45 @@
 open Format
-open Graph.Pack.Graph
 open Outils_tort
 open Outils_math
+open Graph
 
+(* graph data structure *)
+module Gr = struct
+  module G = Imperative.Graph.Abstract(String)
+  module B = Builder.I(G)
+  module GmlParser = 
+    Gml.Parse
+      (B)
+      (struct 
+	 let node l = 
+	   try 
+	     match List.assoc "id" l 
+	     with Gml.Int n -> string_of_int n | _ -> "<no id>"
+	   with Not_found -> "<no id>"
+	 let edge _ = ()
+       end)
+
+  let parse_gml_file = GmlParser.parse
+
+  module Components = Components.Make(G)
+  module Dfs = Traverse.Dfs(G)
+end
+open Gr
+open Gr.G
 
 let debug_graphEdGTK = ref false
 
 let _ = GMain.Main.init ()
  
-let graph = ref (parse_gml_file Sys.argv.(1))
+let graph = ref (Gr.parse_gml_file Sys.argv.(1))
 
 exception Choose of V.t
 
 type t = V.t
 type label = V.t
 let label x = x
-let string_of_label x = string_of_int (V.label x)
-let label_of_string x = try int_of_string x with Failure _ -> 0
+let string_of_label x = V.label x
+let label_of_string x = x
 
 (* [step_from n] computes the best `distance' for solving the
    dictator's problem in the complex hyperbolic plane for [n]
@@ -102,14 +125,14 @@ module Model = struct
 
   let add_vertex v =
     let row = model#append () in
-    model#set ~row ~column:name (string_of_int (V.label v));
+    model#set ~row ~column:name (V.label v);
     model#set ~row ~column:vertex v;
     Hashtbl.add rows v row;
     row
 
   let add_edge_1 row_v w =
     let row = model#append ~parent:row_v () in
-    model#set ~row ~column:name (string_of_int (V.label w))
+    model#set ~row ~column:name (V.label w)
 
   let reset () =
     Hashtbl.clear rows;
