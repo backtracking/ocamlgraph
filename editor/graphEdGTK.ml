@@ -44,6 +44,7 @@ open Gr
 open Gr.G
 
 let debug_graphEdGTK = ref false
+let trace f x = try f x with e -> eprintf "TRACE: %s@." (Printexc.to_string e); raise e
 
 let _ = GMain.Main.init ()
  
@@ -152,7 +153,7 @@ module Model = struct
 
   let reset () =
     Hashtbl.clear rows;
-    (* TODO effacer tout le contenu du model *)
+    model#clear ();
     iter_vertex
       (fun v -> 
 	 let row = add_vertex v in
@@ -316,7 +317,7 @@ let color_change_intern_edge color node =
 
 let color_change_direct_edge color node = 
 iter_edges
-    (fun _ w ->
+    (fun _ w ->  (****** <--- c'est bien come ca ?*)
        try
 	 let n = H2.find black_edges (node,w) in
 	 n#set [`FILL_COLOR color]
@@ -377,7 +378,7 @@ and draw_edges noeud depth t distance angle canvas= function
   | [] -> 
       []
   | v :: l -> 
-      let etapes = 1 in
+      let etapes = 10 in
       let tv = tdraw_edge_gtk (noeud,v) t distance etapes canvas in 
       (*if hspace_dist_sqr t <= rlimit_sqr then H.add pos v (depth,tv);*)
       let t = turn_left t angle in
@@ -390,8 +391,8 @@ and drag_label noeud item ev =
   begin match ev with
     | `ENTER_NOTIFY _ ->
 	item#set [ `FILL_COLOR "steelblue" ];
-	color_change_intern_edge "LightSteelBlue" noeud ; 
-	color_change_direct_edge "LightSteelBlue" noeud 
+	color_change_intern_edge "red" noeud ; 
+	color_change_direct_edge "red" noeud 
     | `LEAVE_NOTIFY ev ->
 	let state = GdkEvent.Crossing.state ev in
 	if not (Gdk.Convert.test_modifier `BUTTON1 state)
@@ -495,19 +496,15 @@ and draw tortue canvas =
 	   try
 	     let l = H2.find grey_edges (w,v) in l#hide();
 	     (*            debug            *)
-	     if !debug_graphEdGTK then Format.eprintf"J'ai détruit un grey edge@.";
+	     if !debug_graphEdGTK then Format.eprintf"J'ai effacé un grey edge@.";
 	     (*            /debug           *)
 	   with Not_found -> ();
 	   try
 	     let l = H2.find grey_edges (v,w) in l#hide();
 	     (*            debug            *)
-	     if !debug_graphEdGTK then Format.eprintf"J'ai détruit un grey edge@.";
+	     if !debug_graphEdGTK then Format.eprintf"J'ai effacé un grey edge@.";
 	     (*            /debug           *)
 	   with Not_found -> ();
-	(*     try 
-	       let l = H2.find black_edges (v,w) in List.iter (fun v -> v#hide()) l ;
-	       Format.eprintf"J'ai détruit un black edge@."
-	     with Not_found -> ()*)
 	 end
     ) 
     !graph
@@ -592,21 +589,24 @@ let open_graph()  =
   let fichier = ask_for_file window in
   if fichier <> "<none>"
   then 
-    (load_graph fichier;
-     let l =  canvas_root#get_items in
-     List.iter (fun v -> v#destroy()) l;
-     H2.clear grey_edges;
-     H2.clear black_edges;
-     let tortue =
-       let (x,y) = from_tortue !origine in
-       moveto_gtk x y;
-       make_turtle !origine 0.0
-     in
-     draw tortue canvas_root
-    )
+    begin 
+      load_graph fichier;
+      let l =  canvas_root#get_items in
+      List.iter (fun v -> trace v#destroy ()) l;
+      H2.clear grey_edges;
+      H2.clear black_edges;
+      H.clear ellipses;
+      origine := depart;
+      let tortue =
+	let (x,y) = from_tortue !origine in
+	moveto_gtk x y;
+	make_turtle !origine 0.0
+      in
+      draw tortue canvas_root
+    end
       
       
-      
+     
 let create_menu label menubar =
   let item = GMenu.menu_item ~label ~packing:menubar#append () in
   GMenu.menu ~packing:item#set_submenu ()

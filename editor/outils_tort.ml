@@ -53,7 +53,9 @@ let from_tortue (x,y) =
   and yzoom = (h/.2.) in
   (truncate (x*.xzoom +. xzoom), truncate(yzoom -. y*.yzoom))
 
-let origine =ref (to_tortue (truncate(w/.2.), truncate(h/.2.)))
+let depart = to_tortue (truncate(w/.2.), truncate(h/.2.))
+
+let origine =ref depart
 
 
 
