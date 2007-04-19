@@ -507,7 +507,7 @@ let node_selection ~(model : GTree.tree_store) path =
     make_turtle !origine 0.0;
   in
   let l =  canvas_root#get_items in
-  (*Format.eprintf "il y a %d elements dans le canvas @." (List.length l);*)
+  Format.eprintf "il y a %d elements dans le canvas @." (List.length l);
   List.iter (fun v -> v#hide())l;
 H2.clear grey_edges;
 H2.clear black_edges;
@@ -579,6 +579,10 @@ let open_graph()  =
   if fichier <> "<none>"
   then 
     (load_graph fichier;
+     let l =  canvas_root#get_items in
+     List.iter (fun v -> v#destroy())l;
+     H2.clear grey_edges;
+     H2.clear black_edges;
      let tortue =
        let (x,y) = from_tortue !origine in
        moveto_gtk x y;
