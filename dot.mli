@@ -15,8 +15,6 @@
  * (enclosed in the file LGPL).
  *)
 
-(* $Id:$ *)
-
 (** Parser for DOT file format *)
 
 open Dot_ast
