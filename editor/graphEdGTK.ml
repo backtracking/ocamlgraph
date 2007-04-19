@@ -538,34 +538,20 @@ let open_graph()  =
     f#add_pattern "*" ;
     f
   in
-  let is_string_prefix s1 s2 =
-    let l1 = String.length s1 in
-    let l2 = String.length s2 in
-    l1 <= l2 && s1 = String.sub s2 0 l1
-  in
-  let image_filter () =
-    let f = GFile.filter ~name:"Images" () in
-    f#add_custom [ `MIME_TYPE ]
-      (fun info ->
-	 let mime = List.assoc `MIME_TYPE info in
-	 is_string_prefix "image/" mime) ;
-    f
-  in
-  let text_filter () = 
+  let graph_filter () = 
     GFile.filter 
-      ~name:"Caml source code" 
-      ~patterns:[ "*.ml"; "*.mli"; "*.mly"; "*.mll" ] ()
+      ~name:"Fichier de graphes" 
+      ~patterns:[ "*.dot"; "*.gml" ] ()
   in
   let ask_for_file parent =
     let dialog = GWindow.file_chooser_dialog 
       ~action:`OPEN 
-      ~title:"Open File"
+      ~title:"Ouvrir un fichier"
       ~parent () in
     dialog#add_button_stock `CANCEL `CANCEL ;
     dialog#add_select_button_stock `OPEN `OPEN ;
+    dialog#add_filter (graph_filter ()) ;
     dialog#add_filter (all_files ()) ;
-    dialog#add_filter (image_filter ()) ;
-    dialog#add_filter (text_filter ()) ;
     let f = match dialog#run () with
       | `OPEN ->default "<none>" dialog#filename 
       | `DELETE_EVENT | `CANCEL -> "<none>"
@@ -576,16 +562,17 @@ let open_graph()  =
   let fichier = ask_for_file window in
   if fichier <> "<none>"
   then 
-    load_graph fichier;
-  let tortue =
-    let (x,y) = from_tortue !origine in
-    moveto_gtk x y;
-    make_turtle !origine 0.0
-  in
-  draw tortue canvas_root
-
-
-
+    (load_graph fichier;
+     let tortue =
+       let (x,y) = from_tortue !origine in
+       moveto_gtk x y;
+       make_turtle !origine 0.0
+     in
+     draw tortue canvas_root
+    )
+      
+      
+      
 let create_menu label menubar =
   let item = GMenu.menu_item ~label ~packing:menubar#append () in
   GMenu.menu ~packing:item#set_submenu ()

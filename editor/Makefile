@@ -12,7 +12,7 @@ graphEd.opt : outils_math.ml outils_tort.ml graphEd.ml
 
 
 graphEdGTK : outils_math.ml outils_tort.ml graphEdGTK.ml
-	ocamlopt -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa -I .. ../graph.cmxa $^
+	ocamlopt.opt -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa -I .. ../graph.cmxa $^
 
 editor.opt:
 	make -C .. 
