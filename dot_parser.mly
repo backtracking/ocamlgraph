@@ -17,9 +17,23 @@
 
 /* $Id:$ */
 
+/* DOT parser, following http://www.graphviz.org/doc/info/lang.html */
+
 %{
   open Dot_ast
   open Parsing
+
+  let compass_pt = function
+    | Ident "n" -> N
+    | Ident "ne" -> Ne
+    | Ident "e" -> E
+    | Ident "se" -> Se
+    | Ident "s" -> S
+    | Ident "sw" -> Sw
+    | Ident "w" -> W
+    | Ident "nw" -> Nw
+    | _ -> invalid_arg "compass_pt"
+
 %} 
 
 %token <Dot_ast.id> ID
@@ -63,24 +77,37 @@ semicolon_opt:
 stmt:
 | node_stmt { $1 }
 | edge_stmt { $1 }
+| attr_stmt { $1 }
+| ID EQUAL ID { Equal ($1, $3) }
+| subgraph  { Subgraph $1 }
 ;
 
 node_stmt:
-| node_id attr_list { Node_stmt ($1, $2) }
+| node_id attr_list_opt { Node_stmt ($1, $2) }
 ;
 
 edge_stmt:
-| node edge_rhs attr_list { Edge_stmt ($1, $2, $3) }
+| node edge_rhs attr_list_opt { Edge_stmt ($1, $2, $3) }
+;
+
+attr_stmt:
+| GRAPH attr_list { Attr_graph $2 }
+| NODE  attr_list { Attr_node $2 }
+| EDGE  attr_list { Attr_edge $2 }
 ;
 
 edge_rhs:
+| EDGEOP node edge_rhs_opt { $2 :: $3 }
+;
+
+edge_rhs_opt:
 | /* epsilon */ { [] }
-| EDGEOP node edge_rhs { $2 :: $3 }
+| EDGEOP node edge_rhs_opt { $2 :: $3 }
 ;
 
 node:
-| node_id { NodeId $1 }
-/* TODO subgraph */
+| node_id  { NodeId $1 }
+| subgraph { NodeSub $1 }
 ; 
 
 node_id:
@@ -93,33 +120,23 @@ port_opt:
 ;
 
 port:
-| COLON ID { PortId ($2, None) }
-| COLON ID COLON compass_pt { PortId ($2, Some $4) }
-| COLON compass_pt { PortC $2 }
+| COLON ID { try PortC (compass_pt $2)
+             with Invalid_argument _ -> PortId ($2, None) }
+| COLON ID COLON ID 
+      { let cp = 
+  	  try compass_pt $4 with Invalid_argument _ -> raise Parse_error 
+	in
+	PortId ($2, Some cp) }
 ;
 
-compass_pt:
-| ID 
-    { match $1 with
-      | Ident "n" -> N
-      | Ident "ne" -> Ne
-      | Ident "e" -> E
-      | Ident "se" -> Se
-      | Ident "s" -> S
-      | Ident "sw" -> Sw
-      | Ident "w" -> W
-      | Ident "nw" -> Nw
-      | _ -> raise Parse_error }
+attr_list_opt:
+| /* epsilon */ { [] }
+| attr_list    { $1 }
 ;
 
 attr_list:
-| /* epsilon */ { [] }
-| list1_attr    { $1 }
-;
-
-list1_attr:
 | LSQ a_list RSQ { [$2] }
-| LSQ a_list RSQ list1_attr { $2 :: $4 }
+| LSQ a_list RSQ attr_list { $2 :: $4 }
 ;
 
 id_opt:
@@ -140,4 +157,12 @@ equality:
 comma_opt:
 | /* epsilon */ { () }
 | COMMA         { () }
+;
+
+/* one shift/reduce conflict here, which is ok */
+subgraph:
+| SUBGRAPH ID { SubgraphId $2 }
+| SUBGRAPH ID LBRA stmt_list RBRA { SubgraphDef (Some $2, $4) }
+| SUBGRAPH LBRA stmt_list RBRA { SubgraphDef (None, $3) }
+| LBRA stmt_list RBRA { SubgraphDef (None, $2) }
 ;

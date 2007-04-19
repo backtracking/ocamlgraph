@@ -226,19 +226,26 @@ let tdraw_string_gtk v tor canvas =
       let ellipse = GnoCanvas.ellipse 
 	~props:[ `X1  ( float_of_int (-w/2)); `Y1 (float_of_int (-h/2)); 
 		 `X2  (float_of_int (w/2)) ; `Y2 ( float_of_int (h/2)) ;
-		 `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; `WIDTH_PIXELS 0 ] noeud  in
+		 `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; 
+		 `WIDTH_PIXELS 0 ] noeud  
+      in
       let s = string_of_label v in
-      let _ = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT s;  `FILL_COLOR "blue"] noeud in
+      let _ = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT s;  
+				     `FILL_COLOR "blue"] noeud 
+      in
       H.add ellipses v ellipse;
       ellipse
   in
   tdraw_string_gtk tor ellipse;
   ellipse
 
-module H2 = Hashtbl.Make(struct type t = V.t * V.t
-		 	        let hash (v,w) = Hashtbl.hash (V.hash v, V.hash w)
-			        let equal (v1,w1) (v2,w2) = V.equal v1 v2 && V.equal w1 w2 end)
-
+module H2 = 
+  Hashtbl.Make
+    (struct 
+      type t = V.t * V.t
+      let hash (v,w) = Hashtbl.hash (V.hash v, V.hash w)
+      let equal (v1,w1) (v2,w2) = V.equal v1 v2 && V.equal w1 w2 
+    end)
 
 let grey_edges = H2.create 97
 
@@ -267,7 +274,6 @@ let draw_grey_edge vw tv tw canvas =
     l#set [`BPATH p];
     l
   with Not_found ->
-
     let l = GnoCanvas.bpath canvas
       ~props:[ `BPATH p ; `OUTLINE_COLOR "SlateGrey" ; `WIDTH_PIXELS 1 ] in
     l#lower_to_bottom ();
@@ -279,25 +285,29 @@ let black_edges = H2.create 97
 let tdraw_edge_gtk vw t distance etapes canvas =
  let line =
     try
-      H2.find black_edges vw
+      let l = H2.find black_edges vw in
+      l#show ();
+      l
     with Not_found ->
       let color = "black" in 
-      let l = GnoCanvas.line canvas ~props:[ `FILL_COLOR color ;`WIDTH_PIXELS 1; `SMOOTH true] in
+      let l = GnoCanvas.line canvas ~props:[ `FILL_COLOR color ;
+					     `WIDTH_PIXELS 1; `SMOOTH true] 
+      in
       H2.add black_edges vw l;
       l
  in
  tdraw_edge_gtk t distance etapes line
 
 let color_change_intern_edge color node = 
-iter_edges
+  iter_edges
     (fun _ w ->
        try
 	 let n = H2.find grey_edges (node,w) in
 	 n#set [`OUTLINE_COLOR color]
        with Not_found ->
 	 try
-	 let n = H2.find grey_edges (w,node) in
-	 n#set [`OUTLINE_COLOR color]
+	   let n = H2.find grey_edges (w,node) in
+	   n#set [`OUTLINE_COLOR color]
 	 with Not_found ->
 	   ()
     )
@@ -334,7 +344,7 @@ let rec draw_graph depth noeud tortue canvas =
     ); 
   if hspace_dist_sqr tortue <= rlimit_sqr then
     begin
-      H.add pos noeud (depth,tortue);
+      H.replace pos noeud (depth, Some tortue);
       tmoveto_gtk tortue;
       (* draw label *)
       let ellipse = tdraw_string_gtk noeud tortue canvas in
@@ -343,7 +353,7 @@ let rec draw_graph depth noeud tortue canvas =
       
       let l = succ !graph noeud in 
       let l = List.filter (fun x -> not (H.mem pos x) ) l in
-      List.iter (fun w -> H.add pos w (depth+1, tortue)) l;
+      List.iter (fun w -> H.add pos w (depth+1, None)) l;
       let l = order_children l in
       let n = List.length l in
       if n > 0 then
@@ -360,9 +370,9 @@ let rec draw_graph depth noeud tortue canvas =
     try
       let ellipse = tdraw_string_gtk noeud tortue canvas in
       ellipse#parent#hide();
-     (* H.remove pos noeud*)
+      (* H.remove pos noeud*)
     with Not_found -> Format.eprintf"je devrai pas etre la@."
-
+      
 and draw_edges noeud depth t distance angle canvas= function
   | [] -> 
       []
@@ -452,38 +462,44 @@ and draw tortue canvas =
   H.clear pos;
 
   draw_graph 0 !root tortue canvas;
+
+  H.iter (fun v ev -> if not (H.mem pos v) then ev#parent#hide ()) ellipses;
+
   (* draw intern edges *)
   iter_edges
     (fun v w ->
        try
-	 let lv,tv = H.find pos v in
-	 let lw,tw = H.find pos w in 
-	 if abs (lw - lv) <> 1 && (lv <> 0 || lw <> 0)
-	 then
-	   (*            debug            *)
-	   (if !debug_graphEdGTK 
-	    then
-		(Format.eprintf "tortue : %s\t\t\t tortue : %s@." (string_of_label v) (string_of_label w);
-		 let (x ,y ) = from_tortue tv.pos 
-		 and (x',y') = from_tortue tw.pos in
-		 Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';
-		);	    
-	    ignore(draw_grey_edge (v,w) tv tw canvas)
-	   );
-	 (*            /debug             *)
+	 begin match H.find pos v, H.find pos w with
+	   | (lv, Some tv), (lw, Some tw) ->
+	       if abs (lw - lv) <> 1 && (lv <> 0 || lw <> 0) then begin
+		 (*            debug            *)
+		 if !debug_graphEdGTK 
+		 then
+		   (Format.eprintf "tortue : %s\t\t\t tortue : %s@." (string_of_label v) (string_of_label w);
+		    let (x ,y ) = from_tortue tv.pos 
+		    and (x',y') = from_tortue tw.pos in
+		    Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';
+		   );	    
+		 ignore(draw_grey_edge (v,w) tv tw canvas)
+	       end else
+		 raise Not_found
+	   | (_, None), _ | _, (_, None) -> 
+	       raise Not_found
+	 end
        with Not_found ->
 	 begin 
 	   (*            debug            *)
-	   if !debug_graphEdGTK then Format.eprintf"Je vais tenter de détruire un edge@.";
+	   if !debug_graphEdGTK then 
+	     Format.eprintf"Je vais tenter de détruire un edge@.";
 	   (*            /debug           *)
 	   try
-	     let l = H2.find grey_edges (w,v) in  l#hide();
+	     let l = H2.find grey_edges (w,v) in l#hide();
 	     (*            debug            *)
 	     if !debug_graphEdGTK then Format.eprintf"J'ai détruit un grey edge@.";
 	     (*            /debug           *)
 	   with Not_found -> ();
 	   try
-	     let l = H2.find grey_edges (v,w) in  l#hide();
+	     let l = H2.find grey_edges (v,w) in l#hide();
 	     (*            debug            *)
 	     if !debug_graphEdGTK then Format.eprintf"J'ai détruit un grey edge@.";
 	     (*            /debug           *)
@@ -506,11 +522,9 @@ let node_selection ~(model : GTree.tree_store) path =
     moveto_gtk x y;
     make_turtle !origine 0.0;
   in
-  let l =  canvas_root#get_items in
+  let l = canvas_root#get_items in
   Format.eprintf "il y a %d elements dans le canvas @." (List.length l);
-  List.iter (fun v -> v#hide())l;
-H2.clear grey_edges;
-H2.clear black_edges;
+  List.iter (fun v -> v#hide()) l;
   draw tortue canvas_root
 
     
@@ -580,7 +594,7 @@ let open_graph()  =
   then 
     (load_graph fichier;
      let l =  canvas_root#get_items in
-     List.iter (fun v -> v#destroy())l;
+     List.iter (fun v -> v#destroy()) l;
      H2.clear grey_edges;
      H2.clear black_edges;
      let tortue =

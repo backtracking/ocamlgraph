@@ -23,6 +23,21 @@
   open Dot_parser
 
   let string_buf = Buffer.create 1024
+
+  let keyword =
+    let h = Hashtbl.create 17 in
+    List.iter 
+      (fun (s,k) -> Hashtbl.add h s k)
+      [
+	"strict", STRICT;
+	"graph", GRAPH;
+	"digraph", DIGRAPH;
+	"subgraph", SUBGRAPH;
+	"node", NODE;
+	"edge", EDGE;
+      ];
+    fun s -> let s = String.lowercase s in Hashtbl.find h s
+
 }
 
 let alpha = ['a'-'z' 'A'-'Z' '_']
@@ -57,20 +72,8 @@ rule token = parse
       { RSQ }
   | "--" | "->"
       { EDGEOP }
-  | "strict" 
-      { STRICT }
-  | "graph" 
-      { GRAPH }
-  | "digraph" 
-      { DIGRAPH }
-  | "subgraph" 
-      { SUBGRAPH }
-  | "node" 
-      { NODE }
-  | "edge" 
-      { EDGE }
   | ident as s
-      { ID (Ident s) }
+      { try keyword s with Not_found -> ID (Ident s) }
   | number as s
       { ID (Number s) }
   | "\""
