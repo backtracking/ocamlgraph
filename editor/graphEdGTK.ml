@@ -19,7 +19,23 @@ module Gr = struct
 	 let edge _ = ()
        end)
 
-  let parse_gml_file = GmlParser.parse
+  module DotParser = 
+    Dot.Parse
+      (B)
+      (struct 
+	let node (id,_) _ = match id with
+	  | Dot_ast.Ident s
+	  | Dot_ast.Number s
+	  | Dot_ast.String s
+	  | Dot_ast.Html s -> s
+	let edge _ = ()
+      end)
+
+  let parse_file f = 
+    if Filename.check_suffix f ".gml" then
+      GmlParser.parse f
+    else
+      DotParser.parse f
 
   module Components = Components.Make(G)
   module Dfs = Traverse.Dfs(G)
@@ -31,7 +47,7 @@ let debug_graphEdGTK = ref false
 
 let _ = GMain.Main.init ()
  
-let graph = ref (Gr.parse_gml_file Sys.argv.(1))
+let graph = ref (Gr.parse_file Sys.argv.(1))
 
 exception Choose of V.t
 
@@ -182,7 +198,7 @@ let choose_root () =
 let root = ref (choose_root ())
 
 let load_graph f =
-  graph := parse_gml_file f;
+  graph := parse_file f;
   Model.reset ();
   root := choose_root ()
 

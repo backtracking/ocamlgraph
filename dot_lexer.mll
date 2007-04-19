@@ -75,7 +75,8 @@ rule token = parse
       { ID (Number s) }
   | "\""
       { Buffer.clear string_buf; 
-	ID (String (string lexbuf)) }
+	let s = string lexbuf in
+	ID (String s) }
   | "<"
       { Buffer.clear string_buf; 
 	html lexbuf; 

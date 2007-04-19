@@ -14,7 +14,7 @@ module DotInput =
     end)
 module Display = struct
   include G
-  let vertex_name = V.label
+  let vertex_name v = "\"" ^ String.escaped (V.label v) ^ "\""
   let graph_attributes _ = []
   let default_vertex_attributes _ = []
   let vertex_attributes _ = []
