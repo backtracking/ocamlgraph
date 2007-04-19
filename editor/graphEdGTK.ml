@@ -316,8 +316,8 @@ let color_change_intern_edge color node =
 
 
 let color_change_direct_edge color node = 
-iter_edges
-    (fun _ w ->  (****** <--- c'est bien come ca ?*)
+  iter_succ
+    (fun w ->
        try
 	 let n = H2.find black_edges (node,w) in
 	 n#set [`FILL_COLOR color]
@@ -328,7 +328,7 @@ iter_edges
 	 with Not_found ->
 	   ()
     )
-    !graph
+    !graph node
   
 
 
