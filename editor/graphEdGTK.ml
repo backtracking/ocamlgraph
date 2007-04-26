@@ -452,7 +452,7 @@ and drag_label noeud item ev =
     | `MOTION_NOTIFY ev ->
 	incr step;
 	let state = GdkEvent.Motion.state ev in
-	if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 3 = 0 then 
+	if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 10 = 0 then 
 	  begin
 	    let curs = Gdk.Cursor.create `FLEUR in
 	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs (GdkEvent.Button.time ev);
@@ -467,12 +467,13 @@ and drag_label noeud item ev =
 	    origine := (x,y);
 	    let  tor = make_turtle !origine 0.0 in
 	    if hspace_dist_sqr tor <= rlimit_sqr
-	    then
-	      draw tor canvas_root
-	    else 
+	    then begin
+	      draw tor canvas_root;
+	      canvas_root#canvas#update_now ()
+	    end else 
 	      origine := tmp
 	  end
-    |`TWO_BUTTON_PRESS ev->
+    | `TWO_BUTTON_PRESS ev->
 	if (GdkEvent.Button.button ev) = 1
         then selectionner_noeud noeud item;
     | `BUTTON_PRESS ev ->
