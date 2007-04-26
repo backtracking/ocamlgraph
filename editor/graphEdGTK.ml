@@ -452,7 +452,7 @@ and drag_label noeud item ev =
     | `MOTION_NOTIFY ev ->
 	incr step;
 	let state = GdkEvent.Motion.state ev in
-	if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 10 = 0 then 
+	if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 20 = 0 then 
 	  begin
 	    let curs = Gdk.Cursor.create `FLEUR in
 	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs (GdkEvent.Button.time ev);
@@ -720,6 +720,7 @@ let open_graph()  =
       H2.clear grey_edges;
       H2.clear black_edges;
       H.clear ellipses;
+      H.clear pos;
       origine := depart;
       let tortue =
 	let (x,y) = from_tortue !origine in
