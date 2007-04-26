@@ -378,6 +378,22 @@ let rec draw_graph depth noeud tortue canvas =
     try
       let ellipse = tdraw_string_gtk noeud tortue canvas in
       ellipse#parent#hide();
+      iter_succ
+	(fun  w ->
+	   try 
+	     H.find pos w; ()
+	   with Not_found ->
+	     try
+	       let n = H2.find black_edges (noeud,w) in
+	       n#hide()
+	     with Not_found ->
+	       try
+		 let n = H2.find black_edges (w,noeud) in
+		 n#hide()
+	       with Not_found ->
+		 ()
+	)
+	!graph noeud
       (* H.remove pos noeud*)
     with Not_found -> Format.eprintf"je devrai pas etre la@."
       
@@ -468,7 +484,7 @@ and ajout_successeur noeud () =
 
 and draw tortue canvas =
   H.clear pos;
-
+  canvas#hide();
   draw_graph 0 !root tortue canvas;
 
   H.iter (fun v ev -> if not (H.mem pos v) then ev#parent#hide ()) ellipses;
@@ -514,8 +530,9 @@ and draw tortue canvas =
 	   with Not_found -> ();
 	 end
     ) 
-    !graph
-
+    !graph;
+  canvas#show()
+  
 
 let node_selection ~(model : GTree.tree_store) path =
   let row = model#get_iter path in
@@ -540,6 +557,8 @@ let add_columns ~(view : GTree.view) ~model =
   ignore (view#append_column vc);
   vc#set_sizing `FIXED;
   vc#set_fixed_width 100;
+(*  vc#set_resizable true;*)
+vc#set_sizing `GROW_ONLY;
   view#selection#connect#after#changed ~callback:
     begin fun () ->
       List.iter
@@ -652,6 +671,8 @@ let () = canvas#set_scroll_region 0. 0. w h
   
 (* l'affichage de la fenetre principale *)
 let () = window#show ()
+
+
 
 let _ = draw tortue canvas_root
 
