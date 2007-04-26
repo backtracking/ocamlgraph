@@ -207,6 +207,8 @@ module Vset = Set.Make(V)
 let vset_of_list = List.fold_left (fun s x -> Vset.add x s) Vset.empty
 
 
+
+
 module H = Hashtbl.Make(V)
 
 (* table donnant pour chaque noeud sa profondeur et sa tortue *)
@@ -222,7 +224,8 @@ let tdraw_string_gtk v tor canvas =
       item#parent#show();
       item
     with Not_found ->
-      let (w,h) = (40,15) in
+      let s = string_of_label v in
+      let (w,h) = (40,20) in
       let noeud = GnoCanvas.group ~x:0.0 ~y:0.0 canvas in
       let ellipse = GnoCanvas.ellipse 
 	~props:[ `X1  ( float_of_int (-w/2)); `Y1 (float_of_int (-h/2)); 
@@ -230,10 +233,13 @@ let tdraw_string_gtk v tor canvas =
 		 `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; 
 		 `WIDTH_PIXELS 0 ] noeud  
       in
-      let s = string_of_label v in
-      let _ = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT s;  
+      let texte = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT s;  
 				     `FILL_COLOR "blue"] noeud 
       in
+      let w2 = texte#text_width in
+      if w2 > float_of_int w
+      then
+	ellipse#set [ `X1  (-.( w2+.6.)/.2.); `X2 ((w2+.6.)/.2.)];
       H.add ellipses v ellipse;
       ellipse
   in
@@ -340,6 +346,11 @@ let color_change_direct_edge color node =
 
 
   
+let select = ref None
+let is_selected_node v = match !select with
+  | None -> false
+  | Some (w,_) -> V.equal v w
+
 
 let step = ref 0
   
@@ -374,7 +385,8 @@ let rec draw_graph depth noeud tortue canvas =
 	end;
       ellipse#parent#raise_to_top();
     end
-  else
+  else if noeud <> !root
+  then
     try
       let ellipse = tdraw_string_gtk noeud tortue canvas in
       ellipse#parent#hide();
@@ -413,15 +425,28 @@ and draw_edges noeud depth t distance angle canvas= function
 and drag_label noeud item ev =
   begin match ev with
     | `ENTER_NOTIFY _ ->
-	item#set [ `FILL_COLOR "steelblue" ];
-	color_change_intern_edge "red" noeud ; 
-	color_change_direct_edge "red" noeud 
+	if  not (is_selected_node noeud)
+	then begin	
+	  item#set [ `FILL_COLOR "steelblue" ];
+	  color_change_intern_edge "blue" noeud ; 
+	  color_change_direct_edge "blue" noeud 
+	end;
     | `LEAVE_NOTIFY ev ->
-	let state = GdkEvent.Crossing.state ev in
-	if not (Gdk.Convert.test_modifier `BUTTON1 state)
-	then item#set [ `FILL_COLOR "grey" ; ];
-	color_change_intern_edge "SlateGrey" noeud ;
-	color_change_direct_edge "black" noeud 
+	if  not (is_selected_node noeud)
+	then begin	
+	  let state = GdkEvent.Crossing.state ev in
+	  if not (Gdk.Convert.test_modifier `BUTTON1 state)
+	  then item#set [ `FILL_COLOR "grey" ; ];
+	  color_change_intern_edge "SlateGrey" noeud ;
+	  color_change_direct_edge "black" noeud;
+	  begin match !select with
+	    | None -> ()
+	    | Some (n,i) -> begin	
+		color_change_intern_edge "red" n ;
+		color_change_direct_edge "red" n
+	      end 
+	  end;
+	end 
     | `BUTTON_RELEASE ev ->
 	item#parent#ungrab (GdkEvent.Button.time ev)
     | `MOTION_NOTIFY ev ->
@@ -437,12 +462,22 @@ and drag_label noeud item ev =
 	    let mx = GdkEvent.Motion.x ev in
 	    let my = GdkEvent.Motion.y ev in
 	    let z2 = to_tortue (truncate mx, truncate my) in
+	    let tmp = !origine in
 	    let (x,y) = drag_origin !origine z1 z2 in
 	    origine := (x,y);
 	    let  tor = make_turtle !origine 0.0 in
-	    draw tor canvas_root;
+	    if hspace_dist_sqr tor <= rlimit_sqr
+	    then
+	      draw tor canvas_root
+	    else 
+	      origine := tmp
 	  end
+    |`TWO_BUTTON_PRESS ev->
+	if (GdkEvent.Button.button ev) = 1
+        then selectionner_noeud noeud item;
     | `BUTTON_PRESS ev ->
+	if (GdkEvent.Button.button ev) = 1
+        then deselectionner_noeud noeud item ;
 	if (GdkEvent.Button.button ev) = 3
         then
 	  begin
@@ -450,6 +485,15 @@ and drag_label noeud item ev =
             let factory =
               new GMenu.factory loc_menu in
             ignore (factory#add_item "  Ajouter un successeur" ~callback: (ajout_successeur noeud));
+	    begin match !select with
+	      | None -> ()
+	      | Some (n,_) -> 
+		  if not(V.equal n noeud)
+		  then begin
+		    ignore (factory#add_item "  Ajouter une arrête" ~callback: (ajout_arrete n noeud));	    
+		  end 
+	    end;
+
             loc_menu#popup
               ~button:3
               ~time:(GdkEvent.Button.time ev);
@@ -481,13 +525,65 @@ and ajout_successeur noeud () =
 		  draw tor canvas_root)
   in
   ()
+and ajout_arrete n1 n2 () = 
+if not( edge n1 n2)
+then begin
+  add_edge !graph n1 n2;
+  Model.add_edge n1 n2;
+  let  tor = make_turtle !origine 0.0 in
+  draw tor canvas_root
+end
 
+
+
+and selectionner_noeud noeud item=
+  begin
+    begin match !select with
+      | None -> ()
+      | Some (n,i) -> begin	
+	  i#set [ `FILL_COLOR "grey" ; ];
+	  color_change_intern_edge "SlateGrey" n ;
+	  color_change_direct_edge "black" n
+	end 
+    end;
+    select := Some (noeud, item);
+    item#set [ `FILL_COLOR "red" ];
+    color_change_intern_edge "red" noeud ; 
+    color_change_direct_edge "red" noeud 
+  end
+    
+and deselectionner_noeud noeud item =  
+  begin
+    if is_selected_node noeud
+    then
+      begin	
+	item#set [ `FILL_COLOR "steelblue" ];
+	color_change_intern_edge "blue" noeud ; 
+	color_change_direct_edge "blue" noeud 
+      end
+    else
+      match !select with
+	| None -> ()
+	| Some (n,i) ->
+	    begin
+	      i#set [ `FILL_COLOR "grey" ; ];
+	      color_change_intern_edge "SlateGrey" n ;
+	      color_change_direct_edge "black" n;
+	   (*
+	     color_change_intern_edge "red" n ;
+	     color_change_direct_edge "red" n
+	   *)
+	    end;
+  end;
+  select := None;
+	 
 and draw tortue canvas =
   H.clear pos;
   canvas#hide();
   draw_graph 0 !root tortue canvas;
 
-  H.iter (fun v ev -> if not (H.mem pos v) then ev#parent#hide ()) ellipses;
+ (* H.iter (fun v ev -> if not (H.mem pos v) then ev#parent#hide ()) ellipses;
+ *)
 
   (* draw intern edges *)
   iter_edges
@@ -539,6 +635,7 @@ let node_selection ~(model : GTree.tree_store) path =
   let v = model#get ~row ~column: Model.vertex in
   root := v;
   let tortue =
+    origine := depart;
     let (x,y) = from_tortue !origine in
     moveto_gtk x y;
     make_turtle !origine 0.0;
