@@ -580,6 +580,7 @@ speed is between 500,000 and 1 million traversed edges per second.
   \input{./bench2dfs}
 
   \input{./bench2bfs}
+\vspace*{-1em}
   \caption{Benchmarking DFS (top) and BFS (bottom)}
   \label{fig:bench:maze}
 \end{figure*}
@@ -610,7 +611,8 @@ This genericity is obtained using \ocaml module system and especially
 its functors which allow sharing large pieces of code and provide
 greater consistency than the mere use of higher-order functions.  The
 same level of genericity could probably be achieved using Haskell's
-multi-parameter type classes~\cite{Oleg}.  Regarding imperative
+multi-parameter type classes~\cite{Dreyer2007,Wehr2005,Oleg}.
+Regarding imperative 
 languages, graph libraries are rarely as generic and never provide as
 many different data structures.
 
