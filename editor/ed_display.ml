@@ -205,3 +205,40 @@ let color_change_direct_edge color node =
     !graph node
   
 
+let draw_graph canvas =
+  (* nodes *)
+  G.iter_vertex
+    (fun v -> 
+      let l = G.V.label v in
+      if l.visible = Visible then 
+	let _ = tdraw_string_gtk v l.turtle canvas in ()
+    )
+    !graph;
+  (* edges *)
+
+  (* intern edges *)
+  G.iter_edges
+    (fun v w ->
+      let labv = G.V.label v in
+      let labw = G.V.label w in
+      let lv = labv.depth in
+      let tv = labv.turtle in
+      let lw = labw.depth in
+      let tw = labw.turtle in
+      if labv.visible = Visible && labw.visible = Visible && 
+	 abs (lw - lv) <> 1 && (lv <> 0 || lw <> 0) 
+      then begin
+	(*            debug            *)
+	if !debug 
+	then
+	  (Format.eprintf "tortue : %s\t\t\t tortue : %s@." 
+	      (string_of_label v) (string_of_label w);
+	   let (x ,y ) = from_tortue tv.pos 
+	   and (x',y') = from_tortue tw.pos in
+	   Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';
+	  );
+	(*            /debug           *)
+	ignore (draw_grey_edge (v,w) tv tw canvas)
+      end 
+    ) 
+    !graph

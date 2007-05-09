@@ -2,15 +2,17 @@
 open Graph
 open Ed_hyper
 
+type visibility = Visible | BorderNode | Hidden
+
 type node_info = { 
   label : string;
-  mutable visible : bool;
+  mutable visible : visibility;
   mutable depth : int;
   mutable turtle : turtle;
 }
 
 let make_info s = 
-  { label = s; visible = false; depth = 0; turtle = dummy_turtle }
+  { label = s; visible = Hidden; depth = 0; turtle = dummy_turtle }
 
 module G = Imperative.Graph.Abstract(struct type t = node_info end)
 
