@@ -129,6 +129,9 @@ let order_children l =
 let rlimit = 0.90 
 let rlimit_sqr = rlimit *. rlimit
 
+
+
+
 module Model = struct
 
   open Gobject.Data
@@ -170,7 +173,7 @@ module Model = struct
 end
 
 let () = Model.reset ()
-let model = Model.model
+let model = ref Model.model
 
 open GtkTree
 
@@ -186,7 +189,9 @@ let h_box = GPack.hbox ~homogeneous:false ~spacing:30  ~packing:v_box#add ()
 let sw = GBin.scrolled_window ~shadow_type:`ETCHED_IN ~hpolicy:`NEVER
   ~vpolicy:`AUTOMATIC ~packing:h_box#add () 
 let canvas = GnoCanvas.canvas ~aa:true ~width:(truncate w) ~height:(truncate h) ~packing:h_box#add () 
+
 let canvas_root = canvas#root 
+
 
 
 let choose_root () =
@@ -255,6 +260,7 @@ module H2 =
     end)
 
 let grey_edges = H2.create 97
+let black_edges = H2.create 97
 
 let draw_grey_edge vw tv tw canvas =
   (*            debug            *)
@@ -281,7 +287,7 @@ let draw_grey_edge vw tv tw canvas =
       H2.add grey_edges vw (p,l);
       p,l
   in
-
+  
   let (x,y) = let (x ,y ) = from_tortue tv.pos in ((float_of_int x),(float_of_int y)) in
   let (x',y') = let (x',y') = from_tortue tw.pos in ((float_of_int x'),(float_of_int y')) in
   let rapport = 1.95 in
@@ -294,7 +300,6 @@ let draw_grey_edge vw tv tw canvas =
 
 
  
-let black_edges = H2.create 97
 
 let tdraw_edge_gtk vw t distance etapes canvas =
  let line =
@@ -353,6 +358,10 @@ let is_selected_node v = match !select with
 
 
 let step = ref 0
+
+
+
+
   
 let rec draw_graph depth noeud tortue canvas =
   if !debug_graphEdGTK 
@@ -393,7 +402,7 @@ let rec draw_graph depth noeud tortue canvas =
       iter_succ
 	(fun  w ->
 	   try 
-	     H.find pos w; ()
+	    ignore (H.find pos w)
 	   with Not_found ->
 	     try
 	       let n = H2.find black_edges (noeud,w) in
@@ -452,7 +461,7 @@ and drag_label noeud item ev =
     | `MOTION_NOTIFY ev ->
 	incr step;
 	let state = GdkEvent.Motion.state ev in
-	if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 20 = 0 then 
+	if Gdk.Convert.test_modifier `BUTTON1 state && !step mod 10 = 0 then 
 	  begin
 	    let curs = Gdk.Cursor.create `FLEUR in
 	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs (GdkEvent.Button.time ev);
@@ -469,6 +478,7 @@ and drag_label noeud item ev =
 	    if hspace_dist_sqr tor <= rlimit_sqr
 	    then begin
 	      draw tor canvas_root;
+	      if !step mod 15 = 0 then
 	      canvas_root#canvas#update_now ()
 	    end else 
 	      origine := tmp
@@ -526,6 +536,7 @@ and ajout_successeur noeud () =
 		  draw tor canvas_root)
   in
   ()
+
 and ajout_arrete n1 n2 () = 
 if not( edge n1 n2)
 then begin
@@ -592,17 +603,21 @@ and draw tortue canvas =
        try
 	 begin match H.find pos v, H.find pos w with
 	   | (lv, Some tv), (lw, Some tw) ->
-	       if abs (lw - lv) <> 1 && (lv <> 0 || lw <> 0) then begin
-		 (*            debug            *)
-		 if !debug_graphEdGTK 
-		 then
-		   (Format.eprintf "tortue : %s\t\t\t tortue : %s@." (string_of_label v) (string_of_label w);
-		    let (x ,y ) = from_tortue tv.pos 
-		    and (x',y') = from_tortue tw.pos in
-		    Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';
-		   );	    
-		 ignore(draw_grey_edge (v,w) tv tw canvas)
-	       end else
+	       if abs (lw - lv) <> 1 && (lv <> 0 || lw <> 0) 
+	       then 
+		 begin
+		   (*            debug            *)
+		   if !debug_graphEdGTK 
+		   then
+		     (Format.eprintf "tortue : %s\t\t\t tortue : %s@." (string_of_label v) (string_of_label w);
+		      let (x ,y ) = from_tortue tv.pos 
+		      and (x',y') = from_tortue tw.pos in
+		      Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';
+		     );
+		   (*            /debug           *)
+		   ignore(draw_grey_edge (v,w) tv tw canvas)
+		 end 
+	       else
 		 raise Not_found
 	   | (_, None), _ | _, (_, None) -> 
 	       raise Not_found
@@ -629,7 +644,64 @@ and draw tortue canvas =
     ) 
     !graph;
   canvas#show()
+
+
+let ajout_noeud () =
+  let window = GWindow.window ~title: "Choix du nom du label" ~width: 300 ~height: 50 () in
+  let vbox = GPack.vbox ~packing: window#add () in
   
+  let entry = GEdit.entry ~max_length: 50 ~packing: vbox#add () in
+  entry#set_text "Label";
+  entry#select_region ~start:0 ~stop:entry#text_length;
+  window#show ();
+  let _ = entry#connect#activate 
+    ~callback: (fun () ->
+		  let text = entry#text in
+		  let label = label_of_string text in
+		  let vertex = V.create label in
+		  add_vertex !graph vertex;
+		  window#destroy ();
+		  ignore (Model.add_vertex vertex);
+		  let  tor = make_turtle !origine 0.0 in
+		  draw tor canvas_root)
+  in
+  ()
+
+
+let canvas_event ev =
+ (* Format.eprintf "toto suis-je empty ? : %b@." (is_empty !graph);
+ *)
+ begin match ev with
+    | `BUTTON_PRESS ev ->
+	if (GdkEvent.Button.button ev) = 1
+        then begin
+	  match !select with
+	    | None -> ()
+	    | Some(noeud,item) -> 
+		deselectionner_noeud noeud item ;
+	end;
+
+	if (GdkEvent.Button.button ev) = 3 (* && (is_empty !graph)*)
+        then
+	  begin
+            let loc_menu = GMenu.menu () in
+            let factory =
+              new GMenu.factory loc_menu in
+            ignore (factory#add_item "  Ajouter un noeud" ~callback: ajout_noeud);
+	    loc_menu#popup
+              ~button:3
+              ~time:(GdkEvent.Button.time ev);
+	  end
+    | _ ->
+	()
+  end;
+  true
+    
+let _ = canvas#root#connect#event (canvas_event) 
+      
+
+  
+
 
 let node_selection ~(model : GTree.tree_store) path =
   let row = model#get_iter path in
@@ -669,12 +741,20 @@ vc#set_sizing `GROW_ONLY;
 let _ = window#connect#destroy~callback:GMain.Main.quit 
 
 
-let treeview = GTree.view ~model ~packing:sw#add ()
+let treeview = GTree.view ~model:!model ~packing:sw#add ()
 let () = treeview#set_rules_hint true
 let () = treeview#selection#set_mode `MULTIPLE
-let _ = add_columns ~view:treeview ~model
+let _ = add_columns ~view:treeview ~model:!model
 (*let _ = treeview#misc#connect#realize ~callback:treeview#expand_all*)
 
+let reset_table_and_canvas () =
+      let l =  canvas_root#get_items in
+      List.iter (fun v -> trace v#destroy ()) l;
+      H2.clear grey_edges;
+      H2.clear black_edges;
+      H.clear ellipses;
+      H.clear pos;
+      origine := depart
 
 
 
@@ -715,13 +795,7 @@ let open_graph()  =
   then 
     begin 
       load_graph fichier;
-      let l =  canvas_root#get_items in
-      List.iter (fun v -> trace v#destroy ()) l;
-      H2.clear grey_edges;
-      H2.clear black_edges;
-      H.clear ellipses;
-      H.clear pos;
-      origine := depart;
+      reset_table_and_canvas ();
       let tortue =
 	let (x,y) = from_tortue !origine in
 	moveto_gtk x y;
@@ -730,7 +804,13 @@ let open_graph()  =
       draw tortue canvas_root
     end
       
+let new_graph () =
+  graph := create ();
+  model := Model.model;
+  Model.reset();
+  reset_table_and_canvas ()
       
+
      
 let create_menu label menubar =
   let item = GMenu.menu_item ~label ~packing:menubar#append () in
@@ -744,7 +824,7 @@ let print msg () =
 (* le menu file : la description puis l'ajout au menu_bar *)
 let menu_files = 
   [
-    `I ("_New Graph", print "todo new graph");
+    `I ("_New Graph",  new_graph);
     `I ("_Open Graph", open_graph);
     `I ("_Save Graph", print "todo save graph");
     `I ("Save Graph _As ...", print "todo save graph as...");
