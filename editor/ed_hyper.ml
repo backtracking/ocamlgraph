@@ -97,17 +97,17 @@ let make_turtle_dir pos dir =
     dir = dir 
   }
 
-let advance turt step =
-   { pos = gamma turt.pos turt.dir step ;
-     dir = delta turt.pos turt.dir step }
+let advance turtle step =
+   { pos = gamma turtle.pos turtle.dir step ;
+     dir = delta turtle.pos turtle.dir step }
 
-let advance_many turt d steps =
+let advance_many turtle d steps =
   let d = d /. (float steps) in
   let rec adv t = function 
     | 0 -> t
     | n -> adv (advance t d) (n-1)
   in
-  adv turt steps
+  adv turtle steps
 
 let turn turtle u =
   { turtle with dir = turtle.dir *& u }

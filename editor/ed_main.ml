@@ -5,7 +5,7 @@ open Ed_hyper
 open Ed_graph
 open Ed_display
 
-let debug_graphEdGTK = ref false
+let debug = ref false
 let trace f x = 
   try f x with e -> eprintf "TRACE: %s@." (Printexc.to_string e); raise e
 
@@ -61,7 +61,7 @@ open GtkTree
 
 (* Main GTK window *)
 let window = 
-  GWindow.window ~border_width: 10 ~title:"GraphEd" ~position: `CENTER () 
+  GWindow.window ~border_width: 10 ~title:"Editor" ~position: `CENTER () 
 
 (* menu *)
 let v_box = GPack.vbox ~homogeneous:false ~spacing:30  ~packing:window#add ()
@@ -118,16 +118,12 @@ let node_selection ~(model : GTree.tree_store) path =
   let row = model#get_iter path in
   let v = model#get ~row ~column: Model.vertex in
   root := v;
-  let tortue =
-    origine := depart;
-    let (x,y) = from_tortue !origine in
-    moveto_gtk x y;
-    make_turtle !origine 0.0;
-  in
-  let l = canvas_root#get_items in
-  Format.eprintf "il y a %d elements dans le canvas @." (List.length l);
-  List.iter (fun v -> v#hide()) l;
-  draw tortue canvas_root
+  origine := start_point;
+  let turtle = make_origine_turtle () in
+  let l_item = canvas_root#get_items in
+  Format.eprintf "il y a %d elements dans le canvas @." (List.length l_item);
+ (* List.iter (fun v -> v#hide()) l_item;*)
+  draw turtle canvas_root
 
 (* treeview *)
 
@@ -164,10 +160,10 @@ let _ = add_columns ~view:treeview ~model:!model
 let reset_table_and_canvas () =
   let l =  canvas_root#get_items in
   List.iter (fun v -> trace v#destroy ()) l;
-  H2.clear grey_edges;
-  H2.clear black_edges;
-  H.clear ellipses;
-  origine := depart
+  H2.clear intern_edges;
+  H2.clear successor_edges;
+  reset_display canvas_root;
+  origine := start_point
 
 (* menu *)
 
@@ -179,50 +175,46 @@ let print msg () =
   print_endline msg;
   flush stdout
 
-let open_graph()  =
 
-  let default d = function
-    | None -> d
-    | Some v -> v
+let default d = function
+  | None -> d
+  | Some v -> v
+      
+let all_files () =
+  let f = GFile.filter ~name:"All" () in
+  f#add_pattern "*" ;
+  f
+  
+let graph_filter () = 
+  GFile.filter 
+    ~name:"Fichier de graphes" 
+    ~patterns:[ "*.dot"; "*.gml" ] ()
+  
+let ask_for_file parent =
+  let dialog = GWindow.file_chooser_dialog 
+    ~action:`OPEN 
+    ~title:"Ouvrir un fichier"
+    ~parent () in
+  dialog#add_button_stock `CANCEL `CANCEL ;
+  dialog#add_select_button_stock `OPEN `OPEN ;
+  dialog#add_filter (graph_filter ()) ;
+  dialog#add_filter (all_files ()) ;
+  let f = match dialog#run () with
+    | `OPEN ->default "<none>" dialog#filename 
+    | `DELETE_EVENT | `CANCEL -> "<none>"
   in
-  let all_files () =
-    let f = GFile.filter ~name:"All" () in
-    f#add_pattern "*" ;
-    f
-  in
-  let graph_filter () = 
-    GFile.filter 
-      ~name:"Fichier de graphes" 
-      ~patterns:[ "*.dot"; "*.gml" ] ()
-  in
-  let ask_for_file parent =
-    let dialog = GWindow.file_chooser_dialog 
-      ~action:`OPEN 
-      ~title:"Ouvrir un fichier"
-      ~parent () in
-    dialog#add_button_stock `CANCEL `CANCEL ;
-    dialog#add_select_button_stock `OPEN `OPEN ;
-    dialog#add_filter (graph_filter ()) ;
-    dialog#add_filter (all_files ()) ;
-    let f = match dialog#run () with
-      | `OPEN ->default "<none>" dialog#filename 
-      | `DELETE_EVENT | `CANCEL -> "<none>"
-    in
-    dialog#destroy ();
-    f
-  in
+  dialog#destroy ();
+  f
+
+let open_graph()  =
   let fichier = ask_for_file window in
   if fichier <> "<none>"
   then 
     begin 
       load_graph fichier;
       reset_table_and_canvas ();
-      let tortue =
-	let (x,y) = from_tortue !origine in
-	moveto_gtk x y;
-	make_turtle !origine 0.0
-      in
-      draw tortue canvas_root
+      let turtle = make_origine_turtle () in
+      draw turtle canvas_root
     end
       
 let new_graph () =
@@ -248,14 +240,14 @@ let _ = GToolbox.build_menu menu ~entries:menu_files
 
 
 
-let tortue =
-  let (x,y) = from_tortue !origine in
-  moveto_gtk x y;
-  make_turtle !origine 0.0 
+let tortue = make_origine_turtle ()
 
 let () = canvas#set_scroll_region 0. 0. w h 
 
 let () = window#show ()
-let _ = draw tortue canvas_root
+let _ = 
+  reset_table_and_canvas ();
+  draw tortue canvas_root
+
 let () = GMain.Main.main ()
 
