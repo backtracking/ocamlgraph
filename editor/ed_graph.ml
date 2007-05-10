@@ -90,9 +90,12 @@ let edge v w = G.mem_edge !graph v w || G.mem_edge !graph w v
 let load_graph f =
   graph := parse_file f
 
+let dfs = ref false
+
 let () = 
   Arg.parse
-    []
+    ["-dfs", Arg.Set dfs, "DFS drawing strategy";
+     "-bfs", Arg.Clear dfs, "BFS drawing strategy"]
     load_graph 
     "editor [options] <graph file>"
 

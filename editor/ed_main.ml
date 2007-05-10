@@ -162,7 +162,7 @@ let vertex_event noeud item ev =
 	    if hspace_dist_sqr turtle <= rlimit_sqr
 	    then begin
 	      draw turtle canvas_root;
-	      if !refresh mod 15 = 0 then
+	      (*if !refresh mod 15 = 0 then*)
 		canvas_root#canvas#update_now ()
 	    end else 
 	      origine := tmp

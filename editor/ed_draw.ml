@@ -89,12 +89,53 @@ and draw_edges_dfs node depth turtle distance angle = function
 
 (* Breadth First Search drawing *)
 
-
+let draw_bfs root turtle =
+  let q = Queue.create () in
+  let add v n t =
+    Queue.push v q;
+    let lab = G.V.label v in
+    lab.turtle <- t;
+    lab.depth <- n
+  in
+  add root 0 turtle;
+  while not (Queue.is_empty q) do
+    let v = Queue.pop q in
+    let lab = G.V.label v in
+    let depth = lab.depth in
+    let tv = lab.turtle in
+    if hspace_dist_sqr tv <= rlimit_sqr then begin
+      lab.visible <- Visible;
+      let l = G.succ !graph v in 
+      let l = List.filter (fun x -> (G.V.label x).visible = Hidden) l in
+      List.iter (fun w -> (G.V.label w).visible <- BorderNode) l;
+      let l = order_children l in
+      let n = List.length l in
+      if n > 0 then begin
+	let distance = step_from (max 3 n)
+	and angle = (if depth = 0 then 2. else 1.) *. pi /. (float_of_int n) in
+	let turtle = 
+	  ref (if depth = 0 then tv else turn_right tv ((pi -. angle) /. 2.))
+	in
+	List.iter
+	  (fun w -> 
+	    let e = G.E.label (G.find_edge !graph v w) in
+	    e.visited <- true;
+	    e.edge_turtle <- !turtle;
+	    e.edge_distance <- distance;
+	    let steps = 10 in
+	    e.edge_steps <- steps;
+	    let tw = advance_many !turtle distance steps in 
+	    add w (depth + 1) tw;
+	    turtle := turn_left !turtle angle)
+	  l
+    end
+  end
+  done
 
 (* Drawing graph function *)
 let draw_graph root turtle =
   G.iter_vertex (fun v -> let l = G.V.label v in l.visible <- Hidden) !graph;
   G.iter_edges_e (fun e -> let l = G.E.label e in l.visited <- false) !graph;
-  draw_dfs 0 root turtle
+  (if !dfs then draw_dfs 0 else draw_bfs) root turtle
 
  
