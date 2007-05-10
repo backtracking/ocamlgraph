@@ -2,8 +2,8 @@
 test: editor.opt
 	./editor.opt tests/full20.gml
 
-editor.opt : ed_hyper.ml ed_graph.ml ed_draw.ml ed_display.ml ed_main.ml
-	ocamlopt -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa -I .. ../graph.cmxa $^
+editor.opt: ed_*.ml
+	make -C .. editor/editor.opt
 
 # tortue.opt: tortue.ml 
 # 	ocamlopt outils_math.ml

@@ -140,7 +140,7 @@ check: $(CMA) check.ml
 editor-no:
 editor-yes: editor/editor.$(OCAMLBEST)
 
-EDCMO = editor/dirTree.cmo editor/htree.cmo editor/gtree.cmo editor/editor.cmo
+EDCMO = editor/ed_hyper.cmo editor/ed_graph.cmo editor/ed_draw.cmo editor/ed_display.cmo editor/ed_main.cmo
 EDCMX = $(EDCMO:.cmo=.cmx)
 
 editor/editor.byte: $(CMA) $(EDCMO)

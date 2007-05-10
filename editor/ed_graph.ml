@@ -11,10 +11,26 @@ type node_info = {
   mutable turtle : turtle;
 }
 
-let make_info s = 
+let make_node_info s = 
   { label = s; visible = Hidden; depth = 0; turtle = dummy_turtle }
 
-module G = Imperative.Graph.Abstract(struct type t = node_info end)
+type edge_info = {
+  mutable visited : bool;
+  mutable edge_turtle : turtle;
+  mutable edge_distance : float;
+  mutable edge_steps : int;
+}
+
+let make_edge_info () =
+  { visited = false; edge_turtle = dummy_turtle; edge_distance = 0.; edge_steps = 0; }
+
+module EDGE = struct
+  type t = edge_info
+  let compare = Pervasives.compare
+  let default = make_edge_info ()
+end
+
+module G = Imperative.Graph.AbstractLabeled(struct type t = node_info end)(EDGE)
 
 module B = Builder.I(G)
 
@@ -23,12 +39,12 @@ module GmlParser =
     (B)
     (struct 
       let node l = 
-	make_info
+	make_node_info
 	  (try 
 	      match List.assoc "id" l 
 	      with Gml.Int n -> string_of_int n | _ -> "<no id>"
 	    with Not_found -> "<no id>")
-      let edge _ = ()
+      let edge _ = make_edge_info ()
     end)
 
 module DotParser = 
@@ -39,8 +55,8 @@ module DotParser =
 	| Dot_ast.Ident s
 	| Dot_ast.Number s
 	| Dot_ast.String s
-	| Dot_ast.Html s -> make_info s
-      let edge _ = ()
+	| Dot_ast.Html s -> make_node_info s
+      let edge _ = make_edge_info ()
     end)
 
 let parse_file f = 
@@ -81,3 +97,14 @@ let () =
     "editor [options] <graph file>"
 
     
+(* successor edges *)
+
+module H2 = 
+  Hashtbl.Make
+    (struct 
+      type t = G.V.t * G.V.t
+      let hash (v,w) = Hashtbl.hash (G.V.hash v, G.V.hash w)
+      let equal (v1,w1) (v2,w2) = G.V.equal v1 v2 && G.V.equal w1 w2 
+    end)
+
+

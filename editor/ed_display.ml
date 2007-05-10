@@ -95,9 +95,10 @@ let set_successor_edge turtle distance steps line =
      Format.eprintf "taille %d %s @." (List.length lpoints) ltext);
   (*            /debug            *)
   let points = Array.of_list lpoints in
-  line#set [`POINTS points];
-  turtle
+  line#set [`POINTS points]
 
+
+(* Set Bpath between turtles tv and tw where line is a gtk widget *) 
 let set_intern_edge tv tw bpath line =
   let (x,y) = let (x ,y ) = from_turtle tv.pos in ((float_of_int x),(float_of_int y)) in
   let (x',y') = let (x',y') = from_turtle tw.pos in ((float_of_int x'),(float_of_int y')) in
@@ -150,17 +151,11 @@ let tdraw_string_gtk v turtle canvas =
 
 (* tables of existing graphical edges *)
 
-module H2 = 
-  Hashtbl.Make
-    (struct 
-      type t = G.V.t * G.V.t
-      let hash (v,w) = Hashtbl.hash (G.V.hash v, G.V.hash w)
-      let equal (v1,w1) (v2,w2) = G.V.equal v1 v2 && G.V.equal w1 w2 
-    end)
 
 (* two tables for two types of edge :
    successor_edges = edges with successor of root
    intern_edges = edges between  successors of root *)
+
 let successor_edges = H2.create 97
 let intern_edges = H2.create 97
 
@@ -188,19 +183,20 @@ let draw_intern_edge vw tv tw canvas =
   bpath,line
 
 
-let draw_successor_edge vw t distance etapes canvas =
+let draw_successor_edge vw t distance steps canvas =
  let line =
     try
       H2.find successor_edges vw
     with Not_found ->
       let color = "black" in 
-      let l = GnoCanvas.line canvas ~props:[ `FILL_COLOR color ;
+      let line = GnoCanvas.line canvas ~props:[ `FILL_COLOR color ;
 					     `WIDTH_PIXELS 1; `SMOOTH true] 
       in
-      H2.add successor_edges vw l;
-      l
+      line#lower_to_bottom ();
+      H2.add successor_edges vw line;
+      line
  in
- set_successor_edge t distance etapes line
+ set_successor_edge t distance steps line
 
 let color_change_intern_edge color node = 
   G.iter_edges
@@ -218,7 +214,7 @@ let color_change_intern_edge color node =
   !graph
 
 
-let color_change_direct_edge color node = 
+let color_change_successor_edge color node = 
   G.iter_succ
     (fun w ->
        try
@@ -234,7 +230,23 @@ let color_change_direct_edge color node =
     !graph node
   
 
-let draw_graph canvas =
+(* set origine to new mouse position and return associated turtle *)
+let motion_turtle item ev =
+ let bounds = item#parent#get_bounds in
+ let z1 =  to_turtle(truncate((bounds.(0)+. bounds.(2))/.2.),
+		     truncate((bounds.(1)+. bounds.(3))/.2.)) in
+ let z2 = to_turtle (truncate (GdkEvent.Motion.x ev),
+		     truncate (GdkEvent.Motion.y ev)) in
+ let (x,y) = drag_origin !origine z1 z2 in
+ origine := (x,y);
+ make_turtle !origine 0.0
+
+let hide_intern_edge vw =
+  try let _,line = H2.find intern_edges vw in line#hide () with Not_found -> ()
+let hide_succesor_edge vw =
+  try let line = H2.find successor_edges vw in line#hide () with Not_found -> ()
+
+let draw_graph root canvas  =
   (* nodes *)
   G.iter_vertex
     (fun v -> 
@@ -242,45 +254,51 @@ let draw_graph canvas =
       if l.visible = Visible then 
 	let ellipse = tdraw_string_gtk v l.turtle canvas in 
 	ellipse#parent#show()
-      else  (H.find ellipses v)#parent#hide()
+      else  
+	(H.find ellipses v)#parent#hide()
     )
     !graph;
 
-  (* succ edges *)
-  G.iter_succ
-    ( fun v ->
-	
-    )
-    !root !graph;
-
-
-  (* intern edges *)
-  G.iter_edges
-    (fun v w ->
-      let labv = G.V.label v in
-      let labw = G.V.label w in
-      let lv = labv.depth in
-      let tv = labv.turtle in
-      let lw = labw.depth in
-      let tw = labw.turtle in
-      if labv.visible = Visible && labw.visible = Visible && 
-	 abs (lw - lv) <> 1 && (lv <> 0 || lw <> 0) 
-      then begin
-	(*            debug            *)
-	if !debug 
-	then (Format.eprintf "tortue : %s\t\t\t tortue : %s@." 
-		(string_of_label v) (string_of_label w);
-	      let (x ,y ) = from_turtle tv.pos and (x',y') = from_turtle tw.pos in
-	      Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';);
-	(*            /debug           *)
-	let _,line = draw_intern_edge (v,w) tv tw canvas in
-	line#show();
-
-      end else
-	try let _,line = H2.find intern_edges (v,w) in line#hide () with Not_found -> ()
+  (* succ edges *)           
+  G.iter_edges_e
+    (fun e ->
+       let lab = G.E.label e in
+       let v = G.E.src e in
+       let w = G.E.dst e in
+       let vw = (v,w) in
+       if lab.visited then begin
+	 (* successor edge *)
+ 	 draw_successor_edge vw lab.edge_turtle lab.edge_distance lab.edge_steps canvas;
+	 hide_intern_edge vw
+       end else
+	 (* intern edges *)
+	 let labv = G.V.label v in
+	 let labw = G.V.label w in
+	 let depv = labv.depth in
+	 let turv = labv.turtle in
+	 let depw = labw.depth in
+	 let turw = labw.turtle in
+	 if labv.visible = Visible && labw.visible = Visible && 
+	   abs (depw - depv) <> 1 && (depv <> 0 || depw <> 0) 
+	 then begin
+	   (*            debug            *)
+	   if !debug 
+	   then (Format.eprintf "tortue : %s\t\t\t tortue : %s@." 
+		   (string_of_label v) (string_of_label w);
+		 let (x ,y ) = from_turtle turv.pos and (x',y') = from_turtle turw.pos in
+		 Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';);
+	   (*            /debug           *)
+	   let _,line = draw_intern_edge vw turv turw canvas in
+	   hide_succesor_edge vw;
+	   line#show(); 
+	 end 
+	 else begin
+	   hide_intern_edge vw;
+	   hide_succesor_edge vw
+	 end
     ) 
     !graph
-
+    
 
 
 

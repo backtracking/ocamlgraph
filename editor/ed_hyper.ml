@@ -97,15 +97,26 @@ let make_turtle_dir pos dir =
     dir = dir 
   }
 
+(* return a turtle for a distance from original *)
 let advance turtle step =
    { pos = gamma turtle.pos turtle.dir step ;
      dir = delta turtle.pos turtle.dir step }
 
+(* return a turtle for a distance d from original with steps  *)
 let advance_many turtle d steps =
   let d = d /. (float steps) in
   let rec adv t = function 
     | 0 -> t
     | n -> adv (advance t d) (n-1)
+  in
+  adv turtle steps
+
+(* return a list of turtle along distance d from original turtle with steps  *)
+let list_advance_many turtle d steps =
+  let d = d /. (float steps) in
+  let rec adv t = function 
+    | 0 -> []
+    | n -> t :: adv (advance t d) (n-1)
   in
   adv turtle steps
 

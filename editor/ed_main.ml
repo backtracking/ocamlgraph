@@ -4,6 +4,7 @@ open Graph
 open Ed_hyper
 open Ed_graph
 open Ed_display
+open Ed_draw
 
 let debug = ref false
 let trace f x = 
@@ -80,7 +81,6 @@ let canvas_root = canvas#root
 
 
 (* current root used for drawing *)
-
 let root = ref (choose_root ())
 
 
@@ -90,26 +90,22 @@ let load_graph f =
   root := choose_root ()
 
 
-(* current selection *)
-
-let select = ref None
-let is_selected_node v = match !select with
-  | None -> false
-  | Some (w(*,_*)) -> G.V.equal v w
-
 
 (* refresh rate *)
-
-let step = ref 0
+let refresh = ref 0
 
 
 (* graph drawing *)
-
 let draw tortue canvas =
   canvas#hide();
   Ed_draw.draw_graph !root tortue;
-  Ed_display.draw_graph canvas;
+  Ed_display.draw_graph !root canvas;
   canvas#show()
+
+
+(* selected node List *)
+let vertex_selection = []
+let is_selected x =  List.mem x vertex_selection
 
 
 (* events *)
@@ -122,11 +118,100 @@ let node_selection ~(model : GTree.tree_store) path =
   let turtle = make_origine_turtle () in
   let l_item = canvas_root#get_items in
   Format.eprintf "il y a %d elements dans le canvas @." (List.length l_item);
- (* List.iter (fun v -> v#hide()) l_item;*)
   draw turtle canvas_root
 
-(* treeview *)
 
+(* event for each vertex of canvas *)
+let vertex_event noeud item ev =
+  begin match ev with
+    | `ENTER_NOTIFY _ ->
+	if  not (is_selected noeud)
+	then begin	
+	  item#set [ `FILL_COLOR "steelblue" ];
+	  color_change_intern_edge "blue" noeud ; 
+	  color_change_successor_edge "blue" noeud 
+	end;
+    | `LEAVE_NOTIFY ev ->
+	if  not (is_selected noeud)
+	then begin	
+	  let state = GdkEvent.Crossing.state ev in
+	  if not (Gdk.Convert.test_modifier `BUTTON1 state)
+	  then item#set [ `FILL_COLOR "grey" ; ];
+	  color_change_intern_edge "SlateGrey" noeud ;
+	  color_change_successor_edge "black" noeud;
+	 (* begin match !select with
+	    | None -> ()
+	    | Some (n,i) -> begin	
+		color_change_intern_edge "red" n ;
+		color_change_direct_edge "red" n
+	      end 
+	  end;
+	 *)
+	end 
+    | `BUTTON_RELEASE ev ->
+	item#parent#ungrab (GdkEvent.Button.time ev)
+    | `MOTION_NOTIFY ev ->
+	incr refresh;
+	let state = GdkEvent.Motion.state ev in
+	if Gdk.Convert.test_modifier `BUTTON1 state && !refresh mod 10 = 0 then 
+	  begin
+	    let curs = Gdk.Cursor.create `FLEUR in
+	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs (GdkEvent.Button.time ev);
+	    let tmp = !origine in	    
+	    let turtle = motion_turtle item ev in
+	    if hspace_dist_sqr turtle <= rlimit_sqr
+	    then begin
+	      draw turtle canvas_root;
+	      if !refresh mod 15 = 0 then
+		canvas_root#canvas#update_now ()
+	    end else 
+	      origine := tmp
+	  end
+	    (*   | `TWO_BUTTON_PRESS ev->
+      if (GdkEvent.Button.button ev) = 1
+		 then selectionner_noeud noeud item;
+      | `BUTTON_PRESS ev ->
+      if (GdkEvent.Button.button ev) = 1
+        then deselectionner_noeud noeud item ;
+	if (GdkEvent.Button.button ev) = 3
+        then
+	  begin
+            let loc_menu = GMenu.menu () in
+            let factory =
+              new GMenu.factory loc_menu in
+            ignore (factory#add_item "  Ajouter un successeur" ~callback: (ajout_successeur noeud));
+	    begin match !select with
+	      | None -> ()
+	      | Some (n,_) -> 
+		  if not(V.equal n noeud)
+		  then begin
+		    ignore (factory#add_item "  Ajouter une arrête" ~callback: (ajout_arrete n noeud));	    
+		  end 
+	    end;
+
+            loc_menu#popup
+              ~button:3
+              ~time:(GdkEvent.Button.time ev);
+          end
+ *)
+    | _ ->
+	()
+  end;
+  true
+
+let set_canvas_event ()=
+(* vertex event *)
+  G.iter_vertex
+    (fun v -> 
+      let l = G.V.label v in
+      if l.visible = Visible then 
+	let item = H.find ellipses v in
+	ignore (item#parent#connect#event (vertex_event v item) ) 
+    )
+    !graph
+
+
+(* treeview *)
 let add_columns ~(view : GTree.view) ~model =
   let renderer = GTree.cell_renderer_text [`XALIGN 0.] in
   let vc =
@@ -165,8 +250,9 @@ let reset_table_and_canvas () =
   reset_display canvas_root;
   origine := start_point
 
-(* menu *)
 
+
+(* menu *)
 let create_menu label menubar =
   let item = GMenu.menu_item ~label ~packing:menubar#append () in
   GMenu.menu ~packing:item#set_submenu ()
@@ -214,7 +300,8 @@ let open_graph()  =
       load_graph fichier;
       reset_table_and_canvas ();
       let turtle = make_origine_turtle () in
-      draw turtle canvas_root
+      draw turtle canvas_root;
+      set_canvas_event ()
     end
       
 let new_graph () =
@@ -247,7 +334,9 @@ let () = canvas#set_scroll_region 0. 0. w h
 let () = window#show ()
 let _ = 
   reset_table_and_canvas ();
-  draw tortue canvas_root
+  draw tortue canvas_root;
+  set_canvas_event ()
+
 
 let () = GMain.Main.main ()
 

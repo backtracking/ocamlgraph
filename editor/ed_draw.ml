@@ -73,7 +73,12 @@ and draw_edges_dfs node depth turtle distance angle = function
   | [] -> 
       []
   | v :: l -> 
+      let e = G.E.label (G.find_edge !graph node v) in
+      e.visited <- true;
+      e.edge_turtle <- turtle;
+      e.edge_distance <- distance;
       let steps = 10 in
+      e.edge_steps <- steps;
       let tv = advance_many turtle distance steps in 
       let turtle = turn_left turtle angle in
       let l = (v,tv) :: draw_edges_dfs node depth turtle distance angle l in
@@ -89,5 +94,7 @@ and draw_edges_dfs node depth turtle distance angle = function
 (* Drawing graph function *)
 let draw_graph root turtle =
   G.iter_vertex (fun v -> let l = G.V.label v in l.visible <- Hidden) !graph;
+  G.iter_edges_e (fun e -> let l = G.E.label e in l.visited <- false) !graph;
   draw_dfs 0 root turtle
 
+ 
