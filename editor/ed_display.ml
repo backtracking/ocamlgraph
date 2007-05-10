@@ -278,7 +278,7 @@ let draw_graph root canvas  =
 	 let turv = labv.turtle in
 	 let depw = labw.depth in
 	 let turw = labw.turtle in
-	 if labv.visible = Visible && labw.visible = Visible && 
+	 if (labv.visible = Visible && labw.visible = Visible) && 
 	   abs (depw - depv) <> 1 && (depv <> 0 || depw <> 0) 
 	 then begin
 	   (*            debug            *)
@@ -292,11 +292,16 @@ let draw_graph root canvas  =
 	   hide_succesor_edge vw;
 	   line#show(); 
 	 end 
+	 else if (labv.visible = Visible || labw.visible = Visible) && 
+	     abs (depw - depv) <> 1 && (depv <> 0 || depw <> 0) 
+	 then begin
+	   hide_intern_edge vw
+	 end
 	 else begin
 	   hide_intern_edge vw;
 	   hide_succesor_edge vw
 	 end
-    ) 
+	 ) 
     !graph
     
 

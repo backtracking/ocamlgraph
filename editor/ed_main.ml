@@ -203,10 +203,8 @@ let set_canvas_event ()=
 (* vertex event *)
   G.iter_vertex
     (fun v -> 
-      let l = G.V.label v in
-      if l.visible = Visible then 
-	let item = H.find ellipses v in
-	ignore (item#parent#connect#event (vertex_event v item) ) 
+       let item = H.find ellipses v in
+       ignore (item#parent#connect#event (vertex_event v item) ) 
     )
     !graph
 
