@@ -40,11 +40,6 @@ let order_children l =
   List.flatten scc
 
 
-(* Limit of visibility for nodes *)
-let rlimit = 0.90 
-let rlimit_sqr = rlimit *. rlimit
-
-
 (* Depth First Search drawing *)
 
 let rec draw_dfs depth node turtle =

@@ -13,8 +13,12 @@ let (w,h)= (600.,600.)
 (* GTK to hyperbolic coordinates *)
 
 let to_turtle(x,y)=
-  ((float x*.(2./.w) -. 1.),(1. -. float y *.(2./.h)))
-(*  ((float x*.(2./.w) ),(float y *.(2./.h) ))*)
+  let zx,zy as r = ((float x*.(2./.w) -. 1.),(1. -. float y *.(2./.h))) in
+  let zn = sqrt(zx*.zx +. zy*.zy) in
+  if zn > rlimit then
+    (rlimit*.zx/.zn, rlimit*.zy/.zn)
+  else
+    r
 
 (* Hyperbolic to GTK coordinates *)
 

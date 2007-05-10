@@ -159,8 +159,7 @@ let vertex_event noeud item ev =
 	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs (GdkEvent.Button.time ev);
 	    let tmp = !origine in	    
 	    let turtle = motion_turtle item ev in
-	    if hspace_dist_sqr turtle <= rlimit_sqr
-	    then begin
+	    if hspace_dist_sqr turtle <= rlimit_sqr then begin
 	      draw turtle canvas_root;
 	      (*if !refresh mod 15 = 0 then*)
 		canvas_root#canvas#update_now ()

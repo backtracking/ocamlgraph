@@ -146,7 +146,7 @@ let step_from n =
 let hspace_dist_sqr turtle =
   let (ax, ay) = turtle.pos
   and (dx, dy) = turtle.dir in
- (* if ax*.dx +. ay*.dy < 0.0 then 0.0 else*)
+  if ax*.dx +. ay*.dy < 0.0 then 0.0 else
   begin
     let ux = dy and uy = -.dx in
     let alpha = ax*.ax +. ay*.ay
@@ -165,5 +165,10 @@ let hspace_dist_sqr turtle =
 	zx*.zx +. zy*.zy
       end
   end
+
+
+(* Limit of visibility for nodes *)
+let rlimit = 0.90 
+let rlimit_sqr = rlimit *. rlimit
 
 
