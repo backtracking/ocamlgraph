@@ -196,7 +196,8 @@ let draw_successor_edge vw t distance steps canvas =
       H2.add successor_edges vw line;
       line
  in
- set_successor_edge t distance steps line
+ set_successor_edge t distance steps line;
+ line
 
 let color_change_intern_edge color node = 
   G.iter_edges
@@ -268,40 +269,36 @@ let draw_graph root canvas  =
        let vw = (v,w) in
        if lab.visited then begin
 	 (* successor edge *)
- 	 draw_successor_edge vw lab.edge_turtle lab.edge_distance lab.edge_steps canvas;
+ 	 let line =
+	   draw_successor_edge 
+	     vw lab.edge_turtle lab.edge_distance lab.edge_steps canvas
+	 in
+	 line#show ();
 	 hide_intern_edge vw
-       end else
+       end else begin
 	 (* intern edges *)
+	 hide_succesor_edge vw;
 	 let labv = G.V.label v in
 	 let labw = G.V.label w in
 	 let depv = labv.depth in
 	 let turv = labv.turtle in
 	 let depw = labw.depth in
 	 let turw = labw.turtle in
-	 if (labv.visible = Visible && labw.visible = Visible) && 
-	   abs (depw - depv) <> 1 && (depv <> 0 || depw <> 0) 
-	 then begin
+	 if labv.visible = Visible && labw.visible = Visible then begin
 	   (*            debug            *)
-	   if !debug 
-	   then (Format.eprintf "tortue : %s\t\t\t tortue : %s@." 
-		   (string_of_label v) (string_of_label w);
-		 let (x ,y ) = from_turtle turv.pos and (x',y') = from_turtle turw.pos in
-		 Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';);
+	   if !debug then begin
+	     Format.eprintf "tortue : %s\t\t\t tortue : %s@." 
+	       (string_of_label v) (string_of_label w);
+	     let (x ,y ) = from_turtle turv.pos 
+	     and (x',y') = from_turtle turw.pos in
+	     Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';
+	   end;
 	   (*            /debug           *)
 	   let _,line = draw_intern_edge vw turv turw canvas in
-	   hide_succesor_edge vw;
-	   line#show(); 
-	 end 
-	 else if (labv.visible = Visible || labw.visible = Visible) && 
-	     abs (depw - depv) <> 1 && (depv <> 0 || depw <> 0) 
-	 then begin
+	   line#show()
+	 end else
 	   hide_intern_edge vw
-	 end
-	 else begin
-	   hide_intern_edge vw;
-	   hide_succesor_edge vw
-	 end
-	 ) 
+       end) 
     !graph
     
 

@@ -59,7 +59,7 @@ let rec draw_dfs depth node turtle =
     let l = order_children l in
     let n = List.length l in
     if n > 0 then begin
-      let distance = step_from (max 3 n)
+      let distance = step_from (if depth = 0 then max 3 n else 2 * max 3 n)
       and angle = (if depth = 0 then 2. else 1.) *. pi /. (float_of_int n) in
       let turtle = 
 	if depth = 0 then turtle else turn_right turtle ((pi -. angle) /. 2.) 
@@ -111,7 +111,7 @@ let draw_bfs root turtle =
       let l = order_children l in
       let n = List.length l in
       if n > 0 then begin
-	let distance = step_from (max 3 n)
+	let distance = step_from (if depth = 0 then max 3 n else 2 * max 3 n)
 	and angle = (if depth = 0 then 2. else 1.) *. pi /. (float_of_int n) in
 	let turtle = 
 	  ref (if depth = 0 then tv else turn_right tv ((pi -. angle) /. 2.))
