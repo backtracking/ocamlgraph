@@ -111,3 +111,4 @@ module H2 =
     end)
 
 
+module H = Hashtbl.Make(G.V)

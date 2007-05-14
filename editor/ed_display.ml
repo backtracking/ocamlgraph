@@ -28,7 +28,6 @@ let from_turtle (x,y) =
   (truncate (x*.xzoom +. xzoom), truncate(yzoom -. y*.yzoom))
 
 (* Where to start the graph drawing *)
-
 let start_point = to_turtle (truncate(w/.2.), truncate(h/.2.))
 
 let origine =ref start_point
@@ -64,16 +63,8 @@ let tlineto_gtk turtle line =
   List.append line [(float x); (float y) ] 
 
 
-(* Set ellipse coordinate to turtle's and set current point too *)
-let tdraw_string_gtk turtle (ellipse : GnoCanvas.ellipse) =
-  tmoveto_gtk turtle;  
-  let (x,y) = !current_point in
-  (*            debug            *)
-  if !debug then Format.eprintf "tdraw_string_gtk x=%d y=%d@." x y;
-  (*            /debug            *)
-  ellipse#parent#move ~x:(float x) ~y:(float y);
-  ellipse#parent#set  [`X (float x); `Y (float y)]
 
+   
 
 (* Set line points for a distance with a number of steps, 
    set current point to last line's point, by side-effect of tlineto_gtk,
@@ -110,48 +101,69 @@ let set_intern_edge tv tw bpath line =
   GnomeCanvas.PathDef.reset bpath;
   GnomeCanvas.PathDef.moveto bpath x y ;
   GnomeCanvas.PathDef.curveto bpath ((x+. x')/.rate) ((y +. y')/.rate) 
-                                    ((x  +.x')/.rate) ((y +. y')/.rate)
-                                    x' y';
+    ((x  +.x')/.rate) ((y +. y')/.rate)
+    x' y';
   line#set [`BPATH bpath]
-
+  
+ (* 
+    tdep tdest steps line =
+    let distance =  (dist tdep tdest) in
+    let d = distance /. (float steps) in
+    let rec list_points turtle liste = function
+    | 0 -> (turtle,liste)
+    | n ->let turt = advance turtle d in
+    list_points turt (tlineto_gtk turt liste) (n-1)
+    in
+    let tdep = make_turtle_dir tdep.pos (dir_to tdep tdest 1.) in
+    let start = 
+    let (x,y) = from_turtle tdep.pos in [(float x); (float y)] in 
+    let turtle,lpoints = list_points tdep start steps in
+    let points = Array.of_list lpoints in
+    line#set [`POINTS points]*)
 
 
 (* table of all nodes *)
 
-module H = Hashtbl.Make(G.V)
 
-let ellipses = H.create 97
+let nodes = H.create 97
 
-let init_ellipses canvas =
-  H.clear ellipses;
+(* Set ellipse coordinate to turtle's and set current point too *)
+let tdraw_string_gtk v turtle  =
+  let node,ellipse,texte = H.find nodes v in  
+  tmoveto_gtk turtle;  
+  let factor = (shrink_factor ((G.V.label v).turtle.pos)) in
+  let factor = if factor < 0.5 then 0.5 else factor in
+  let w = factor*. 12. in
+  texte#set [`SIZE_POINTS w];
+  let w = texte#text_width in 
+  let h = texte#text_height in
+  ellipse#set [ `X1  (-.( w+.8.)/.2.); `X2 ((w+.8.)/.2.);
+		`Y1  (-.( h+.6.)/.2.); `Y2 ((h+.6.)/.2.)];
+  let (x,y) = !current_point in
+  node#move ~x:(float x) ~y:(float y);
+  node#set  [`X (float x); `Y (float y)];
+  node
+    
+
+
+let init_nodes canvas =
+  H.clear nodes;
   G.iter_vertex
     (fun v -> 
        let s = string_of_label v in
-       let (w,h) = (40,20) in
        let node_group = GnoCanvas.group ~x:0.0 ~y:0.0 canvas in
        let ellipse = GnoCanvas.ellipse 
-	 ~props:[ `X1  ( float_of_int (-w/2)); `Y1 (float_of_int (-h/2)); 
-		  `X2  (float_of_int (w/2)) ; `Y2 ( float_of_int (h/2)) ;
-		  `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; 
+	 ~props:[ `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; 
 		  `WIDTH_PIXELS 0 ] node_group  
        in
        let texte = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT s;  
 					  `FILL_COLOR "blue"] node_group
        in
-       let w2 = texte#text_width in
-       if w2 > float_of_int w
-       then
-	 ellipse#set [ `X1  (-.( w2+.6.)/.2.); `X2 ((w2+.6.)/.2.)];
        node_group#hide();
-       H.add ellipses v ellipse 
+       H.add nodes v (node_group,ellipse,texte)
     )
     !graph
-    
-let tdraw_string_gtk v turtle canvas =
-  let ellipse = H.find ellipses v in
-  tdraw_string_gtk turtle ellipse;
-  ellipse
-   
+
 
 (* tables of existing graphical edges *)
 
@@ -169,7 +181,7 @@ let draw_intern_edge vw tv tw canvas =
   (*            debug            *)
   if  !debug
   then ( let (v,w)= let (v,w) = vw in (string_of_label v, string_of_label w) in
-      eprintf "tortue %s \t tortue %s@." v w);
+	 eprintf "tortue %s \t tortue %s@." v w);
   (*            /debug            *)
   let bpath,line = 
     try
@@ -185,10 +197,28 @@ let draw_intern_edge vw tv tw canvas =
   in
   set_intern_edge tv tw bpath line;
   bpath,line
+    
+    (* vw tdep tdest steps canvas =
+       let line =
+       try
+       H2.find intern_edges vw
+       with Not_found ->
+       let color = "grey" in 
+       let line = GnoCanvas.line canvas ~props:[ `FILL_COLOR color ;
+       `WIDTH_PIXELS 1; `SMOOTH true] 
+       in
+       line#lower_to_bottom ();
+       H2.add intern_edges vw line;
+       line
+       in
+       set_intern_edge tdep tdest  steps line;
+       line*)
+    
 
-
+    
+    
 let draw_successor_edge vw t distance steps canvas =
- let line =
+  let line =
     try
       H2.find successor_edges vw
     with Not_found ->
@@ -205,6 +235,19 @@ let draw_successor_edge vw t distance steps canvas =
 
 let color_change_intern_edge color node = 
   G.iter_edges
+    (fun w _ ->
+       try
+	 let _,n = H2.find intern_edges (node,w) in
+	 n#set [`OUTLINE_COLOR color]
+       with Not_found ->
+	 try
+	   let _,n = H2.find intern_edges (w,node) in
+	   n#set [`OUTLINE_COLOR color]
+	 with Not_found ->
+	   ()
+    )
+    !graph;
+  G.iter_edges
     (fun _ w ->
        try
 	 let _,n = H2.find intern_edges (node,w) in
@@ -216,7 +259,7 @@ let color_change_intern_edge color node =
 	 with Not_found ->
 	   ()
     )
-  !graph
+    !graph
 
 
 let color_change_successor_edge color node = 
@@ -246,8 +289,12 @@ let motion_turtle item ev =
  origine := (x,y);
  make_turtle !origine 0.0
 
+
+
+
 let hide_intern_edge vw =
   try let _,line = H2.find intern_edges vw in line#hide () with Not_found -> ()
+
 let hide_succesor_edge vw =
   try let line = H2.find successor_edges vw in line#hide () with Not_found -> ()
 
@@ -257,10 +304,11 @@ let draw_graph root canvas  =
     (fun v -> 
       let l = G.V.label v in
       if l.visible = Visible then 
-	let ellipse = tdraw_string_gtk v l.turtle canvas in 
-	ellipse#parent#show()
+	let node = tdraw_string_gtk v l.turtle in 
+	node#show()
       else  
-	(H.find ellipses v)#parent#hide()
+	let node,_,_= H.find nodes v in
+	node#hide()
     )
     !graph;
 
@@ -280,15 +328,16 @@ let draw_graph root canvas  =
 	 line#show ();
 	 hide_intern_edge vw
        end else begin
+
 	 (* intern edges *)
 	 hide_succesor_edge vw;
 	 let labv = G.V.label v in
 	 let labw = G.V.label w in
-	 let depv = labv.depth in
 	 let turv = labv.turtle in
-	 let depw = labw.depth in
 	 let turw = labw.turtle in
-	 if labv.visible = Visible && labw.visible = Visible then begin
+	 if labv.visible = Visible && labw.visible = Visible 
+	   && v!=w
+	 then begin
 	   (*            debug            *)
 	   if !debug then begin
 	     Format.eprintf "tortue : %s\t\t\t tortue : %s@." 
@@ -309,4 +358,4 @@ let draw_graph root canvas  =
 
 
 let reset_display canvas =
-init_ellipses canvas
+init_nodes canvas

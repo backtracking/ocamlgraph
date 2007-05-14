@@ -59,7 +59,7 @@ let gamma a u t =
 let delta a u t =
   let atht = th t *.& a
   and utht = th t *.& u in
-  normalize ((u +& atht) /& (one +& (~&a) *& utht)) 
+  (u +& atht) /& (one +& (~&a) *& utht)
 
 (* solving a Cramer system *)
 let cramer a1 a2 b1 b2 c1 c2 =
@@ -73,6 +73,11 @@ let drag_origin (x0, y0) (x1, y1) (x2, y2) =
   let x3 = x1*.x2 -. y1*.y2 in
   let y3 = x1*.y2 +. y1*.x2 in
   cramer (1.0 -. x3) (-.y3) (-.y3) (1.0 +. x3) (x2 -. x1) (y2 -. y1)
+
+let shrink_factor (x, y) =
+  1.0 -. (x*.x +. y*.y)
+
+
 
 
 (*** Hyperbolic turtle ***)
@@ -96,6 +101,21 @@ let make_turtle_dir pos dir =
     pos = pos ;
     dir = dir 
   }
+
+
+let dist tdep tdest = 
+  let a = tdep.pos in
+  let b = tdest.pos in
+  ath (norm ( (a -& b) /& (one -& (~&a) *& b)))
+
+let dir_to tdep tdest t =
+  let a = tdep.pos in
+  let d = tdest.pos in
+  ((d -& a) /& (th t *.&( one -& (~&a) *& d))) 
+  
+
+
+
 
 (* return a turtle for a distance from original *)
 let advance turtle step =
@@ -132,6 +152,8 @@ let turn_right turtle angle =
 let dummy_turtle = { pos = (0., 0.); dir = (0., 0.) }
 
 
+
+
 (* [step_from n] computes the best `distance' for solving the
    dictator's problem in the complex hyperbolic plane for [n]
    dictators.  In a half-plane, we have to use the distance
@@ -143,11 +165,14 @@ let step_from n =
 
 (* [hspace_dist_sqr turtle] computes the square of the distance
    between the origin and the half-space in front of [turtle]. *)
-let hspace_dist_sqr turtle =
+let hspace_dist_sqr turtle  =
   let (ax, ay) = turtle.pos
   and (dx, dy) = turtle.dir in
-  if ax*.dx +. ay*.dy < 0.0 then 0.0 else
-  begin
+  if ax*.dx +. ay*.dy < 0.0
+   then begin 
+(*     Format.eprintf" la val :%f@."0.0; *)
+    0.0 
+  end else begin
     let ux = dy and uy = -.dx in
     let alpha = ax*.ax +. ay*.ay
     and beta = 2.0*.(ax*.ux +. ay*.uy) in
@@ -162,13 +187,15 @@ let hspace_dist_sqr turtle =
           then -.gamma +. sqrt(delta)
           else -.gamma -. sqrt(delta) in
 	let (zx, zy) = translate (ax, ay) (ux*.sol, uy*.sol) in
-	zx*.zx +. zy*.zy
+	let res = zx*.zx +. zy*.zy in
+(*	Format.eprintf" la val :%f@."res;*)
+	res
       end
   end
 
 
 (* Limit of visibility for nodes *)
-let rlimit = 0.90 
+let rlimit = 0.98 
 let rlimit_sqr = rlimit *. rlimit
 
 

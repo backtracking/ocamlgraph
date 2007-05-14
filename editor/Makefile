@@ -1,13 +1,13 @@
 
 test: editor.opt
-	./editor.opt tests/full20.gml
+	./editor.opt tests/divisors12.gml
 
 editor.opt: ed_*.ml
 	make -C .. editor/editor.opt
 
-# tortue.opt: tortue.ml 
-# 	ocamlopt outils_math.ml
-# 	ocamlopt -o $@ graphics.cmxa outils_math.cmx $^
+# tortuenew.opt: tortue.ml 
+#	ocamlopt outils_math.ml
+#	ocamlopt -o $@ graphics.cmxa outils_math.cmx $^
 
 
 # graphEd.opt : outils_math.ml outils_tort.ml graphEd.ml

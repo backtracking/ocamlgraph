@@ -72,9 +72,20 @@ let menu_bar = GMenu.menu_bar ~packing:v_box#pack ()
 let h_box = GPack.hbox ~homogeneous:false ~spacing:30  ~packing:v_box#add ()
 let sw = GBin.scrolled_window ~shadow_type:`ETCHED_IN ~hpolicy:`NEVER
   ~vpolicy:`AUTOMATIC ~packing:h_box#add () 
+    
 let canvas = 
   GnoCanvas.canvas ~aa:true ~width:(truncate w) ~height:(truncate h) 
     ~packing:h_box#add () 
+
+let circle_group = GnoCanvas.group ~x:300.0 ~y:300.0 canvas#root 
+let unit_circle =
+GnoCanvas.ellipse  ~props:(*[ `X1 (-.w/.2.); `Y1 (-.h/.2.); 
+			    `X2  (w/.2.) ; `Y2 ( h/.2.) ;*)
+  [ `X1 (-.1000.);`Y2 (-.1000.); 
+		  `X2  1000. ; `Y2 1000. ;
+		  `FILL_COLOR "red" ; `OUTLINE_COLOR "black" ; 
+		  `WIDTH_PIXELS 0 ] circle_group
+let _ = unit_circle#parent#show()
 
 let canvas_root = canvas#root 
 
@@ -149,7 +160,8 @@ let vertex_event noeud item ev =
 	 *)
 	end 
     | `BUTTON_RELEASE ev ->
-	item#parent#ungrab (GdkEvent.Button.time ev)
+	item#parent#ungrab (GdkEvent.Button.time ev);
+	Format.eprintf "les coord sont x: %f   y: %f@."  (GdkEvent.Button.x ev) (GdkEvent.Button.y ev)
     | `MOTION_NOTIFY ev ->
 	incr refresh;
 	let state = GdkEvent.Motion.state ev in
@@ -159,12 +171,12 @@ let vertex_event noeud item ev =
 	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs (GdkEvent.Button.time ev);
 	    let tmp = !origine in	    
 	    let turtle = motion_turtle item ev in
-	    if hspace_dist_sqr turtle <= rlimit_sqr then begin
+	    if hspace_dist_sqr turtle <= rlimit_sqr  then begin
 	      draw turtle canvas_root;
 	      (*if !refresh mod 15 = 0 then*)
 		canvas_root#canvas#update_now ()
-	    end else 
-	      origine := tmp
+	    end(* else 
+	      origine := tmp*)
 	  end
 	    (*   | `TWO_BUTTON_PRESS ev->
       if (GdkEvent.Button.button ev) = 1
@@ -202,8 +214,8 @@ let set_canvas_event ()=
 (* vertex event *)
   G.iter_vertex
     (fun v -> 
-       let item = H.find ellipses v in
-       ignore (item#parent#connect#event (vertex_event v item) ) 
+       let item,ell,_ = H.find nodes v in
+       ignore (item#connect#event (vertex_event v ell) ) 
     )
     !graph
 

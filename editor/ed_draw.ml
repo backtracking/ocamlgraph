@@ -98,7 +98,9 @@ let draw_bfs root turtle =
     let lab = G.V.label v in
     let depth = lab.depth in
     let tv = lab.turtle in
-    if hspace_dist_sqr tv <= rlimit_sqr then begin
+    let dist = hspace_dist_sqr tv in
+(*    Format.eprintf"le noeud : %s la val presente apres :%f \n@."lab.label dist;*)
+    if dist <= rlimit_sqr then begin
       lab.visible <- Visible;
       let l = G.succ !graph v in 
       let l = List.filter (fun x -> (G.V.label x).visible = Hidden) l in
@@ -113,18 +115,18 @@ let draw_bfs root turtle =
 	in
 	List.iter
 	  (fun w -> 
-	    let e = G.E.label (G.find_edge !graph v w) in
-	    e.visited <- true;
-	    e.edge_turtle <- !turtle;
-	    e.edge_distance <- distance;
-	    let steps = 10 in
-	    e.edge_steps <- steps;
-	    let tw = advance_many !turtle distance steps in 
-	    add w (depth + 1) tw;
-	    turtle := turn_left !turtle angle)
+	     let e = G.E.label (G.find_edge !graph v w) in
+	     e.visited <- true;
+	     e.edge_turtle <- !turtle;
+	     e.edge_distance <- distance;
+	     let steps = 10 in
+	     e.edge_steps <- steps;
+	     let tw = advance_many !turtle distance steps in 
+	     add w (depth + 1) tw;
+	     turtle := turn_left !turtle angle)
 	  l
+      end
     end
-  end
   done
 
 (* Drawing graph function *)
