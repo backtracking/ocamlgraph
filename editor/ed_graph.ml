@@ -22,7 +22,8 @@ type edge_info = {
 }
 
 let make_edge_info () =
-  { visited = false; edge_turtle = dummy_turtle; edge_distance = 0.; edge_steps = 0; }
+  { visited = false; edge_turtle = dummy_turtle; 
+    edge_distance = 0.; edge_steps = 0; }
 
 module EDGE = struct
   type t = edge_info
@@ -30,7 +31,8 @@ module EDGE = struct
   let default = make_edge_info ()
 end
 
-module G = Imperative.Graph.AbstractLabeled(struct type t = node_info end)(EDGE)
+module G = 
+  Imperative.Graph.AbstractLabeled(struct type t = node_info end)(EDGE)
 
 module B = Builder.I(G)
 

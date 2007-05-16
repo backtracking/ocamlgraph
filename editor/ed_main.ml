@@ -162,7 +162,7 @@ let color_change_selection () =
 let add_edge n1 n2 ()= 
   if not (edge n1 n2)
   then begin
-    G.add_edge !graph n1 n2;
+    G.add_edge_e !graph (G.E.create n1 (make_edge_info ()) n2);
     Model.add_edge n1 n2;
     let tor = make_turtle !origine 0.0 in
     draw tor canvas_root
@@ -180,21 +180,21 @@ let add_successor node () =
   entry#select_region ~start:0 ~stop:entry#text_length;
   window#show ();
   let _ = entry#connect#activate 
-    ~callback: (fun () ->
-		  let text = entry#text in
-		  window#destroy ();
-		  (* new vertex *)
-		  let vertex = G.V.create (make_node_info text)  in
-		  G.add_vertex !graph  vertex ;
-		  ignore (Model.add_vertex vertex);
-		  Ed_display.add_node canvas_root vertex;
-		  !set_vertex_event_fun vertex;
-		  (* new edge *)
-		  G.add_edge !graph node vertex;
-		  Model.add_edge node vertex;
-		  (* redraw *)
-		  let tor = make_turtle !origine 0.0 in
-		  draw tor canvas_root)
+    ~callback:(fun () ->
+      let text = entry#text in
+      window#destroy ();
+      (* new vertex *)
+      let vertex = G.V.create (make_node_info text)  in
+      G.add_vertex !graph  vertex ;
+      ignore (Model.add_vertex vertex);
+      Ed_display.add_node canvas_root vertex;
+      !set_vertex_event_fun vertex;
+      (* new edge *)
+      G.add_edge_e !graph (G.E.create node (make_edge_info()) vertex);
+      Model.add_edge node vertex;
+      (* redraw *)
+      let tor = make_turtle !origine 0.0 in
+      draw tor canvas_root)
   in
   ()
 
@@ -234,6 +234,12 @@ let contextual_menu node ev =
   let loc_menu = GMenu.menu () in
   let factory = new GMenu.factory loc_menu in
   (* successor *)
+  ignore (factory#add_item " Make root" 
+	     ~callback:(fun () -> 
+	       root := node; 
+	       origine := start_point;
+	       let tor = make_turtle !origine 0.0 in
+	       draw tor canvas_root));
   ignore (factory#add_item " Add successor" ~callback: (add_successor node));
   begin match !vertex_selection with
     | [] -> ()
