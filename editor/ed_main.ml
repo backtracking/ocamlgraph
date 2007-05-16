@@ -225,17 +225,24 @@ let unselect_all () =
   color_change_selection ()
 
 
-
+let s_if_many = function
+  | [] | [_] -> ""
+  | _ -> "s"
 
 let contextual_menu node ev =
   let loc_menu = GMenu.menu () in
   let factory = new GMenu.factory loc_menu in
   ignore (factory#add_item "  Add successor" ~callback: (add_successor node));
-  ignore (factory#add_item "  Add edge(s)" 
-	     ~callback:(fun () -> 
-	       List.iter 
-		 (fun (v,_) -> if not (G.V.equal v node) then add_edge v node) 
-		 !vertex_selection));
+  begin match !vertex_selection with
+    | [] -> ()
+    | l ->
+	ignore 
+	  (factory#add_item ("  Add edge" ^ s_if_many l)
+	      ~callback:(fun () -> 
+		List.iter 
+		  (fun (v,_) -> if not (G.V.equal v node) then add_edge v node)
+		  l))
+  end;
 (***
   begin match !vertex_selection with
     | [] -> ()
