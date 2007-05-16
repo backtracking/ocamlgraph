@@ -23,13 +23,20 @@ module Model = struct
     
   let model = GTree.tree_store cols
 
-  let rows = Hashtbl.create 97
+  let rows = H.create 97
+
+  let find_row v =
+    try 
+      H.find rows v
+    with Not_found -> 
+      Format.eprintf "anomaly: no model row for %s@." (string_of_label v);
+      raise Not_found
 
   let add_vertex v =
     let row = model#append () in
     model#set ~row ~column:name (string_of_label v);
     model#set ~row ~column:vertex v;
-    Hashtbl.add rows v row;
+    H.add rows v row;
     row
 
   let add_edge_1 row_v w =
@@ -37,7 +44,7 @@ module Model = struct
     model#set ~row ~column:name (string_of_label w)
 
   let reset () =
-    Hashtbl.clear rows;
+    H.clear rows;
     model#clear ();
     G.iter_vertex
       (fun v -> 
@@ -46,17 +53,15 @@ module Model = struct
       !graph
 
   let add_edge v w =
-    try
-      let row_v = Hashtbl.find rows v in
-      add_edge_1 row_v w;
-      if not G.is_directed then 
-	let row_w = Hashtbl.find rows w in
-	add_edge_1 row_w v
-    with Not_found -> Format.eprintf "ne trouve pas la ligne de %s@." (string_of_label v)  
+    let row_v = find_row v in
+    add_edge_1 row_v w;
+    if not G.is_directed then 
+      let row_w = find_row w in
+      add_edge_1 row_w v
+      
 end
 
 let () = Model.reset ()
-let model = ref Model.model
 
 open GtkTree
 
@@ -83,34 +88,27 @@ let canvas_root = canvas#root
 
 
 
-let unit_circle  =
-let circle_group = GnoCanvas.group ~x:300.0 ~y:300.0 canvas_root in
-circle_group#lower_to_bottom ();
-let w2 = 2. in
-let circle =
-GnoCanvas.ellipse  ~props:[ `X1 (-.w/.2. +.w2); `Y1 (-.h/.2. +.w2); 
-			    `X2  (w/.2. -.w2) ; `Y2 ( h/.2. -.w2) ;
- 		  `FILL_COLOR "white" ; `OUTLINE_COLOR "black" ; 
-		  `WIDTH_PIXELS (truncate w2) ] circle_group in
-circle_group#lower_to_bottom ();
-circle#parent#show();
-let graph_root = GnoCanvas.group ~x:(-.300.0) ~y:(-.300.0) circle_group in
-graph_root#raise_to_top ();
-graph_root
-
-
-let canvas_root = unit_circle
+let canvas_root =
+  let circle_group = GnoCanvas.group ~x:300.0 ~y:300.0 canvas_root in
+  circle_group#lower_to_bottom ();
+  let w2 = 2. in
+  let circle =
+    GnoCanvas.ellipse  ~props:[ `X1 (-.w/.2. +.w2); `Y1 (-.h/.2. +.w2); 
+				`X2  (w/.2. -.w2) ; `Y2 ( h/.2. -.w2) ;
+ 				`FILL_COLOR "white" ; `OUTLINE_COLOR "black" ; 
+				`WIDTH_PIXELS (truncate w2) ] circle_group 
+  in
+  circle_group#lower_to_bottom ();
+  circle#parent#show();
+  let graph_root = GnoCanvas.group ~x:(-.300.0) ~y:(-.300.0) circle_group in
+  graph_root#raise_to_top ();
+  graph_root
 
 
 (* selected node List *)
 let vertex_selection = ref []
-let is_selected x =  
-  let rec is_sel lvi =
-    match lvi with
-      | [] -> false
-      | (v,i)::lvi -> if (G.V.equal v x) then true else is_sel  lvi  
-  in
-  is_sel !vertex_selection
+let is_selected x = 
+  List.exists (fun (v,_) -> G.V.equal v x) !vertex_selection
 
 
 (* current root used for drawing *)
@@ -127,7 +125,7 @@ let load_graph f =
 (* refresh rate *)
 let refresh = ref 0
 let do_refresh () =
-  if !refresh mod 15 = 0 then true else false
+  !refresh mod !refresh_rate = 0 
 
 
 
@@ -157,21 +155,20 @@ let node_selection ~(model : GTree.tree_store) path =
 
 
 let color_change_selection () =
-  List.iter ( fun (node,item) -> color_change_selected (node,item))
-    !vertex_selection
+  List.iter color_change_selected !vertex_selection
 
 
 (* add an edge between n1 and n2 , add link in column and re-draw *)
-let add_edge n1 n2 () = 
+let add_edge n1 n2 = 
   if not (edge n1 n2)
   then begin
     G.add_edge !graph n1 n2;
     Model.add_edge n1 n2;
-    let  tor = make_turtle !origine 0.0 in
+    let tor = make_turtle !origine 0.0 in
     draw tor canvas_root
   end
 
-
+let set_vertex_event_fun = ref (fun _ -> ())
 
 (* add successor node to selected node *)
 let add_successor node () =
@@ -185,13 +182,18 @@ let add_successor node () =
   let _ = entry#connect#activate 
     ~callback: (fun () ->
 		  let text = entry#text in
-		  let vertex = G.V.create ( make_node_info text)  in
-		  G.add_vertex !graph  vertex ;
-		  G.add_edge !graph node vertex;
 		  window#destroy ();
+		  (* new vertex *)
+		  let vertex = G.V.create (make_node_info text)  in
+		  G.add_vertex !graph  vertex ;
 		  ignore (Model.add_vertex vertex);
+		  Ed_display.add_node canvas_root vertex;
+		  !set_vertex_event_fun vertex;
+		  (* new edge *)
+		  G.add_edge !graph node vertex;
 		  Model.add_edge node vertex;
-		  let  tor = make_turtle !origine 0.0 in
+		  (* redraw *)
+		  let tor = make_turtle !origine 0.0 in
 		  draw tor canvas_root)
   in
   ()
@@ -205,7 +207,8 @@ let select_node node item=
   end
   
 let unselect_node_no_color node item =  
-  vertex_selection := (List.filter (fun (v,_) -> not (G.V.equal v node)) !vertex_selection)
+  vertex_selection := 
+    List.filter (fun (v,_) -> not (G.V.equal v node)) !vertex_selection
 
 let unselect_node node item =  
   color_change_selected (node,item);
@@ -226,17 +229,23 @@ let unselect_all () =
 
 let contextual_menu node ev =
   let loc_menu = GMenu.menu () in
-  let factory =
-    new GMenu.factory loc_menu in
+  let factory = new GMenu.factory loc_menu in
   ignore (factory#add_item "  Add successor" ~callback: (add_successor node));
+  ignore (factory#add_item "  Add edge(s)" 
+	     ~callback:(fun () -> 
+	       List.iter 
+		 (fun (v,_) -> if not (G.V.equal v node) then add_edge v node) 
+		 !vertex_selection));
+(***
   begin match !vertex_selection with
     | [] -> ()
     | (v,i)::lv -> 
-	if not(G.V.equal v node)
+	if not (G.V.equal v node)
 	then begin
 	  ignore (factory#add_item "  Add an edge" ~callback: (add_edge v node));	    
 	end 
   end;
+***)
   loc_menu#popup
     ~button:3
     ~time:(GdkEvent.Button.time ev)
@@ -305,14 +314,15 @@ let vertex_event node item ev =
   end;
   true
 
-let set_canvas_event ()=
-(* vertex event *)
-  G.iter_vertex
-    (fun v -> 
-       let item,ell,_ = H.find nodes v in
-       ignore (item#connect#event (vertex_event v ell) ) 
-    )
-    !graph
+let set_vertex_event v =
+  let item,ell,_ = H.find nodes v in
+  ignore (item#connect#event (vertex_event v ell))
+
+let () = set_vertex_event_fun := set_vertex_event
+
+let set_canvas_event () =
+  (* vertex event *)
+  G.iter_vertex set_vertex_event !graph
 
 
 (* treeview *)
@@ -338,10 +348,10 @@ vc#set_sizing `GROW_ONLY;
 let _ = window#connect#destroy~callback:GMain.Main.quit 
 
 
-let treeview = GTree.view ~model:!model ~packing:sw#add ()
+let treeview = GTree.view ~model:Model.model ~packing:sw#add ()
 let () = treeview#set_rules_hint true
 let () = treeview#selection#set_mode `MULTIPLE
-let _ = add_columns ~view:treeview ~model:!model
+let _ = add_columns ~view:treeview ~model:Model.model
 (*let _ = treeview#misc#connect#realize ~callback:treeview#expand_all*)
 
 
@@ -354,8 +364,8 @@ let reset_table_and_canvas () =
   H2.clear intern_edges;
   H2.clear successor_edges;
   reset_display canvas_root;
-  origine := start_point
-
+  origine := start_point;
+  vertex_selection := []
 
 
 (* menu *)
@@ -412,7 +422,6 @@ let open_graph()  =
       
 let new_graph () =
   graph := G.create ();
-  model := Model.model;
   Model.reset();
   reset_table_and_canvas ()
       

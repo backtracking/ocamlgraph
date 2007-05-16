@@ -30,7 +30,7 @@ let from_turtle (x,y) =
 (* Where to start the graph drawing *)
 let start_point = to_turtle (truncate(w/.2.), truncate(h/.2.))
 
-let origine =ref start_point
+let origine = ref start_point
 
 
 
@@ -144,25 +144,22 @@ let tdraw_string_gtk v turtle  =
   node#set  [`X (float x); `Y (float y)];
   node
     
-
+let add_node canvas v =
+  let s = string_of_label v in
+  let node_group = GnoCanvas.group ~x:0.0 ~y:0.0 canvas in
+  let ellipse = GnoCanvas.ellipse 
+    ~props:[ `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; 
+	     `WIDTH_PIXELS 0 ] node_group  
+  in
+  let texte = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT s;  
+				     `FILL_COLOR "black"] node_group
+  in
+  node_group#hide();
+  H.add nodes v (node_group,ellipse,texte)
 
 let init_nodes canvas =
   H.clear nodes;
-  G.iter_vertex
-    (fun v -> 
-       let s = string_of_label v in
-       let node_group = GnoCanvas.group ~x:0.0 ~y:0.0 canvas in
-       let ellipse = GnoCanvas.ellipse 
-	 ~props:[ `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; 
-		  `WIDTH_PIXELS 0 ] node_group  
-       in
-       let texte = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT s;  
-					  `FILL_COLOR "black"] node_group
-       in
-       node_group#hide();
-       H.add nodes v (node_group,ellipse,texte)
-    )
-    !graph
+  G.iter_vertex (add_node canvas) !graph
 
 
 
@@ -238,21 +235,8 @@ let draw_successor_edge vw t distance steps canvas =
 (* Color functions *)
 
 let color_change_intern_edge color node = 
-  G.iter_edges
-    (fun w _ ->
-       try
-	 let _,n = H2.find intern_edges (node,w) in
-	 n#set [`OUTLINE_COLOR color]
-       with Not_found ->
-	 try
-	   let _,n = H2.find intern_edges (w,node) in
-	   n#set [`OUTLINE_COLOR color]
-	 with Not_found ->
-	   ()
-    )
-    !graph;
-  G.iter_edges
-    (fun _ w ->
+  G.iter_vertex
+    (fun w ->
        try
 	 let _,n = H2.find intern_edges (node,w) in
 	 n#set [`OUTLINE_COLOR color]
@@ -341,7 +325,7 @@ let draw_graph root canvas  =
 	let node = tdraw_string_gtk v l.turtle in 
 	node#raise_to_top();
 	node#show()
-      else  
+      else
 	let node,_,_= H.find nodes v in
 	node#hide()
     )
@@ -393,4 +377,4 @@ let draw_graph root canvas  =
 
 
 let reset_display canvas =
-init_nodes canvas
+  init_nodes canvas

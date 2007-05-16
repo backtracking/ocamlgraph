@@ -92,10 +92,14 @@ let load_graph f =
 
 let dfs = ref false
 
+let refresh_rate = ref 10
+
 let () = 
   Arg.parse
     ["-dfs", Arg.Set dfs, "DFS drawing strategy";
-     "-bfs", Arg.Clear dfs, "BFS drawing strategy"]
+     "-bfs", Arg.Clear dfs, "BFS drawing strategy";
+     "-rr", Arg.Set_int refresh_rate, "set the refresh rate";
+    ]
     load_graph 
     "editor [options] <graph file>"
 
