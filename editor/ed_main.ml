@@ -159,7 +159,7 @@ let color_change_selection () =
 
 
 (* add an edge between n1 and n2 , add link in column and re-draw *)
-let add_edge n1 n2 = 
+let add_edge n1 n2 ()= 
   if not (edge n1 n2)
   then begin
     G.add_edge !graph n1 n2;
@@ -233,29 +233,40 @@ let s_if_many = function
 let contextual_menu node ev =
   let loc_menu = GMenu.menu () in
   let factory = new GMenu.factory loc_menu in
-  ignore (factory#add_item "  Add successor" ~callback: (add_successor node));
+  
+  (* successor *)
+  ignore (factory#add_item " Add successor" ~callback: (add_successor node));
   begin match !vertex_selection with
     | [] -> ()
-    | l ->
-	ignore 
-	  (factory#add_item ("  Add edge" ^ s_if_many l)
-	      ~callback:(fun () -> 
-		List.iter 
-		  (fun (v,_) -> if not (G.V.equal v node) then add_edge v node)
-		  l));
-	
-  end;
-(***
-  begin match !vertex_selection with
-    | [] -> ()
-    | (v,i)::lv -> 
-	if not (G.V.equal v node)
+    | list ->
+	let llength =List.length list in
+	if not (is_selected node && llength = 1)
 	then begin
-	  ignore (factory#add_item "  Add an edge" ~callback: (add_edge v node));	    
-	end 
+	  
+	  (*add all edges as possible from current node to selected nodes*)
+	  ignore (factory#add_item (" Add edge" ^ s_if_many list)
+	       ~callback:(fun () -> 
+			    List.iter 
+			      (fun (v,_) -> if not (G.V.equal v node) then add_edge v node())
+			      list));
+	  
+	  (* add an edge between current node and one of selected node *)
+	  if llength > 1
+	  then begin
+	    let add_menu = factory#add_item " Add an edge to " ~callback:(fun ()->()) in
+	    let sub_menu = GMenu.menu() in
+	    let sub_factory = new GMenu.factory sub_menu in
+	    List.iter (fun (v,_) ->
+			 if not (G.V.equal v node)
+			 then  ignore  (sub_factory#add_item (" "^string_of_label v) 
+					  ~callback:(add_edge v node))
+		      )
+	      list;
+	    add_menu#set_submenu sub_menu
+	  end
+	end
   end;
-***)
-  loc_menu#popup
+    loc_menu#popup
     ~button:3
     ~time:(GdkEvent.Button.time ev)
     
