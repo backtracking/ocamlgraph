@@ -99,7 +99,7 @@ let canvas_root =
 				`WIDTH_PIXELS (truncate w2) ] circle_group 
   in
   circle_group#lower_to_bottom ();
-  circle#hide();
+  circle#show();
   let graph_root = GnoCanvas.group ~x:(-.300.0) ~y:(-.300.0) circle_group in
   graph_root#raise_to_top ();
   graph_root
@@ -304,11 +304,17 @@ let vertex_event node item ev =
 	if Gdk.Convert.test_modifier `BUTTON1 state && do_refresh () then 
 	  begin
 	    let curs = Gdk.Cursor.create `FLEUR in
-	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs (GdkEvent.Button.time ev);
+	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] 
+	      curs (GdkEvent.Button.time ev);
+	    let old_origin = !origine in
 	    let turtle = motion_turtle item ev in
-	    if hspace_dist_sqr turtle <= rlimit_sqr  then begin
-	      draw turtle canvas_root;
-	    end 
+	    if hspace_dist_sqr turtle <= rlimit_sqr then begin
+	      draw turtle canvas_root
+	    end else begin
+	      origine := old_origin;
+	      let turtle = { turtle with pos = old_origin } in
+	      draw turtle canvas_root
+	    end
 	  end
 
     | `BUTTON_PRESS ev ->

@@ -190,7 +190,7 @@ let draw_intern_edge vw tv tw canvas =
       let line = GnoCanvas.bpath canvas
 	~props:[ `BPATH bpath ; `OUTLINE_COLOR "SlateGrey" ; `WIDTH_PIXELS 1 ] 
       in
-      (*     line#lower_to_bottom ();*)
+      line#lower_to_bottom ();
       H2.add intern_edges vw (bpath,line);
       bpath,line
   in
@@ -225,7 +225,7 @@ let draw_successor_edge vw t distance steps canvas =
       let line = GnoCanvas.line canvas ~props:[ `FILL_COLOR color ;
 					     `WIDTH_PIXELS 1; `SMOOTH true] 
       in
- (*     line#lower_to_bottom ();*)
+      line#lower_to_bottom ();
       H2.add successor_edges vw line;
       line
  in
@@ -279,32 +279,30 @@ let color_change_vertex item color =
 
 
 let color_change_no_event (node,item) =
-color_change_all_edge node "SlateGrey" "black";
-color_change_vertex item "grey"
+  color_change_all_edge node "SlateGrey" "black";
+  color_change_vertex item "grey"
 
 let color_change_focused (node,item) =
-color_change_all_edge node "blue" "blue";
-color_change_vertex item "blue"
+  color_change_all_edge node "blue" "blue";
+  color_change_vertex item "blue"
 
 let color_change_selected (node,item) =
-color_change_all_edge node "burlywood" "burlywood";
-color_change_vertex item "burlywood"
+  color_change_all_edge node "burlywood" "burlywood";
+  color_change_vertex item "burlywood"
 
 
 
 
 (* set origine to new mouse position and return associated turtle *)
 let motion_turtle item ev =
- let bounds = item#parent#get_bounds in
- let z1 =  to_turtle(truncate((bounds.(0)+. bounds.(2))/.2.),
-		     truncate((bounds.(1)+. bounds.(3))/.2.)) in
- let z2 = to_turtle (truncate (GdkEvent.Motion.x ev),
+  let bounds = item#parent#get_bounds in
+  let z1 = to_turtle(truncate((bounds.(0)+. bounds.(2))/.2.),
+		    truncate((bounds.(1)+. bounds.(3))/.2.)) in
+  let z2 = to_turtle (truncate (GdkEvent.Motion.x ev),
 		     truncate (GdkEvent.Motion.y ev)) in
- let (x,y) = drag_origin !origine z1 z2 in
- origine := (x,y);
- make_turtle !origine 0.0
-
-
+  let (x,y) = drag_origin !origine z1 z2 in
+  origine := (x,y);
+  make_turtle !origine 0.0
 
 
 let hide_intern_edge vw =
@@ -312,7 +310,6 @@ let hide_intern_edge vw =
 
 let hide_succesor_edge vw =
   try let line = H2.find successor_edges vw in line#hide () with Not_found -> ()
-
 
 
 (* graph drawing *)

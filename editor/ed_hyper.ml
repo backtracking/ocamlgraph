@@ -115,8 +115,6 @@ let dir_to tdep tdest t =
   
 
 
-
-
 (* return a turtle for a distance from original *)
 let advance turtle step =
    { pos = gamma turtle.pos turtle.dir step ;
@@ -170,7 +168,6 @@ let hspace_dist_sqr turtle  =
   and (dx, dy) = turtle.dir in
   if ax*.dx +. ay*.dy < 0.0
    then begin 
-(*     Format.eprintf" la val :%f@."0.0; *)
     0.0 
   end else begin
     let ux = dy and uy = -.dx in
@@ -188,11 +185,16 @@ let hspace_dist_sqr turtle  =
           else -.gamma -. sqrt(delta) in
 	let (zx, zy) = translate (ax, ay) (ux*.sol, uy*.sol) in
 	let res = zx*.zx +. zy*.zy in
-(*	Format.eprintf" la val :%f@."res;*)
 	res
       end
   end
 
+(***
+let hspace_dist_sqr t =
+  let d = hspace_dist_sqr t in
+  Format.eprintf "hspace_dist_sqr -> %f@." d;
+  d
+***)
 
 (* Limit of visibility for nodes *)
 let rlimit = 0.98 
