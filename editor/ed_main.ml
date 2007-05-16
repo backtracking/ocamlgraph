@@ -99,7 +99,7 @@ let canvas_root =
 				`WIDTH_PIXELS (truncate w2) ] circle_group 
   in
   circle_group#lower_to_bottom ();
-  circle#parent#show();
+  circle#hide();
   let graph_root = GnoCanvas.group ~x:(-.300.0) ~y:(-.300.0) circle_group in
   graph_root#raise_to_top ();
   graph_root
@@ -233,7 +233,6 @@ let s_if_many = function
 let contextual_menu node ev =
   let loc_menu = GMenu.menu () in
   let factory = new GMenu.factory loc_menu in
-  
   (* successor *)
   ignore (factory#add_item " Add successor" ~callback: (add_successor node));
   begin match !vertex_selection with
