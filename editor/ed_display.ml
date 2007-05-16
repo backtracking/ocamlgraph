@@ -157,12 +157,13 @@ let init_nodes canvas =
 		  `WIDTH_PIXELS 0 ] node_group  
        in
        let texte = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT s;  
-					  `FILL_COLOR "blue"] node_group
+					  `FILL_COLOR "black"] node_group
        in
        node_group#hide();
        H.add nodes v (node_group,ellipse,texte)
     )
     !graph
+
 
 
 (* tables of existing graphical edges *)
@@ -233,6 +234,9 @@ let draw_successor_edge vw t distance steps canvas =
  set_successor_edge t distance steps line;
  line
 
+
+(* Color functions *)
+
 let color_change_intern_edge color node = 
   G.iter_edges
     (fun w _ ->
@@ -278,6 +282,32 @@ let color_change_successor_edge color node =
     !graph node
   
 
+
+(* change color for all edge connected to a node *)
+let color_change_all_edge node c_intern c_succ =
+  color_change_intern_edge c_intern node ;
+  color_change_successor_edge c_succ node
+
+(* change color for a vertex *)
+let color_change_vertex item color =
+  item#set [ `FILL_COLOR color ; ]
+
+
+let color_change_no_event (node,item) =
+color_change_all_edge node "SlateGrey" "black";
+color_change_vertex item "grey"
+
+let color_change_focused (node,item) =
+color_change_all_edge node "blue" "blue";
+color_change_vertex item "blue"
+
+let color_change_selected (node,item) =
+color_change_all_edge node "burlywood" "burlywood";
+color_change_vertex item "burlywood"
+
+
+
+
 (* set origine to new mouse position and return associated turtle *)
 let motion_turtle item ev =
  let bounds = item#parent#get_bounds in
@@ -298,13 +328,18 @@ let hide_intern_edge vw =
 let hide_succesor_edge vw =
   try let line = H2.find successor_edges vw in line#hide () with Not_found -> ()
 
+
+
+(* graph drawing *)
+
 let draw_graph root canvas  =
-  (* nodes *)
+  (* vertexes *)
   G.iter_vertex
     (fun v -> 
       let l = G.V.label v in
       if l.visible = Visible then 
 	let node = tdraw_string_gtk v l.turtle in 
+	node#raise_to_top();
 	node#show()
       else  
 	let node,_,_= H.find nodes v in
