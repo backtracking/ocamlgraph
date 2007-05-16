@@ -213,7 +213,8 @@ let unselect_node_no_color node item =
 let unselect_node node item =  
   color_change_selected (node,item);
   unselect_node_no_color node item;
-  color_change_selection ()
+  color_change_selection ();
+  color_change_focused (node,item)
 
 
 let unselect_all () =  
@@ -223,7 +224,7 @@ let unselect_all () =
 	    )
     !vertex_selection;
   color_change_selection ()
-
+    
 
 let s_if_many = function
   | [] | [_] -> ""
@@ -241,7 +242,8 @@ let contextual_menu node ev =
 	      ~callback:(fun () -> 
 		List.iter 
 		  (fun (v,_) -> if not (G.V.equal v node) then add_edge v node)
-		  l))
+		  l));
+	
   end;
 (***
   begin match !vertex_selection with
