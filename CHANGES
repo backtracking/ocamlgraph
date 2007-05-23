@@ -1,8 +1,9 @@
 
+ o fixed configure to set ocaml's standard library using "ocamlc -where"
  o new module Dot to parse files in Graphviz's DOT format
  o slight change in the license (no more clause 6 of the LGPL; see LICENSE)
  o new module Strat implementing simple game strategies
- o Graphviz: little refactoring and documentation improved
+ o Graphviz: little refactoring and improved documentation
 
 version 0.98, Sept 27th, 2006
 -----------------------------
