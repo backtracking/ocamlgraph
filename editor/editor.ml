@@ -4,9 +4,9 @@ open Format
 let _ = GMain.Main.init ()
 
 
-let print msg () =
-  print_endline msg;
-  flush stdout
+let print msg () = ()
+(*  print_endline msg;
+  flush stdout*)
 
 
 let create_menu label menubar =

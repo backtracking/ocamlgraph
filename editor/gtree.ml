@@ -18,7 +18,7 @@ struct
 end
 *)
 
-let debug = ref true
+let debug = ref false
 
 
 type drag_box = 

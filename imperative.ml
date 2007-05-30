@@ -71,7 +71,7 @@ module AbstractVertex(V: sig type t end) = struct
 
   let hash x = Hashtbl.hash x.tag
 
-  let equal x y = x.tag == y.tag
+  let equal x y = x.tag = y.tag
 
   let label x = x.label
 
