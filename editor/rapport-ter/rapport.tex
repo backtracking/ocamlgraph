@@ -4,16 +4,18 @@
 \usepackage[french]{babel}
 \usepackage{url}
 
+\newcommand{\ocaml}{O'Caml}
 \newcommand{\ocamlgraph}{Ocamlgraph}
+\newcommand{\graphviz}{Graphviz}
 
 \begin{document}
 
-\title{Visualisation de graphes en géométrie hyperbolique}
+\title{Édition interactive de graphes\\ en géométrie hyperbolique}
 
 \author{Benjamin Vadon}
 
 \institute{Stage de TER 2006--2007 \\
-effectué sous la direction de Jean-Christophe Filli\^atre \\
+effectué sous la direction de Jean-Christophe Filliâtre \\
 à l'INRIA Futurs, dans l'équipe ProVal \\
 Parc Club Université, 91893 ORSAY}
 
@@ -21,9 +23,43 @@ Parc Club Université, 91893 ORSAY}
 
 \section{Introduction}
 
-Je cite Alexandre \cite{miquel00}
+Nous nous intéressons à la visualisation et à l'édition de graphes.
+La visualisation d'un graphe comportement peu de noeuds et d'arêtes est
+un problème trivial, mais le sujet se complique très rapidement dès
+que le nombre de ces composants augmentent.
+En effet, pour afficher un graphe, un problème se pose dès qu'il
+commence à être d'une taille conséquente, et notamment quand le 
+nombre d'arêtes est relativement élevé en proportion du nombre de
+noeuds : les arêtes se croisent, à ne plus savoir qui est relié à qui.
 
-$x+1+\theta$
+Bien des gens se sont penchés sur ce thème et un grand nombre
+d'algorithmes de placement dans le plan en ont résulté. On peut citer
+\graphviz\cite{graphviz} comme suite logicielle très connue dans le
+domaine de la visualisation planaire de graphes qui applique bon
+nombre de ces algorithmes.
+D'autres ont essayé de se pencher sur ce problème en ajoutant une
+dimension et donc tenter de visualiser dans l'espace. Certes, on peut
+arriver à ce qu'aucune arête ne se croise, mais cela ne répond pas
+tout à fait au problème d'amélioration de lisibilité du graphe, étant
+donnée qu'à l'heure actuel la visualisation dans l'espace n'est pas
+forcément des plus aisée sur un écran plan.
+
+L'objectif de ce stage est de se penchr sur ce sujet mais en l'abordant
+différemment, et ce en utilisant une représentation planaire,
+mais dans le plan hyperbolique de Poincaré contrairement au plan
+Euclidien couramment utilisé.
+Le point de départ de ce TER est le travail effectué par Alexandre
+Miquel\cite{miquel} sur la représentation d'arbre à l'aide de la
+géométrie hyperbolique.
+
+Nous allons tout d'abord expliquer les grands principe de la géométrie
+hyperbolique, et plus particulièrement dans le plan hyperbolique de
+Poincaré.
+Ensuite, nous ferons le lien entre cette géométrie non euclidienne et
+son application à la représentation de graphes.
+Et enfin, nous nous pencherons sur sa réalisation en \ocaml  en
+utilisant la librairie \ocamlgraph.
+
 
 \section{Géométrie hyperbolique}
 
