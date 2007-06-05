@@ -38,18 +38,17 @@ d'algorithmes de placement dans le plan en ont résulté. On peut citer
 \graphviz~\cite{graphviz} comme suite logicielle très connue dans le
 domaine de la visualisation planaire de graphes qui applique un certain
 nombre de ces algorithmes.
-D'autres ont essayé d'aborder ce problème d'une autre manière, en
-tentant de réaliser la représentation d'un graphe dans l'espace, en ajoutant donc une
-dimension supplémentaire au plan. Certes, on peut arriver à ce qu'aucune arête
-ne se croise réellement, mais cela ne répond pas tout à fait au
-problème d'amélioration de lisibilité du graphe, étant donné qu'à
-l'heure actuel la visualisation dans l'espace n'est pas forcément des
-plus aisée sur un écran plan.
+Ce problème a aussi été abordé d'une manière différente, en tentant de
+réaliser une représentation de graphe dans l'espace. Certes, avec
+cette méthode on peut arriver à ce que les arêtes ne s'entrecroisent
+pas, mais cela ne répond pas tout à fait au problème d'amélioration de
+lisibilité du graphe, car un graphe contenant beaucoup d'éléments
+restera indéchiffrable, même en 3d.
 
-L'objectif de ce stage est de se pencher sur ce sujet mais en l'abordant
-différemment, et ce en utilisant une représentation planaire,
-mais dans le plan hyperbolique de Poincaré contrairement au plan
-Euclidien couramment utilisé.
+L'objectif de ce stage est de se pencher sur ce sujet mais en
+l'abordant du façon encore différente, et ce en utilisant une
+représentation planaire, mais dans le plan hyperbolique de Poincaré
+contrairement au plan Euclidien couramment utilisé.
 Le point de départ de ce TER est le travail effectué par Alexandre
 Miquel~\cite{miquel} sur la représentation d'arbres à l'aide de la
 géométrie hyperbolique.
@@ -58,49 +57,54 @@ Nous allons tout d'abord expliquer les grands principes de la géométrie
 hyperbolique, et plus particulièrement dans le plan hyperbolique de
 Poincaré.
 Ensuite, nous ferons le lien entre cette géométrie non euclidienne et
-son application à la représentation de graphes.
+son application à la représentation de graphes, par le biais du
+travail de Mr Miquel.
 Et enfin, nous nous pencherons sur sa réalisation en \ocaml\ dans le
-cadre de la librairie \ocamlgraph.
+cadre de la librairie \ocamlgraph, servant à la fois de support de
+développement et de médium de diffusion.
 
 
 \section{Géométrie hyperbolique}
 
 \subsection{Principe}
 
-La géométrie Euclidienne est fondé sur cinq postulats dictés par Euclide
-dans ses ``Éléments''. Un de ces postulat, le cinquième, a été remis en
-question dès la renaissance, et c'est environ en 1850 que Bolyai et
-Lobatchevsky ont indépendamment découvert la géométrie hyperbolique
-qui vérifie tous les postulats d'Euclide, sauf le cinquième qui peut
+La géométrie Euclidienne est fondée sur cinq postulats dictés par Euclide
+dans ses ``Éléments''. Un de ces postulat, le cinquième, qui peut
 être formulé comme ceci : 
 \begin{quotation}
-``Étant donné une droite D et un point M, il ne passe
-qu'une seule droite par M et parallèle à D.''
-\end{quotation}
-La géométrie hyperbolique est donc basé sur le fait qu'en un point M, il
-peut passer une infinité de droites parallèles à la droite D. Ainsi
-exprimé, ce concept peut paraître difficile à imaginer, mais en
-prenant un schéma simple basé sur un des modèle de cette géométrie, on pourra mieux le
-visualiser. Sur le schéma suivant, on peut voir que les trois droites d1, d2
-et d3 passent par M et sont parallèles à D(et non parallèles entre
-elles car elles se croisent en M).
+``Étant donnés une droite D et un point M, il n'existe qu'une seule
+droite passant par M et qui soit parallèle à D.''
+\end{quotation} a été remis en question dès la renaissance, et c'est
+environ en 1850 que Bolyai et Lobatchevsky ont indépendamment
+découvert une nouvelle géométrie vérifiant les quatre premiers axiomes
+d'Euclide, mais pas le postulat des parallèles. Les autres principe de
+la géométrie sont conservé tel que : une droite est la distance la plus
+courte entre deux points. Cette géométrie dites hyperbolique est donc
+basée sur le fait qu'en un point M, il peut passer une infinité de
+droites parallèles à la droite D. Ainsi exprimé, ce concept peut
+paraître difficile à imaginer, mais plusieurs modèles permettant de se
+représenter la géométrie hyperbolique ont été développé depuis sa
+découverte. En prenant le schéma suivant, relativement simple, basé
+sur un de ces modèles, on pourra mieux se représenter le fait d'avoir
+plusieurs parallèles passant par un même point. En effet, on peut voir
+que les trois droites d1, d2 et d3 passent par M et sont parallèles à
+D (et non parallèles entre elles car elles se croisent en M). Précisons
+que dans cette géométrie, les droites nous apparaissent courbes, mais
+ce sont bien des droites au sens où elles représentent le plus court
+chemin entre deux points.
 
 \begin{center}
 \includegraphics[scale=0.50]{parallels.eps}
 \end{center}
-
-On peut remarquer que tous les autres postulats d'Euclide sont
-respectés, comme par exemple une droite est le plus court chemin entre
-deux points.
  
-Henri Poincaré à imaginé un nouveau modèle pour la géométrie
-hyperbolique que l'on appel le disque de Poincaré.
-Ce disque représente l'ensemble d'un plan euclidien et son bord C
-correspond à l'infini, qui est par définition inatteignable.
-Les droites y sont représentées par des arcs de cercle perpendiculaire
-à C.
+Henri Poincaré a imaginé un modèle pour la géométrie hyperbolique que
+l'on appelle le disque de Poincaré. Ce disque représente l'ensemble
+d'un plan euclidien, et son bord C correspond à l'infini, qui est par
+définition inatteignable. Les droites y sont représentées par des arcs
+de cercle perpendiculaires à C comme illustré ci-dessous.
 
 \includegraphics[scale=0.50]{perpendiculaire.ps}
+
 
 \subsection{Tortue hyperbolique}
 
