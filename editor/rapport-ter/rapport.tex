@@ -3,6 +3,7 @@
 \usepackage[latin1]{inputenc}
 \usepackage[french]{babel}
 \usepackage{url}
+\usepackage{graphicx}
 
 \newcommand{\ocaml}{O'Caml}
 \newcommand{\ocamlgraph}{Ocamlgraph}
@@ -22,58 +23,84 @@ Parc Club Université, 91893 ORSAY}
 \maketitle
 
 \section{Introduction}
-
 Nous nous intéressons à la visualisation et à l'édition de graphes.
-La visualisation d'un graphe comportement peu de noeuds et d'arêtes est
+La visualisation d'un graphe comportant peu de n\oe uds et d'arêtes est
 un problème trivial, mais le sujet se complique très rapidement dès
-que le nombre de ces composants augmentent.
-En effet, pour afficher un graphe, un problème se pose dès qu'il
+que le nombre de ces composants augmente.
+En effet, la représentation d'un graphe pose un problème dès qu'il
 commence à être d'une taille conséquente, et notamment quand le 
 nombre d'arêtes est relativement élevé en proportion du nombre de
-noeuds : les arêtes se croisent, à ne plus savoir qui est relié à qui.
+n\oe uds : les arêtes se croisent ce qui est à même de gêner la
+compréhension.
 
 Bien des gens se sont penchés sur ce thème et un grand nombre
 d'algorithmes de placement dans le plan en ont résulté. On peut citer
 \graphviz~\cite{graphviz} comme suite logicielle très connue dans le
-domaine de la visualisation planaire de graphes qui applique bon
+domaine de la visualisation planaire de graphes qui applique un certain
 nombre de ces algorithmes.
-D'autres ont essayé de se pencher sur ce problème en ajoutant une
-dimension et donc tenter de visualiser dans l'espace. Certes, on peut
-arriver à ce qu'aucune arête ne se croise, mais cela ne répond pas
-tout à fait au problème d'amélioration de lisibilité du graphe, étant
-donnée qu'à l'heure actuel la visualisation dans l'espace n'est pas
-forcément des plus aisée sur un écran plan.
+D'autres ont essayé d'aborder ce problème d'une autre manière, en
+tentant de réaliser la représentation d'un graphe dans l'espace, en ajoutant donc une
+dimension supplémentaire au plan. Certes, on peut arriver à ce qu'aucune arête
+ne se croise réellement, mais cela ne répond pas tout à fait au
+problème d'amélioration de lisibilité du graphe, étant donné qu'à
+l'heure actuel la visualisation dans l'espace n'est pas forcément des
+plus aisée sur un écran plan.
 
 L'objectif de ce stage est de se pencher sur ce sujet mais en l'abordant
 différemment, et ce en utilisant une représentation planaire,
 mais dans le plan hyperbolique de Poincaré contrairement au plan
 Euclidien couramment utilisé.
 Le point de départ de ce TER est le travail effectué par Alexandre
-Miquel~\cite{miquel} sur la représentation d'arbre à l'aide de la
+Miquel~\cite{miquel} sur la représentation d'arbres à l'aide de la
 géométrie hyperbolique.
 
-Nous allons tout d'abord expliquer les grands principe de la géométrie
+Nous allons tout d'abord expliquer les grands principes de la géométrie
 hyperbolique, et plus particulièrement dans le plan hyperbolique de
 Poincaré.
 Ensuite, nous ferons le lien entre cette géométrie non euclidienne et
 son application à la représentation de graphes.
-Et enfin, nous nous pencherons sur sa réalisation en \ocaml\ en
-utilisant la librairie \ocamlgraph.
+Et enfin, nous nous pencherons sur sa réalisation en \ocaml\ dans le
+cadre de la librairie \ocamlgraph.
 
 
 \section{Géométrie hyperbolique}
 
 \subsection{Principe}
 
-La géométrie Euclidienne est fondé sur cinq axiomes dictés par Euclide
-dans ses ``Éléments''. Un de ces axiome, le cinquième, a été remis en
+La géométrie Euclidienne est fondé sur cinq postulats dictés par Euclide
+dans ses ``Éléments''. Un de ces postulat, le cinquième, a été remis en
 question dès la renaissance, et c'est environ en 1850 que Bolyai et
 Lobatchevsky ont indépendamment découvert la géométrie hyperbolique
-qui vérifie tous les axiomes d'Euclide, sauf le cinquième qui peut
-être formulé comme ceci : ``Étant doné une droite D et un point A, il ne passe
-qu'une seule droite par A et parallèle à D''.
-La géométrie hyperbolique est donc basé sur le fait qu'en un point A, il
-peut passer plusieurs droite parallèles à la droite D.
+qui vérifie tous les postulats d'Euclide, sauf le cinquième qui peut
+être formulé comme ceci : 
+\begin{quotation}
+``Étant donné une droite D et un point M, il ne passe
+qu'une seule droite par M et parallèle à D.''
+\end{quotation}
+La géométrie hyperbolique est donc basé sur le fait qu'en un point M, il
+peut passer une infinité de droites parallèles à la droite D. Ainsi
+exprimé, ce concept peut paraître difficile à imaginer, mais en
+prenant un schéma simple basé sur un des modèle de cette géométrie, on pourra mieux le
+visualiser. Sur le schéma suivant, on peut voir que les trois droites d1, d2
+et d3 passent par M et sont parallèles à D(et non parallèles entre
+elles car elles se croisent en M).
+
+\begin{center}
+\includegraphics[scale=0.50]{parallels.eps}
+\end{center}
+
+On peut remarquer que tous les autres postulats d'Euclide sont
+respectés, comme par exemple une droite est le plus court chemin entre
+deux points.
+ 
+Henri Poincaré à imaginé un nouveau modèle pour la géométrie
+hyperbolique que l'on appel le disque de Poincaré.
+Ce disque représente l'ensemble d'un plan euclidien et son bord C
+correspond à l'infini, qui est par définition inatteignable.
+Les droites y sont représentées par des arcs de cercle perpendiculaire
+à C.
+
+\includegraphics[scale=0.50]{perpendiculaire.ps}
 
 \subsection{Tortue hyperbolique}
 
