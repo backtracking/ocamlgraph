@@ -71,10 +71,11 @@ développement et de médium de diffusion.
 La géométrie Euclidienne est fondée sur cinq postulats dictés par Euclide
 dans ses ``Éléments''. Un de ces postulat, le cinquième, qui peut
 être formulé comme ceci : 
-\begin{quotation}
+\begin{quote}
 ``Étant donnés une droite D et un point M, il n'existe qu'une seule
 droite passant par M et qui soit parallèle à D.''
-\end{quotation} a été remis en question dès la renaissance, et c'est
+\end{quote} 
+a été remis en question dès la renaissance, et c'est
 environ en 1850 que Bolyai et Lobatchevsky ont indépendamment
 découvert une nouvelle géométrie vérifiant les quatre premiers axiomes
 d'Euclide, mais pas le postulat des parallèles. Les autres principe de
@@ -106,7 +107,7 @@ d'un plan euclidien, et son bord C correspond à l'infini
  Les droites y sont représentées par des arcs
 de cercle perpendiculaires à C comme illustré ci-dessous.
 \begin{center}
-  \includegraphics[scale=0.30]{perpendiculaire.eps}  
+  \includegraphics[scale=0.30]{perpendiculaire.ps}  
 \end{center}
 
 On peut noter que les droites D2 et D3 sont parallèles à D1, mais,
@@ -118,15 +119,11 @@ de rayon infini ce qui fait d'elle un diamètre du cercle C.
 Ce modèle est doté d'une métrique, qui est une fonction permetant de
 calculer la distance entre deux points du cercle de Poincaré et dont
 la formule est la suivante : 
-\begin{center}
-  \begin{quotation}
-%
-%%%%%%%%%%%%% je en sais pas faire formule mathématique
-%
-    $\delta(A,B) = ath(abs((A-B)/(1-ÄB)))$ 
-    \\où $ath(x) = 1/2(ln((1+x)/(1-x)))$
-  \end{quotation}
-\end{center}
+$$
+\delta(A,B) = \mathrm{ath}\left(\left|\frac{A-B}{1-AB}\right|\right)
+\quad\mbox{où}~
+\mathrm{ath}(x) = \frac{1}{2}\ln\left(\frac{1+x}{1-x}\right)
+$$
 
 Soient deux points du plan hyperbolique $A$ et $B$, séparés par une
 distance $d$. 
