@@ -220,7 +220,52 @@ graphe sur ce plan.
 
 \subsection{Base de travail sur les arbres } %% mal dit je pense
 
+Nous nous interessons d'abord au travail effectué par
+\miquel~\cite{miquel} sur les arbres qui sont un cas particulier, et
+simplifié, de graphes qui n'a qu'une seule source et aucun cycle. Le
+problème est biensûr de placer correctement les noeuds et ensuite le
+traçage des arêtes est relativement trivial avec l'aide de notre
+tortue et de ses fonctions de mouvement.
+
+Pour répartir les noeuds d'un arbre dans le plan hyperbolique, il se
+base sur deux propriété de ce plan :
+\begin{itemize}
+\item une droite du plan le sépare en deux demi-plans, tout comme en
+  géométrie euclidienne
+\item quelque soit n, on peut disposer de n demi-plans deux à deux
+  disjoints, contrairement à la géométrie euclidienne
+\end{itemize}
+
+Pour arriver à répartir l'espace entre ces n demi-plans. Pour cela, \miquel illustre
+le problème par le paradoxe des n dictateurs. Le principe en est
+simple : dans un espace fini à deux dimensions, n dictateurs situés en
+un même point désirent se partager le monde de façon à régner chacun
+sur un demi-espace. Pour ce faire, ils se mettent en marche dans n
+directions régulièrement espacées de $\frac{360}{n}$
+degrés. Lorsqu'ils ont tous parcouru une distance d, les n dictateurs
+s'arrêtent, et chacun d'entre eux s'approprie le demi-espace en face
+de lui (et dont la frontière est une droite imaginaire passant par
+ses deux pieds).
+
+ Dans le plan hyperbolique, quel que soit n, il existe une distance d
+ à partir de laquelle les demi-espaces attribués aux dictateurs sont
+ deux à deux disjoints. Pour calculer cette distance d, il utilise la
+ formule suivante :
+$$
+d_n= \mathrm{ath}\left(\mathrm{tan}\left(\frac{\pi}{4}-\frac{\pi}{2n}\right)\right)
+$$ 
+Donc pour le placement des noeuds, il pose la racine au centre du
+disque, sépare l'espace en n demi-plans, où n est le nombre de fils de
+la racine, et enfin fait avancer la tortue de chaque fils suivant la
+direction et la distance données. Ensuite, il fait de même
+récursivement pour l'ensemble des noeuds.
+
+Après avoir déterminer où placer les noeuds d'un arbre, on peut
+s'intéresser au placement des noeuds d'un graphes qui pose certains
+problèmes comme, par exemple, le fait que des arêtes peuvent se croiser.
+
 \subsection{Heuristiques de placement}
+
 
 \section{Réalisation dans \ocamlgraph}
 
