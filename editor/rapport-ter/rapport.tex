@@ -8,6 +8,8 @@
 \newcommand{\ocaml}{O'Caml}
 \newcommand{\ocamlgraph}{Ocamlgraph}
 \newcommand{\graphviz}{Graphviz}
+\newcommand{\miquel}{Alexandre Miquel}
+
 
 \begin{document}
 
@@ -49,10 +51,9 @@ L'objectif de ce stage est de se pencher sur ce sujet mais en
 l'abordant du façon encore différente, et ce en utilisant une
 représentation planaire, mais dans le plan hyperbolique de Poincaré
 contrairement au plan Euclidien couramment utilisé.
-Le point de départ de ce TER est le travail effectué par Alexandre
-Miquel~\cite{miquel} sur la représentation d'arbres à l'aide de la
-géométrie hyperbolique.
-
+Le point de départ de ce TER est le travail effectué par
+\miquel~\cite{miquel} sur la représentation d'arbres à l'aide de la
+géométrie hyperbolique. 
 Nous allons tout d'abord expliquer les grands principes de la géométrie
 hyperbolique, et plus particulièrement dans le plan hyperbolique de
 Poincaré.
@@ -107,7 +108,7 @@ d'un plan euclidien, et son bord C correspond à l'infini
  Les droites y sont représentées par des arcs
 de cercle perpendiculaires à C comme illustré ci-dessous.
 \begin{center}
-  \includegraphics[scale=0.30]{perpendiculaire.ps}  
+  \includegraphics[scale=0.30]{perpendiculaire.eps}  
 \end{center}
 
 On peut noter que les droites D2 et D3 sont parallèles à D1, mais,
@@ -149,6 +150,17 @@ tortue LOGO se déplaçant sur ce plan.
 
 \subsection{Tortue hyperbolique}
 
+Ce principe de tortue LOGO, emprunté à \miquel, rend bien plus aisé la
+compréhensionde la géométrie hyperbolique. Il faut clairement
+comprendre que nous aurons deux mondes :
+- le point de vue de l'observateur qui voit un disque unité, par
+définition un espace borné, sur le lequel se déplace la tortue
+- le point de vue de la tortue qui se déplace dans le plan 
+hyperbolique, par définition un espace infini
+
+Une tortue est définie par un type turtle composé d'une position et
+d'une direction. Elle peut avancer et tourner, à gauche  et à droite
+tout comme son équivalente en géométrie euclidienne.
 \section{Visualisation de graphes en géométrie hyperbolique}
 
 \subsection{Base de travail sur les arbres } %% mal dit je pense
