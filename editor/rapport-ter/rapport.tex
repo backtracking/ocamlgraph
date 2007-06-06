@@ -117,7 +117,7 @@ elles. Remarquons aussi que la droite D1 est ``portée'' %%est-ce le bon terme
 par un cercle
 de rayon infini ce qui fait d'elle un diamètre du cercle C.
 
-Ce modèle est doté d'une métrique, qui est une fonction permetant de
+Ce modèle est doté d'une métrique, qui est une fonction permettant de
 calculer la distance entre deux points du cercle de Poincaré et dont
 la formule est la suivante : 
 $$
@@ -151,16 +151,22 @@ tortue LOGO se déplaçant sur ce plan.
 \subsection{Tortue hyperbolique}
 
 Ce principe de tortue LOGO, emprunté à \miquel, rend bien plus aisé la
-compréhensionde la géométrie hyperbolique. Il faut clairement
+compréhension de la géométrie hyperbolique. Il faut clairement
 comprendre que nous aurons deux mondes :
-- le point de vue de l'observateur qui voit un disque unité, par
-définition un espace borné, sur le lequel se déplace la tortue
-- le point de vue de la tortue qui se déplace dans le plan 
-hyperbolique, par définition un espace infini
 
+\begin{itemize}
+\item  le point de vue de l'observateur qui voit un disque unité, par
+définition un espace borné, sur le lequel se déplace la tortue
+
+\item le point de vue de la tortue qui se déplace dans le plan 
+hyperbolique, par définition un espace infini
+\end{itemize}
 Une tortue est définie par un type turtle composé d'une position et
 d'une direction. Elle peut avancer et tourner, à gauche  et à droite
-tout comme son équivalente en géométrie euclidienne.
+tout comme son équivalente en géométrie euclidienne. Bien entendu,
+pour représenter ce déplacement, il nous faut des fonctions pour
+connaître la position et la direction après un pas de mouvement.
+Ces foncions sont détaillés dans \miquel.
 \section{Visualisation de graphes en géométrie hyperbolique}
 
 \subsection{Base de travail sur les arbres } %% mal dit je pense
