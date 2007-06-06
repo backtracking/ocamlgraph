@@ -101,14 +101,23 @@ chemin entre deux points.
  
 Henri Poincaré a imaginé un modèle pour la géométrie hyperbolique que
 l'on appelle le disque de Poincaré. Ce disque représente l'ensemble
-d'un plan euclidien, et son bord C correspond à l'infini
-%, qui est par
-%définition in-atteignable
-.
- Les droites y sont représentées par des arcs
-de cercle perpendiculaires à C comme illustré ci-dessous.
+d'un plan euclidien, et son bord C correspond à l'horizon.
+Pour essayer de faciliter la compréhension de ce modèle, on peut se
+pencher sur la figure de gauche ci-après qui représente le plan euclidien sur
+lequel on a déposé une lentille plan convexe convergente (semblable à
+un bol transparent rempli d'eau), et dont la surface plane est notre
+disque de Poincaré. On peut voir que pour représenter un
+point sur ce plan, on trace une droite D entre le centre du
+disque unité et le point dans le plan euclidien, et ensuite on prend
+la normal N au plan hyperbolique où D à traversé la lentille. Les
+droites sont représentées par des arcs de cercle perpendiculaires à
+C comme illustré ci-après par la figure de droite. 
 \begin{center}
-  \includegraphics[scale=0.30]{perpendiculaire.eps}  
+\end{center}
+\begin{center}
+image de la lentille 
+% \includegraphics[scale=0.25]{lentille.eps}   
+  \includegraphics[scale=0.25]{perpendiculaire.eps}  
 \end{center}
 
 On peut noter que les droites D2 et D3 sont parallèles à D1, mais,
@@ -117,34 +126,28 @@ elles. Remarquons aussi que la droite D1 est ``portée'' %%est-ce le bon terme
 par un cercle
 de rayon infini ce qui fait d'elle un diamètre du cercle C.
 
-Ce modèle est doté d'une métrique, qui est une fonction permettant de
-calculer la distance entre deux points du cercle de Poincaré et dont
-la formule est la suivante : 
+Ce modèle est doté d'une fonction $\delta$ permettant de calculer la
+distance entre deux points $A$ et $B$ du disque de Poincaré que l'on
+appel une métrique, et dont la formule est la suivante : 
 $$
 \delta(A,B) = \mathrm{ath}\left(\left|\frac{A-B}{1-\overline{A}B}\right|\right)
 \quad\mbox{où}~
 \mathrm{ath}(x) = \frac{1}{2}\ln\left(\frac{1+x}{1-x}\right)
 $$
 
-Soient deux points du plan hyperbolique $A$ et $B$, séparés par une
-distance $d$. 
+On remarque que si l'un des point, $A$ ou $B$, se
+rapproche fortement du bord C du disque, alors la distance
+$\delta(A,B)$ tend vers l'infini. Pour bien comprendre ce
+principe, qui nous sera fort important dans notre application de ce
+modèle à la représentation des graphes, on peut imaginer que nous
+observons un petit être vivant sur ce plan hyperbolique et qu'il
+souhaite se déplacer dessus. À chaque pas qu'il fait dans la direction
+de l'horizon (le bord du disque pour l'observateur), la distance par
+unité de pas qu'il parcours parait de plus en plus petite pour
+l'observateur. Ainsi bord du disque est in-atteignable pour ce petit
+être vivant sur le plan de Poincaré. 
 
-%%%%mal dit
-Pour un même déplacement $dt$, de $A$ ou de $B$, la distance entre les
-deux augmente plus si $B$ se rapproche du bord du cercle que si $A$ se
-rapproche du centre du cercle.
- 
-On peut aussi remarquer que si le point $B$ se rapproche fortement du
-bord C du disque, alors la distance $\delta$ tend vers l'infini. Ainsi
-bord du disque est in-atteignable, ce qui nous sera fort important
-dans notre application de ce modèle à la représentation des graphes.
-Pour bien comprendre ce principe, on peut imaginer que nous observons
-un petit être vivant sur ce plan hyperbolique et qu'il souhaite se
-déplacer dessus. À chaque pas qu'il fait dans la direction de
-l'horizon (le bord du cercle pour l'observateur), la distance par
-unité de pas qu'il parcours est de plus en plus petite.
-
-C'est en utilisant ce point de vu que nous avons réalisé le traçage
+C'est en utilisant ce point de vue que nous avons réalisé le traçage
 des segments de droites dans le plan hyperbolique, en implantant une
 tortue LOGO se déplaçant sur ce plan.
 
@@ -157,16 +160,62 @@ comprendre que nous aurons deux mondes :
 \begin{itemize}
 \item  le point de vue de l'observateur qui voit un disque unité, par
 définition un espace borné, sur le lequel se déplace la tortue
-
 \item le point de vue de la tortue qui se déplace dans le plan 
 hyperbolique, par définition un espace infini
 \end{itemize}
+
 Une tortue est définie par un type turtle composé d'une position et
-d'une direction. Elle peut avancer et tourner, à gauche  et à droite
-tout comme son équivalente en géométrie euclidienne. Bien entendu,
-pour représenter ce déplacement, il nous faut des fonctions pour
-connaître la position et la direction après un pas de mouvement.
-Ces foncions sont détaillés dans \miquel.
+d'une direction. 
+\begin{center}
+\begin{ocaml}
+type turtle = 
+{ 
+  pos : coord; 
+  dir : coord; 
+}
+\end{ocaml}
+\end{center}
+Elle peut avancer et tourner, à gauche  et à droite, tout comme son
+équivalente en géométrie euclidienne. Bien entendu, pour représenter
+ce déplacement, il nous faut des fonctions pour connaître la position
+et la direction après un pas de mouvement. Ces foncions sont détaillés
+dans \cite{miquel}. Les fonctions de déplacement et de rotations sont les suivantes :
+\begin{itemize}
+\item
+\begin{ocaml}
+val advance : turtle -> float -> turtle = <fun>
+\end{ocaml}\\
+advance qui prend une tortue et un pas d'avancement et renvoi une
+nouvelle tortue\\ 
+\item
+\begin{ocaml}
+val turnleft : turtle -> float -> turtle = <fun>
+\end{ocaml}\\
+turnleft qui prend une tortue et un angle en radian et renvoi une
+nouvelle tortue\\ 
+\item
+\begin{ocaml}
+val turnright : turtle -> float -> turtle = <fun>
+\end{ocaml}\\
+turnright qui prend une tortue et un angle en radian et renvoi une nouvelle
+tortue\\
+\end{itemize}
+
+Sur la figure suivante, on peut voir le parcours de différentes
+tortues se déplaçant sur le plan de Poincaré. On peut observer, entre
+deux pas de temps identique, la différence de distance parcouru qui
+apparaît à l'observateur. 
+
+\begin{center}
+une image est à insérer, qui représente le parcours de différentes
+tortues sur le plan hyperbolique
+ % \includegraphics[scale=0.30]{parcours.eps}  
+\end{center}
+
+Nous avons maintenant un moyen de tracer facilement des droites sur le
+plan hyperbolique, et nous pouvons nous intéresser au dessin d'un
+graphe sur ce plan.
+
 \section{Visualisation de graphes en géométrie hyperbolique}
 
 \subsection{Base de travail sur les arbres } %% mal dit je pense
