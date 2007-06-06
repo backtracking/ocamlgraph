@@ -99,25 +99,64 @@ chemin entre deux points.
  
 Henri Poincaré a imaginé un modèle pour la géométrie hyperbolique que
 l'on appelle le disque de Poincaré. Ce disque représente l'ensemble
-d'un plan euclidien, et son bord C correspond à l'infini, qui est par
-définition inatteignable. Les droites y sont représentées par des arcs
+d'un plan euclidien, et son bord C correspond à l'infini
+%, qui est par
+%définition in-atteignable
+.
+ Les droites y sont représentées par des arcs
 de cercle perpendiculaires à C comme illustré ci-dessous.
+\begin{center}
+  \includegraphics[scale=0.30]{perpendiculaire.eps}  
+\end{center}
 
-\includegraphics[scale=0.50]{perpendiculaire.ps}
+On peut noter que les droites D2 et D3 sont parallèles à D1, mais,
+étant donné qu'elles se coupent, D2 et D3 ne sont pas parallèles entre
+elles. Remarquons aussi que la droite D1 est ``portée'' %%est-ce le bon terme
+par un cercle
+de rayon infini ce qui fait d'elle un diamètre du cercle C.
 
-Ce modèle est doté d'une métrique, qui permet de calculer la distance
-entre deux point et dont la formule est la suivante :
+Ce modèle est doté d'une métrique, qui est une fonction permetant de
+calculer la distance entre deux points du cercle de Poincaré et dont
+la formule est la suivante : 
+\begin{center}
+  \begin{quotation}
+%
+%%%%%%%%%%%%% je en sais pas faire formule mathématique
+%
+    $\delta(A,B) = ath(abs((A-B)/(1-ÄB)))$ 
+    \\où $ath(x) = 1/2(ln((1+x)/(1-x)))$
+  \end{quotation}
+\end{center}
 
-delta(a,b) = ath(abs((a-b)/(1-äb))) où ath(x) = 1/2(ln((1+x)/(1-x)))
+Soient deux points du plan hyperbolique $A$ et $B$, séparés par une
+distance $d$. 
 
-On peut remarquer que si l'un des deux points a ou b se rapproche du
-bord C du disque, alors la distance tend vers l'infini, ce qui montre
-bien que le bord est inatteignable
-Un des grand principe de ce modèle 
+%%%%mal dit
+Pour un même déplacement $dt$, de $A$ ou de $B$, la distance entre les
+deux augmente plus si $B$ se rapproche du bord du cercle que si $A$ se
+rapproche du centre du cercle.
+ 
+On peut aussi remarquer que si le point $B$ se rapproche fortement du
+bord C du disque, alors la distance $\delta$ tend vers l'infini. Ainsi
+bord du disque est in-atteignable, ce qui nous sera fort important
+dans notre application de ce modèle à la représentation des graphes.
+Pour bien comprendre ce principe, on peut imaginer que nous observons
+un petit être vivant sur ce plan hyperbolique et qu'il souhaite se
+déplacer dessus. À chaque pas qu'il fait dans la direction de
+l'horizon (le bord du cercle pour l'observateur), la distance par
+unité de pas qu'il parcours est de plus en plus petite.
+
+C'est en utilisant ce point de vu que nous avons réalisé le traçage
+des segments de droites dans le plan hyperbolique, en implantant une
+tortue LOGO se déplaçant sur ce plan.
 
 \subsection{Tortue hyperbolique}
 
-\section{Visualisation}
+\section{Visualisation de graphes en géométrie hyperbolique}
+
+\subsection{Base de travail sur les arbres } %% mal dit je pense
+
+\subsection{Heuristiques de placement}
 
 \section{Réalisation dans \ocamlgraph}
 
