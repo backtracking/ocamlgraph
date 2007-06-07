@@ -4,11 +4,12 @@
 \usepackage[french]{babel}
 \usepackage{url}
 \usepackage{graphicx}
+\usepackage{alltt}
 
 \newcommand{\ocaml}{O'Caml}
 \newcommand{\ocamlgraph}{Ocamlgraph}
 \newcommand{\graphviz}{Graphviz}
-\newcommand{\miquel}{Alexandre Miquel}
+\newcommand{\miquel}{A. Miquel}
 
 
 \begin{document}
@@ -48,7 +49,7 @@ lisibilité du graphe, car un graphe contenant beaucoup d'éléments
 restera indéchiffrable, même en 3d.
 
 L'objectif de ce stage est de se pencher sur ce sujet mais en
-l'abordant du façon encore différente, et ce en utilisant une
+l'abordant d'une façon encore différente, et ce en utilisant une
 représentation planaire, mais dans le plan hyperbolique de Poincaré
 contrairement au plan Euclidien couramment utilisé.
 Le point de départ de ce TER est le travail effectué par
@@ -59,7 +60,7 @@ hyperbolique, et plus particulièrement dans le plan hyperbolique de
 Poincaré.
 Ensuite, nous ferons le lien entre cette géométrie non euclidienne et
 son application à la représentation de graphes, par le biais du
-travail de Mr Miquel.
+travail de \miquel.
 Et enfin, nous nous pencherons sur sa réalisation en \ocaml\ dans le
 cadre de la librairie \ocamlgraph, servant à la fois de support de
 développement et de médium de diffusion.
@@ -69,28 +70,28 @@ développement et de médium de diffusion.
 
 \subsection{Principe}
 
-La géométrie Euclidienne est fondée sur cinq postulats dictés par Euclide
-dans ses ``Éléments''. Un de ces postulat, le cinquième, qui peut
-être formulé comme ceci : 
+La géométrie euclidienne est fondée sur cinq postulats dictés par Euclide
+dans ses ``Éléments''. Le cinquième postulat, pouvant être formulé comme ceci
 \begin{quote}
-``Étant donnés une droite D et un point M, il n'existe qu'une seule
-droite passant par M et qui soit parallèle à D.''
+``Étant donnés une droite $D$ et un point M, il n'existe qu'une seule
+droite passant par $M$ et qui soit parallèle à $D$.''
 \end{quote} 
 a été remis en question dès la renaissance, et c'est
 environ en 1850 que Bolyai et Lobatchevsky ont indépendamment
 découvert une nouvelle géométrie vérifiant les quatre premiers axiomes
-d'Euclide, mais pas le postulat des parallèles. Les autres principe de
-la géométrie sont conservé tel que : une droite est la distance la plus
-courte entre deux points. Cette géométrie dites hyperbolique est donc
-basée sur le fait qu'en un point M, il peut passer une infinité de
-droites parallèles à la droite D. Ainsi exprimé, ce concept peut
+d'Euclide, mais réfutant le postulat des parallèles. Certains principes de
+la géométrie euclidienne sont conservés tels que : une droite est le chemin le plus
+court reliant deux points; deux droites sont parallèles si elles ne
+s'intersectent pas. Cette géométrie dite hyperbolique est donc
+basée sur le fait qu'en un point $M$, il peut passer une infinité de
+droites parallèles à la droite $D$. Ainsi exprimé, ce concept peut
 paraître difficile à imaginer, mais plusieurs modèles permettant de se
 représenter la géométrie hyperbolique ont été développé depuis sa
 découverte. En prenant le schéma suivant, relativement simple, basé
 sur un de ces modèles, on pourra mieux se représenter le fait d'avoir
 plusieurs parallèles passant par un même point. En effet, on peut voir
-que les trois droites d1, d2 et d3 passent par M et sont parallèles à
-D (et non parallèles entre elles car elles se croisent en M). Précisons
+que les trois droites $d_1$, $d_2$ et $d_3$ passent par $M$ et sont parallèles à
+$D$ (et non parallèles entre elles car elles se croisent en $M$). Précisons
 que dans cette géométrie, les droites nous apparaissent courbes, mais
 ce sont bien des droites au sens où elles représentent le plus court
 chemin entre deux points.
@@ -100,35 +101,37 @@ chemin entre deux points.
 \end{center}
  
 Henri Poincaré a imaginé un modèle pour la géométrie hyperbolique que
-l'on appelle le disque de Poincaré. Ce disque représente l'ensemble
-d'un plan euclidien, et son bord C correspond à l'horizon.
+l'on appelle le disque de Poincaré. Ce modèle est composé d'un cercle $C$,
+dénomé horizon, et d'un ensemble de point se trouvant à l'intérieur
+strict de ce cercle. Les points de l'horizon sont dits idéaux pour le modèle.
 Pour essayer de faciliter la compréhension de ce modèle, on peut se
 pencher sur la figure de gauche ci-après qui représente le plan euclidien sur
 lequel on a déposé une lentille plan convexe convergente (semblable à
 un bol transparent rempli d'eau), et dont la surface plane est notre
 disque de Poincaré. On peut voir que pour représenter un
-point sur ce plan, on trace une droite D entre le centre du
+point sur ce plan, on trace une droite $D$ entre le centre du
 disque unité et le point dans le plan euclidien, et ensuite on prend
-la normal N au plan hyperbolique où D à traversé la lentille. Les
-droites sont représentées par des arcs de cercle perpendiculaires à
-C comme illustré ci-après par la figure de droite. 
-\begin{center}
-\end{center}
+la normal $N$ au plan hyperbolique où $D$ à traversé la lentille. Les
+droites sont représentées par des arcs portés par des cercles
+perpendiculaires à $C$ comme illustré par la droite $D_3$ ci-après, sur la figure de
+droite.  
 \begin{center}
 image de la lentille 
 % \includegraphics[scale=0.25]{lentille.eps}   
+\end{center}
+\begin{center}
   \includegraphics[scale=0.25]{perpendiculaire.eps}  
 \end{center}
 
-On peut noter que les droites D2 et D3 sont parallèles à D1, mais,
-étant donné qu'elles se coupent, D2 et D3 ne sont pas parallèles entre
-elles. Remarquons aussi que la droite D1 est ``portée'' %%est-ce le bon terme
-par un cercle
-de rayon infini ce qui fait d'elle un diamètre du cercle C.
+On peut noter que les droites $D_2$ et $D_3$ sont parallèles à $D_1$, mais,
+étant donné qu'elles se coupent, $D_2$ et $D_3$ ne sont pas parallèles entre
+elles. Remarquons aussi que la droite $D_1$ est portée par un cercle
+de rayon infini ce qui fait d'elle un diamètre du cercle $C$.
 
-Ce modèle est doté d'une fonction $\delta$ permettant de calculer la
-distance entre deux points $A$ et $B$ du disque de Poincaré que l'on
-appel une métrique, et dont la formule est la suivante : 
+Ce modèle est doté d'une fonction $\delta$  que l'on
+appelle une métrique, permettant de calculer la distance entre deux
+points $A$ et $B$ du disque de Poincaré, dont la formule est la
+suivante :  
 $$
 \delta(A,B) = \mathrm{ath}\left(\left|\frac{A-B}{1-\overline{A}B}\right|\right)
 \quad\mbox{où}~
@@ -136,15 +139,14 @@ $$
 $$
 
 On remarque que si l'un des point, $A$ ou $B$, se
-rapproche fortement du bord C du disque, alors la distance
+rapproche fortement du bord $C$ du disque, alors la distance
 $\delta(A,B)$ tend vers l'infini. Pour bien comprendre ce
 principe, qui nous sera fort important dans notre application de ce
 modèle à la représentation des graphes, on peut imaginer que nous
-observons un petit être vivant sur ce plan hyperbolique et qu'il
-souhaite se déplacer dessus. À chaque pas qu'il fait dans la direction
+observons un petit être vivant sur ce plan hyperbolique et qui se déplace dessus. À chaque pas qu'il fait dans la direction
 de l'horizon (le bord du disque pour l'observateur), la distance par
-unité de pas qu'il parcours parait de plus en plus petite pour
-l'observateur. Ainsi bord du disque est in-atteignable pour ce petit
+unité de pas qu'il parcourt paraît de plus en plus petite pour
+l'observateur. Ainsi le bord du disque est in-atteignable pour ce petit
 être vivant sur le plan de Poincaré. 
 
 C'est en utilisant ce point de vue que nous avons réalisé le traçage
@@ -159,9 +161,9 @@ comprendre que nous aurons deux mondes :
 
 \begin{itemize}
 \item  le point de vue de l'observateur qui voit un disque unité, par
-définition un espace borné, sur le lequel se déplace la tortue
+définition un espace borné, sur le lequel se déplace la tortue;
 \item le point de vue de la tortue qui se déplace dans le plan 
-hyperbolique, par définition un espace infini
+hyperbolique, par définition un espace infini.
 \end{itemize}
 
 Une tortue est définie par un type turtle composé d'une position et
@@ -184,26 +186,20 @@ dans \cite{miquel}. Les fonctions de déplacement et de rotations sont les suivan
 \item
 \begin{ocaml}
 val advance : turtle -> float -> turtle = <fun>
-\end{ocaml}\\
-advance qui prend une tortue et un pas d'avancement et renvoi une
-nouvelle tortue\\ 
+\end{ocaml}
 \item
 \begin{ocaml}
 val turnleft : turtle -> float -> turtle = <fun>
-\end{ocaml}\\
-turnleft qui prend une tortue et un angle en radian et renvoi une
-nouvelle tortue\\ 
+\end{ocaml}
 \item
 \begin{ocaml}
 val turnright : turtle -> float -> turtle = <fun>
-\end{ocaml}\\
-turnright qui prend une tortue et un angle en radian et renvoi une nouvelle
-tortue\\
+\end{ocaml}
 \end{itemize}
 
 Sur la figure suivante, on peut voir le parcours de différentes
 tortues se déplaçant sur le plan de Poincaré. On peut observer, entre
-deux pas de temps identique, la différence de distance parcouru qui
+deux pas de temps identiques, la différence de distance parcourue qui
 apparaît à l'observateur. 
 
 \begin{center}
@@ -220,52 +216,60 @@ graphe sur ce plan.
 
 \subsection{Base de travail sur les arbres } %% mal dit je pense
 
-Nous nous interessons d'abord au travail effectué par
+Nous nous intéressons d'abord au travail effectué par
 \miquel~\cite{miquel} sur les arbres qui sont un cas particulier, et
-simplifié, de graphes qui n'a qu'une seule source et aucun cycle. Le
-problème est biensûr de placer correctement les noeuds et ensuite le
+simplifié, de graphes ayant une seule source et aucun cycle. Le
+problème est bien-sûr de placer correctement les noeuds et ensuite le
 traçage des arêtes est relativement trivial avec l'aide de notre
 tortue et de ses fonctions de mouvement.
 
-Pour répartir les noeuds d'un arbre dans le plan hyperbolique, il se
-base sur deux propriété de ce plan :
+Pour répartir les n\oe uds d'un arbre dans le plan hyperbolique, il se
+base sur deux propriétés de ce plan :
 \begin{itemize}
 \item une droite du plan le sépare en deux demi-plans, tout comme en
-  géométrie euclidienne
-\item quelque soit n, on peut disposer de n demi-plans deux à deux
-  disjoints, contrairement à la géométrie euclidienne
+  géométrie euclidienne;
+\item quelque soit $n$, on peut disposer de $n$ demi-plans deux à deux
+  disjoints, contrairement à la géométrie euclidienne.
 \end{itemize}
 
-Pour arriver à répartir l'espace entre ces n demi-plans. Pour cela, \miquel illustre
-le problème par le paradoxe des n dictateurs. Le principe en est
-simple : dans un espace fini à deux dimensions, n dictateurs situés en
+Pour arriver à répartir l'espace en $n$ demi-plans. \miquel illustre
+le problème par le paradoxe des $n$ dictateurs. Le principe en est
+simple : dans un espace fini à deux dimensions, $n$ dictateurs situés en
 un même point désirent se partager le monde de façon à régner chacun
 sur un demi-espace. Pour ce faire, ils se mettent en marche dans n
 directions régulièrement espacées de $\frac{360}{n}$
-degrés. Lorsqu'ils ont tous parcouru une distance d, les n dictateurs
+degrés. Lorsqu'ils ont tous parcouru une distance $d$, les $n$ dictateurs
 s'arrêtent, et chacun d'entre eux s'approprie le demi-espace en face
 de lui (et dont la frontière est une droite imaginaire passant par
 ses deux pieds).
 
- Dans le plan hyperbolique, quel que soit n, il existe une distance d
+ Dans le plan hyperbolique, quel que soit $n$, il existe une distance $d$
  à partir de laquelle les demi-espaces attribués aux dictateurs sont
- deux à deux disjoints. Pour calculer cette distance d, il utilise la
+ deux à deux disjoints. Pour calculer cette distance $d$, il utilise la
  formule suivante :
 $$
 d_n= \mathrm{ath}\left(\mathrm{tan}\left(\frac{\pi}{4}-\frac{\pi}{2n}\right)\right)
 $$ 
 Donc pour le placement des noeuds, il pose la racine au centre du
-disque, sépare l'espace en n demi-plans, où n est le nombre de fils de
+disque, sépare l'espace en $n$ demi-plans, où $n$ est le nombre de fils de
 la racine, et enfin fait avancer la tortue de chaque fils suivant la
 direction et la distance données. Ensuite, il fait de même
 récursivement pour l'ensemble des noeuds.
 
 Après avoir déterminer où placer les noeuds d'un arbre, on peut
-s'intéresser au placement des noeuds d'un graphes qui pose certains
+s'intéresser au placement des noeuds d'un graphe qui pose certains
 problèmes comme, par exemple, le fait que des arêtes peuvent se croiser.
 
 \subsection{Heuristiques de placement}
 
+Le graphe diffère sur deux points importants, pour notre sujet, par
+rapport à un arbre :
+\begin{itemize}
+\item il n'y a pas de racine, ce qui implique un choix arbitraire pour
+  commencer le tracé 
+\item il peut, avec une forte certitude, y avoir des arêtes qui
+  s'entrecroisent 
+\end{itemize}
 
 \section{Réalisation dans \ocamlgraph}
 
