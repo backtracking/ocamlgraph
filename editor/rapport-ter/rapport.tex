@@ -82,7 +82,7 @@ a été remis en question dès la renaissance, et c'est
 environ en 1850 que Bolyai et Lobatchevsky ont indépendamment
 découvert une nouvelle géométrie vérifiant les quatre premiers axiomes
 d'Euclide, mais réfutant le postulat des parallèles. Certains principes de
-la géométrie euclidienne sont conservés, tels que
+la géométrie euclidienne sont conservés, tels que :
 \begin{itemize}
 \item  une droite est le chemin le plus court reliant deux points ;
 \item  deux droites sont parallèles si elles ne s'intersectent pas.
@@ -274,11 +274,19 @@ Pour le choix de la racine, le choix est reporté sur la librairie
 arbitraire.
 À partir de cette racine, on procède comme pour l'affichage d'un
 arbre, mais avec deux différences importantes :
+\begin{itemize}
+\item des \noeuds\ peuvent avoir été déjà dessinés auparavant, et donc
+  il ne faut plus les considérés de la même manière, du point de vue
+  affichage
+\item des arêtes supplémentaires seront probablement nécessaire pour
+  effectués les liens transversaux
+\end{itemize}
 
-% deux différences
-% - les successeurs peuvent avoir été déjà dessinés -> pas considérés
-% - arêtes supplémentaires << transversales >>
-
+Ces deux dissemblances peuvent avoir des conséquences importantes pour
+l'affichage d'un graphe. D'une part, suivant le parcours de graphe
+effectué, un \noeud aura été visité plus ou moins tôt. D'autre part,
+l'ordonnancement des successeurs d'un noeud, rapproche ou éloigne
+certains \noeuds reliés par une arête. 
 
 \subsection{Heuristiques de placement}
 
