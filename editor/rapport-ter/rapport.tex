@@ -4,12 +4,14 @@
 \usepackage[french]{babel}
 \usepackage{url}
 \usepackage{graphicx}
-\usepackage{alltt}
+%\usepackage{alltt}
 
 \newcommand{\ocaml}{O'Caml}
 \newcommand{\ocamlgraph}{Ocamlgraph}
 \newcommand{\graphviz}{Graphviz}
 \newcommand{\miquel}{A. Miquel}
+\newcommand{\noeud}{n\oe ud}
+\newcommand{\noeuds}{n\oe uds}
 
 
 \begin{document}
@@ -27,13 +29,13 @@ Parc Club Université, 91893 ORSAY}
 
 \section{Introduction}
 Nous nous intéressons à la visualisation et à l'édition de graphes.
-La visualisation d'un graphe comportant peu de n\oe uds et d'arêtes est
+La visualisation d'un graphe comportant peu de \noeuds\ et d'arêtes est
 un problème trivial, mais le sujet se complique très rapidement dès
 que le nombre de ces composants augmente.
 En effet, la représentation d'un graphe pose un problème dès qu'il
 commence à être d'une taille conséquente, et notamment quand le 
 nombre d'arêtes est relativement élevé en proportion du nombre de
-n\oe uds : les arêtes se croisent ce qui est à même de gêner la
+\noeuds\ : les arêtes se croisent ce qui est à même de gêner la
 compréhension.
 
 Bien des gens se sont penchés sur ce thème et un grand nombre
@@ -80,7 +82,7 @@ a été remis en question dès la renaissance, et c'est
 environ en 1850 que Bolyai et Lobatchevsky ont indépendamment
 découvert une nouvelle géométrie vérifiant les quatre premiers axiomes
 d'Euclide, mais réfutant le postulat des parallèles. Certains principes de
-la géométrie euclidienne sont conservés tels que
+la géométrie euclidienne sont conservés, tels que
 \begin{itemize}
 \item  une droite est le chemin le plus court reliant deux points ;
 \item  deux droites sont parallèles si elles ne s'intersectent pas.
@@ -149,7 +151,7 @@ modèle à la représentation des graphes, on peut imaginer que nous
 observons un petit être vivant sur ce plan hyperbolique et qui se déplace dessus. À chaque pas qu'il fait dans la direction
 de l'horizon (le bord du disque pour l'observateur), la distance par
 unité de pas qu'il parcourt paraît de plus en plus petite pour
-l'observateur. Ainsi le bord du disque est in-atteignable pour ce petit
+l'observateur. Ainsi le bord du disque est inatteignable pour ce petit
 être vivant sur le plan de Poincaré. 
 
 C'est en utilisant ce point de vue que nous avons réalisé le traçage
@@ -172,13 +174,12 @@ hyperbolique, par définition un espace infini.
 Une tortue est définie par un type turtle composé d'une position et
 d'une direction. 
 \begin{center}
-\begin{ocaml}
-type turtle = 
-{ 
+\texttt{type turtle = 
+\{ 
   pos : coord; 
   dir : coord; 
+\}
 }
-\end{ocaml}
 \end{center}
 Elle peut avancer et tourner, à gauche  et à droite, tout comme son
 équivalente en géométrie euclidienne. Bien entendu, pour représenter
@@ -187,17 +188,11 @@ et la direction après un pas de mouvement. Ces foncions sont détaillés
 dans \cite{miquel}. Les fonctions de déplacement et de rotations sont les suivantes :
 \begin{itemize}
 \item
-\begin{ocaml}
-val advance : turtle -> float -> turtle = <fun>
-\end{ocaml}
+\texttt{val advance : turtle -> float -> turtle = <fun>}
 \item
-\begin{ocaml}
-val turnleft : turtle -> float -> turtle = <fun>
-\end{ocaml}
+\texttt{val turn\_left : turtle -> float -> turtle = <fun>}
 \item
-\begin{ocaml}
-val turnright : turtle -> float -> turtle = <fun>
-\end{ocaml}
+\texttt{val turn\_right : turtle -> float -> turtle = <fun>}
 \end{itemize}
 
 Sur la figure suivante, on peut voir le parcours de différentes
@@ -217,16 +212,16 @@ graphe sur ce plan.
 
 \section{Visualisation de graphes en géométrie hyperbolique}
 
-\subsection{Base de travail sur les arbres } %% mal dit je pense
+\subsection{Visualisation d'arbres en géométrie hyperbolique}
 
 Nous nous intéressons d'abord au travail effectué par
 \miquel~\cite{miquel} sur les arbres qui sont un cas particulier, et
 simplifié, de graphes ayant une seule source et aucun cycle. Le
-problème est bien-sûr de placer correctement les noeuds et ensuite le
+problème est bien-sûr de placer correctement les \noeuds\ et ensuite le
 traçage des arêtes est relativement trivial avec l'aide de notre
 tortue et de ses fonctions de mouvement.
 
-Pour répartir les n\oe uds d'un arbre dans le plan hyperbolique, il se
+Pour répartir les \noeuds\ d'un arbre dans le plan hyperbolique, il se
 base sur deux propriétés de ce plan :
 \begin{itemize}
 \item une droite du plan le sépare en deux demi-plans, tout comme en
@@ -235,7 +230,7 @@ base sur deux propriétés de ce plan :
   disjoints, contrairement à la géométrie euclidienne.
 \end{itemize}
 
-Pour arriver à répartir l'espace en $n$ demi-plans. \miquel illustre
+Pour arriver à répartir l'espace en $n$ demi-plans. \miquel\ illustre
 le problème par le paradoxe des $n$ dictateurs. Le principe en est
 simple : dans un espace fini à deux dimensions, $n$ dictateurs situés en
 un même point désirent se partager le monde de façon à régner chacun
@@ -248,22 +243,22 @@ ses deux pieds).
 
  Dans le plan hyperbolique, quel que soit $n$, il existe une distance $d$
  à partir de laquelle les demi-espaces attribués aux dictateurs sont
- deux à deux disjoints. Pour calculer cette distance $d$, il utilise la
+ deux à deux disjoints. Pour calculer cette distance $d$, \miquel\ utilise la
  formule suivante :
 $$
 d_n= \mathrm{ath}\left(\mathrm{tan}\left(\frac{\pi}{4}-\frac{\pi}{2n}\right)\right)
 $$ 
-Donc pour le placement des noeuds, il pose la racine au centre du
+Donc pour le placement des \noeuds, il pose la racine au centre du
 disque, sépare l'espace en $n$ demi-plans, où $n$ est le nombre de fils de
 la racine, et enfin fait avancer la tortue de chaque fils suivant la
 direction et la distance données. Ensuite, il fait de même
-récursivement pour l'ensemble des noeuds.
+récursivement pour l'ensemble des successeurs de ces \noeuds.
 
-Après avoir déterminer où placer les noeuds d'un arbre, on peut
-s'intéresser au placement des noeuds d'un graphe qui pose certains
+Après avoir déterminer où placer les \noeuds\ d'un arbre, on peut
+s'intéresser au placement des \noeuds\ d'un graphe qui pose certains
 problèmes comme, par exemple, le fait que des arêtes peuvent se croiser.
 
-\subsection{Heuristiques de placement}
+\subsection{Adaptation aux graphes}
 
 Le graphe diffère sur deux points importants, pour notre sujet, par
 rapport à un arbre :
@@ -274,6 +269,22 @@ rapport à un arbre :
   s'entrecroisent. 
 \end{itemize}
 
+Pour le choix de la racine, le choix est reporté sur la librairie
+\ocamlgraph\ sous la forme d'une fonction donnant un n\oe ud
+arbitraire.
+À partir de cette racine, on procède comme pour l'affichage d'un
+arbre, mais avec deux différences importantes :
+
+% deux différences
+% - les successeurs peuvent avoir été déjà dessinés -> pas considérés
+% - arêtes supplémentaires << transversales >>
+
+
+\subsection{Heuristiques de placement}
+
+% dfs / bfs déséquilibre
+
+% ordonnancement des successeurs -> moins d'arêtes qui se croisent
 
 \section{Réalisation dans \ocamlgraph}
 

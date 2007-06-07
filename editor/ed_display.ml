@@ -236,7 +236,7 @@ let draw_successor_edge vw t distance steps canvas =
 (* Color functions *)
 
 let color_change_intern_edge color node = 
-  G.iter_vertex
+  G.iter_succ
     (fun w ->
        try
 	 let _,n = H2.find intern_edges (node,w) in
@@ -248,7 +248,7 @@ let color_change_intern_edge color node =
 	 with Not_found ->
 	   ()
     )
-    !graph
+    !graph node
 
 
 let color_change_successor_edge color node = 

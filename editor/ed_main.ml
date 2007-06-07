@@ -78,7 +78,8 @@ let menu_bar = GMenu.menu_bar ~packing:v_box#pack ()
 let h_box = GPack.hbox ~homogeneous:false ~spacing:30  ~packing:v_box#add ()
 let sw = GBin.scrolled_window ~shadow_type:`ETCHED_IN ~hpolicy:`NEVER
   ~vpolicy:`AUTOMATIC ~packing:h_box#add () 
-    
+ 
+   
 let canvas = 
   GnoCanvas.canvas ~aa:true ~width:(truncate w) ~height:(truncate h) 
     ~packing:h_box#add () 
@@ -87,7 +88,7 @@ let canvas_root = canvas#root
 
 
 
-
+(* unit circle and graph root *)
 let canvas_root =
   let circle_group = GnoCanvas.group ~x:300.0 ~y:300.0 canvas_root in
   circle_group#lower_to_bottom ();
@@ -143,19 +144,51 @@ let draw tortue canvas =
 
 (* events *)
 
-let node_selection ~(model : GTree.tree_store) path =
-  let row = model#get_iter path in
-  let v = model#get ~row ~column: Model.vertex in
-  root := v;
+let root_change node ()= 
+  root := node; 
   origine := start_point;
   let turtle = make_origine_turtle () in
-  let l_item = canvas_root#get_items in
-  Format.eprintf "il y a %d elements dans le canvas @." (List.length l_item);
   draw turtle canvas_root
+
+let node_selection ~(model : GTree.tree_store) path =
+  let row = model#get_iter path in
+  let node = model#get ~row ~column: Model.vertex in
+  root_change node ()
 
 
 let color_change_selection () =
   List.iter color_change_selected !vertex_selection
+
+
+(* usual function ref, forvertex event *)
+let set_vertex_event_fun = ref (fun _ -> ())
+
+
+
+(* add a vertex with no successor *)
+let add_node () =
+  let window = GWindow.window ~title: "Choose vertex label" ~width: 300 ~height: 50 () in
+  let vbox = GPack.vbox ~packing: window#add () in
+  let entry = GEdit.entry ~max_length: 50 ~packing: vbox#add () in
+  entry#set_text "Label";
+  entry#select_region ~start:0 ~stop:entry#text_length;
+  window#show ();
+  ignore( entry#connect#activate 
+    ~callback: (fun () ->
+		  let text = entry#text in
+		  window#destroy ();
+		  (* new vertex *)
+		  let vertex = G.V.create (make_node_info text)  in
+		  G.add_vertex !graph  vertex ;
+		  ignore (Model.add_vertex vertex);
+		  Ed_display.add_node canvas_root vertex;
+		  !set_vertex_event_fun vertex;
+		  let  tor = make_turtle !origine 0.0 in
+		  draw tor canvas_root))
+
+
+
+
 
 
 (* add an edge between n1 and n2 , add link in column and re-draw *)
@@ -168,7 +201,6 @@ let add_edge n1 n2 ()=
     draw tor canvas_root
   end
 
-let set_vertex_event_fun = ref (fun _ -> ())
 
 (* add successor node to selected node *)
 let add_successor node () =
@@ -231,16 +263,24 @@ let s_if_many = function
   | _ -> "s"
 
 let contextual_menu node ev =
-  let loc_menu = GMenu.menu () in
-  let factory = new GMenu.factory loc_menu in
-  (* successor *)
-  ignore (factory#add_item " Make root" 
-	     ~callback:(fun () -> 
-	       root := node; 
-	       origine := start_point;
-	       let tor = make_turtle !origine 0.0 in
-	       draw tor canvas_root));
-  ignore (factory#add_item " Add successor" ~callback: (add_successor node));
+  let main_menu = new GMenu.factory (GMenu.menu ()) in
+  
+  (* change root *)
+  ignore (main_menu#add_item " As root" 
+	    ~callback:(root_change node));
+  
+  (* vertex operations *)
+  let vertex_menu =  GMenu.menu ()in
+  begin
+    
+    (* successor *)
+    let succ = GMenu.menu_item ~label:" Add successor" () in
+    succ#connect (~callback:(add_successor node));
+    ignore (vertex_menu#add succ)
+  end;
+  let vertex = main_menu#add_item "Vertex" in
+  ignore (vertex#set_submenu vertex_menu);
+(*
   begin match !vertex_selection with
     | [] -> ()
     | list ->
@@ -249,16 +289,16 @@ let contextual_menu node ev =
 	then begin
 	  
 	  (*add all edges as possible from current node to selected nodes*)
-	  ignore (factory#add_item (" Add edge" ^ s_if_many list)
-	       ~callback:(fun () -> 
-			    List.iter 
-			      (fun (v,_) -> if not (G.V.equal v node) then add_edge v node())
-			      list));
+	  ignore (main_menu#add_item (" Add edge" ^ s_if_many list)
+		    ~callback:(fun () -> 
+				 List.iter 
+				   (fun (v,_) -> if not (G.V.equal v node) then add_edge v node())
+				   list));
 	  
 	  (* add an edge between current node and one of selected node *)
 	  if llength > 1
 	  then begin
-	    let add_menu = factory#add_item " Add an edge to " ~callback:(fun ()->()) in
+	    let add_menu = main_menu#add_item " Add an edge to " ~callback:(fun ()->()) in
 	    let sub_menu = GMenu.menu() in
 	    let sub_factory = new GMenu.factory sub_menu in
 	    List.iter (fun (v,_) ->
@@ -271,10 +311,29 @@ let contextual_menu node ev =
 	  end
 	end
   end;
-    loc_menu#popup
+*)
+  
+    main_menu#menu#popup
     ~button:3
     ~time:(GdkEvent.Button.time ev)
     
+
+(* unit circle callback *)
+let circle_event ev =
+  begin match ev with
+    | `BUTTON_PRESS ev ->
+ 	if (GdkEvent.Button.button ev) = 3
+        then
+	  begin
+	    let menu = new GMenu.factory (GMenu.menu ()) in
+	    ignore (menu#add_item " Add node" ~callback:(add_node));
+	    menu#menu#popup
+	      ~button:3
+	      ~time:(GdkEvent.Button.time ev)
+          end
+    | _ ->()
+  end;
+  true
 
 
 (* event for each vertex of canvas *)
@@ -352,6 +411,8 @@ let set_vertex_event v =
 let () = set_vertex_event_fun := set_vertex_event
 
 let set_canvas_event () =
+  (* circle event *)
+  canvas_root#parent#connect#event (circle_event);
   (* vertex event *)
   G.iter_vertex set_vertex_event !graph
 
