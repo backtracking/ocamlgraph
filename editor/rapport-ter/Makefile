@@ -1,10 +1,10 @@
 
-rapport.ps: rapport-pp.tex biblio.bib
-	latex rapport-pp
-	bibtex rapport-pp
-	latex rapport-pp
-	latex rapport-pp
-	dvips rapport-pp.dvi -o $@
+rapport.ps: rapport.tex biblio.bib
+	latex rapport
+	bibtex rapport
+	latex rapport
+	latex rapport
+	dvips rapport.dvi -o $@
 
 rapport-pp.tex: pp.ml rapport.tex	 
 	ocaml $^ > $@
@@ -22,4 +22,4 @@ pp.ml: pp.mll
 print: rapport.ps
 	lpr $^
 clean:
-	rm -f *.ml *-pp.tex  *.log *.dvi
+	rm -f *.ml *.tex  *.log *.dvi

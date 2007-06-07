@@ -213,6 +213,14 @@ graphe sur ce plan.
 \section{Visualisation de graphes en géométrie hyperbolique}
 
 \subsection{Visualisation d'arbres en géométrie hyperbolique}
+\label{arbres}
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.30]{htree.eps}
+  \caption{Affichage d'arbres}
+  \label{fig:htree}
+\end{figure}
 
 Nous nous intéressons d'abord au travail effectué par
 \miquel~\cite{miquel} sur les arbres qui sont un cas particulier, et
@@ -273,46 +281,74 @@ Pour le choix de la racine, le choix est reporté sur la librairie
 \ocamlgraph\ sous la forme d'une fonction donnant un n\oe ud
 arbitraire.
 À partir de cette racine, on procède comme pour l'affichage d'un
-arbre, mais avec deux différences importantes :
-\begin{itemize}
-\item des \noeuds\ peuvent avoir été déjà dessinés auparavant, et donc
-  il ne faut plus les considérés de la même manière, du point de vue
-  affichage
-\item des arêtes supplémentaires seront probablement nécessaire pour
-  effectués les liens transversaux
-\end{itemize}
+arbre, c'est-à-dire qu'on affecte à chacun de ses successeurs
+immédiats un demi-plan puis, récursivement, on procède à l'affichage
+des descendants de chacun de ses successeurs.
+Mais il y a cependant deux différences importantes.
+En effet, il peut y avoir plusieurs chemins différents menant de
+la racine à un \noeud\ donné. Dès lors, un \noeud\ peut déjà avoir été
+affiché comme successeur immédiat d'un descendant de la racine déjà
+traité, et ne doit donc plus \^etre considéré comme successeur de tout
+autre \noeud. Cependant, les ar\^etes correspondantes doivent \^etre
+affichées, ce qui amène à ajouter des ar\^etes transversales par
+rapport au dessin d'un arbre, c'est-à-dire des ar\^etes
+s'affranchissant des frontières entre demi-plans.
 
 Ces deux dissemblances peuvent avoir des conséquences importantes pour
-l'affichage d'un graphe. D'une part, suivant le parcours de graphe
-effectué, un \noeud aura été visité plus ou moins tôt. D'autre part,
-l'ordonnancement des successeurs d'un noeud, rapproche ou éloigne
-certains \noeuds reliés par une arête. 
+l'affichage d'un graphe, ce qui implique de considérer avec soin les
+deux paramètres suivants : d'une part, le type de parcours effectué à
+partir de la racine, qui détermine si un \noeud\ est visité plus ou
+moins tôt ; et d'autre part, l'ordonnancement des successeurs d'un
+\noeud\, qui peut rapprocher ou éloigner les \noeuds\ reliés par des
+arêtes transversales. Nous allons maintenant présenter des
+heuristiques concernant ces deux points.
 
 \subsection{Heuristiques de placement}
 
-Pour parcourir un graphe, on a  deux grands classiques, dans ce
-domaine, envisageables que sont les parcours en largeur et en
-profondeur, respectivement ci-après Bfs et Dfs. Nous avons implanté les deux, ce qui a permis de voir les
-conséquences d'un tel choix. En observant les deux figures suivantes, il est
-clairement visible que le choix entre les deux n'est pas évident.
-Le Dfs semble moins croiser les arêtes. Le Bfs équilibre bien mieux la
-représentation du graphe.
-Pour choisir un parcours par défaut, nous avons préféré nous appuyer
-sur quelque chose de sur plutot qu'une chose possible. En effet, dans
-ce cas, le Dfs croise moins les arêtes, mais qu'en serait-il dans
-d'autres; alors que dans tous les cas, le Bfs équilibrera mieux le
-graphe.
-Le choix s'est donc objectivement porté sur le parcours Bfs qui
-permet de voir plus de \noeuds d'un seul coup.
+Pour parcourir un graphe, on a principalement deux choix : le parcours
+en profondeur (DFS) et le parcours en largeur (BFS). Nous avons
+implanté les deux, ce qui a permis de voir les conséquences d'un tel
+choix. En observant les deux figures suivantes, il est clairement
+visible que le choix entre les deux n'est pas évident.  Le Dfs semble
+moins croiser les arêtes. Le Bfs équilibre bien mieux la
+représentation du graphe.  Pour choisir un parcours par défaut, nous
+avons préféré nous appuyer sur quelque chose de s\^ur plut\^ot qu'une
+chose possible. En effet, dans ce cas, le Dfs croise moins les arêtes,
+mais qu'en serait-il dans d'autres cas ; alors que dans tous les cas, le
+Bfs équilibrera mieux le graphe.  Le choix s'est donc objectivement
+porté sur le parcours Bfs qui permet de voir plus de \noeuds\ d'un seul
+coup.
+
+voir la figure~\ref{fig:dfs}
+
+\begin{figure}
+\begin{center}
+ \includegraphics[scale=0.30]{db4_dfs.eps}  \quad
+ \includegraphics[scale=0.30]{db4_bfs.eps}  
+\end{center}
+  \caption{Intér\^et d'un parcours en profondeur}
+  \label{fig:dfs}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+ \includegraphics[scale=0.30]{parcours_dfs.eps}  \quad
+ \includegraphics[scale=0.30]{parcours_bfs.eps}  
+\end{center}
+  \caption{Intér\^et d'un parcours en largeur}
+  \label{fig:bfs}
+\end{figure}
 
 Pour palier les défauts de placement engendrés par le Bfs, on a décidé
-d'ordonnancer les successeurs d'un \noeud de manière à se faire
+d'ordonnancer les successeurs d'un \noeud\ de manière à se faire
 croiser le moins d'arêtes possible. L'idée de cet ordonnancement est
 basé sur le fait que les successeurs ayant le moins d'arêtes ``extérieures''
 posent le moins de problèmes. Donc, ordonner la liste des
-successeurs d'un \noeud reviens à mettre en tête de liste
-les \noeuds ayant le plus petit degré, et ainsi de suite jusqu'au
-\noeud ayant le plus grand degré. 
+successeurs d'un \noeud\ revient à mettre en tête de liste
+les \noeuds\ ayant le plus petit degré, et ainsi de suite jusqu'au
+\noeud\ ayant le plus grand degré. 
+
+% TODO : parler des composantes
 
 \section{Réalisation dans \ocamlgraph}
 
