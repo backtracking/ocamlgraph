@@ -13,6 +13,8 @@
 \newcommand{\noeud}{n\oe ud}
 \newcommand{\noeuds}{n\oe uds}
 
+\newcommand{\figs}[1]{(fig. \ref{fig:#1})}
+\newcommand{\figl}[1]{figure \ref{fig:#1}}
 
 \begin{document}
 
@@ -92,7 +94,7 @@ point $M$, il peut passer une infinité de droites parallèles à la
 droite $D$. Ainsi exprimé, ce concept peut paraître difficile à
 imaginer, mais plusieurs modèles permettant de se représenter la
 géométrie hyperbolique ont été développé depuis sa découverte. En
-prenant la figure \ref{fig:parallels}, relativement simple, basé sur
+prenant la \figl{parallels}, relativement simple, basé sur
 un de ces modèles, on pourra mieux se représenter le fait d'avoir
 plusieurs parallèles passant par un même point. En effet, on peut voir
 que les trois droites $d_1$, $d_2$ et $d_3$ passent par $M$ et sont
@@ -103,7 +105,7 @@ représentent le plus court chemin entre deux points.
 
 \begin{figure}
   \centering
- \includegraphics[scale=0.50]{parallels.eps}
+ \includegraphics[scale=0.50]{images/parallels.eps}
   \caption{Théorême des parallèles en géométrie hyperbolique}
   \label{fig:parallels}
 \end{figure}
@@ -112,29 +114,30 @@ l'on appelle le disque de Poincaré. Ce modèle est composé d'un cercle $C$,
 dénomé horizon, et d'un ensemble de point se trouvant à l'intérieur
 strict de ce cercle. Les points de l'horizon sont dits idéaux pour le modèle.
 Pour essayer de faciliter la compréhension de ce modèle, on peut se
-pencher sur la figure de gauche ci-après qui représente le plan euclidien sur
+pencher sur la \figl{lentille} ci-après qui représente le plan euclidien sur
 lequel on a déposé une lentille plan convexe convergente (semblable à
 un bol transparent rempli d'eau), et dont la surface plane est notre
-disque de Poincaré. On peut voir que pour représenter un
+disque de Poincaré.
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.25]{images/lentille2.eps}   
+  \caption{Représentation de passage entre le plan euclidien et le plan hyperbolique}
+  \label{fig:lentille}
+\end{figure}
+
+ On peut voir \figs{cercles} que pour représenter un
 point sur ce plan, on trace une droite $D$ entre le centre du
 disque unité et le point dans le plan euclidien, et ensuite on prend
 la normal $N$ au plan hyperbolique où $D$ à traversé la lentille. Les
 droites sont représentées par des arcs portés par des cercles
-perpendiculaires à $C$ comme illustré par la droite $D_3$ ci-après, sur la figure de
-droite.  
-
-\begin{figure}
+perpendiculaires à $C$ comme illustré par la droite $D_3$ ci-après \figs{cercles}.  
+\begin{figure}[!b]
   \centering
- % \includegraphics[scale=0.25]{lentille.eps}   
-  \caption{Représentation de passage entre le plan euclidien et le plan hyperbolique}
-  \label{fig:lentille}
-\end{figure}
-\begin{figure}
-  \centering
-   \includegraphics[scale=0.35]{perpendiculaire.eps}  
+   \includegraphics[scale=0.35]{images/perpendiculaire.eps}  
   \caption{Représentation de quelques éléments dans un disque de Poincaré}
   \label{fig:cercles}
 \end{figure}
+
 On peut noter que les droites $D_2$ et $D_3$ sont parallèles à $D_1$, mais,
 étant donné qu'elles se coupent, $D_2$ et $D_3$ ne sont pas parallèles entre
 elles. Remarquons aussi que la droite $D_1$ est portée par un cercle
@@ -150,16 +153,18 @@ $$
 \mathrm{ath}(x) = \frac{1}{2}\ln\left(\frac{1+x}{1-x}\right)
 $$
 
-On remarque que si l'un des point, $A$ ou $B$, se
+On remarque \figs{cercles} que si l'un des point, $A$ ou $B$, se
 rapproche fortement du bord $C$ du disque, alors la distance
-$\delta(A,B)$ tend vers l'infini. Pour bien comprendre ce
-principe, qui nous sera fort important dans notre application de ce
-modèle à la représentation des graphes, on peut imaginer que nous
-observons un petit être vivant sur ce plan hyperbolique et qui se déplace dessus. À chaque pas qu'il fait dans la direction
-de l'horizon (le bord du disque pour l'observateur), la distance par
-unité de pas qu'il parcourt paraît de plus en plus petite pour
-l'observateur. Ainsi le bord du disque est inatteignable pour ce petit
-être vivant sur le plan de Poincaré. 
+$\delta(A,B)$ tend vers l'infini. Pour bien comprendre ce principe,
+qui nous sera fort important dans notre application de ce modèle à la
+représentation des graphes, on peut imaginer que nous observons un
+petit être vivant sur ce plan hyperbolique et qui se déplace dessus. À
+chaque pas qu'il fait dans la direction de l'horizon (le bord du
+disque pour l'observateur), la distance par unité de pas qu'il
+parcourt paraît de plus en plus petite pour l'observateur. Ainsi le
+bord du disque est inatteignable pour ce petit être vivant sur le plan
+de Poincaré.\\
+
 
 C'est en utilisant ce point de vue que nous avons réalisé le traçage
 des segments de droites dans le plan hyperbolique, en implantant une
@@ -192,7 +197,8 @@ Elle peut avancer et tourner, à gauche  et à droite, tout comme son
 équivalente en géométrie euclidienne. Bien entendu, pour représenter
 ce déplacement, il nous faut des fonctions pour connaître la position
 et la direction après un pas de mouvement. Ces foncions sont détaillés
-dans \cite{miquel}. Les fonctions de déplacement et de rotations sont les suivantes :
+dans \cite{miquel}. Les fonctions de déplacement et de rotations
+(angle en radian) sont les suivantes :
 \begin{itemize}
 \item
 \texttt{val advance : turtle -> float -> turtle = <fun>}
@@ -202,17 +208,25 @@ dans \cite{miquel}. Les fonctions de déplacement et de rotations sont les suivan
 \texttt{val turn\_right : turtle -> float -> turtle = <fun>}
 \end{itemize}
 
-Sur la figure suivante, on peut voir le parcours de différentes
-tortues se déplaçant sur le plan de Poincaré. On peut observer, entre
-deux pas de temps identiques, la différence de distance parcourue qui
-apparaît à l'observateur. 
+On peut voir \figs{parcours} le parcours de différentes tortues se
+déplaçant sur le plan de Poincaré. On peut observer, entre deux pas de
+temps identiques, la différence de distance parcourue qui apparaît à
+l'observateur.
 
-\begin{center}
-une image est à insérer, qui représente le parcours de différentes
-tortues sur le plan hyperbolique
- % \includegraphics[scale=0.30]{parcours.eps}  
-\end{center}
-
+\begin{figure}[h]
+  \centering
+  \begin{minipage}{0.49\linewidth}
+    \includegraphics[scale=0.27]{images/parcours.eps}  
+    \caption{Parcours de différentes tortues sur le plan de Poincaré}
+    \label{fig:parcours}    
+  \end{minipage}
+  \begin{minipage}{0.49\linewidth}
+    \includegraphics[scale=0.50]{images/dictateurs.eps}
+    \caption{Le paradoxe des $n$ dictateurs}
+    \label{fig:dictateurs}
+    %\vspace*{-1.5em}
+  \end{minipage}
+\end{figure}
 Nous avons maintenant un moyen de tracer facilement des droites sur le
 plan hyperbolique, et nous pouvons nous intéresser au dessin d'un
 graphe sur ce plan.
@@ -220,15 +234,7 @@ graphe sur ce plan.
 \section{Visualisation de graphes en géométrie hyperbolique}
 
 \subsection{Visualisation d'arbres en géométrie hyperbolique}
-\label{arbres}
-
-\begin{figure}
-  \centering
-  \includegraphics[scale=0.30]{htree.eps}
-  \caption{Affichage d'arbres}
-  \label{fig:htree}
-\end{figure}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\label{arbres}
 Nous nous intéressons d'abord au travail effectué par
 \miquel~\cite{miquel} sur les arbres qui sont un cas particulier, et
 simplifié, de graphes ayant une seule source et aucun cycle. Le
@@ -251,7 +257,7 @@ simple : dans un espace fini à deux dimensions, $n$ dictateurs situés en
 un même point désirent se partager le monde de façon à régner chacun
 sur un demi-espace. Pour ce faire, ils se mettent en marche dans n
 directions régulièrement espacées de $\frac{360}{n}$
-degrés. Lorsqu'ils ont tous parcouru une distance $d$, les $n$ dictateurs
+degrés \figs{dictateurs}. Lorsqu'ils ont tous parcouru une distance $d$, les $n$ dictateurs
 s'arrêtent, et chacun d'entre eux s'approprie le demi-espace en face
 de lui (et dont la frontière est une droite imaginaire passant par
 ses deux pieds).
@@ -267,7 +273,16 @@ Donc pour le placement des \noeuds, il pose la racine au centre du
 disque, sépare l'espace en $n$ demi-plans, où $n$ est le nombre de fils de
 la racine, et enfin fait avancer la tortue de chaque fils suivant la
 direction et la distance données. Ensuite, il fait de même
-récursivement pour l'ensemble des successeurs de ces \noeuds.
+récursivement pour l'ensemble des successeurs de ces \noeuds. On peut voir \figs{htree}
+le résultat final sur une arborescence de répertoire Unix.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.30]{images/htree.eps}
+  \caption{Affichage d'arbres}
+  \label{fig:htree}
+\end{figure}
+
 
 Après avoir déterminer où placer les \noeuds\ d'un arbre, on peut
 s'intéresser au placement des \noeuds\ d'un graphe qui pose certains
@@ -330,17 +345,17 @@ voir la figure~\ref{fig:dfs}
 
 \begin{figure}
 \begin{center}
- \includegraphics[scale=0.30]{db4_dfs.eps}  \quad
- \includegraphics[scale=0.30]{db4_bfs.eps}  
+ \includegraphics[scale=0.30]{images/db4_dfs.eps}  \quad
+ \includegraphics[scale=0.30]{images/db4_bfs.eps}  
 \end{center}
-  \caption{Intér\^et d'un parcours en profondeur}
+  \caption{Intérêt d'un parcours en profondeur}
   \label{fig:dfs}
 \end{figure}
 
 \begin{figure}
 \begin{center}
- \includegraphics[scale=0.30]{parcours_dfs.eps}  \quad
- \includegraphics[scale=0.30]{parcours_bfs.eps}  
+ \includegraphics[scale=0.30]{images/parcours_dfs.eps}  \quad
+ \includegraphics[scale=0.30]{images/parcours_bfs.eps}  
 \end{center}
   \caption{Intér\^et d'un parcours en largeur}
   \label{fig:bfs}

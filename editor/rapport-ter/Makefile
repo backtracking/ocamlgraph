@@ -1,5 +1,8 @@
 
-rapport.ps: rapport.tex biblio.bib
+EPS= perpendiculaire.eps parallels.eps  
+IMG= images/
+
+rapport.ps: rapport.tex biblio.bib $(IMG)$(EPS)
 	latex rapport
 	bibtex rapport
 	latex rapport
@@ -12,12 +15,10 @@ rapport-pp.tex: pp.ml rapport.tex
 pp.ml: pp.mll
 	ocamllex pp.mll
 
+images: $(IMG)$(EPS)
+
 %.eps: %.png
-	pngtopnm $^
-	pnmtops %.pnm
-	ps2epsi %.ps
-	rm *.pnm
-	rm *.ps
+	sam2p $^ EPS: $@
 
 print: rapport.ps
 	lpr $^
