@@ -139,41 +139,36 @@ let draw tortue canvas =
     canvas_root#canvas#update_now ()
 (*  canvas#show()*)
 
-
-
-
+    
 (* events *)
 
-let root_change node ()= 
-  root := node; 
-  origine := start_point;
-  let turtle = make_origine_turtle () in
-  draw turtle canvas_root
-
-let node_selection ~(model : GTree.tree_store) path =
-  let row = model#get_iter path in
-  let node = model#get ~row ~column: Model.vertex in
-  root_change node ()
 
 
 let color_change_selection () =
   List.iter color_change_selected !vertex_selection
 
-
-
+    
+let select_node_no_color node item =
+vertex_selection :=  (node, item)::!vertex_selection
+   
 
 let select_node node item=
   begin
-    vertex_selection :=  (node, item)::!vertex_selection;
+    select_node_no_color node item;
     color_change_selection ()
   end
+
+let select_all () =  
+  H.iter(fun node (_,item,_) ->select_node_no_color node item) nodes;
+  Format.eprintf"yep@.";
+  color_change_selection ()
   
 let unselect_node_no_color node item =  
   vertex_selection := 
     List.filter (fun (v,_) -> not (G.V.equal v node)) !vertex_selection
 
 let unselect_node node item =  
-  color_change_selected (node,item);
+ (* color_change_selected (node,item);*)
   unselect_node_no_color node item;
   color_change_selection ();
   color_change_focused (node,item)
@@ -187,6 +182,18 @@ let unselect_all () =
     !vertex_selection;
   color_change_selection ()
 
+
+
+let root_change node ()= 
+  root := node; 
+  origine := start_point;
+  let turtle = make_origine_turtle () in
+  draw turtle canvas_root
+
+let node_selection ~(model : GTree.tree_store) path =
+  let row = model#get_iter path in
+  let node = model#get ~row ~column: Model.vertex in
+  root_change node ()
 
 
 
@@ -226,7 +233,6 @@ let add_node () =
 			  ignore (Model.add_vertex vertex);
 			  Ed_display.add_node canvas_root vertex;
 			  !set_vertex_event_fun vertex;
-			  Format.eprintf"la valeur de is_as_root est %b@." !is_as_root;
 			  if !is_as_root  then root:=vertex;
 			  if !is_in_selection then 
 			    begin
@@ -247,7 +253,8 @@ let add_edge n1 n2 ()=
     G.add_edge_e !graph (G.E.create n1 (make_edge_info ()) n2);
     Model.add_edge n1 n2;
     let tor = make_turtle !origine 0.0 in
-    draw tor canvas_root
+    draw tor canvas_root;
+    if (is_selected n1) || (is_selected n2) then color_change_selection()
   end
 
 
@@ -261,21 +268,24 @@ let add_successor node () =
   entry#select_region ~start:0 ~stop:entry#text_length;
   window#show ();
   ignore (entry#connect#activate 
-    ~callback:(fun () ->
-      let text = entry#text in
-      window#destroy ();
-      (* new vertex *)
-      let vertex = G.V.create (make_node_info text)  in
-      G.add_vertex !graph  vertex ;
-      ignore (Model.add_vertex vertex);
-      Ed_display.add_node canvas_root vertex;
-      !set_vertex_event_fun vertex;
-      (* new edge *)
-      G.add_edge_e !graph (G.E.create node (make_edge_info()) vertex);
-      Model.add_edge node vertex;
-      (* redraw *)
-      let tor = make_turtle !origine 0.0 in
-      draw tor canvas_root))
+	    ~callback:(fun () ->
+			 let text = entry#text in
+			 window#destroy ();
+			 (* new vertex *)
+			 let vertex = G.V.create (make_node_info text)  in
+			 G.add_vertex !graph  vertex ;
+			 ignore (Model.add_vertex vertex);
+			 Ed_display.add_node canvas_root vertex;
+			 !set_vertex_event_fun vertex;
+			 (* new edge *)
+			 G.add_edge_e !graph (G.E.create node (make_edge_info()) vertex);
+			 Model.add_edge node vertex;
+			 (* redraw *)
+			 let tor = make_turtle !origine 0.0 in
+			 draw tor canvas_root;
+			 if (is_selected node) then color_change_selection()
+		      )
+	 )
 
 
 
@@ -423,9 +433,15 @@ let vertex_event node item ev =
     | `THREE_BUTTON_PRESS ev->
       if (GdkEvent.Button.button ev) = 1
       then begin
-	unselect_all ();
-	color_change_selected (node,item);
-	color_change_focused (node,item)
+	if (List.length !vertex_selection =1)
+	then begin
+	  select_all ();
+ 	end
+	else begin
+	  unselect_all ();
+	  color_change_selected (node,item);
+	  color_change_focused (node,item)
+	end
       end
 
     | _ ->
