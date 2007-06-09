@@ -184,16 +184,16 @@ let unselect_all () =
 
 
 
-let root_change node ()= 
-  root := node; 
+let root_change vertex ()= 
+  root := vertex; 
   origine := start_point;
   let turtle = make_origine_turtle () in
   draw turtle canvas_root
 
 let node_selection ~(model : GTree.tree_store) path =
   let row = model#get_iter path in
-  let node = model#get ~row ~column: Model.vertex in
-  root_change node ()
+  let vertex = model#get ~row ~column: Model.vertex in
+  root_change vertex ()
 
 
 
@@ -211,18 +211,24 @@ let add_node () =
   let entry = GEdit.entry ~max_length: 50 ~packing: vbox#add () in
   entry#set_text "Label";
   entry#select_region ~start:0 ~stop:entry#text_length;
-
+  (*two check buttons*)
   let hbox = GPack.hbox ~packing: vbox#add () in
   let is_in_selection = ref false in
-  let in_selection = GButton.check_button ~label: "Add to selection" ~active:!is_in_selection
+  let in_selection = GButton.check_button  
+    ~label: "Add to selection" 
+    ~active:!is_in_selection
     ~packing: hbox#add () in
-  in_selection#connect#toggled ~callback:(fun () ->is_in_selection := in_selection#active );
+  ignore (in_selection#connect#toggled 
+	    ~callback:(fun () ->is_in_selection := in_selection#active ));
   let is_as_root = ref ((G.nb_vertex !graph)=0) in
-  let as_root =
-    GButton.check_button ~label:"Choose as root" ~active:!is_as_root ~packing:hbox#add () in
-  as_root#connect#toggled
-    ~callback:(fun () ->is_as_root := as_root#active );
+  let as_root = GButton.check_button 
+    ~label:"Choose as root" 
+    ~active:!is_as_root 
+    ~packing:hbox#add () in
+  ignore (as_root#connect#toggled
+    ~callback:(fun () ->is_as_root := as_root#active ));
   window#show ();
+  (*entry's callback*)
   ignore( entry#connect#activate 
 	    ~callback: (fun () ->
 			  let text = entry#text in
@@ -233,10 +239,10 @@ let add_node () =
 			  ignore (Model.add_vertex vertex);
 			  Ed_display.add_node canvas_root vertex;
 			  !set_vertex_event_fun vertex;
-			  if !is_as_root  then root:=vertex;
+			  if !is_as_root  then root_change vertex () ;
 			  if !is_in_selection then 
 			    begin
-			      let _,item,_ = H.find nodes vertex in select_node vertex item
+			      let _,ell,_ = H.find nodes vertex in select_node vertex ell
 			    end;
 			  let  tor = make_turtle !origine 0.0 in
 			  draw tor canvas_root))
@@ -376,20 +382,20 @@ let circle_event ev =
 
 
 (* event for each vertex of canvas *)
-let vertex_event node item ev =
+let vertex_event vertex item ev =
   begin match ev with
     | `ENTER_NOTIFY _ ->
-	if  not (is_selected node)
+	if  not (is_selected vertex)
 	then begin
 	  color_change_selection ();
-	  color_change_focused (node,item)	
+	  color_change_focused (vertex,item)	
 	end;
 
     | `LEAVE_NOTIFY ev ->
-	if not (is_selected node)
+	if not (is_selected vertex)
 	  && not (Gdk.Convert.test_modifier `BUTTON1 (GdkEvent.Crossing.state ev))
 	then begin	
-	  color_change_no_event (node,item);
+	  color_change_no_event (vertex,item);
 	  color_change_selection ()
 	end
 
@@ -419,15 +425,15 @@ let vertex_event node item ev =
  	if (GdkEvent.Button.button ev) = 3
         then
 	  begin
-	    contextual_menu node ev
+	    contextual_menu vertex ev
           end
 	    
     | `TWO_BUTTON_PRESS ev->
       if (GdkEvent.Button.button ev) = 1
       then begin
-	if not (is_selected node)
-	then select_node node item
-	else unselect_node node item
+	if not (is_selected vertex)
+	then select_node vertex item
+	else unselect_node vertex item
       end
 
     | `THREE_BUTTON_PRESS ev->
@@ -439,8 +445,8 @@ let vertex_event node item ev =
  	end
 	else begin
 	  unselect_all ();
-	  color_change_selected (node,item);
-	  color_change_focused (node,item)
+	  color_change_selected (vertex,item);
+	  color_change_focused (vertex,item)
 	end
       end
 
@@ -449,9 +455,9 @@ let vertex_event node item ev =
   end;
   true
 
-let set_vertex_event v =
-  let item,ell,_ = H.find nodes v in
-  ignore (item#connect#event (vertex_event v ell))
+let set_vertex_event vertex =
+  let item,ell,_ = H.find nodes vertex in
+  ignore (item#connect#event (vertex_event vertex ell))
 
 let () = set_vertex_event_fun := set_vertex_event
 
