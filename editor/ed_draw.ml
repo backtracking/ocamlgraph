@@ -102,7 +102,7 @@ let draw_bfs root turtle =
 (*    Format.eprintf"le noeud : %s la val presente apres :%f \n@."lab.label dist;*)
     if dist <= rlimit_sqr then begin
       lab.visible <- Visible;
-      let l = G.succ !graph v in 
+      let l = try   G.succ !graph v  with Invalid_argument _ -> []  in
       let l = List.filter (fun x -> (G.V.label x).visible = Hidden) l in
       List.iter (fun w -> (G.V.label w).visible <- BorderNode) l;
       let l = order_children l in

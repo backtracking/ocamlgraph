@@ -5,6 +5,10 @@ test: editor.opt
 editor.opt: ed_*.ml
 	make -C .. editor/editor.opt
 
+editor.byte: ed_*.ml
+	make -C .. editor/editor.byte
+
+
 # tortuenew.opt: tortue.ml 
 #	ocamlopt outils_math.ml
 #	ocamlopt -o $@ graphics.cmxa outils_math.cmx $^

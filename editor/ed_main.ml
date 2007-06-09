@@ -160,76 +160,6 @@ let color_change_selection () =
   List.iter color_change_selected !vertex_selection
 
 
-(* usual function ref, forvertex event *)
-let set_vertex_event_fun = ref (fun _ -> ())
-
-
-
-(* add a vertex with no successor *)
-let add_node () =
-  let window = GWindow.window ~title: "Choose vertex label" ~width: 300 ~height: 50 () in
-  let vbox = GPack.vbox ~packing: window#add () in
-  let entry = GEdit.entry ~max_length: 50 ~packing: vbox#add () in
-  entry#set_text "Label";
-  entry#select_region ~start:0 ~stop:entry#text_length;
-  window#show ();
-  ignore( entry#connect#activate 
-    ~callback: (fun () ->
-		  let text = entry#text in
-		  window#destroy ();
-		  (* new vertex *)
-		  let vertex = G.V.create (make_node_info text)  in
-		  G.add_vertex !graph  vertex ;
-		  ignore (Model.add_vertex vertex);
-		  Ed_display.add_node canvas_root vertex;
-		  !set_vertex_event_fun vertex;
-		  let  tor = make_turtle !origine 0.0 in
-		  draw tor canvas_root))
-
-
-
-
-
-
-(* add an edge between n1 and n2 , add link in column and re-draw *)
-let add_edge n1 n2 ()= 
-  if not (edge n1 n2)
-  then begin
-    G.add_edge_e !graph (G.E.create n1 (make_edge_info ()) n2);
-    Model.add_edge n1 n2;
-    let tor = make_turtle !origine 0.0 in
-    draw tor canvas_root
-  end
-
-
-(* add successor node to selected node *)
-let add_successor node () =
-  let window = GWindow.window ~title: "Choose label name" ~width: 300 ~height: 50 () in
-  let vbox = GPack.vbox ~packing: window#add () in
-  
-  let entry = GEdit.entry ~max_length: 50 ~packing: vbox#add () in
-  entry#set_text "Label";
-  entry#select_region ~start:0 ~stop:entry#text_length;
-  window#show ();
-  let _ = entry#connect#activate 
-    ~callback:(fun () ->
-      let text = entry#text in
-      window#destroy ();
-      (* new vertex *)
-      let vertex = G.V.create (make_node_info text)  in
-      G.add_vertex !graph  vertex ;
-      ignore (Model.add_vertex vertex);
-      Ed_display.add_node canvas_root vertex;
-      !set_vertex_event_fun vertex;
-      (* new edge *)
-      G.add_edge_e !graph (G.E.create node (make_edge_info()) vertex);
-      Model.add_edge node vertex;
-      (* redraw *)
-      let tor = make_turtle !origine 0.0 in
-      draw tor canvas_root)
-  in
-  ()
-
 
 
 let select_node node item=
@@ -256,67 +186,166 @@ let unselect_all () =
 	    )
     !vertex_selection;
   color_change_selection ()
+
+
+
+
+
+
+(* usual function ref, for vertex event *)
+let set_vertex_event_fun = ref (fun _ -> ())
+
+
+
+(* add a vertex with no successor *)
+let add_node () =
+  let window = GWindow.window ~title: "Choose vertex label" ~width: 300 ~height: 50 () in
+  let vbox = GPack.vbox ~packing: window#add () in
+  let entry = GEdit.entry ~max_length: 50 ~packing: vbox#add () in
+  entry#set_text "Label";
+  entry#select_region ~start:0 ~stop:entry#text_length;
+
+  let hbox = GPack.hbox ~packing: vbox#add () in
+  let is_in_selection = ref false in
+  let in_selection = GButton.check_button ~label: "Add to selection" ~active:!is_in_selection
+    ~packing: hbox#add () in
+  in_selection#connect#toggled ~callback:(fun () ->is_in_selection := in_selection#active );
+  let is_as_root = ref ((G.nb_vertex !graph)=0) in
+  let as_root =
+    GButton.check_button ~label:"Choose as root" ~active:!is_as_root ~packing:hbox#add () in
+  as_root#connect#toggled
+    ~callback:(fun () ->is_as_root := as_root#active );
+  window#show ();
+  ignore( entry#connect#activate 
+	    ~callback: (fun () ->
+			  let text = entry#text in
+			  window#destroy ();
+			  (* new vertex *)
+			  let vertex = G.V.create (make_node_info text)  in
+			  G.add_vertex !graph  vertex ;
+			  ignore (Model.add_vertex vertex);
+			  Ed_display.add_node canvas_root vertex;
+			  !set_vertex_event_fun vertex;
+			  Format.eprintf"la valeur de is_as_root est %b@." !is_as_root;
+			  if !is_as_root  then root:=vertex;
+			  if !is_in_selection then 
+			    begin
+			      let _,item,_ = H.find nodes vertex in select_node vertex item
+			    end;
+			  let  tor = make_turtle !origine 0.0 in
+			  draw tor canvas_root))
+
+
+
+
+
+
+(* add an edge between n1 and n2 , add link in column and re-draw *)
+let add_edge n1 n2 ()= 
+  if not (edge n1 n2)
+  then begin
+    G.add_edge_e !graph (G.E.create n1 (make_edge_info ()) n2);
+    Model.add_edge n1 n2;
+    let tor = make_turtle !origine 0.0 in
+    draw tor canvas_root
+  end
+
+
+(* add successor node to selected node *)
+let add_successor node () =
+  let window = GWindow.window ~title: "Choose label name" ~width: 300 ~height: 50 () in
+  let vbox = GPack.vbox ~packing: window#add () in
+  
+  let entry = GEdit.entry ~max_length: 50 ~packing: vbox#add () in
+  entry#set_text "Label";
+  entry#select_region ~start:0 ~stop:entry#text_length;
+  window#show ();
+  ignore (entry#connect#activate 
+    ~callback:(fun () ->
+      let text = entry#text in
+      window#destroy ();
+      (* new vertex *)
+      let vertex = G.V.create (make_node_info text)  in
+      G.add_vertex !graph  vertex ;
+      ignore (Model.add_vertex vertex);
+      Ed_display.add_node canvas_root vertex;
+      !set_vertex_event_fun vertex;
+      (* new edge *)
+      G.add_edge_e !graph (G.E.create node (make_edge_info()) vertex);
+      Model.add_edge node vertex;
+      (* redraw *)
+      let tor = make_turtle !origine 0.0 in
+      draw tor canvas_root))
+
+
+
+
     
 
-let s_if_many = function
-  | [] | [_] -> ""
-  | _ -> "s"
+let edge_to node list =
+  (* add an edge between current node and one of selected node *)
+  let add_edge_to_menu = new GMenu.factory (GMenu.menu()) in
+  List.iter (fun (v,_) ->
+	       if not (G.V.equal v node)
+	       then 
+		 (*to... node*)
+		 ignore(add_edge_to_menu#add_item ("->"^string_of_label v) 
+			  ~callback:(add_edge v node))
+	    ) list;
+  add_edge_to_menu
+
+let all_edges (edge_menu :#GMenu.menu GMenu.factory) node list =
+  (*add all edges as possible from current node to selected nodes*)
+  begin
+    let add_all_edge node list () = 
+      List.iter (fun (v,_) -> if not (G.V.equal v node) then add_edge v node())list in
+    ignore (edge_menu#add_item "Add all edges" ~callback:( add_all_edge node list))
+  end
+
+
 
 let contextual_menu node ev =
-  let main_menu = new GMenu.factory (GMenu.menu ()) in
-  
-  (* change root *)
-  ignore (main_menu#add_item " As root" 
-	    ~callback:(root_change node));
-  
-  (* vertex operations *)
-  let vertex_menu =  GMenu.menu ()in
+
+  let menu = new GMenu.factory (GMenu.menu ()) in
+  (* change root*)
+  ignore (menu#add_item "As root" ~callback:(root_change node));
+
+  (*vertex menu*)
+  let vertex_menu = new GMenu.factory (GMenu.menu ()) in
   begin
-    
     (* successor *)
-    let succ = GMenu.menu_item ~label:" Add successor" () in
-    succ#connect (~callback:(add_successor node));
-    ignore (vertex_menu#add succ)
+    ignore (vertex_menu#add_item "Add successor" ~callback:(add_successor node));
   end;
-  let vertex = main_menu#add_item "Vertex" in
-  ignore (vertex#set_submenu vertex_menu);
-(*
-  begin match !vertex_selection with
-    | [] -> ()
-    | list ->
-	let llength =List.length list in
-	if not (is_selected node && llength = 1)
-	then begin
-	  
-	  (*add all edges as possible from current node to selected nodes*)
-	  ignore (main_menu#add_item (" Add edge" ^ s_if_many list)
-		    ~callback:(fun () -> 
-				 List.iter 
-				   (fun (v,_) -> if not (G.V.equal v node) then add_edge v node())
-				   list));
-	  
-	  (* add an edge between current node and one of selected node *)
-	  if llength > 1
-	  then begin
-	    let add_menu = main_menu#add_item " Add an edge to " ~callback:(fun ()->()) in
-	    let sub_menu = GMenu.menu() in
-	    let sub_factory = new GMenu.factory sub_menu in
-	    List.iter (fun (v,_) ->
-			 if not (G.V.equal v node)
-			 then  ignore  (sub_factory#add_item (" "^string_of_label v) 
-					  ~callback:(add_edge v node))
-		      )
-	      list;
-	    add_menu#set_submenu sub_menu
-	  end
-	end
-  end;
-*)
-  
-    main_menu#menu#popup
-    ~button:3
-    ~time:(GdkEvent.Button.time ev)
-    
+  ignore(menu#add_item "Vertex ops" ~submenu: vertex_menu#menu);
+
+  (*edge menu*)
+  begin
+    match !vertex_selection with
+      | [] -> ()
+      | list ->
+	  let ll =List.length list in
+	  let isel = is_selected node in
+	  begin
+	    if isel && ll=1 then ()
+	    else
+	      begin
+		let edge_menu = new GMenu.factory (GMenu.menu ()) in
+		if isel && ll=2 ||
+		  not isel && ll=1
+		then
+		  ignore (edge_menu#add_item "Add an edge to" ~submenu: (edge_to node list)#menu);
+		if isel && ll>2 ||
+		  not isel && ll>1
+		then  begin
+		  ignore (edge_menu#add_item "Add an edge to" ~submenu: (edge_to node list)#menu);
+		  all_edges edge_menu node list;
+		end;
+		ignore(menu#add_item "Edge ops" ~submenu: edge_menu#menu);
+	      end;
+	  end;
+  end;	  
+  menu#menu#popup ~button:3 ~time:(GdkEvent.Button.time ev)
+	    
 
 (* unit circle callback *)
 let circle_event ev =
@@ -412,7 +441,7 @@ let () = set_vertex_event_fun := set_vertex_event
 
 let set_canvas_event () =
   (* circle event *)
-  canvas_root#parent#connect#event (circle_event);
+  ignore(canvas_root#parent#connect#event (circle_event));
   (* vertex event *)
   G.iter_vertex set_vertex_event !graph
 
