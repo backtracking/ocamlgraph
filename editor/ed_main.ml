@@ -206,13 +206,22 @@ let set_vertex_event_fun = ref (fun _ -> ())
 
 (* add a vertex with no successor *)
 let add_node () =
-  let window = GWindow.window ~title: "Choose vertex label" ~width: 300 ~height: 50 () in
-  let vbox = GPack.vbox ~packing: window#add () in
-  let entry = GEdit.entry ~max_length: 50 ~packing: vbox#add () in
+  let window = GWindow.window 
+    ~title: "Choose vertex label" 
+    ~width: 300 
+    ~height: 50 () in
+  let vbox = GPack.vbox 
+    ~packing: window#add () in
+  let entry = GEdit.entry 
+    ~max_length: 50 
+    ~packing: vbox#add () in
   entry#set_text "Label";
-  entry#select_region ~start:0 ~stop:entry#text_length;
+  entry#select_region 
+    ~start:0 
+    ~stop:entry#text_length;
   (*two check buttons*)
-  let hbox = GPack.hbox ~packing: vbox#add () in
+  let hbox = GPack.hbox 
+    ~packing: vbox#add () in
   let is_in_selection = ref false in
   let in_selection = GButton.check_button  
     ~label: "Add to selection" 
@@ -294,28 +303,75 @@ let add_successor node () =
 	 )
 
 
+let sub_menu_edge_to vertex list =
+  let ll = List.length list in
+  let nb_sub_menu = (ll - 1)/10 + 1 in
+  let nb_edge =  ll / nb_sub_menu -1 in
+  let menu = new GMenu.factory (GMenu.menu()) in
+  let sub_menu =ref (new GMenu.factory (GMenu.menu())) in
+  let add_edge  vertex v2 =
+    if not (G.V.equal v2 vertex)
+    then ignore((!sub_menu)#add_item ("->"^string_of_label v2) 
+	       ~callback:(add_edge v2 vertex))
+  in
+  Format.eprintf "liste %d, nbsub %d, nb/menu %d@." ll nb_sub_menu nb_edge;
+  let rec make_sub_menu vertex list nb =
+    match list with
+      | [] -> ()
+      | (v,_)::list ->
+	  match nb with
+	    | 0 -> 
+		begin
+		  sub_menu :=new GMenu.factory (GMenu.menu()) ;
+		  add_edge vertex v;
+		  let string = string_of_label v in
+		  ignore (menu#add_item (String.sub string 0 (min (String.length string) 3)^"...") 
+			    ~submenu: !sub_menu#menu);
+		  make_sub_menu vertex list (nb+1);
+		end
+	    | n when n= nb_edge-> 
+		begin
+		  add_edge vertex v;
+		  make_sub_menu vertex list 0
+		end
+	    | _ ->
+		begin
+		  add_edge vertex v;
+		  make_sub_menu vertex list (nb+1)
+		end
+  in
+  make_sub_menu vertex list 0;
+  menu
 
+let menu_edge_to vertex list =
+ (* let menu = new GMenu.factory (GMenu.menu()) in
+  let compare (s1, _) (s2, _) = String.compare (string_of_label s1) (string_of_label s2) in
+  let list = List.sort compare list in
+  let add_edge  vertex v2 =
+    if not (G.V.equal v2 vertex)
+    then 
+      (*to... vertex*)
+      ignore(menu#add_item ("->"^string_of_label v2) 
+	       ~callback:(add_edge v2 vertex))
+  in
+  List.iter (fun (v,_) -> add_edge vertex v) list;
+  menu*)
+
+  let compare (s1, _) (s2, _) = String.compare (string_of_label s1) (string_of_label s2) in
+  let list = List.sort compare list in
+  sub_menu_edge_to vertex list
 
     
+let edge_to vertex list =
+  (* add an edge between current vertex and one of selected vertex*)
+  menu_edge_to vertex list
 
-let edge_to node list =
-  (* add an edge between current node and one of selected node *)
-  let add_edge_to_menu = new GMenu.factory (GMenu.menu()) in
-  List.iter (fun (v,_) ->
-	       if not (G.V.equal v node)
-	       then 
-		 (*to... node*)
-		 ignore(add_edge_to_menu#add_item ("->"^string_of_label v) 
-			  ~callback:(add_edge v node))
-	    ) list;
-  add_edge_to_menu
-
-let all_edges (edge_menu :#GMenu.menu GMenu.factory) node list =
-  (*add all edges as possible from current node to selected nodes*)
+let all_edges (edge_menu :#GMenu.menu GMenu.factory) vertex list =
+  (*add all edges as possible from current vertex to selected vertices*)
   begin
-    let add_all_edge node list () = 
-      List.iter (fun (v,_) -> if not (G.V.equal v node) then add_edge v node())list in
-    ignore (edge_menu#add_item "Add all edges" ~callback:( add_all_edge node list))
+    let add_all_edge vertex list () = 
+      List.iter (fun (v,_) -> if not (G.V.equal v vertex) then add_edge v vertex())list in
+    ignore (edge_menu#add_item "Add all edges" ~callback:( add_all_edge vertex list))
   end
 
 
