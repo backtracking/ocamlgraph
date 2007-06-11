@@ -102,7 +102,7 @@ let () =
   Arg.parse
     ["-dfs", Arg.Set dfs, "DFS drawing strategy";
      "-bfs", Arg.Clear dfs, "BFS drawing strategy";
-     "-rr", Arg.Set_int refresh_rate, "set the refresh rate";
+     "-rr", Arg.Set_int refresh_rate, "set the refresh rate, must be greater than 0";
      "-aa", Arg.Clear aa, "turn off anti-aliased mode";
     ]
     load_graph 
