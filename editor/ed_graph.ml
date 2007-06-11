@@ -96,11 +96,14 @@ let dfs = ref false
 
 let refresh_rate = ref 10
 
+let aa = ref true
+
 let () = 
   Arg.parse
     ["-dfs", Arg.Set dfs, "DFS drawing strategy";
      "-bfs", Arg.Clear dfs, "BFS drawing strategy";
      "-rr", Arg.Set_int refresh_rate, "set the refresh rate";
+     "-aa", Arg.Clear aa, "turn off anti-aliased mode";
     ]
     load_graph 
     "editor [options] <graph file>"

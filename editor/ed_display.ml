@@ -188,7 +188,7 @@ let draw_intern_edge vw tv tw canvas =
     with Not_found ->
       let bpath = GnomeCanvas.PathDef.new_path () in
       let line = GnoCanvas.bpath canvas
-	~props:[ `BPATH bpath ; `OUTLINE_COLOR "SlateGrey" ; `WIDTH_PIXELS 1 ] 
+	~props:[ `BPATH bpath ; `OUTLINE_COLOR "SlateGrey" ; `WIDTH_PIXELS 2 ] 
       in
       line#lower_to_bottom ();
       H2.add intern_edges vw (bpath,line);
@@ -223,7 +223,7 @@ let draw_successor_edge vw t distance steps canvas =
     with Not_found ->
       let color = "black" in 
       let line = GnoCanvas.line canvas ~props:[ `FILL_COLOR color ;
-					     `WIDTH_PIXELS 1; `SMOOTH true] 
+					     `WIDTH_PIXELS 2; `SMOOTH true] 
       in
       line#lower_to_bottom ();
       H2.add successor_edges vw line;

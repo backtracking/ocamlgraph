@@ -1,6 +1,6 @@
 
 test: editor.opt
-	./editor.opt tests/divisors12.gml
+	./editor.opt -aa -rr 15 tests/divisors12.gml
 
 editor.opt: ed_*.ml
 	make -C .. editor/editor.opt

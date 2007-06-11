@@ -32,6 +32,7 @@ module Model = struct
       Format.eprintf "anomaly: no model row for %s@." (string_of_label v);
       raise Not_found
 
+ 
   let add_vertex v =
     let row = model#append () in
     model#set ~row ~column:name (string_of_label v);
@@ -58,7 +59,14 @@ module Model = struct
     if not G.is_directed then 
       let row_w = find_row w in
       add_edge_1 row_w v
-      
+   
+  let remove_vertex vertex = 
+    let row = find_row vertex in
+    model#remove row
+
+ (* let remove_edge vertex =*)
+
+   
 end
 
 let () = Model.reset ()
@@ -81,7 +89,7 @@ let sw = GBin.scrolled_window ~shadow_type:`ETCHED_IN ~hpolicy:`NEVER
  
    
 let canvas = 
-  GnoCanvas.canvas ~aa:true ~width:(truncate w) ~height:(truncate h) 
+  GnoCanvas.canvas ~aa:!aa ~width:(truncate w) ~height:(truncate h) 
     ~packing:h_box#add () 
 
 let canvas_root = canvas#root 
@@ -160,7 +168,6 @@ let select_node node item=
 
 let select_all () =  
   H.iter(fun node (_,item,_) ->select_node_no_color node item) nodes;
-  Format.eprintf"yep@.";
   color_change_selection ()
   
 let unselect_node_no_color node item =  
@@ -273,6 +280,14 @@ let add_edge n1 n2 ()=
   end
 
 
+let add_edge_no_refresh n1 n2 ()= 
+  if not (edge n1 n2)
+  then begin
+    G.add_edge_e !graph (G.E.create n1 (make_edge_info ()) n2);
+    Model.add_edge n1 n2
+  end
+
+
 (* add successor node to selected node *)
 let add_successor node () =
   let window = GWindow.window ~title: "Choose label name" ~width: 300 ~height: 50 () in
@@ -302,6 +317,43 @@ let add_successor node () =
 		      )
 	 )
 
+let remove_vertex vertex () =
+  G.iter_succ
+    (fun w ->
+       try
+	 let _,n = H2.find intern_edges (vertex,w) in
+	 n#destroy ()
+       with Not_found ->
+	 try
+	   let _,n = H2.find intern_edges (w,vertex) in
+	   n#destroy ()
+	 with Not_found ->
+	   try
+	     let n = H2.find successor_edges (vertex,w) in
+	     n#destroy ()
+	   with Not_found ->
+	     try
+	       let n = H2.find successor_edges (w,vertex) in
+	       n#destroy ()
+	     with Not_found ->
+	       ()
+    )
+    !graph vertex;
+  let (n,_,_) =  H.find nodes vertex in
+  n#destroy ();
+  let isel =  (is_selected vertex) in 
+  G.remove_vertex !graph vertex;
+  ignore (Model.remove_vertex vertex);
+  if isel
+  then vertex_selection := List.filter (fun (v,_) ->  not (G.V.equal vertex v)) !vertex_selection; 
+  if (G.V.equal !root vertex) 
+  then root := choose_root();
+  refresh := 0;    
+  let tor = make_turtle !origine 0.0 in
+  draw tor canvas_root;
+  if isel then  color_change_selection()
+    
+
 
 let sub_menu_edge_to vertex list =
   let ll = List.length list in
@@ -314,7 +366,6 @@ let sub_menu_edge_to vertex list =
     then ignore((!sub_menu)#add_item ("->"^string_of_label v2) 
 	       ~callback:(add_edge v2 vertex))
   in
-  Format.eprintf "liste %d, nbsub %d, nb/menu %d@." ll nb_sub_menu nb_edge;
   let rec make_sub_menu vertex list nb =
     match list with
       | [] -> ()
@@ -340,8 +391,22 @@ let sub_menu_edge_to vertex list =
 		  make_sub_menu vertex list (nb+1)
 		end
   in
-  make_sub_menu vertex list 0;
-  menu
+  if ll > 10 
+  then begin
+    make_sub_menu vertex list 0;
+    menu
+  end
+  else begin
+    
+    let rec make_sub_bis list =
+      match list with
+	| [] -> ();
+	| (v,_)::list ->add_edge vertex v; make_sub_bis list
+    in
+    make_sub_bis list;
+    !sub_menu
+  end
+    
 
 let menu_edge_to vertex list =
  (* let menu = new GMenu.factory (GMenu.menu()) in
@@ -366,27 +431,39 @@ let edge_to vertex list =
   (* add an edge between current vertex and one of selected vertex*)
   menu_edge_to vertex list
 
+
+
 let all_edges (edge_menu :#GMenu.menu GMenu.factory) vertex list =
   (*add all edges as possible from current vertex to selected vertices*)
   begin
     let add_all_edge vertex list () = 
-      List.iter (fun (v,_) -> if not (G.V.equal v vertex) then add_edge v vertex())list in
+      List.iter (fun (v,_) -> if not (G.V.equal v vertex)
+		 then add_edge_no_refresh v vertex()
+		)
+	list ;
+      refresh := 0;    
+      let tor = make_turtle !origine 0.0 in
+      draw tor canvas_root;
+      color_change_selection()
+    in
     ignore (edge_menu#add_item "Add all edges" ~callback:( add_all_edge vertex list))
   end
 
 
 
-let contextual_menu node ev =
+let contextual_menu vertex ev =
 
   let menu = new GMenu.factory (GMenu.menu ()) in
   (* change root*)
-  ignore (menu#add_item "As root" ~callback:(root_change node));
+  ignore (menu#add_item "As root" ~callback:(root_change vertex));
 
   (*vertex menu*)
   let vertex_menu = new GMenu.factory (GMenu.menu ()) in
   begin
     (* successor *)
-    ignore (vertex_menu#add_item "Add successor" ~callback:(add_successor node));
+    ignore (vertex_menu#add_item "Add successor" ~callback:(add_successor vertex));
+    ignore (vertex_menu#add_separator ());
+    ignore(vertex_menu#add_item "Remove vertex" ~callback:(remove_vertex vertex));
   end;
   ignore(menu#add_item "Vertex ops" ~submenu: vertex_menu#menu);
 
@@ -396,7 +473,7 @@ let contextual_menu node ev =
       | [] -> ()
       | list ->
 	  let ll =List.length list in
-	  let isel = is_selected node in
+	  let isel = is_selected vertex in
 	  begin
 	    if isel && ll=1 then ()
 	    else
@@ -405,12 +482,12 @@ let contextual_menu node ev =
 		if isel && ll=2 ||
 		  not isel && ll=1
 		then
-		  ignore (edge_menu#add_item "Add an edge to" ~submenu: (edge_to node list)#menu);
+		  ignore (edge_menu#add_item "Add an edge with" ~submenu: (edge_to vertex list)#menu);
 		if isel && ll>2 ||
 		  not isel && ll>1
 		then  begin
-		  ignore (edge_menu#add_item "Add an edge to" ~submenu: (edge_to node list)#menu);
-		  all_edges edge_menu node list;
+		  ignore (edge_menu#add_item "Add an edge with" ~submenu: (edge_to vertex list)#menu);
+		  all_edges edge_menu vertex list;
 		end;
 		ignore(menu#add_item "Edge ops" ~submenu: edge_menu#menu);
 	      end;
@@ -461,19 +538,22 @@ let vertex_event vertex item ev =
     | `MOTION_NOTIFY ev ->
 	incr refresh;
 	let state = GdkEvent.Motion.state ev in
-	if Gdk.Convert.test_modifier `BUTTON1 state && do_refresh () then 
+	if Gdk.Convert.test_modifier `BUTTON1 state  then 
 	  begin
 	    let curs = Gdk.Cursor.create `FLEUR in
 	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] 
 	      curs (GdkEvent.Button.time ev);
-	    let old_origin = !origine in
-	    let turtle = motion_turtle item ev in
-	    if hspace_dist_sqr turtle <= rlimit_sqr then begin
-	      draw turtle canvas_root
-	    end else begin
-	      origine := old_origin;
-	      let turtle = { turtle with pos = old_origin } in
-	      draw turtle canvas_root
+	    if do_refresh ()
+	    then begin
+	      let old_origin = !origine in
+	      let turtle = motion_turtle item ev in
+	      if hspace_dist_sqr turtle <= rlimit_sqr then begin
+		draw turtle canvas_root
+	      end else begin
+		origine := old_origin;
+		let turtle = { turtle with pos = old_origin } in
+		draw turtle canvas_root
+	      end
 	    end
 	  end
 
