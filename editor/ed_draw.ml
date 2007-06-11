@@ -21,6 +21,7 @@ let order_children l =
   let scc = Components.scc_list gl in
   let order_component c =
     let gc = make_subgraph c in
+    (* choose a vertex v of minimal out degree *)
     let v = match c with
       | v :: l ->
 	  List.fold_left 

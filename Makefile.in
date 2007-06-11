@@ -40,7 +40,7 @@ OBJEXT = @OBJEXT@
 
 INCLUDES = -I +lablgtk2 -I +threads -I editor
 BFLAGS = $(INCLUDES)
-OFLAGS = $(INCLUDES) -p @FORPACK@
+OFLAGS = $(INCLUDES) @FORPACK@
 
 # main target
 #############
@@ -147,7 +147,7 @@ editor/editor.byte: $(CMA) $(EDCMO)
 	$(OCAMLC) -g -o $@ -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma unix.cma $^
 
 editor/editor.opt: $(CMXA) $(EDCMX)
-	$(OCAMLOPT) -p -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
+	$(OCAMLOPT) -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
 
 
 VERSION=0.98
@@ -175,10 +175,10 @@ $(DPD_GRAPH_ML) $(DPD_GRAPH_ML:.ml=.cmx): $(CMXA)
 install: install-$(OCAMLBEST) install-byte
 
 install-byte: 
-	cp -f graph.cmo graph.cmi $(CMA) $(OCAMLLIB)
+	cp -f graph.cmo graph.cmi $(CMA) "$(OCAMLLIB)"
 
 install-opt: install-byte
-	cp -f graph$(LIBEXT) graph.cmx $(CMXA) $(OCAMLLIB)
+	cp -f graph$(LIBEXT) graph.cmx $(CMXA) "$(OCAMLLIB)"
 
 install-findlib: META
 ifdef OCAMLFIND
