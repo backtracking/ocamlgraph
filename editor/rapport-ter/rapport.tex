@@ -325,7 +325,7 @@ cependant deux différences importantes.  En effet, il peut y avoir
 plusieurs chemins différents menant de la racine à un \noeud\ donné.
 Dès lors, un \noeud\ peut déjà avoir été affiché comme successeur
 immédiat d'un descendant de la racine déjà traité, et ne doit donc
-plus être considéré comme successeur de tout autre \noeud\ .
+plus être considéré comme successeur de tout autre \noeud.
 Cependant, les arêtes correspondantes doivent être affichées, ce
 qui amène à ajouter des arêtes transversales par rapport au dessin
 d'un arbre, c'est-à-dire des arêtes s'affranchissant des frontières
@@ -336,7 +336,7 @@ l'affichage d'un graphe, ce qui implique de considérer avec soin les
 deux paramètres suivants : d'une part, le type de parcours effectué à
 partir de la racine, qui va déterminer si un \noeud\ est visité plus ou
 moins tôt ; et d'autre part, l'ordonnancement des successeurs d'un
-\noeud\, qui peut rapprocher ou éloigner les \noeuds\ reliés par des
+\noeud, qui peut rapprocher ou éloigner les \noeuds\ reliés par des
 arêtes transversales. Nous allons maintenant présenter des
 heuristiques concernant ces deux points.
 
@@ -434,7 +434,7 @@ des structures de données et des algorithmes indépendants. Ainsi,
 l'utilisateur peut utiliser sa propre structure de données et créer
 les modules correspondants. Pour le programmeur, les foncteurs évitent
 une duplication inutile de code.
-\ocamlgraph sans être une librairie complète, en ce sens où tous les
+\ocamlgraph\ sans être une librairie complète, en ce sens où tous les
 algorithmes existants sur les graphes n'y sont pas implantés, est bien
 plus qu'une base car pleinement fonctionnelle et d'une utilisation
 relativement aisée, une fois que le principe de fonctionnement à été compris.
@@ -442,9 +442,9 @@ relativement aisée, une fois que le principe de fonctionnement à été compris.
 L'objectif pratique de ce TER est d'étendre \ocamlgraph\ par un outil graphique
 permettant de visualiser et d'éditer des graphes. Pour le développement de
 cet éditeur graphique, la bibliothèque est principalement utilisée pour la structure
-de données des graphes, et aussi pour fonctionnalités internes à
+de données des graphes, et aussi pour des fonctionnalités internes à
 l'éditeur comme calculer des composantes connexes, ou bien trouver les
-successeurs d'un \noeud\ .
+successeurs d'un \noeud.
 
 L'éditeur est donc indépendant de la bibliothèque pour son utilisation
 (il n'est pas utile de posséder la librairie pour utiliser l'éditeur),
@@ -457,7 +457,7 @@ L'éditeur de graphes comporte certaines fonctions de base pour remplir
 son objectif de visualisation et d'édition. Il permet de traiter les
 fichiers aux formats Dot\cite{graphviz} et Gml\cite{gml}. On peut donc ouvrir un fichier, créer
 un nouveau graphe, et sauvegarder sous ces formats. 
-Concernant l'édition, on peut ajouter des \noeuds\  isolés, et des successeurs
+Concernant l'édition, on peut ajouter des \noeuds\  isolés et des successeurs
 à un \noeud. Il est possible de créer des arêtes entre un \noeud\ et un
 ensemble de \noeuds\  sélectionnés. Il existe bien entendu les
 réciproques qui sont la suppression d'un \noeud, d'un ensemble de
@@ -467,11 +467,11 @@ graphe est dessiné.
 
 À la ligne de commande, il est possible de lancer l'éditeur en
 chargeant directement un graphe (format Gml\cite{gml} ou Dot\cite{graphviz}), et aussi de
-qualifier certains paramètres :
+spécifier certains paramètres :
 \begin{itemize}
-\item le taux de rafraîchissement, option \texttt{-rr} $n$, où $n > 0$
-\item la désactivation du mode anti-aliasé, option \texttt{-aa}
-\item le choix entre Dfs et Bfs, options respectivement \texttt{-dfs} et \texttt{-bfs} 
+\item le taux de rafraîchissement, option \texttt{-rr} $n$, où $n > 0$;
+\item la désactivation du mode anti-aliasé, option \texttt{-aa};
+\item le choix entre Dfs et Bfs, options respectivement \texttt{-dfs} et \texttt{-bfs}.
 \end{itemize}
 
 
@@ -484,21 +484,77 @@ avec une représentation dans la géométrie hyperbolique, et plus
 précisément dans le modèle de Poincaré. Nous avons étendu ce travail à
 la visualisation des graphes. Nous avons porté le tout sous une
 bibliothèque graphique de plus haut niveau, GTK+ \cite{gtk} dont le
-portage en \ocaml\ s'appelle Lablgtk \cite{lablgtk}, qui permet des
-interactions bien plus intéressantes avec l'utilisateur.
-Et enfin, viennent les fonctionnalités d'éditions .
+portage en \ocaml\ s'appelle Lablgtk2 \cite{lablgtk}, qui permet des
+interactions bien plus intéressantes avec l'utilisateur contrairement
+à l'utilisation de la bibliothèque Graphics de \ocaml\ utilisée par \miquel.
+Au final, nous nous sommes intéressés à l'implantation des
+fonctionnalités d'édition de base (ajout/suppression de \noeuds /d'arêtes).
 
 Durant ce stage, plusieurs points plus ou moins nouveaux et plus ou
-moins difficiles on dû être abordé :
+moins difficiles ont dû être abordés :
 \begin{itemize}
-\item la découverte et l'utilisation d'un serveur \texttt {subversion}
-\item la découverte des modules et de la couche objet de
-  \ocaml~\cite{ocaml}
-\item l'utilisation intensive de Linux
-\item la découverte de Emacs\cite{emacs} et de quelques modes
-\item la découverte de GTK et de son pendant en \ocaml, Lablgtk
-\item la découverte de Latex
+\item la découverte et l'utilisation de \texttt {subversion};
+\item la découverte des modules et de la couche objet
+  d'\ocaml~\cite{ocaml};
+\item l'utilisation intensive de Linux;
+\item la découverte d'Emacs\cite{emacs};
+\item la découverte de GTK et de son pendant en \ocaml, Lablgtk;
+\item la découverte de Latex.
 \end{itemize}
+Les sujets les plus difficiles à aborder, à mon avis, ont été d'une
+part les foncteurs \ocaml\ ce qui fût nécessaire pour la reprise des
+idées du code d'\miquel\ et aussi l'utilisation d'\ocamlgraph, et
+d'autre part, la librairie graphique Lablgtk basée sur la couche objet
+d'\ocaml\ ce qui l'a rendait un peu plus difficile à appréhender, ne
+connaissant ni la syntaxe ni les principes de la couche objet d'\ocaml.
+
+Le travail effectué à l'heure actuelle n'est qu'une base qui peut être
+amélioré. Quelques grands thèmes peuvent être envisagés pour son
+évolution. D'une part, on peut effectuer des ajouts triviaux pour
+permettre un peu plus de diversité dans les graphes éditables et dans
+les fonctions d'édition tels que :
+\begin{itemize}
+\item la gestion des graphes orientés;
+\item l'ajout d'étiquette aux arêtes;
+\item la création d'une clique avec un ensemble de \noeuds sélectionnés;
+\item la création d'un graphe plein de $n$ \noeuds.
+\end{itemize}
+
+D'autre part, on pourrait étudier le passage à l'échelle, et voir comment
+réagirait l'éditeur face à des milliers, des millions de \noeuds. On
+peut penser qu'une optimisation du code serait nécessaire pour arriver
+à gérer une grande quantité d'éléments. Mais, le problème ne se
+situerait pas qu'au niveau des ressources consommées, mais aussi sur
+l'interface graphique actuel, comme par exemple pouvoir rajouter la
+visualisation des composantes connexes dans l'arbre de droite.
+
+On pourrait, aussi, améliorer l'intégration d'\ocamlgraph\ à
+l'éditeur, en ajoutant des possibilités de visualiser des algorithmes
+implantés dans \ocamlgraph\ comme afficher le plus court chemin entre
+deux \noeuds, faire une k-coloration d'un graphe. Ceux-ci
+permettraient à cet éditeur de prendre une tournure pédagogique en
+permettant ce genre d'opérations.
+
+Et enfin, la transformation probablement la plus intéressante pour un usage
+professionnel, ce serait de transformer l'éditeur en un
+foncteur, et ainsi, cela permettrait à l'utilisateur de se créer son propre
+éditeur de graphe avec ses structures de données et ses algorithmes appropriés.
+
+\section*{Remerciement}
+
+Je tiens à remercier Mme Marie-Christine Rousset qui m'a mis en
+rapport avec l'équipe Proval et  sans qui je n'aurai sans doute jamais
+pu avoir la chance de faire ce stage en dehors des limites
+habituelles.
+Je tiens aussi à remercier Mme Christine Paulin qui m'a accueilli dans
+son équipe, et qui m'a accordé des fonds pour pouvoir effectuer les
+trajets nécessaires. 
+Et bien entendu, le meilleur pour la fin, je suis extrêmement
+reconnaissant à l'égard de M. Jean-Christophe Filliâtre qui a toujours
+été là pour m'orienter, me conseiller et me corriger. Le fait de
+travailler à ses côtés m'a énormément appris, aussi bien sur les
+outils utilisés, que par les méthodes de travail qu'il emploie. 
+
 
 
 \bibliographystyle{plain}
