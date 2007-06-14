@@ -24,7 +24,7 @@ module Model = struct
   let model = GTree.tree_store cols
 
   let rows = H.create 97
-
+    
   let find_row v =
     try 
       H.find rows v
@@ -33,14 +33,14 @@ module Model = struct
       raise Not_found
 
  
-  let add_vertex v =
+  let add_vertex v u =
     let row = model#append () in
     model#set ~row ~column:name (string_of_label v);
     model#set ~row ~column:vertex v;
     H.add rows v row;
     row
 
-  let add_edge_1 row_v w =
+  let add_edge_1 row_v =
     let row = model#append ~parent:row_v () in
     model#set ~row ~column:name (string_of_label w)
 

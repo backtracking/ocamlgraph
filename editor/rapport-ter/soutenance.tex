@@ -1,9 +1,11 @@
 \documentclass{beamer}
 
-\usetheme{Madrid}
+\usetheme{Singapore}
 
 \usepackage[latin1]{inputenc}
 \usepackage[french]{babel}
+\usepackage{graphicx}
+
 
 \begin{document}
 
@@ -21,13 +23,121 @@ Parc Club Université, 91893 ORSAY}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Titre}
-  voici mon permier transparent
+  \frametitle{La visualisation de graphes}
   \begin{itemize}
-  \item premier point \pause
-  \item deuxième point \pause
-  \item etc.
+  \item Un problème complexe
+  \item De nombreux algorithmes, mais aucune solution générale 
+  \item Une approche différente 
+    \begin{itemize}
+    \item A. Miquel, \emph{Affichage générique d'arbres à l'aide de la géométrie hyperbolique} (JFLA 2000)
+    \end{itemize}
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Visualisation d'arbre en géométrie hyperbolique}
+  \begin{figure}
+    \begin{center}
+      \includegraphics[scale=0.3]{images/htree.pdf}   
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Plan}
+  \begin{itemize}
+  \item La géométrie hyperbolique
+  \item La visualisation de graphes en géométrie hyperbolique
+  \item Démonstration du programme
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Historique}
+  \begin{itemize}
+  \item Géométrie euclidienne et le  $V^e$ postulat
+    \begin{quote}
+      ``Étant donnés une droite $D$ et un point M, il n'existe qu'une seule
+      droite passant par $M$ et qui soit parallèle à $D$.''
+    \end{quote}
+  \item Théories de Bolyai et Lobatchevsky
+    \bigskip
+    \begin{center}
+           \includegraphics[height=2.5cm]{images/parallels.png}
+    \end{center}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Modèle de Poincaré}
+
+  Transposition du plan euclidien dans le disque unité
+
+  \begin{center}
+        \includegraphics[scale=0.5]{images/lentille1.png}   
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Disque de Poincaré}
+  Droites euclidiennes sont des arcs de cercle
+  \begin{center}
+        \includegraphics[scale=0.3]{images/perpendiculaire.png}   
+  \end{center}
+  Adaptation de la tortue LOGO du plan euclidien au disque de Poincaré  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Application à la visualisation de graphes}
+Répartition du plan entre les successeurs de la racine
+  \begin{center}
+    \includegraphics[scale=0.3027]{images/dictateurs.jpg}   
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Application à la visualisation de graphes}
+Répartition d'un demi-plan entre les successeurs d'un n\oe ud
+  \begin{center}
+    \includegraphics[scale=0.3]{images/dictateursniv2.jpg}   
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Application à la visualisation de graphes}
+Arêtes s'affranchissant des frontières entre demi-plans \smallskip
+  \begin{center}
+    \includegraphics[scale=0.3]{images/intern-edge.jpg}   
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Application à la visualisation de graphes}
+Deux parcours possibles : en profondeur (Dfs) et en largeur (Bfs)
+  \begin{center}
+   \begin{minipage}{0.49\linewidth}
+    \includegraphics[scale=0.30]{images/parcours_dfs.eps} 
+  \end{minipage}
+  \begin{minipage}{0.49\linewidth}
+    \includegraphics[scale=0.30]{images/parcours_bfs.eps}
+  \end{minipage}
+
+  \end{center}
+\end{frame}
+
+% 2 autres transparents expliquant les solutions : le parcours / l'ordonnancement des successeurs
+
+% 1 transparent sur la réalisation en Ocaml
+
+\begin{frame}
+  \begin{center}
+    Démonstration
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  % extensions possibles
 \end{frame}
 
 \end{document}

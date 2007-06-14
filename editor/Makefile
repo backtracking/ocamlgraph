@@ -8,8 +8,7 @@ editor.opt: ed_*.ml
 editor.byte: ed_*.ml
 	make -C .. editor/editor.byte
 
-
-# tortuenew.opt: tortue.ml 
+# tortuegpoint: tortue.ml 
 #	ocamlopt outils_math.ml
 #	ocamlopt -o $@ graphics.cmxa outils_math.cmx $^
 
