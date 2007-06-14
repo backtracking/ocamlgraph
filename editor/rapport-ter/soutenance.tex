@@ -48,7 +48,7 @@ Parc Club Université, 91893 ORSAY}
   \begin{itemize}
   \item La géométrie hyperbolique
   \item La visualisation de graphes en géométrie hyperbolique
-  \item Démonstration du programme
+  \item Démonstration
   \end{itemize}
 \end{frame}
 
@@ -56,10 +56,10 @@ Parc Club Université, 91893 ORSAY}
 \begin{frame}
   \frametitle{Historique}
   \begin{itemize}
-  \item Géométrie euclidienne et le  $V^e$ postulat
+  \item $V^e$ postulat de la géométrie euclidienne
     \begin{quote}
-      ``Étant donnés une droite $D$ et un point M, il n'existe qu'une seule
-      droite passant par $M$ et qui soit parallèle à $D$.''
+      \og Étant donnés une droite $D$ et un point M, il n'existe qu'une seule
+      droite passant par $M$ et qui soit parallèle à $D$. \fg
     \end{quote}
   \item Théories de Bolyai et Lobatchevsky
     \bigskip
@@ -81,11 +81,12 @@ Parc Club Université, 91893 ORSAY}
 
 \begin{frame}
   \frametitle{Disque de Poincaré}
-  Droites euclidiennes sont des arcs de cercle
+  Les droites sont des arcs de cercle
   \begin{center}
         \includegraphics[scale=0.3]{images/perpendiculaire.png}   
   \end{center}
-  Adaptation de la tortue LOGO du plan euclidien au disque de Poincaré  
+  on peut définir une tortue \og à la LOGO \fg
+  % Adaptation de la tortue LOGO du plan euclidien au disque de Poincaré  
 \end{frame}
 
 \begin{frame}
@@ -131,7 +132,7 @@ Arêtes s'affranchissant des frontières entre demi-plans \smallskip
 
 
 \begin{frame}
-\frametitle{Ordonnancement des successurs d'un n\oe ud}
+\frametitle{Ordonnancement des successeurs d'un n\oe ud}
   \begin{itemize}
   \item regrouper les composantes 
     \begin{center}
@@ -147,9 +148,14 @@ Arêtes s'affranchissant des frontières entre demi-plans \smallskip
 \begin{frame}
   \frametitle{Réalisation en Ocaml}
   \begin{itemize}
-  \item Utilisation d'Ocamlgraph
-  \item Implémentation en GTK2+ par le biais de lablgtk2
-  \item Environ 1500 lignes de code
+  \item Intégration dans Ocamlgraph
+    \begin{itemize}
+    \item utilise Ocamlgraph de manière interne
+    \item livré avec Ocamlgraph
+    \end{itemize}
+  \item Utilisation de la bibliothèque graphique GTK2+ (par le biais
+    de lablgtk2) 
+  \item Environ 1600 lignes de code
   \end{itemize}
 \end{frame}
 
@@ -166,12 +172,12 @@ Arêtes s'affranchissant des frontières entre demi-plans \smallskip
   \item Fonctionnalités de base
     \begin{itemize}
     \item Gestion des graphes orientés
-    \item Arêtes pondérables
-    \item Création de clique pour ensemble sélectionné
+    \item Arêtes étiquetées
+    \item Opérations avancées (cl\^oture transitive, noyau, clique, etc.)
     \end{itemize}
-  \item Optimisation du code et rendre plus fluide l'animation
-  \item Augmentation de l'intégration d'Ocamlgraph
-  \item Fonctorisation du programme
+  \item Optimisation du code et animation plus fluide
+  \item Visualisation d'algorithmes
+  \item Fonctorisation du code
   \end{itemize}
 \end{frame}
 
