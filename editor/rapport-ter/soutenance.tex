@@ -26,7 +26,7 @@ Parc Club Université, 91893 ORSAY}
   \frametitle{La visualisation de graphes}
   \begin{itemize}
   \item Un problème complexe
-  \item De nombreux algorithmes, mais aucune solution générale 
+  \item De nombreux algorithmes de placement, mais aucune solution générale 
   \item Une approche différente 
     \begin{itemize}
     \item A. Miquel, \emph{Affichage générique d'arbres à l'aide de la géométrie hyperbolique} (JFLA 2000)
@@ -61,7 +61,8 @@ Parc Club Université, 91893 ORSAY}
       \og Étant donnés une droite $D$ et un point M, il n'existe qu'une seule
       droite passant par $M$ et qui soit parallèle à $D$. \fg
     \end{quote}
-  \item Théories de Bolyai et Lobatchevsky
+  \item Théories de Bolyai et Lobatchevsky contredisant ce postulat et créant la géométrie hyperbolique
+  \item Construite sur le fait qu'en un point $M$, il peut passer une infinité de droites (ici $D_1$, $D_2$, $D_3$) parallèles à la droite $D$
     \bigskip
     \begin{center}
            \includegraphics[height=2.5cm]{images/parallels.png}
@@ -70,9 +71,9 @@ Parc Club Université, 91893 ORSAY}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Modèle de Poincaré}
+  \frametitle{Modèle du disque de Poincaré}
 
-  Transposition du plan euclidien dans le disque unité
+  Passage du plan euclidien au plan de Poincaré
 
   \begin{center}
         \includegraphics[scale=0.5]{images/lentille1.png}   
@@ -99,10 +100,20 @@ Répartition du plan entre les successeurs de la racine
 
 \begin{frame}
   \frametitle{Application à la visualisation de graphes}
-Répartition d'un demi-plan entre les successeurs d'un n\oe ud
+  Répartition d'un demi-plan entre les successeurs d'un n\oe ud
+  
   \begin{center}
+    \begin{minipage}{0.2\linewidth}
+\begin{verbatim}
+Successeurs de :
+    A -> [1; 2; 3 ]
+    B -> [3; 4; 5 ] 
+\end{verbatim}
+  \end{minipage}
+  \begin{minipage}{0.8\linewidth}
     \includegraphics[scale=0.3]{images/dictateursniv2.jpg}   
-  \end{center}
+  \end{minipage}
+\end{center}
 \end{frame}
 
 \begin{frame}
@@ -156,6 +167,9 @@ Arêtes s'affranchissant des frontières entre demi-plans \smallskip
   \item Utilisation de la bibliothèque graphique GTK2+ (par le biais
     de lablgtk2) 
   \item Environ 1600 lignes de code
+    \begin{center}
+      \includegraphics[scale=0.27]{images/dep.jpg} 
+    \end{center}
   \end{itemize}
 \end{frame}
 
@@ -173,7 +187,7 @@ Arêtes s'affranchissant des frontières entre demi-plans \smallskip
     \begin{itemize}
     \item Gestion des graphes orientés
     \item Arêtes étiquetées
-    \item Opérations avancées (cl\^oture transitive, noyau, clique, etc.)
+    \item Opérations avancées (clôture transitive, noyau, clique, etc.)
     \end{itemize}
   \item Optimisation du code et animation plus fluide
   \item Visualisation d'algorithmes
