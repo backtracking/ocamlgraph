@@ -33,14 +33,14 @@ module Model = struct
       raise Not_found
 
  
-  let add_vertex v u =
+  let add_vertex v =
     let row = model#append () in
     model#set ~row ~column:name (string_of_label v);
     model#set ~row ~column:vertex v;
     H.add rows v row;
     row
 
-  let add_edge_1 row_v =
+  let add_edge_1 row_v w =
     let row = model#append ~parent:row_v () in
     model#set ~row ~column:name (string_of_label w)
 
