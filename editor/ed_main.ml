@@ -104,7 +104,7 @@ let canvas_root =
   let circle =
     GnoCanvas.ellipse  ~props:[ `X1 (-.w/.2. +.w2); `Y1 (-.h/.2. +.w2); 
 				`X2  (w/.2. -.w2) ; `Y2 ( h/.2. -.w2) ;
- 				`FILL_COLOR "white" ; `OUTLINE_COLOR "black" ; 
+ 				`FILL_COLOR "ghost white" ; `OUTLINE_COLOR "black" ; 
 				`WIDTH_PIXELS (truncate w2) ] circle_group 
   in
   circle_group#lower_to_bottom ();
@@ -113,11 +113,6 @@ let canvas_root =
   graph_root#raise_to_top ();
   graph_root
 
-
-(* selected node List *)
-let vertex_selection = ref []
-let is_selected x = 
-  List.exists (fun (v,_) -> G.V.equal v x) !vertex_selection
 
 
 (* current root used for drawing *)
@@ -130,7 +125,6 @@ let load_graph f =
   root := choose_root ()
 
 
-
 (* refresh rate *)
 let refresh = ref 0
 let do_refresh () =
@@ -140,62 +134,30 @@ let do_refresh () =
 
 (* graph drawing *)
 let draw tortue canvas =
- (* canvas#hide();*)
   Ed_draw.draw_graph !root tortue;
   Ed_display.draw_graph !root canvas;
   if do_refresh () then
     canvas_root#canvas#update_now ()
-(*  canvas#show()*)
 
+
+let refresh_draw () =
+  refresh := 0;    
+  let tor = make_turtle !origine 0.0 in
+  draw tor canvas_root
     
-(* events *)
-
-
-
-let color_change_selection () =
-  List.iter color_change_selected !vertex_selection
-
-    
-let select_node_no_color node item =
-vertex_selection :=  (node, item)::!vertex_selection
-   
-
-let select_node node item=
-  begin
-    select_node_no_color node item;
-    color_change_selection ()
-  end
-
-let select_all () =  
-  H.iter(fun node (_,item,_) ->select_node_no_color node item) nodes;
-  color_change_selection ()
-  
-let unselect_node_no_color node item =  
-  vertex_selection := 
-    List.filter (fun (v,_) -> not (G.V.equal v node)) !vertex_selection
-
-let unselect_node node item =  
- (* color_change_selected (node,item);*)
-  unselect_node_no_color node item;
-  color_change_selection ();
-  color_change_focused (node,item)
-
-
-let unselect_all () =  
-  List.iter (fun (node,item) -> 
-	       unselect_node_no_color node item;
-	       color_change_no_event (node,item)
-	    )
-    !vertex_selection;
-  color_change_selection ()
+let refresh_display () =
+  Ed_display.draw_graph !root canvas_root
 
 
 
 let root_change vertex ()= 
   root := vertex; 
   origine := start_point;
-  let turtle = make_origine_turtle () in
+  let turtle = make_turtle_origine () in
   draw turtle canvas_root
+
+
+
 
 let node_selection ~(model : GTree.tree_store) path =
   let row = model#get_iter path in
@@ -242,7 +204,7 @@ let add_node () =
     ~active:!is_as_root 
     ~packing:hbox#add () in
   ignore (as_root#connect#toggled
-    ~callback:(fun () ->is_as_root := as_root#active ));
+	    ~callback:(fun () ->is_as_root := as_root#active ));
   window#show ();
   (*entry's callback*)
   ignore( entry#connect#activate 
@@ -256,10 +218,7 @@ let add_node () =
 			  Ed_display.add_node canvas_root vertex;
 			  !set_vertex_event_fun vertex;
 			  if !is_as_root  then root_change vertex () ;
-			  if !is_in_selection then 
-			    begin
-			      let _,ell,_ = H.find nodes vertex in select_node vertex ell
-			    end;
+			  if !is_in_selection then update_vertex vertex Select;
 			  let  tor = make_turtle !origine 0.0 in
 			  draw tor canvas_root))
 
@@ -276,7 +235,6 @@ let add_edge n1 n2 ()=
     Model.add_edge n1 n2;
     let tor = make_turtle !origine 0.0 in
     draw tor canvas_root;
-    if (is_selected n1) || (is_selected n2) then color_change_selection()
   end
 
 
@@ -290,12 +248,22 @@ let add_edge_no_refresh n1 n2 ()=
 
 (* add successor node to selected node *)
 let add_successor node () =
-  let window = GWindow.window ~title: "Choose label name" ~width: 300 ~height: 50 () in
-  let vbox = GPack.vbox ~packing: window#add () in
-  
-  let entry = GEdit.entry ~max_length: 50 ~packing: vbox#add () in
+  let window = GWindow.window 
+    ~title: "Choose label name" 
+    ~width: 300 
+    ~height: 50 
+    () in
+  let vbox = GPack.vbox 
+    ~packing: window#add 
+    () in
+  let entry = GEdit.entry 
+    ~max_length: 50 
+    ~packing: vbox#add 
+    () in
   entry#set_text "Label";
-  entry#select_region ~start:0 ~stop:entry#text_length;
+  entry#select_region 
+    ~start:0 
+    ~stop:entry#text_length;
   window#show ();
   ignore (entry#connect#activate 
 	    ~callback:(fun () ->
@@ -312,8 +280,7 @@ let add_successor node () =
 			 Model.add_edge node vertex;
 			 (* redraw *)
 			 let tor = make_turtle !origine 0.0 in
-			 draw tor canvas_root;
-			 if (is_selected node) then color_change_selection()
+			 draw tor canvas_root
 		      )
 	 )
 
@@ -340,18 +307,13 @@ let remove_vertex vertex () =
     )
     !graph vertex;
   let (n,_,_) =  H.find nodes vertex in
-  n#destroy ();
-  let isel =  (is_selected vertex) in 
+   n#destroy ();
+  H.remove nodes vertex;
   G.remove_vertex !graph vertex;
   ignore (Model.remove_vertex vertex);
-  if isel
-  then vertex_selection := List.filter (fun (v,_) ->  not (G.V.equal vertex v)) !vertex_selection; 
   if (G.V.equal !root vertex) 
   then root := choose_root();
-  refresh := 0;    
-  let tor = make_turtle !origine 0.0 in
-  draw tor canvas_root;
-  if isel then  color_change_selection()
+  refresh_draw ()
     
 
 
@@ -369,7 +331,7 @@ let sub_menu_edge_to vertex list =
   let rec make_sub_menu vertex list nb =
     match list with
       | [] -> ()
-      | (v,_)::list ->
+      | v::list ->
 	  match nb with
 	    | 0 -> 
 		begin
@@ -401,7 +363,7 @@ let sub_menu_edge_to vertex list =
     let rec make_sub_bis list =
       match list with
 	| [] -> ();
-	| (v,_)::list ->add_edge vertex v; make_sub_bis list
+	| v::list ->add_edge vertex v; make_sub_bis list
     in
     make_sub_bis list;
     !sub_menu
@@ -409,20 +371,7 @@ let sub_menu_edge_to vertex list =
     
 
 let menu_edge_to vertex list =
- (* let menu = new GMenu.factory (GMenu.menu()) in
-  let compare (s1, _) (s2, _) = String.compare (string_of_label s1) (string_of_label s2) in
-  let list = List.sort compare list in
-  let add_edge  vertex v2 =
-    if not (G.V.equal v2 vertex)
-    then 
-      (*to... vertex*)
-      ignore(menu#add_item ("->"^string_of_label v2) 
-	       ~callback:(add_edge v2 vertex))
-  in
-  List.iter (fun (v,_) -> add_edge vertex v) list;
-  menu*)
-
-  let compare (s1, _) (s2, _) = String.compare (string_of_label s1) (string_of_label s2) in
+  let compare s1 s2 = String.compare (string_of_label s1) (string_of_label s2) in
   let list = List.sort compare list in
   sub_menu_edge_to vertex list
 
@@ -437,14 +386,13 @@ let all_edges (edge_menu :#GMenu.menu GMenu.factory) vertex list =
   (*add all edges as possible from current vertex to selected vertices*)
   begin
     let add_all_edge vertex list () = 
-      List.iter (fun (v,_) -> if not (G.V.equal v vertex)
+      List.iter (fun v -> if not (G.V.equal v vertex)
 		 then add_edge_no_refresh v vertex()
 		)
 	list ;
       refresh := 0;    
       let tor = make_turtle !origine 0.0 in
-      draw tor canvas_root;
-      color_change_selection()
+      draw tor canvas_root
     in
     ignore (edge_menu#add_item "Add all edges" ~callback:( add_all_edge vertex list))
   end
@@ -469,6 +417,8 @@ let contextual_menu vertex ev =
 
   (*edge menu*)
   begin
+    let vertex_selection = ref [] in
+    G.iter_vertex (fun v -> if (is_selected v) then vertex_selection :=v::(!vertex_selection)) !graph;
     match !vertex_selection with
       | [] -> ()
       | list ->
@@ -496,6 +446,12 @@ let contextual_menu vertex ev =
   menu#menu#popup ~button:3 ~time:(GdkEvent.Button.time ev)
 	    
 
+
+
+
+
+
+
 (* unit circle callback *)
 let circle_event ev =
   begin match ev with
@@ -514,39 +470,39 @@ let circle_event ev =
   true
 
 
+
 (* event for each vertex of canvas *)
-let vertex_event vertex item ev =
+let vertex_event vertex item ellispe ev =
+
+ (* let vertex_info = G.V.label vertex in*)
   begin match ev with
     | `ENTER_NOTIFY _ ->
-	if  not (is_selected vertex)
-	then begin
-	  color_change_selection ();
-	  color_change_focused (vertex,item)	
-	end;
+	item#grab_focus ();
+	 update_vertex vertex Focus;
+	 refresh_display ()
 
     | `LEAVE_NOTIFY ev ->
-	if not (is_selected vertex)
-	  && not (Gdk.Convert.test_modifier `BUTTON1 (GdkEvent.Crossing.state ev))
-	then begin	
-	  color_change_no_event (vertex,item);
-	  color_change_selection ()
+	if not (Gdk.Convert.test_modifier `BUTTON1 (GdkEvent.Crossing.state ev))
+	then begin
+	  update_vertex vertex Unfocus;
+	  refresh_display ()
 	end
-
+	  
     | `BUTTON_RELEASE ev ->
-	item#parent#ungrab (GdkEvent.Button.time ev);
-
+	ellispe#parent#ungrab (GdkEvent.Button.time ev);
+	
     | `MOTION_NOTIFY ev ->
 	incr refresh;
 	let state = GdkEvent.Motion.state ev in
 	if Gdk.Convert.test_modifier `BUTTON1 state  then 
 	  begin
 	    let curs = Gdk.Cursor.create `FLEUR in
-	    item#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] 
+	    ellispe#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] 
 	      curs (GdkEvent.Button.time ev);
 	    if do_refresh ()
 	    then begin
 	      let old_origin = !origine in
-	      let turtle = motion_turtle item ev in
+	      let turtle = motion_turtle ellispe ev in
 	      if hspace_dist_sqr turtle <= rlimit_sqr then begin
 		draw turtle canvas_root
 	      end else begin
@@ -567,33 +523,35 @@ let vertex_event vertex item ev =
     | `TWO_BUTTON_PRESS ev->
       if (GdkEvent.Button.button ev) = 1
       then begin
-	if not (is_selected vertex)
-	then select_node vertex item
-	else unselect_node vertex item
-      end
-
-    | `THREE_BUTTON_PRESS ev->
-      if (GdkEvent.Button.button ev) = 1
-      then begin
-	if (List.length !vertex_selection =1)
+	if (Gdk.Convert.test_modifier `CONTROL (GdkEvent.Button.state ev))
 	then begin
-	  select_all ();
- 	end
-	else begin
-	  unselect_all ();
-	  color_change_selected (vertex,item);
-	  color_change_focused (vertex,item)
+	  if ( !nb_selected =0)
+	  then begin
+	    select_all ();
+	    update_vertex vertex Focus
+	  end
+	  else begin
+	    unselect_all ();
+	    update_vertex vertex Focus
+	  end
 	end
-      end
+	else begin
+	  if (is_selected vertex)
+	  then update_vertex vertex Unselect
+	  else update_vertex vertex Select;
+	end;
+	refresh_draw ();
+      end;  
 
     | _ ->
 	()
   end;
   true
 
+
 let set_vertex_event vertex =
   let item,ell,_ = H.find nodes vertex in
-  ignore (item#connect#event (vertex_event vertex ell))
+  ignore (item#connect#event (vertex_event vertex item ell))
 
 let () = set_vertex_event_fun := set_vertex_event
 
@@ -621,7 +579,6 @@ vc#set_sizing `GROW_ONLY;
         (fun p -> node_selection ~model p)
 	view#selection#get_selected_rows;
     end
-    
 
 
 let _ = window#connect#destroy~callback:GMain.Main.quit 
@@ -635,6 +592,7 @@ let _ = add_columns ~view:treeview ~model:Model.model
 
 
 
+
 (* reset *)
 
 let reset_table_and_canvas () =
@@ -644,7 +602,7 @@ let reset_table_and_canvas () =
   H2.clear successor_edges;
   reset_display canvas_root;
   origine := start_point;
-  vertex_selection := []
+  nb_selected:=0
 
 
 (* menu *)
@@ -694,7 +652,7 @@ let open_graph()  =
     begin 
       load_graph fichier;
       reset_table_and_canvas ();
-      let turtle = make_origine_turtle () in
+      let turtle = make_turtle_origine () in
       draw turtle canvas_root;
       set_canvas_event ()
     end
@@ -721,7 +679,7 @@ let _ = GToolbox.build_menu menu ~entries:menu_files
 
 
 
-let tortue = make_origine_turtle ()
+let tortue = make_turtle_origine ()
 
 let () = canvas#set_scroll_region 0. 0. w h 
 

@@ -189,12 +189,7 @@ let hspace_dist_sqr turtle  =
       end
   end
 
-(***
-let hspace_dist_sqr t =
-  let d = hspace_dist_sqr t in
-  Format.eprintf "hspace_dist_sqr -> %f@." d;
-  d
-***)
+
 
 (* Limit of visibility for nodes *)
 let rlimit = 0.98 

@@ -10,8 +10,38 @@ let debug = ref false
 let (w,h)= (600.,600.)
 
 
-(* GTK to hyperbolic coordinates *)
+(* differents colors deffinitions *)
+let color_intern_edge = "SlateGrey"
+let color_successor_edge ="black"
+let color_vertex = "grey"
 
+let color_selected_intern_edge = "DarkSlateGray2" 
+let color_selected_successor_edge =  "DarkSlateGray2"
+let color_selected_vertex =  "DarkSlateGray2"
+
+let color_focused_intern_edge = "blue" 
+let color_focused_successor_edge =  "blue" 
+let color_focused_vertex =  "blue" 
+
+let color_selected_focused_intern_edge =  "IndianRed" 
+let color_selected_focused_vertex ="IndianRed"
+let color_selected_focused_successor_edge =  "IndianRed" 
+
+
+ 
+(* two tables for two types of edge :
+   successor_edges = edges with successor of root
+   intern_edges = edges between  successors of root *)
+let successor_edges = H2.create 97
+let intern_edges = H2.create 97
+
+
+(* table of all nodes *)
+let nodes = H.create 97
+
+
+
+(* GTK to hyperbolic coordinates *)
 let to_turtle(x,y)=
   let zx,zy as r = ((float x*.(2./.w) -. 1.),(1. -. float y *.(2./.h))) in
   let zn = sqrt(zx*.zx +. zy*.zy) in
@@ -21,40 +51,34 @@ let to_turtle(x,y)=
     r
 
 (* Hyperbolic to GTK coordinates *)
-
 let from_turtle (x,y) =
   let xzoom = (w/.2.)
   and yzoom = (h/.2.) in
   (truncate (x*.xzoom +. xzoom), truncate(yzoom -. y*.yzoom))
 
-(* Where to start the graph drawing *)
+
+(* the middle of the screen used when init a graoh drawing *)
 let start_point = to_turtle (truncate(w/.2.), truncate(h/.2.))
 
+(* origine is a reference to the start point drawing for the graph in GTK coordinates *)
 let origine = ref start_point
 
-
-
-(* GTK *)
-
-(* Current point in Hyperbolic view *)
+(* Current point in Hyperbolic view with an initialization in center of hyperbolic circle *)
 let current_point = ref (0,0)
 
-
-(* Change current point *)
+(* Change hyperbolic current point *)
 let moveto_gtk x y = current_point := (x,y)
 
-
-(* Change current point with turtle coordinates *)
+(* Change hyperbolic current point with turtle coordinates *)
 let tmoveto_gtk turtle = 
   let (x,y)= from_turtle turtle.pos in
   moveto_gtk x y
 
 (* Create a turtle with origine's coordinates *)
-let make_origine_turtle () =
+let make_turtle_origine () = 
   let (x,y) = let (x,y) = !origine in (truncate x, truncate y) in  
   moveto_gtk  x y;
   make_turtle !origine 0.0
-
 
 (* Append turtle coordinates to line, set current point and return the "new" line *)
 let tlineto_gtk turtle line =
@@ -63,8 +87,6 @@ let tlineto_gtk turtle line =
   List.append line [(float x); (float y) ] 
 
 
-
-   
 
 (* Set line points for a distance with a number of steps, 
    set current point to last line's point, by side-effect of tlineto_gtk,
@@ -79,17 +101,7 @@ let set_successor_edge turtle distance steps line =
   let start = 
     let (x,y) = from_turtle turtle.pos in [(float x); (float y)] in 
   let turtle,lpoints = list_points turtle start steps in
-  (*            debug            *)
-  if !debug 
-  then
-    (let ltext=
-      let rec string_of_list = function
-	|[]->""
-	|e::l->(string_of_float e)^" "^string_of_list l
-      in string_of_list lpoints in
-     Format.eprintf "taille %d %s @." (List.length lpoints) ltext);
-  (*            /debug            *)
-  let points = Array.of_list lpoints in
+   let points = Array.of_list lpoints in
   line#set [`POINTS points]
 
 
@@ -105,27 +117,7 @@ let set_intern_edge tv tw bpath line =
     x' y';
   line#set [`BPATH bpath]
   
- (* 
-    tdep tdest steps line =
-    let distance =  (dist tdep tdest) in
-    let d = distance /. (float steps) in
-    let rec list_points turtle liste = function
-    | 0 -> (turtle,liste)
-    | n ->let turt = advance turtle d in
-    list_points turt (tlineto_gtk turt liste) (n-1)
-    in
-    let tdep = make_turtle_dir tdep.pos (dir_to tdep tdest 1.) in
-    let start = 
-    let (x,y) = from_turtle tdep.pos in [(float x); (float y)] in 
-    let turtle,lpoints = list_points tdep start steps in
-    let points = Array.of_list lpoints in
-    line#set [`POINTS points]*)
 
-
-(* table of all nodes *)
-
-
-let nodes = H.create 97
 
 (* Set ellipse coordinate to turtle's and set current point too *)
 let tdraw_string_gtk v turtle  =
@@ -163,24 +155,76 @@ let init_nodes canvas =
 
 
 
-(* tables of existing graphical edges *)
 
 
-(* two tables for two types of edge :
-   successor_edges = edges with successor of root
-   intern_edges = edges between  successors of root *)
 
-let successor_edges = H2.create 97
-let intern_edges = H2.create 97
+(* Color functions*)
+(* let color_change_intern_edge color node = 
+   G.iter_succ (fun w -> 
+   try
+   let _,n = H2.find intern_edges (node,w) in 
+   n#set [`OUTLINE_COLOR color] 
+   with Not_found -> 
+   try 
+   let _,n = H2.find intern_edges (w,node) in 
+   n#set [`OUTLINE_COLOR color] 
+   with Not_found -> () 
+   )
+   !graph node
+
+
+   let color_change_successor_edge color node = 
+   G.iter_succ
+   (fun w ->
+   try
+   let n = H2.find successor_edges (node,w) in
+   n#set [`FILL_COLOR color]
+   with Not_found ->
+   try
+   let n = H2.find successor_edges (w,node) in
+   n#set [`FILL_COLOR color]
+   with Not_found ->
+   ()
+   )
+   !graph node
+   
+   let color_change_no_event (node,item) =
+   color_change_all_edge node color_intern_edge color_successor_edge;
+   color_change_vertex item color_vertex
+
+   let color_change_focused (node,item) =
+   color_change_all_edge node color_focused_intern_edge color_focused_successor_edge;
+   color_change_vertex item color_focused_vertex
+
+   let color_change_selected (node,item) =
+   color_change_all_edge node color_selected_intern_edge color_selected_successor_edge;
+   color_change_vertex item color_selected_vertex
+*)
+
+
+(* change color for all edge connected to a node 
+let color_change_all_edge node c_intern c_succ =
+  color_change_intern_edge c_intern node ;
+  color_change_successor_edge c_succ node*)
+
+(* change color for a vertex *)
+let color_change_vertex item color =
+  item#set [ `FILL_COLOR color ; ]
+
+(* change color for a successor edge *)
+let color_change_intern_edge (line:GnoCanvas.bpath) color = 
+  line#set [`OUTLINE_COLOR color]
+
+(* change color for an intern edge *)
+let color_change_successor_edge (line:GnoCanvas.line) color = 
+  line#set [`FILL_COLOR color]
+
+
+
 
 
 (* draws but don't show intern edges, and return a couple bpath (gtk_object), and line (gtw_widget)*)
-let draw_intern_edge vw tv tw canvas =
-  (*            debug            *)
-  if  !debug
-  then ( let (v,w)= let (v,w) = vw in (string_of_label v, string_of_label w) in
-	 eprintf "tortue %s \t tortue %s@." v w);
-  (*            /debug            *)
+let draw_intern_edge vw edge tv tw canvas =
   let bpath,line = 
     try
       let _,line as pl = H2.find intern_edges vw in
@@ -188,107 +232,41 @@ let draw_intern_edge vw tv tw canvas =
     with Not_found ->
       let bpath = GnomeCanvas.PathDef.new_path () in
       let line = GnoCanvas.bpath canvas
-	~props:[ `BPATH bpath ; `OUTLINE_COLOR "SlateGrey" ; `WIDTH_PIXELS 2 ] 
+	~props:[ `BPATH bpath ; `WIDTH_PIXELS 2 ] 
       in
       line#lower_to_bottom ();
       H2.add intern_edges vw (bpath,line);
+      let v,w  =  vw in
+      if (is_selected w) || (is_selected v)  
+      then edge.edge_mode <-  Selected;
       bpath,line
   in
   set_intern_edge tv tw bpath line;
   bpath,line
-    
-    (* vw tdep tdest steps canvas =
-       let line =
-       try
-       H2.find intern_edges vw
-       with Not_found ->
-       let color = "grey" in 
-       let line = GnoCanvas.line canvas ~props:[ `FILL_COLOR color ;
-       `WIDTH_PIXELS 1; `SMOOTH true] 
-       in
-       line#lower_to_bottom ();
-       H2.add intern_edges vw line;
-       line
-       in
-       set_intern_edge tdep tdest  steps line;
-       line*)
-    
+ 
 
     
     
-let draw_successor_edge vw t distance steps canvas =
+let draw_successor_edge vw edge canvas =
   let line =
     try
       H2.find successor_edges vw
     with Not_found ->
-      let color = "black" in 
-      let line = GnoCanvas.line canvas ~props:[ `FILL_COLOR color ;
-					     `WIDTH_PIXELS 2; `SMOOTH true] 
+      let line = GnoCanvas.line canvas ~props:[ `FILL_COLOR color_successor_edge ;
+						`WIDTH_PIXELS 2; `SMOOTH true] 
       in
       line#lower_to_bottom ();
-      H2.add successor_edges vw line;
+      H2.add successor_edges vw line;	 
+      let v,w  =  vw in
+      if (is_selected w) || (is_selected v)  
+      then edge.edge_mode <-  Selected;
       line
- in
- set_successor_edge t distance steps line;
- line
+  in
+  set_successor_edge edge.edge_turtle edge.edge_distance edge.edge_steps  line;
+  line
 
 
-(* Color functions *)
 
-let color_change_intern_edge color node = 
-  G.iter_succ
-    (fun w ->
-       try
-	 let _,n = H2.find intern_edges (node,w) in
-	 n#set [`OUTLINE_COLOR color]
-       with Not_found ->
-	 try
-	   let _,n = H2.find intern_edges (w,node) in
-	   n#set [`OUTLINE_COLOR color]
-	 with Not_found ->
-	   ()
-    )
-    !graph node
-
-
-let color_change_successor_edge color node = 
-  G.iter_succ
-    (fun w ->
-       try
-	 let n = H2.find successor_edges (node,w) in
-	 n#set [`FILL_COLOR color]
-       with Not_found ->
-	 try
-	   let n = H2.find successor_edges (w,node) in
-	   n#set [`FILL_COLOR color]
-	 with Not_found ->
-	   ()
-    )
-    !graph node
-  
-
-
-(* change color for all edge connected to a node *)
-let color_change_all_edge node c_intern c_succ =
-  color_change_intern_edge c_intern node ;
-  color_change_successor_edge c_succ node
-
-(* change color for a vertex *)
-let color_change_vertex item color =
-  item#set [ `FILL_COLOR color ; ]
-
-
-let color_change_no_event (node,item) =
-  color_change_all_edge node "SlateGrey" "black";
-  color_change_vertex item "grey"
-
-let color_change_focused (node,item) =
-  color_change_all_edge node "blue" "blue";
-  color_change_vertex item "blue"
-
-let color_change_selected (node,item) =
-  color_change_all_edge node "burlywood" "burlywood";
-  color_change_vertex item "burlywood"
 
 
 
@@ -311,64 +289,141 @@ let hide_intern_edge vw =
 let hide_succesor_edge vw =
   try let line = H2.find successor_edges vw in line#hide () with Not_found -> ()
 
+(*
+let refresh_vertex_edges vertex canvas=
+(* vertex *)
+let vertex_info = G.V.label vertex in
+begin
+  let _,item,_=H.find nodes vertex in
+  match vertex_info.vertex_mode with
+    | Normal -> color_change_vertex item color_vertex;
+    | Selected -> color_change_vertex item color_selected_vertex;
+    | Focused ->  color_change_vertex item color_focused_vertex;
+    | Selected_Focused -> color_change_vertex item color_selected_focused_vertex;
+end;
+(*  edges *)           
+G.iter_succ_e
+  (fun e ->
+     let edge = G.E.label e in
+     let v = G.E.src e in
+     let w = G.E.dst e in
+     let vw = (v,w) in
+         if edge.visited 
+     then 
+       (* successor edge *)
+       begin
+	 let line = draw_successor_edge vw edge canvas
+	 in
+	 begin
+	     match edge.edge_mode with
+	       | Normal -> color_change_successor_edge line color_successor_edge;
+	       | Selected -> color_change_successor_edge line color_selected_successor_edge;
+	       | Focused ->  color_change_successor_edge line color_focused_successor_edge;
+	       | Selected_Focused -> color_change_successor_edge line color_selected_focused_successor_edge;
+	   end;
+	 line#show ();
+	 hide_intern_edge vw
+       end 
+     else 
+       (* intern edges *)
+       begin
+	 hide_succesor_edge vw;
+	   let labv = G.V.label v in
+	   let labw = G.V.label w in
+	   let turv = labv.turtle in
+	   let turw = labw.turtle in
+	   if labv.visible = Visible 
+	     && labw.visible = Visible 
+	     && v!=w
+	   then begin
+	     let _,line = draw_intern_edge vw edge turv turw canvas in
+	     begin
+	       match edge.edge_mode with
+		 | Normal -> color_change_intern_edge line color_intern_edge;
+		 | Selected -> color_change_intern_edge line color_selected_intern_edge;
+		 | Focused ->  color_change_intern_edge line color_focused_intern_edge;
+		 | Selected_Focused -> color_change_intern_edge line color_selected_focused_intern_edge;
+	     end;
+	     line#show()
+	   end else
+	     hide_intern_edge vw
+	 end) 
+    !graph vertex
+  
+*)
+
 
 (* graph drawing *)
-
 let draw_graph root canvas  =
   (* vertexes *)
   G.iter_vertex
     (fun v -> 
-      let l = G.V.label v in
-      if l.visible = Visible then 
-	let node = tdraw_string_gtk v l.turtle in 
-	node#raise_to_top();
-	node#show()
-      else
-	let node,_,_= H.find nodes v in
-	node#hide()
+       let ( l : node_info) = G.V.label v in
+       if l.visible = Visible then 
+	 begin
+	   let node = tdraw_string_gtk v l.turtle in 
+	   node#raise_to_top();
+	   node#show();
+	   let _,item,_=H.find nodes v in
+	   match l.vertex_mode with
+	     | Normal -> color_change_vertex item color_vertex;
+	     | Selected -> color_change_vertex item color_selected_vertex;
+	     | Focused ->  color_change_vertex item color_focused_vertex;
+	     | Selected_Focused -> color_change_vertex item color_selected_focused_vertex;
+	 end
+       else
+	 let node,_,_= H.find nodes v in
+	 node#hide()
     )
     !graph;
 
-  (* succ edges *)           
+  (*  edges *)           
   G.iter_edges_e
     (fun e ->
-       let lab = G.E.label e in
+       let edge = G.E.label e in
        let v = G.E.src e in
        let w = G.E.dst e in
        let vw = (v,w) in
-       if lab.visited then begin
+       if edge.visited 
+       then 
 	 (* successor edge *)
- 	 let line =
-	   draw_successor_edge 
-	     vw lab.edge_turtle lab.edge_distance lab.edge_steps canvas
-	 in
-	 line#show ();
-	 hide_intern_edge vw
-       end else begin
-
-	 (* intern edges *)
-	 hide_succesor_edge vw;
-	 let labv = G.V.label v in
-	 let labw = G.V.label w in
-	 let turv = labv.turtle in
-	 let turw = labw.turtle in
-	 if labv.visible = Visible && labw.visible = Visible 
-	   && v!=w
-	 then begin
-	   (*            debug            *)
-	   if !debug then begin
-	     Format.eprintf "tortue : %s\t\t\t tortue : %s@." 
-	       (string_of_label v) (string_of_label w);
-	     let (x ,y ) = from_turtle turv.pos 
-	     and (x',y') = from_turtle turw.pos in
-	     Format.eprintf "pos  x:%d y:%d \t pos x:%d y:%d@." x y x' y';
+	 begin
+	   let line = draw_successor_edge vw edge canvas
+	   in
+	   begin
+	     match edge.edge_mode with
+	       | Normal -> color_change_successor_edge line color_successor_edge;
+	       | Selected -> color_change_successor_edge line color_selected_successor_edge;
+	       | Focused ->  color_change_successor_edge line color_focused_successor_edge;
+	       | Selected_Focused -> color_change_successor_edge line color_selected_focused_successor_edge;
 	   end;
-	   (*            /debug           *)
-	   let _,line = draw_intern_edge vw turv turw canvas in
-	   line#show()
-	 end else
+	   line#show ();
 	   hide_intern_edge vw
-       end) 
+	 end 
+       else 
+	 (* intern edges *)
+	 begin
+	   hide_succesor_edge vw;
+	   let labv = G.V.label v in
+	   let labw = G.V.label w in
+	   let turv = labv.turtle in
+	   let turw = labw.turtle in
+	   if labv.visible = Visible 
+	     && labw.visible = Visible 
+	     && v!=w
+	   then begin
+	     let _,line = draw_intern_edge vw edge turv turw canvas in
+	     begin
+	       match edge.edge_mode with
+		 | Normal -> color_change_intern_edge line color_intern_edge;
+		 | Selected -> color_change_intern_edge line color_selected_intern_edge;
+		 | Focused ->  color_change_intern_edge line color_focused_intern_edge;
+		 | Selected_Focused -> color_change_intern_edge line color_selected_focused_intern_edge;
+	     end;
+	     line#show()
+	   end else
+	     hide_intern_edge vw
+	 end) 
     !graph
     
 
