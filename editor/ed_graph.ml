@@ -160,7 +160,6 @@ type ed_event = Select | Unselect | Focus | Unfocus
 
 let update_vertex vertex event =
   let vertex_info = G.V.label vertex in
-Format.eprintf"nb de noeud select : %d@."!nb_selected; 
   begin
     match vertex_info.vertex_mode, event with
       | Normal, Select -> vertex_info.vertex_mode <- Selected; incr nb_selected

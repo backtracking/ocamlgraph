@@ -9,25 +9,58 @@ let debug = ref false
 (* Original window size *)
 let (w,h)= (600.,600.)
 
+(* light mode *)
+(* differents definitions *)
+let color_circle = "grey99"
 
-(* differents colors deffinitions *)
-let color_intern_edge = "SlateGrey"
+let color_intern_edge = "grey38"
+let color_successor_edge ="grey38"
+let color_vertex = "grey75"
+
+let color_selected_intern_edge = "#74885e" 
+let color_selected_successor_edge =  "#74885e"
+let color_selected_vertex =  "#74885e"
+
+let color_focused_intern_edge = "#4d51a9"
+let color_focused_successor_edge = "#4d51a9" 
+let color_focused_vertex =  "#4d51a9" 
+
+let color_selected_focused_intern_edge = "LightCoral" 
+let color_selected_focused_vertex ="LightCoral"
+let color_selected_focused_successor_edge =  "LightCoral" 
+
+let color_text = "black"
+
+let width_successor_edge = 2
+let width_intern_edge = 2
+let point_size_text = 12.
+
+(* dark mode
+(* differents definitions *)
+let color_circle = "grey99"
+
+let color_intern_edge = "black"
 let color_successor_edge ="black"
-let color_vertex = "grey"
+let color_vertex = "grey58"
 
-let color_selected_intern_edge = "DarkSlateGray2" 
-let color_selected_successor_edge =  "DarkSlateGray2"
-let color_selected_vertex =  "DarkSlateGray2"
+let color_selected_intern_edge = "OrangeRed4" 
+let color_selected_successor_edge =  "OrangeRed4"
+let color_selected_vertex =  "OrangeRed4"
 
 let color_focused_intern_edge = "blue" 
 let color_focused_successor_edge =  "blue" 
 let color_focused_vertex =  "blue" 
 
-let color_selected_focused_intern_edge =  "IndianRed" 
-let color_selected_focused_vertex ="IndianRed"
-let color_selected_focused_successor_edge =  "IndianRed" 
+let color_selected_focused_intern_edge =  "dark magenta" 
+let color_selected_focused_vertex ="dark magenta"
+let color_selected_focused_successor_edge =  "dark magenta" 
 
+let color_text = "white"
 
+let width_successor_edge = 2
+let width_intern_edge = 2
+let point_size_text = 12.
+  *)
  
 (* two tables for two types of edge :
    successor_edges = edges with successor of root
@@ -125,8 +158,8 @@ let tdraw_string_gtk v turtle  =
   tmoveto_gtk turtle;  
   let factor = (shrink_factor ((G.V.label v).turtle.pos)) in
   let factor = if factor < 0.5 then 0.5 else factor in
-  let w = factor*. 12. in
-  texte#set [`SIZE_POINTS w];
+  let w = factor*. point_size_text in
+  texte#set [`SIZE_POINTS w ];
   let w = texte#text_width in 
   let h = texte#text_height in
   ellipse#set [ `X1  (-.( w+.8.)/.2.); `X2 ((w+.8.)/.2.);
@@ -140,11 +173,11 @@ let add_node canvas v =
   let s = string_of_label v in
   let node_group = GnoCanvas.group ~x:0.0 ~y:0.0 canvas in
   let ellipse = GnoCanvas.ellipse 
-    ~props:[ `FILL_COLOR "grey" ; `OUTLINE_COLOR "black" ; 
+    ~props:[ `FILL_COLOR color_vertex ; `OUTLINE_COLOR "black" ; 
 	     `WIDTH_PIXELS 0 ] node_group  
   in
   let texte = GnoCanvas.text ~props:[`X 0.0; `Y 0.0 ; `TEXT s;  
-				     `FILL_COLOR "black"] node_group
+				     `FILL_COLOR color_text] node_group
   in
   node_group#hide();
   H.add nodes v (node_group,ellipse,texte)
@@ -232,7 +265,7 @@ let draw_intern_edge vw edge tv tw canvas =
     with Not_found ->
       let bpath = GnomeCanvas.PathDef.new_path () in
       let line = GnoCanvas.bpath canvas
-	~props:[ `BPATH bpath ; `WIDTH_PIXELS 2 ] 
+	~props:[ `BPATH bpath ; `WIDTH_PIXELS width_intern_edge ] 
       in
       line#lower_to_bottom ();
       H2.add intern_edges vw (bpath,line);
@@ -253,7 +286,7 @@ let draw_successor_edge vw edge canvas =
       H2.find successor_edges vw
     with Not_found ->
       let line = GnoCanvas.line canvas ~props:[ `FILL_COLOR color_successor_edge ;
-						`WIDTH_PIXELS 2; `SMOOTH true] 
+						`WIDTH_PIXELS width_successor_edge; `SMOOTH true] 
       in
       line#lower_to_bottom ();
       H2.add successor_edges vw line;	 

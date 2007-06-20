@@ -104,7 +104,7 @@ let canvas_root =
   let circle =
     GnoCanvas.ellipse  ~props:[ `X1 (-.w/.2. +.w2); `Y1 (-.h/.2. +.w2); 
 				`X2  (w/.2. -.w2) ; `Y2 ( h/.2. -.w2) ;
- 				`FILL_COLOR "ghost white" ; `OUTLINE_COLOR "black" ; 
+ 				`FILL_COLOR color_circle ; `OUTLINE_COLOR "black" ; 
 				`WIDTH_PIXELS (truncate w2) ] circle_group 
   in
   circle_group#lower_to_bottom ();
