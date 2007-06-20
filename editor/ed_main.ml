@@ -371,11 +371,14 @@ let sub_edge_to modif_type vertex list =
   let sub_menu =ref (new GMenu.factory (GMenu.menu())) in
   let add_edge  vertex v2 =
     if not (G.V.equal v2 vertex)
-    then ignore((!sub_menu)#add_item (string_of_label v2) 
-	       ~callback:
-	       (match modif_type with
-		  | Add -> add_edge v2 vertex
-		  | Remove -> remove_edge v2 vertex))
+    then begin
+      match modif_type with
+	| Add ->ignore((!sub_menu)#add_item (string_of_label v2) 
+	       ~callback:( add_edge v2 vertex));
+	| Remove -> if (edge v2 vertex) 
+	  then ignore((!sub_menu)#add_item (string_of_label v2) 
+	       ~callback:(remove_edge v2 vertex));
+    end;
   in
   let rec make_sub_menu vertex list nb =
     match list with
@@ -485,6 +488,8 @@ let contextual_menu vertex ev =
 		then  begin
 		  ignore (edge_menu#add_item "Add edge with" ~submenu: (edge_to Add vertex list)#menu);
 		  all_edges edge_menu vertex list;
+		  ignore (edge_menu#add_separator ());
+		  ignore (edge_menu#add_item "Remove edge with" ~submenu: (edge_to Remove vertex list)#menu);
 		end;
 		ignore(menu#add_item "Edge ops" ~submenu: edge_menu#menu);
 	      end;
