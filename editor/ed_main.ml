@@ -335,19 +335,23 @@ let remove_vertex vertex () =
     (fun w ->
        try
 	 let _,n = H2.find intern_edges (vertex,w) in
-	 n#destroy ()
+	 n#destroy ();
+	 H2.remove intern_edges (vertex,w) 
        with Not_found ->
 	 try
 	   let _,n = H2.find intern_edges (w,vertex) in
-	   n#destroy ()
+	   n#destroy ();	    
+	   H2.remove intern_edges (w,vertex) 
 	 with Not_found ->
 	   try
 	     let n = H2.find successor_edges (vertex,w) in
-	     n#destroy ()
+	     n#destroy ();
+	     H2.remove successor_edges (vertex,w) 
 	   with Not_found ->
 	     try
 	       let n = H2.find successor_edges (w,vertex) in
-	       n#destroy ()
+	       n#destroy ();
+	       H2.remove successor_edges (w,vertex) 
 	     with Not_found ->
 	       ()
     )
