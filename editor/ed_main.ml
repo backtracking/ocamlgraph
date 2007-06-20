@@ -311,7 +311,7 @@ let remove_vertex vertex () =
   H.remove nodes vertex;
   G.remove_vertex !graph vertex;
   ignore (Model.remove_vertex vertex);
-  if (G.V.equal !root vertex) 
+  if (G.V.equal !root vertex) && not (G.is_empty !graph)
   then root := choose_root();
   refresh_draw ()
     

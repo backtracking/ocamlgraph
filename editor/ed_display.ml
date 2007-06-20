@@ -188,58 +188,6 @@ let init_nodes canvas =
 
 
 
-
-
-
-(* Color functions*)
-(* let color_change_intern_edge color node = 
-   G.iter_succ (fun w -> 
-   try
-   let _,n = H2.find intern_edges (node,w) in 
-   n#set [`OUTLINE_COLOR color] 
-   with Not_found -> 
-   try 
-   let _,n = H2.find intern_edges (w,node) in 
-   n#set [`OUTLINE_COLOR color] 
-   with Not_found -> () 
-   )
-   !graph node
-
-
-   let color_change_successor_edge color node = 
-   G.iter_succ
-   (fun w ->
-   try
-   let n = H2.find successor_edges (node,w) in
-   n#set [`FILL_COLOR color]
-   with Not_found ->
-   try
-   let n = H2.find successor_edges (w,node) in
-   n#set [`FILL_COLOR color]
-   with Not_found ->
-   ()
-   )
-   !graph node
-   
-   let color_change_no_event (node,item) =
-   color_change_all_edge node color_intern_edge color_successor_edge;
-   color_change_vertex item color_vertex
-
-   let color_change_focused (node,item) =
-   color_change_all_edge node color_focused_intern_edge color_focused_successor_edge;
-   color_change_vertex item color_focused_vertex
-
-   let color_change_selected (node,item) =
-   color_change_all_edge node color_selected_intern_edge color_selected_successor_edge;
-   color_change_vertex item color_selected_vertex
-*)
-
-
-(* change color for all edge connected to a node 
-let color_change_all_edge node c_intern c_succ =
-  color_change_intern_edge c_intern node ;
-  color_change_successor_edge c_succ node*)
-
 (* change color for a vertex *)
 let color_change_vertex item color =
   item#set [ `FILL_COLOR color ; ]
