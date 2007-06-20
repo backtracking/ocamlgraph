@@ -5,6 +5,7 @@ all : rapport.ps soutenance.pdf
 
 soutenance.pdf: soutenance.tex
 	pdflatex soutenance.tex
+	xpdf soutenance.pdf
 
 rapport.ps: rapport.tex biblio.bib $(EPS)
 	latex rapport

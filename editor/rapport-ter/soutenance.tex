@@ -84,12 +84,15 @@ Parc Club Université, 91893 ORSAY}
 
 \begin{frame}
   \frametitle{Disque de Poincaré}
-  Les droites sont des arcs de cercle
-  \begin{center}
-        \includegraphics[scale=0.3]{images/perpendiculaire.png}   
-  \end{center}
-  on peut définir une tortue \og à la LOGO \fg
-  % Adaptation de la tortue LOGO du plan euclidien au disque de Poincaré  
+  \begin{itemize}
+  \item   Les droites sont des arcs de cercles
+    \begin{center}
+      \includegraphics[scale=0.3]{images/perpendiculaire.png}   
+    \end{center}
+  \item  On peut définir, dans le plan de Poincaré, une tortue \og à la LOGO \fg
+  \end{itemize}
+  
+  
 \end{frame}
 
 \begin{frame}
@@ -166,19 +169,23 @@ Arêtes s'affranchissant des frontières entre demi-plans \smallskip
 
 \begin{frame}
   \frametitle{Réalisation en Ocaml}
-  \begin{itemize}
-  \item Intégration dans Ocamlgraph
+  \begin{minipage}{0.70\linewidth}
     \begin{itemize}
-    \item utilise Ocamlgraph de manière interne
-    \item livré avec Ocamlgraph
+    \item Intégration dans Ocamlgraph
+      \begin{itemize}
+      \item utilise Ocamlgraph de manière interne
+      \item livré avec Ocamlgraph
+      \end{itemize}
+    \item Utilisation de la bibliothèque graphique GTK2+ (par le biais
+      de lablgtk2) 
+    \item Environ 1600 lignes de code
     \end{itemize}
-  \item Utilisation de la bibliothèque graphique GTK2+ (par le biais
-    de lablgtk2) 
-  \item Environ 1600 lignes de code
+  \end{minipage}
+  \begin{minipage}{0.28\linewidth}
     \begin{center}
-      \includegraphics[scale=0.27]{images/dep.jpg} 
+      \includegraphics[scale=0.4]{images/dep.jpg} 
     \end{center}
-  \end{itemize}
+  \end{minipage}
 \end{frame}
 
 
@@ -198,7 +205,7 @@ Arêtes s'affranchissant des frontières entre demi-plans \smallskip
     \item Opérations avancées (clôture transitive, noyau, clique, etc.)
     \end{itemize}
   \item Optimisation du code et animation plus fluide
-  \item Visualisation d'algorithmes
+  \item Visualisation d'algorithmes (plus court chemin, parcours, etc.)
   \item Fonctorisation du code
   \end{itemize}
 \end{frame}
