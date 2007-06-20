@@ -13,8 +13,8 @@ let (w,h)= (600.,600.)
 (* differents definitions *)
 let color_circle = "grey99"
 
-let color_intern_edge = "grey38"
-let color_successor_edge ="grey38"
+let color_intern_edge = "grey69"
+let color_successor_edge = "black" (*"grey38"*)
 let color_vertex = "grey75"
 
 let color_selected_intern_edge = "#74885e" 
