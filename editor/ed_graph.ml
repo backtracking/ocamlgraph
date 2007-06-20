@@ -66,6 +66,12 @@ module GmlParser =
       let edge _ = make_edge_info ()
     end)
 
+
+(*module GmlPrinter =
+  Gml.Print
+    (G)
+    ( ?? )*)
+
 module DotParser = 
   Dot.Parse
     (B)
@@ -152,7 +158,12 @@ let is_selected (x:G.V.t) =
   mode = Selected ||
   mode = Selected_Focused
 
-
+let selected_list () =
+  let vertex_selection =ref [] in
+  G.iter_vertex (fun v -> if (is_selected v) then vertex_selection :=v::(!vertex_selection)) !graph;
+  let compare s1 s2 = String.compare (string_of_label s1) (string_of_label s2) in
+  List.sort compare !vertex_selection
+  
 
 
 

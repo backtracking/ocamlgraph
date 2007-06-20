@@ -40,10 +40,24 @@ module Model = struct
     H.add rows v row;
     row
 
+  let remove_vertex vertex = 
+    let row = find_row vertex in
+    model#remove row
+
   let add_edge_1 row_v w =
     let row = model#append ~parent:row_v () in
     model#set ~row ~column:name (string_of_label w)
 
+
+  let add_edge v w =
+    let row_v = find_row v in
+    add_edge_1 row_v w;
+    if not G.is_directed then 
+      let row_w = find_row w in
+      add_edge_1 row_w v
+
+  let remove_edge v w = ()
+   
   let reset () =
     H.clear rows;
     model#clear ();
@@ -53,16 +67,6 @@ module Model = struct
 	 G.iter_succ (add_edge_1 row) !graph v)
       !graph
 
-  let add_edge v w =
-    let row_v = find_row v in
-    add_edge_1 row_v w;
-    if not G.is_directed then 
-      let row_w = find_row w in
-      add_edge_1 row_w v
-   
-  let remove_vertex vertex = 
-    let row = find_row vertex in
-    model#remove row
 
  (* let remove_edge vertex =*)
 
@@ -171,7 +175,8 @@ let node_selection ~(model : GTree.tree_store) path =
 (* usual function ref, for vertex event *)
 let set_vertex_event_fun = ref (fun _ -> ())
 
-
+(* type to select nature of modification *)
+type modification = Add | Remove
 
 (* add a vertex with no successor *)
 let add_node () =
@@ -245,6 +250,47 @@ let add_edge_no_refresh n1 n2 ()=
     Model.add_edge n1 n2
   end
 
+(* remove an edge between n1 and n2 , add un-link in column and re-draw *)
+let remove_edge n1 n2 ()= 
+  if (edge n1 n2)
+  then begin
+    G.remove_edge !graph  n1 n2;
+    Model.remove_edge n1 n2;
+    begin
+      try
+	let _,n = H2.find intern_edges (n1,n2) in
+	n#destroy ();
+	H2.remove intern_edges (n1,n2) 
+      with Not_found ->
+	try
+	   let _,n = H2.find intern_edges (n2,n1) in
+	   n#destroy ();
+	   H2.remove intern_edges (n2,n1) 
+	with Not_found ->
+	  try
+	    let n = H2.find successor_edges (n1,n2) in
+	    n#destroy ();
+	    H2.remove successor_edges (n1,n2) 
+	  with Not_found ->
+	    try
+	      let n = H2.find successor_edges (n2,n1) in
+	      n#destroy ();
+	      H2.remove successor_edges (n2,n1) 
+	    with Not_found -> ()
+    end;
+    let tor = make_turtle !origine 0.0 in
+    draw tor canvas_root;
+  end
+
+
+let remove_edge_no_refresh n1 n2 ()= 
+  if (edge n1 n2)
+  then begin
+    G.remove_edge !graph n1 n2;
+    Model.remove_edge n1 n2
+  end
+
+
 
 (* add successor node to selected node *)
 let add_successor node () =
@@ -317,7 +363,7 @@ let remove_vertex vertex () =
     
 
 
-let sub_menu_edge_to vertex list =
+let sub_edge_to modif_type vertex list =
   let ll = List.length list in
   let nb_sub_menu = (ll - 1)/10 + 1 in
   let nb_edge =  ll / nb_sub_menu -1 in
@@ -325,8 +371,11 @@ let sub_menu_edge_to vertex list =
   let sub_menu =ref (new GMenu.factory (GMenu.menu())) in
   let add_edge  vertex v2 =
     if not (G.V.equal v2 vertex)
-    then ignore((!sub_menu)#add_item ("->"^string_of_label v2) 
-	       ~callback:(add_edge v2 vertex))
+    then ignore((!sub_menu)#add_item (string_of_label v2) 
+	       ~callback:
+	       (match modif_type with
+		  | Add -> add_edge v2 vertex
+		  | Remove -> remove_edge v2 vertex))
   in
   let rec make_sub_menu vertex list nb =
     match list with
@@ -370,15 +419,10 @@ let sub_menu_edge_to vertex list =
   end
     
 
-let menu_edge_to vertex list =
-  let compare s1 s2 = String.compare (string_of_label s1) (string_of_label s2) in
-  let list = List.sort compare list in
-  sub_menu_edge_to vertex list
-
     
-let edge_to vertex list =
+let edge_to modif_type vertex list =
   (* add an edge between current vertex and one of selected vertex*)
-  menu_edge_to vertex list
+  sub_edge_to modif_type vertex list
 
 
 
@@ -411,15 +455,15 @@ let contextual_menu vertex ev =
     (* successor *)
     ignore (vertex_menu#add_item "Add successor" ~callback:(add_successor vertex));
     ignore (vertex_menu#add_separator ());
+    (* remove vertex *)
     ignore(vertex_menu#add_item "Remove vertex" ~callback:(remove_vertex vertex));
   end;
   ignore(menu#add_item "Vertex ops" ~submenu: vertex_menu#menu);
 
   (*edge menu*)
   begin
-    let vertex_selection = ref [] in
-    G.iter_vertex (fun v -> if (is_selected v) then vertex_selection :=v::(!vertex_selection)) !graph;
-    match !vertex_selection with
+    let sel_list = selected_list () in
+    match sel_list with
       | [] -> ()
       | list ->
 	  let ll =List.length list in
@@ -431,12 +475,15 @@ let contextual_menu vertex ev =
 		let edge_menu = new GMenu.factory (GMenu.menu ()) in
 		if isel && ll=2 ||
 		  not isel && ll=1
-		then
-		  ignore (edge_menu#add_item "Add an edge with" ~submenu: (edge_to vertex list)#menu);
+		then begin
+		  ignore (edge_menu#add_item "Add edge with" ~submenu: (edge_to Add vertex list)#menu);
+		  ignore (edge_menu#add_separator ());
+		  ignore (edge_menu#add_item "Remove edge with" ~submenu: (edge_to Remove vertex list)#menu);
+		end;
 		if isel && ll>2 ||
 		  not isel && ll>1
 		then  begin
-		  ignore (edge_menu#add_item "Add an edge with" ~submenu: (edge_to vertex list)#menu);
+		  ignore (edge_menu#add_item "Add edge with" ~submenu: (edge_to Add vertex list)#menu);
 		  all_edges edge_menu vertex list;
 		end;
 		ignore(menu#add_item "Edge ops" ~submenu: edge_menu#menu);
