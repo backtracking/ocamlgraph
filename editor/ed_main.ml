@@ -23,8 +23,12 @@ module Model = struct
     
   let model = GTree.tree_store cols
 
+
   let rows = H.create 97
     
+
+ 
+
   let find_row v =
     try 
       H.find rows v
@@ -46,7 +50,8 @@ module Model = struct
 
   let add_edge_1 row_v w =
     let row = model#append ~parent:row_v () in
-    model#set ~row ~column:name (string_of_label w)
+    model#set ~row ~column:name (string_of_label w);
+    model#set ~row ~column:vertex w
 
 
   let add_edge v w =
@@ -55,9 +60,33 @@ module Model = struct
     if not G.is_directed then 
       let row_w = find_row w in
       add_edge_1 row_w v
+  
+  let find_children row_v w =
+    let nb_child = model#iter_n_children (Some row_v) in
+    let rec find n = 
+      let child = model#iter_children ~nth:(n-1) (Some row_v) in
+      let child_vertex = model#get ~row:child ~column:vertex  in
+      match n with
+	| 0 -> raise Not_found
+	| n -> 
+	    if (G.V.equal child_vertex  w)
+	    then child
+	    else find (n-1)
+    in
+    find nb_child
+      
+      
+  let remove_edge_1 row_v w =
+    ignore (model#remove (find_children row_v w))
+      
+  let remove_edge v w =
+    let row_v = find_row v in
+    remove_edge_1 row_v w;
+    if not G.is_directed then 
+      let row_w = find_row w in
+      remove_edge_1 row_w v
 
-  let remove_edge v w = ()
-   
+
   let reset () =
     H.clear rows;
     model#clear ();
@@ -373,7 +402,7 @@ let sub_edge_to modif_type vertex list =
   let nb_edge =  ll / nb_sub_menu -1 in
   let menu = new GMenu.factory (GMenu.menu()) in
   let sub_menu =ref (new GMenu.factory (GMenu.menu())) in
-  let add_edge  vertex v2 =
+  let add_menu_edge  vertex v2 =
     if not (G.V.equal v2 vertex)
     then begin
       match modif_type with
@@ -392,7 +421,7 @@ let sub_edge_to modif_type vertex list =
 	    | 0 -> 
 		begin
 		  sub_menu :=new GMenu.factory (GMenu.menu()) ;
-		  add_edge vertex v;
+		  add_menu_edge vertex v;
 		  let string = string_of_label v in
 		  ignore (menu#add_item (String.sub string 0 (min (String.length string) 3)^"...") 
 			    ~submenu: !sub_menu#menu);
@@ -400,12 +429,12 @@ let sub_edge_to modif_type vertex list =
 		end
 	    | n when n= nb_edge-> 
 		begin
-		  add_edge vertex v;
+		  add_menu_edge vertex v;
 		  make_sub_menu vertex list 0
 		end
 	    | _ ->
 		begin
-		  add_edge vertex v;
+		  add_menu_edge vertex v;
 		  make_sub_menu vertex list (nb+1)
 		end
   in
@@ -414,12 +443,11 @@ let sub_edge_to modif_type vertex list =
     make_sub_menu vertex list 0;
     menu
   end
-  else begin
-    
+  else begin    
     let rec make_sub_bis list =
       match list with
 	| [] -> ();
-	| v::list ->add_edge vertex v; make_sub_bis list
+	| v::list ->add_menu_edge vertex v; make_sub_bis list
     in
     make_sub_bis list;
     !sub_menu
