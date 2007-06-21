@@ -166,7 +166,21 @@ let set_successor_edge turtle distance steps line =
    let points = Array.of_list lpoints in
   line#set [`POINTS points]
 
+type polaire = { radius : float; angle : float}
+type cartesien = { x : float; y: float}
 
+let pol_to_cart p =
+{ 
+  x = p.radius *. (cos p.angle);
+  y = p.radius *. (sin p.angle)
+}
+
+let cart_to_pol p =
+  let  radius = sqrt((p.x *. p.x) +.(p.y *. p.y)) in
+{
+  radius = radius;
+  angle = 2. *. ath ((p.y /. radius) /. (1. +. p.x /. radius))
+}
 
 
 (* Set Bpath between turtles tv and tw where line is a gtk widget *) 

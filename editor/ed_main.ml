@@ -44,9 +44,6 @@ module Model = struct
     H.add rows v row;
     row
 
-  let remove_vertex vertex = 
-    let row = find_row vertex in
-    model#remove row
 
   let add_edge_1 row_v w =
     let row = model#append ~parent:row_v () in
@@ -86,6 +83,10 @@ module Model = struct
       let row_w = find_row w in
       remove_edge_1 row_w v
 
+  let remove_vertex vertex = 
+    G.iter_succ (fun w -> remove_edge w vertex) !graph vertex;
+    let row = find_row vertex in
+    model#remove row
 
   let reset () =
     H.clear rows;
@@ -388,8 +389,8 @@ let remove_vertex vertex () =
   let (n,_,_) =  H.find nodes vertex in
    n#destroy ();
   H.remove nodes vertex;
-  G.remove_vertex !graph vertex;
   ignore (Model.remove_vertex vertex);
+  G.remove_vertex !graph vertex;
   if (G.V.equal !root vertex) && not (G.is_empty !graph)
   then root := choose_root();
   refresh_draw ()
