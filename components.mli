@@ -31,15 +31,23 @@ end
 
 module Make (G: G) : sig
 
-  val scc : G.t -> (G.V.t -> int)
-      (** [scc g] computes the strongly connected components of [g].
-	The result is a function [f] such that [f u = f v] if and only if
-	[u] and [v] are in the same component.
-	Beware: to be used efficiently, [scc] must be applied to a single
-	argument (the graph). *)
+  val scc : G.t -> int*(G.V.t -> int)
+    (** [scc g] computes the strongly connected components of [g].
+	The result is a pair [(n,f)] where [n] is the number of
+	components. Components are numbered from [0] to [n-1], and
+	[f] is a function mapping each vertex to its component
+	number. In particular, [f u = f v] if and only if [u] and
+	[v] are in the same component. Another property of the
+	numbering is that components are numbered in a topological
+	order: if there is an arc from [u] to [v], then [f u >= f u] *)
+
+  val scc_array : G.t -> G.V.t list array
+    (** [scc_array] computes the strongly connected components of [g].
+	Components are stored in the resulting array, indexed with a
+	numbering with the same properties as for [scc] above. *)
 
   val scc_list : G.t -> G.V.t list list
     (** [scc_list] computes the strongly connected components of [g].
-      The result is a partition of the set of the vertices of [g]. *)
+	The result is a partition of the set of the vertices of [g]. *)
 
 end

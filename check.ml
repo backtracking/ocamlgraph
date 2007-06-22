@@ -430,7 +430,8 @@ module type RightSigPack = sig
 	?loops:bool -> v:int -> e:int -> unit -> t
   end
   module Components : sig
-    val scc : t -> (V.t -> int)
+    val scc : t -> int*(V.t -> int)
+    val scc_array : t -> V.t list array
     val scc_list : t -> V.t list list
   end
   val shortest_path : t -> V.t -> V.t -> E.t list * int

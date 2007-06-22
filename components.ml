@@ -36,7 +36,7 @@ module Make(G: G) = struct
     let hashcomp = H.create 997 in
     let stack = ref [] in
     let numdfs = ref 0 in
-    let numcomp = ref 1 in
+    let numcomp = ref 0 in
     let rec pop x c = function
       | (y, w) :: l when y > x -> 
 	  H.add hashcomp w !numcomp; 
@@ -63,10 +63,17 @@ module Make(G: G) = struct
 	end
     in 
     G.iter_vertex visit g;
-    fun v -> H.find hashcomp v
+    (!numcomp,(fun v -> H.find hashcomp v))
+
+  let scc_array g =
+    let n,f = scc g in
+    let t = Array.make n [] in
+    G.iter_vertex 
+      (fun v -> let i = f v in t.(i) <- v::t.(i)) g;
+    t
 
   let scc_list g =
-    let scc = scc g in
+    let _,scc = scc g in
     let tbl = Hashtbl.create 97 in
     G.iter_vertex 
       (fun v -> 
@@ -78,5 +85,6 @@ module Make(G: G) = struct
 	   Hashtbl.add tbl n (ref [ v ]))
       g;
     Hashtbl.fold (fun _ v l -> !v :: l) tbl []
+
 
 end
