@@ -17,17 +17,13 @@ let _ = GMain.Main.init ()
 module Model = struct
 
   open Gobject.Data
+ 
   let cols = new GTree.column_list
   let name = cols#add string
   let vertex = cols#add caml
-    
   let model = GTree.tree_store cols
-
-
   let rows = H.create 97
     
-
- 
 
   let find_row v =
     try 
@@ -36,7 +32,6 @@ module Model = struct
       Format.eprintf "anomaly: no model row for %s@." (string_of_label v);
       raise Not_found
 
- 
   let add_vertex v =
     let row = model#append () in
     model#set ~row ~column:name (string_of_label v);
@@ -44,12 +39,10 @@ module Model = struct
     H.add rows v row;
     row
 
-
   let add_edge_1 row_v w =
     let row = model#append ~parent:row_v () in
     model#set ~row ~column:name (string_of_label w);
     model#set ~row ~column:vertex w
-
 
   let add_edge v w =
     let row_v = find_row v in
@@ -57,7 +50,7 @@ module Model = struct
     if not G.is_directed then 
       let row_w = find_row w in
       add_edge_1 row_w v
-  
+
   let find_children row_v w =
     let nb_child = model#iter_n_children (Some row_v) in
     let rec find n = 
@@ -71,7 +64,6 @@ module Model = struct
 	    else find (n-1)
     in
     find nb_child
-      
       
   let remove_edge_1 row_v w =
     ignore (model#remove (find_children row_v w))
@@ -96,12 +88,10 @@ module Model = struct
 	 let row = add_vertex v in
 	 G.iter_succ (add_edge_1 row) !graph v)
       !graph
-
-
- (* let remove_edge vertex =*)
-
    
 end
+
+
 
 let () = Model.reset ()
 
@@ -112,41 +102,38 @@ open GtkTree
 let window = 
   GWindow.window ~border_width: 10 ~title:"Editor" ~position: `CENTER () 
 
-(* menu *)
+(* menu bar *)
 let v_box = GPack.vbox ~homogeneous:false ~spacing:30  ~packing:window#add ()
 let menu_bar = GMenu.menu_bar ~packing:v_box#pack () 
 
 (* treeview on the left, canvas on the right *)
 let h_box = GPack.hbox ~homogeneous:false ~spacing:30  ~packing:v_box#add ()
+
 let sw = GBin.scrolled_window ~shadow_type:`ETCHED_IN ~hpolicy:`NEVER
   ~vpolicy:`AUTOMATIC ~packing:h_box#add () 
  
-   
-let canvas = 
-  GnoCanvas.canvas ~aa:!aa ~width:(truncate w) ~height:(truncate h) 
+let canvas =  
+  GnoCanvas.canvas 
+    ~aa:!aa 
+    ~width:(truncate w) 
+    ~height:(truncate h) 
     ~packing:h_box#add () 
 
-let canvas_root = canvas#root 
-
-
-
-(* unit circle and graph root *)
+(* unit circle as root of graph drawing *)
 let canvas_root =
-  let circle_group = GnoCanvas.group ~x:300.0 ~y:300.0 canvas_root in
+  let circle_group = GnoCanvas.group ~x:300.0 ~y:300.0 canvas#root in
   circle_group#lower_to_bottom ();
   let w2 = 2. in
-  let circle =
-    GnoCanvas.ellipse  ~props:[ `X1 (-.w/.2. +.w2); `Y1 (-.h/.2. +.w2); 
-				`X2  (w/.2. -.w2) ; `Y2 ( h/.2. -.w2) ;
- 				`FILL_COLOR color_circle ; `OUTLINE_COLOR "black" ; 
-				`WIDTH_PIXELS (truncate w2) ] circle_group 
+  let circle = GnoCanvas.ellipse  ~props:[ `X1 (-.w/.2. +.w2); `Y1 (-.h/.2. +.w2); 
+					   `X2  (w/.2. -.w2) ; `Y2 ( h/.2. -.w2) ;
+ 					   `FILL_COLOR color_circle ; `OUTLINE_COLOR "black" ; 
+					   `WIDTH_PIXELS (truncate w2) ] circle_group 
   in
   circle_group#lower_to_bottom ();
   circle#show();
   let graph_root = GnoCanvas.group ~x:(-.300.0) ~y:(-.300.0) circle_group in
   graph_root#raise_to_top ();
   graph_root
-
 
 
 (* current root used for drawing *)
@@ -291,22 +278,28 @@ let remove_edge n1 n2 ()=
 	let _,n = H2.find intern_edges (n1,n2) in
 	n#destroy ();
 	H2.remove intern_edges (n1,n2) 
-      with Not_found ->
-	try
-	   let _,n = H2.find intern_edges (n2,n1) in
-	   n#destroy ();
-	   H2.remove intern_edges (n2,n1) 
-	with Not_found ->
-	  try
-	    let n = H2.find successor_edges (n1,n2) in
-	    n#destroy ();
-	    H2.remove successor_edges (n1,n2) 
-	  with Not_found ->
-	    try
-	      let n = H2.find successor_edges (n2,n1) in
-	      n#destroy ();
-	      H2.remove successor_edges (n2,n1) 
-	    with Not_found -> ()
+      with Not_found -> ()
+    end;
+    begin
+      try
+	let _,n = H2.find intern_edges (n2,n1) in
+	n#destroy ();
+	H2.remove intern_edges (n2,n1) 
+      with Not_found -> ()
+    end;
+    begin
+      try
+	let n = H2.find successor_edges (n1,n2) in
+	n#destroy ();
+	H2.remove successor_edges (n1,n2) 
+      with Not_found -> ()
+    end;
+    begin
+      try
+	let n = H2.find successor_edges (n2,n1) in
+	n#destroy ();
+	H2.remove successor_edges (n2,n1) 
+      with Not_found -> ()
     end;
     let tor = make_turtle !origine 0.0 in
     draw tor canvas_root;
@@ -363,27 +356,34 @@ let add_successor node () =
 let remove_vertex vertex () =
   G.iter_succ
     (fun w ->
-       try
-	 let _,n = H2.find intern_edges (vertex,w) in
-	 n#destroy ();
-	 H2.remove intern_edges (vertex,w) 
-       with Not_found ->
+       begin 
+	 try
+	   let _,n = H2.find intern_edges (vertex,w) in
+	   n#destroy ();
+	   H2.remove intern_edges (vertex,w) 
+	 with Not_found -> ()
+       end;
+       begin
 	 try
 	   let _,n = H2.find intern_edges (w,vertex) in
 	   n#destroy ();	    
 	   H2.remove intern_edges (w,vertex) 
-	 with Not_found ->
-	   try
-	     let n = H2.find successor_edges (vertex,w) in
-	     n#destroy ();
-	     H2.remove successor_edges (vertex,w) 
-	   with Not_found ->
-	     try
-	       let n = H2.find successor_edges (w,vertex) in
-	       n#destroy ();
-	       H2.remove successor_edges (w,vertex) 
-	     with Not_found ->
-	       ()
+	 with Not_found -> ()
+       end;
+       begin       
+	 try
+	   let n = H2.find successor_edges (vertex,w) in
+	   n#destroy ();
+	   H2.remove successor_edges (vertex,w) 
+	 with Not_found -> ()
+       end;
+       begin       
+	 try
+	   let n = H2.find successor_edges (w,vertex) in
+	   n#destroy ();
+	   H2.remove successor_edges (w,vertex) 
+	 with Not_found -> ()
+       end;
     )
     !graph vertex;
   let (n,_,_) =  H.find nodes vertex in
@@ -650,14 +650,13 @@ let set_canvas_event () =
 (* treeview *)
 let add_columns ~(view : GTree.view) ~model =
   let renderer = GTree.cell_renderer_text [`XALIGN 0.] in
-  let vc =
-    GTree.view_column ~title:"Nodes" ~renderer:(renderer, ["text", Model.name]) ()
+  let vc = GTree.view_column ~title:"Nodes" ~renderer:(renderer, ["text", Model.name]) ()
   in
   ignore (view#append_column vc);
   vc#set_sizing `FIXED;
   vc#set_fixed_width 100;
-(*  vc#set_resizable true;*)
-vc#set_sizing `GROW_ONLY;
+  (*  vc#set_resizable true;*)
+  vc#set_sizing `AUTOSIZE;
   view#selection#connect#after#changed ~callback:
     begin fun () ->
       List.iter
@@ -673,7 +672,7 @@ let treeview = GTree.view ~model:Model.model ~packing:sw#add ()
 let () = treeview#set_rules_hint true
 let () = treeview#selection#set_mode `MULTIPLE
 let _ = add_columns ~view:treeview ~model:Model.model
-(*let _ = treeview#misc#connect#realize ~callback:treeview#expand_all*)
+  
 
 
 
