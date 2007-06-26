@@ -53,6 +53,20 @@ module G =
 
 module B = Builder.I(G)
 
+
+
+
+(* current graph *) 
+let graph = ref (G.create ())
+
+(* useful functions for vertex and edge *)
+let string_of_label x = (G.V.label x).label
+let edge v w = G.mem_edge !graph v w || G.mem_edge !graph w v 
+
+
+
+
+(* two Parser modules *)
 module GmlParser = 
   Gml.Parse
     (B)
@@ -66,12 +80,6 @@ module GmlParser =
       let edge _ = make_edge_info ()
     end)
 
-
-(*module GmlPrinter =
-  Gml.Print
-    (G)
-    ( ?? )*)
-
 module DotParser = 
   Dot.Parse
     (B)
@@ -84,18 +92,66 @@ module DotParser =
       let edge _ = make_edge_info ()
     end)
 
+(* a parsing file function *)
 let parse_file f = 
   if Filename.check_suffix f ".gml" then
     GmlParser.parse f
   else
     DotParser.parse f
 
+
+
+(* two Printer Modules *)
+module GmlPrinter =
+  Gml.Print
+    (G)
+    (struct
+       let node (v: G.V.label) = ["label", Gml.Int (int_of_string v.label)]
+       let edge (e: G.E.label) = []
+     end)
+    
+ 
+module DotPrinter =
+  Graphviz.Dot
+    ( struct
+      include G
+      let vertex_name vertex = string_of_label vertex
+      let graph_attributes _ = []
+      let default_vertex_attributes _ = []
+      let vertex_attributes _ = []
+      let default_edge_attributes _ = []
+      let edge_attributes _ = []
+      let get_subgraph _ = None
+    end )
+ 
+ 
+
+
+(* two outputs functions, and a save graph function *)
+ let gml_output g f =
+    let c = open_out f in
+    let fmt = Format.formatter_of_out_channel c in
+    Format.fprintf fmt "%a@." GmlPrinter.print g;
+    close_out c
+
+
+ let dot_output g f = 
+   let oc = open_out f in
+   DotPrinter.output_graph oc g;
+   close_out oc
+
+ let save_graph name =
+   if Filename.check_suffix name "gml"
+   then gml_output !graph name
+   else if Filename.check_suffix name "dot"
+   then dot_output !graph name
+   else dot_output !graph (name^".dot")
+
+
 module Components = Components.Make(G)
 module Dfs = Traverse.Dfs(G)
 
-(* current graph *)
 
-let graph = ref (G.create ())
 
 exception Choose of G.V.t
 
@@ -105,10 +161,6 @@ let choose_root () =
     Format.eprintf "empty graph@.";exit 0
   with Choose v ->
     v
-
-let string_of_label x = (G.V.label x).label
-
-let edge v w = G.mem_edge !graph v w || G.mem_edge !graph w v 
 
 
 (* Parsing of the command line *)

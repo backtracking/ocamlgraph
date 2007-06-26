@@ -699,7 +699,7 @@ let print msg () =
   flush stdout
 
 
-let default d = function
+let default_file d = function
   | None -> d
   | Some v -> v
       
@@ -713,45 +713,72 @@ let graph_filter () =
     ~name:"Fichier de graphes" 
     ~patterns:[ "*.dot"; "*.gml" ] ()
   
-let ask_for_file parent =
-  let dialog = GWindow.file_chooser_dialog 
-    ~action:`OPEN 
-    ~title:"Ouvrir un fichier"
-    ~parent () in
-  dialog#add_button_stock `CANCEL `CANCEL ;
-  dialog#add_select_button_stock `OPEN `OPEN ;
+let ask_for_file (mode: [< `OPEN | `SAVE]) =
+  let dialog =
+    begin match mode with
+      | `OPEN ->  
+	  let dialog =
+	    GWindow.file_chooser_dialog 
+	      ~action: `OPEN
+	      ~title:"Open graph file"
+	      ~parent: window () in
+	 dialog#add_button_stock `CANCEL `CANCEL ;
+	  dialog#add_select_button_stock `OPEN `OPEN;
+	  dialog
+	    
+      | `SAVE ->
+	  let dialog =
+	    GWindow.file_chooser_dialog 
+	      ~action: `SAVE
+	      ~title: "Save graph as..."
+	      ~parent: window () in
+	   dialog#add_button_stock `CANCEL `CANCEL ;
+	  dialog#add_select_button_stock `SAVE `SAVE;
+	  dialog  
+    end;
+  in
   dialog#add_filter (graph_filter ()) ;
   dialog#add_filter (all_files ()) ;
   let f = match dialog#run () with
-    | `OPEN ->default "<none>" dialog#filename 
+    | `OPEN -> default_file "<none>" dialog#filename 
+    | `SAVE -> default_file "my_graph" dialog#filename
     | `DELETE_EVENT | `CANCEL -> "<none>"
   in
   dialog#destroy ();
   f
 
-let open_graph()  =
-  let fichier = ask_for_file window in
-  if fichier <> "<none>"
-  then 
-    begin 
-      load_graph fichier;
-      reset_table_and_canvas ();
-      let turtle = make_turtle_origine () in
-      draw turtle canvas_root;
-      set_canvas_event ()
-    end
+
       
 let new_graph () =
   graph := G.create ();
   Model.reset();
   reset_table_and_canvas ()
-      
+ 
+
+let open_graph ()  =
+  let file = ask_for_file `OPEN  in
+  if file <> "<none>"
+  then 
+    begin 
+      load_graph file;
+      reset_table_and_canvas ();
+      let turtle = make_turtle_origine () in
+      draw turtle canvas_root;
+      set_canvas_event ()
+    end
+
+let save_graph_as () =
+  let file = ask_for_file `SAVE in
+  if file <> "<none>"
+  then save_graph file
+
+    
 let menu_files = 
   [
     `I ("_New Graph",  new_graph);
     `I ("_Open Graph", open_graph);
     `I ("_Save Graph", print "todo save graph");
-    `I ("Save Graph _As ...", print "todo save graph as...");
+    `I ("Save Graph _As ...", save_graph_as);
     `S;
     `I ("_Quit", GMain.Main.quit )
   ]
