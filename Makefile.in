@@ -1,17 +1,19 @@
-#
-# sample Makefile for Objective Caml
-# Copyright (C) 2001 Jean-Christophe FILLIATRE
-# 
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Library General Public
-# License version 2, as published by the Free Software Foundation.
-# 
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# 
-# See the GNU Library General Public License version 2 for more details
-# (enclosed in the file LGPL).
+##########################################################################
+#                                                                        #
+#  Ocamlgraph: a generic graph library for OCaml                         #
+#  Copyright (C) 2004-2007                                               #
+#  Sylvain Conchon, Jean-Christophe Filliatre and Julien Signoles        #
+#                                                                        #
+#  This software is free software; you can redistribute it and/or        #
+#  modify it under the terms of the GNU Library General Public           #
+#  License version 2, with the special exception on linking              #
+#  described in file LICENSE.                                            #
+#                                                                        #
+#  This software is distributed in the hope that it will be useful,      #
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of        #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  #
+#                                                                        #
+##########################################################################
 
 # where to install the binaries
 prefix=@prefix@
@@ -150,7 +152,7 @@ editor/editor.opt: $(CMXA) $(EDCMX)
 	$(OCAMLOPT) -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
 
 
-VERSION=0.98
+VERSION=0.99
 
 version.ml: Makefile
 	echo "let version = \""$(VERSION)"\"" > version.ml
@@ -208,6 +210,13 @@ $(NAME).tex: $(DOC_ML)
 wc:
 	ocamlwc -p *.mli *.ml
 
+# file headers
+##############
+headers:
+	headache -c misc/headache_config.txt -h misc/header.txt \
+		Makefile.in configure.in README \
+		*.ml *.ml[ily] editor/*.ml editor/*.mli
+
 # export
 ########
 
@@ -218,6 +227,8 @@ FTP = $$HOME/ftp/$(NAME)
 WWW = $$HOME/WWW/$(NAME)
 
 FILES = *.ml* Makefile.in configure configure.in META.in  \
+	editor/ed_*.ml* editor/Makefile \
+        editor/tests/*.dot editor/tests/*.gml \
 	.depend README FAQ CREDITS INSTALL COPYING LICENSE CHANGES
 
 EXAMPLES = demo.ml color.ml demo_planar.ml sudoku.ml
@@ -228,7 +239,7 @@ source:
 	mkdir -p export
 	cd export; rm -rf $(EXPORTDIR)
 	mkdir -p export/$(EXPORTDIR)
-	cp $(FILES) export/$(EXPORTDIR)
+	cp --parents $(FILES) export/$(EXPORTDIR)
 	cd export ; tar cf $(TAR) $(EXPORTDIR) ; gzip -f --best $(TAR)
 	cp export/$(TAR).gz $(FTP)
 	cp README FAQ CREDITS COPYING LICENSE CHANGES $(EXAMPLES) $(FTP)

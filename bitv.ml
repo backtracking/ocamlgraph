@@ -1,18 +1,19 @@
-(*
- * Bit vectors.
- * Copyright (C) 1999 Jean-Christophe FILLIATRE
- * 
- * This software is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License version 2, as published by the Free Software Foundation.
- * 
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
- * See the GNU Library General Public License version 2 for more details
- * (enclosed in the file LGPL).
- *)
+(**************************************************************************)
+(*                                                                        *)
+(*  Ocamlgraph: a generic graph library for OCaml                         *)
+(*  Copyright (C) 2004-2007                                               *)
+(*  Sylvain Conchon, Jean-Christophe Filliatre and Julien Signoles        *)
+(*                                                                        *)
+(*  This software is free software; you can redistribute it and/or        *)
+(*  modify it under the terms of the GNU Library General Public           *)
+(*  License version 2, with the special exception on linking              *)
+(*  described in file LICENSE.                                            *)
+(*                                                                        *)
+(*  This software is distributed in the hope that it will be useful,      *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of        *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *)
+(*                                                                        *)
+(**************************************************************************)
 
 (*i $Id: bitv.ml,v 1.3 2004-07-13 12:54:42 filliatr Exp $ i*)
 

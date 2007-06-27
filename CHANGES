@@ -1,4 +1,8 @@
 
+version 0.99, June 27th, 2007
+-----------------------------
+ o experimental: GTK-based graph editor based on hyperbolic geometry;
+   to build it and test it, cd to editor/ and type make
  o [Components.Make] functor: function [scc] as a new profile and a
    more precise specification. New function [scc_array].
  o fixed configure to set ocaml's standard library using "ocamlc -where"
@@ -7,8 +11,8 @@
  o new module Strat implementing simple game strategies
  o Graphviz: little refactoring and improved documentation
 
-version 0.98, Sept 27th, 2006
------------------------------
+version 0.98, Sep 27th, 2006
+----------------------------
  o rename Sig.IA to Sig.IM
  o add subgraph support in Graphviz 
    (breaks ascendent compatibility if you use Graphviz: by default add
