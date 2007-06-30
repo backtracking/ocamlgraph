@@ -77,6 +77,10 @@ module B = Builder.I(G)
 (* current graph *) 
 let graph = ref (G.create ())
 
+type name = string option
+
+let graph_name = ref (None: name)
+
 (* useful functions for vertex and edge *)
 let string_of_label x = (G.V.label x).label
 let edge v w = G.mem_edge !graph v w || G.mem_edge !graph w v 
@@ -109,6 +113,7 @@ module DotParser =
 	| Dot_ast.Html s -> make_node_info s
       let edge _ = make_edge_info ()
     end)
+
 
 (* a parsing file function *)
 let parse_file f = 
@@ -160,10 +165,12 @@ module DotPrinter =
 
  let save_graph name =
    if Filename.check_suffix name "gml"
-   then gml_output !graph name
+   then ( gml_output !graph name;  graph_name := Some name)
    else if Filename.check_suffix name "dot"
-   then dot_output !graph name
-   else dot_output !graph (name^".dot")
+   then ( dot_output !graph name;  graph_name := Some name)
+   else ( let name = name^".dot" in 
+	  dot_output !graph name;
+	  graph_name := Some name )
 
 
 module Components = Components.Make(G)
@@ -183,7 +190,8 @@ let choose_root () =
 
 (* Parsing of the command line *)
 let load_graph f =
-  graph := parse_file f
+  graph := parse_file f;
+  graph_name := Some  f
 
 let dfs = ref false
 

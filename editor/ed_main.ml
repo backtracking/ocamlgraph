@@ -117,13 +117,23 @@ let () = Model.reset ()
 open GtkTree
 
 
+
+  
 (* Main GTK window *)
-let window = 
-  GWindow.window ~border_width: 10 ~title:"Editor" ~position: `CENTER () 
+let window = GWindow.window ~border_width: 10 ~position: `CENTER () 
+
+
+(* usual function to change window title *)
+let set_window_title () =
+window#set_title
+  (match !graph_name with
+     | None ->  "Editor"
+     | Some name -> "Editor : "^(Filename.chop_extension (Filename.basename name)))
+
 
 (* menu bar *)
 let v_box = GPack.vbox ~homogeneous:false ~spacing:30  ~packing:window#add ()
-let menu_bar = GMenu.menu_bar ~packing:v_box#pack () 
+let menu_bar_box = GPack.vbox ~packing:v_box#pack () 
 
 (* treeview on the left, canvas on the right *)
 let h_box = GPack.hbox ~homogeneous:false ~spacing:30  ~packing:v_box#add ()
@@ -152,6 +162,7 @@ let canvas_root =
   circle#show();
   let graph_root = GnoCanvas.group ~x:(-.300.0) ~y:(-.300.0) circle_group in
   graph_root#raise_to_top ();
+  set_window_title ();
   graph_root
 
 
@@ -162,6 +173,7 @@ let root = ref (choose_root ())
 let load_graph f =
   Ed_graph.load_graph f;
   Model.reset ();
+  set_window_title ();
   root := choose_root ()
 
 
@@ -219,7 +231,9 @@ let add_node () =
   let window = GWindow.window 
     ~title: "Choose vertex label" 
     ~width: 300 
-    ~height: 50 () in
+    ~height: 50 
+    ~position: `MOUSE
+    () in
   let vbox = GPack.vbox 
     ~packing: window#add () in
   let entry = GEdit.entry 
@@ -229,7 +243,7 @@ let add_node () =
   entry#select_region 
     ~start:0 
     ~stop:entry#text_length;
-  (*two check buttons*)
+  (*two check buttons allowing to add node to selection list and to choose this node as root*)
   let hbox = GPack.hbox 
     ~packing: vbox#add () in
   let is_in_selection = ref false in
@@ -340,6 +354,7 @@ let add_successor node () =
     ~title: "Choose label name" 
     ~width: 300 
     ~height: 50 
+    ~position: `MOUSE
     () in
   let vbox = GPack.vbox 
     ~packing: window#add 
@@ -708,31 +723,25 @@ let reset_table_and_canvas () =
   nb_selected:=0
 
 
-(* menu *)
-let create_menu label menubar =
-  let item = GMenu.menu_item ~label ~packing:menubar#append () in
-  GMenu.menu ~packing:item#set_submenu ()
     
-let print msg () =
-  print_endline msg;
-  flush stdout
+(* menu action functions *)
 
-
-let default_file d = function
-  | None -> d
-  | Some v -> v
-      
-let all_files () =
-  let f = GFile.filter ~name:"All" () in
-  f#add_pattern "*" ;
-  f
-  
-let graph_filter () = 
-  GFile.filter 
-    ~name:"Fichier de graphes" 
-    ~patterns:[ "*.dot"; "*.gml" ] ()
-  
+(*  choose a file to load or save to *)
 let ask_for_file (mode: [< `OPEN | `SAVE]) =
+  let default_file d = function
+    | None -> d
+    | Some v -> v
+  in    
+  let all_files () =
+    let f = GFile.filter ~name:"All" () in
+    f#add_pattern "*" ;
+    f
+  in
+  let graph_filter () = 
+    GFile.filter 
+      ~name:"Fichier de graphes" 
+      ~patterns:[ "*.dot"; "*.gml" ] ()
+  in
   let dialog =
     begin match mode with
       | `OPEN ->  
@@ -741,7 +750,7 @@ let ask_for_file (mode: [< `OPEN | `SAVE]) =
 	      ~action: `OPEN
 	      ~title:"Open graph file"
 	      ~parent: window () in
-	 dialog#add_button_stock `CANCEL `CANCEL ;
+	  dialog#add_button_stock `CANCEL `CANCEL ;
 	  dialog#add_select_button_stock `OPEN `OPEN;
 	  dialog
 	    
@@ -750,8 +759,10 @@ let ask_for_file (mode: [< `OPEN | `SAVE]) =
 	    GWindow.file_chooser_dialog 
 	      ~action: `SAVE
 	      ~title: "Save graph as..."
-	      ~parent: window () in
-	   dialog#add_button_stock `CANCEL `CANCEL ;
+	      ~parent: window 
+	      () in
+	  dialog#set_current_name "my_graph.dot";
+	  dialog#add_button_stock `CANCEL `CANCEL ;
 	  dialog#add_select_button_stock `SAVE `SAVE;
 	  dialog  
     end;
@@ -760,20 +771,50 @@ let ask_for_file (mode: [< `OPEN | `SAVE]) =
   dialog#add_filter (all_files ()) ;
   let f = match dialog#run () with
     | `OPEN -> default_file "<none>" dialog#filename 
-    | `SAVE -> default_file "my_graph" dialog#filename
+    | `SAVE -> default_file "my_graph.dot" dialog#filename
     | `DELETE_EVENT | `CANCEL -> "<none>"
   in
   dialog#destroy ();
   f
 
 
-      
+(* menu action new graph *)      
 let new_graph () =
-  graph := G.create ();
-  Model.reset();
-  reset_table_and_canvas ()
- 
+  let alert_window = GWindow.message_dialog 
+    ~message:("Are you sure you want to start"
+	      ^" a new graph and discard all"
+	      ^" unsaved changes to :\n\n"
+	      ^"<tt>\t"
+	      ^(match !graph_name with
+		  | None -> "unamed"
+		  | Some name -> name)
+	      ^"</tt>")
+    ~use_markup:true
+    ~title:"New graph ?"
+    ~message_type:`QUESTION
+    ~buttons:GWindow.Buttons.yes_no
+    ~parent:window
+    ~resizable:false
+    ~position:`CENTER_ON_PARENT
+    ()
+  in
+  begin 
+    match alert_window#run () with
+      | `YES  ->
+	  begin
+	    graph := G.create ();
+	    Model.reset();
+	    reset_table_and_canvas ();
+	    graph_name := None;
+	    set_window_title ()
+	  end 
+      | `DELETE_EVENT | `NO -> ()
+  end;
+  alert_window#destroy ()
+  
+  
 
+(* menu action open graph *)      
 let open_graph ()  =
   let file = ask_for_file `OPEN  in
   if file <> "<none>"
@@ -786,39 +827,161 @@ let open_graph ()  =
       set_canvas_event ()
     end
 
+(* menu action save graph as *)      
 let save_graph_as () =
   let file = ask_for_file `SAVE in
   if file <> "<none>"
-  then save_graph file
+  then begin 
+    save_graph file;
+    set_window_title ()
+  end
 
+(* menu action save graph *)
+let save_graph () =
+  match !graph_name with
+    | None -> ()
+    | Some name ->
+	begin 
+	  save_graph name;
+	  set_window_title ()
+	end
+	  
+(* menu action quit *)      
+let quit () =
+  let alert_window = GWindow.message_dialog 
+    ~message:("Are you sure you want to quit"
+	      ^"  and discard all"
+	      ^" unsaved changes to :\n\n"
+	      ^"<tt>\t"
+	      ^(match !graph_name with
+		  | None -> "unamed"
+		  | Some name -> name)
+	      ^"</tt>")
+    ~use_markup:true
+    ~title:"Quit ?"
+    ~message_type:`QUESTION
+    ~buttons:GWindow.Buttons.yes_no
+    ~parent:window
+    ~resizable:false
+    ~position:`CENTER_ON_PARENT
+    ()
+  in
+  begin 
+    match alert_window#run () with
+      | `YES  -> window#destroy ()
+      | `DELETE_EVENT | `NO -> ()
+  end	  
     
-let menu_files = 
-  [
-    `I ("_New Graph",  new_graph);
-    `I ("_Open Graph", open_graph);
-    `I ("_Save Graph", print "todo save graph");
-    `I ("Save Graph _As ...", save_graph_as);
-    `S;
-    `I ("_Quit", GMain.Main.quit )
-  ]
-  
-let menu = 
-  create_menu "File" menu_bar
+(* menu action about *)      
+let about () =
+  let dialog = GWindow.about_dialog 
+    ~authors:["Ocamlgraph :";
+	      "   Sylvain Conchon";
+	      "   Jean-Christophe Filliatre";
+	      "   Julien Signoles";
+	      "";
+	      "Editor :";
+	      "   Vadon Benjamin"]
+    ~comments:" Ocamlgraph: a generic graph library for OCaml"
+    ~copyright:"Copyright (C) 2004-2007 
+Sylvain Conchon, Jean-Christophe Filliatre and Julien Signoles"
+    ~license:" This software is free software; you can redistribute it and/or 
+modify it under the terms of the GNU Library General Public 
+License version 2, with the special exception on linking 
+described in file LICENSE.                                         
+                                                                     
+This software is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    ~logo:(GdkPixbuf.from_file"ed_icon.xpm" )
+    ~name:"Ocamlgraph's editor"
+    ~version:"0.99"
+    ~website:"http://ocamlgraph.lri.fr/"
+    ~parent:window
+    ~title:"About"
+    ~resizable:false
+    ~position:`CENTER_ON_PARENT
+    ()
+  in
+  try ignore( dialog#run ())
+  with Not_found -> dialog#destroy ()
 
-let _ = GToolbox.build_menu menu ~entries:menu_files 
+	
+
+(* menu action handbook *)
+let handbook () =
+Format.eprintf "Implemented soon@."
+
+
+(* menu bar, based on ui_manager *)
+let ui_info = "<ui>\
+  <menubar name='MenuBar'>\
+    <menu action='FileMenu'>\
+      <menuitem action='New graph'/>\
+      <menuitem action='Open graph'/>\
+      <menuitem action='Save graph'/>\
+      <menuitem action='Save graph as...'/>\
+      <separator/>\
+      <menuitem action='Quit'/>\
+    </menu>\
+    <menu action='HelpMenu'>\
+      <menuitem action='About'/>\
+      <menuitem action='Handbook'/>\
+    </menu>\
+  </menubar>\
+</ui>"
+
+(* choose right menu action *)
+let activ_action ac =
+  let name = ac#name in
+  match name with
+    | "New graph" -> new_graph ()
+    | "Open graph"-> open_graph ()
+    | "Save graph" -> save_graph ()
+    | "Save graph as..." -> save_graph_as ()
+    | "Quit" -> quit ()
+    | "About" -> about ()
+    | "Handbook" -> handbook ()
+    | _ -> Format.eprintf "%s menu is not yet implemented @." name
+
+
+let setup_ui window = 
+  let add_action = GAction.add_action in
+  let actions = GAction.action_group ~name:"Actions" () in
+  GAction.add_actions actions
+    [ add_action "FileMenu" ~label:"_File" ;
+      add_action "HelpMenu" ~label:"_Help" ;
+      
+      add_action "New graph" ~stock:`NEW ~tooltip:"Create a new graph"
+	~callback:activ_action ;
+      add_action "Open graph" ~stock:`OPEN ~tooltip:"Open a graph file"
+	~callback:activ_action ;
+      add_action "Save graph" ~stock:`SAVE ~tooltip:"Save current graph"
+	~callback:activ_action ;
+      add_action "Save graph as..." ~stock:`SAVE_AS ~accel:"<Control><Shift>S" 
+	~tooltip:"Save current graph to specified file" 
+	~callback:activ_action ;
+      add_action "Quit" ~stock:`QUIT ~tooltip:"Quit"
+	~callback:activ_action ;
+      add_action "About" ~label:"_About" ~tooltip:"Who build this"
+	~callback:activ_action;
+      add_action "Handbook" ~label:"_Handbook" ~accel:"<Control>H" ~tooltip:"How to.."
+	~callback:activ_action;
+    ] ;
+  let ui_m = GAction.ui_manager () in
+  ui_m#insert_action_group actions 0 ;
+  window#add_accel_group ui_m#get_accel_group ;
+  ignore (ui_m#add_ui_from_string ui_info) ;
+  menu_bar_box#pack (ui_m#get_widget "/MenuBar") 
 
 
 
-let tortue = make_turtle_origine ()
-
-let () = canvas#set_scroll_region 0. 0. w h 
-
-let () = window#show ()
-let _ = 
+let () = 
   reset_table_and_canvas ();
-  draw tortue canvas_root;
-  set_canvas_event ()
-
-
-let () = GMain.Main.main ()
+  draw (make_turtle_origine ()) canvas_root;
+  set_canvas_event ();
+  canvas#set_scroll_region 0. 0. w h ;
+  setup_ui window;
+  ignore (window#show ());
+  GMain.Main.main ()
 
