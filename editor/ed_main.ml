@@ -930,7 +930,7 @@ let handbook_text (view:GText.view) =
   buffer#apply_tag_by_name "center" ~start ~stop ; 
    (* buffer's text *)
   buffer#insert ~iter ~tag_names:["heading"] "First words\n";
-  buffer#insert ~iter ~tag_names:["subsection"] "First of all, you have to know this is an experimental application. If you find a bug, please report it to developpers. If you want a particular fonctionnality, report it too";
+  buffer#insert ~iter ~tag_names:["subsection"] "First of all, you have to know this is an experimental application. If you find a bug, please report it to developpers. If you want a particular fonctionnality, report it too.";
   let start,stop = buffer#bounds in
   buffer#apply_tag_by_name "word_wrap" ~start ~stop ; 
   ()
