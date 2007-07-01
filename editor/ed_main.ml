@@ -725,7 +725,7 @@ let reset_table_and_canvas () =
 
     
 (* menu action functions *)
-
+    
 (*  choose a file to load or save to *)
 let ask_for_file (mode: [< `OPEN | `SAVE]) =
   let default_file d = function
@@ -908,11 +908,51 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
 
 	
 
+let handbook_text (view:GText.view) =
+  let buffer = view#buffer in
+  (* text's tags *)
+  ignore (buffer#create_tag ~name:"center" [`JUSTIFICATION `CENTER]);
+  ignore (buffer#create_tag ~name:"heading" [`WEIGHT `BOLD; `SIZE (15*Pango.scale)]);
+  ignore (buffer#create_tag ~name:"subsection" [`LEFT_MARGIN  10; `RIGHT_MARGIN 10]);
+  ignore (buffer#create_tag ~name:"title" [`WEIGHT `BOLD; `SIZE (17*Pango.scale);`JUSTIFICATION `CENTER]);
+  ignore (buffer#create_tag ~name:"word_wrap" [`WRAP_MODE `WORD; `EDITABLE false]);
+  let iter = buffer#get_iter_at_char 0 in
+  (* title *)
+  buffer#insert ~iter ~tag_names:["title"] "Ocamlgraph's Editor Handbook\n";
+  (* editor's icon *)
+  let image_anchor = buffer#create_child_anchor iter in
+  let image = GMisc.image 
+    ~pixbuf:(GdkPixbuf.from_file_at_size "ed_icon.xpm" ~width:70 ~height:70) 
+    () in
+  view#add_child_at_anchor image#coerce image_anchor;
+  buffer#insert ~iter "\n\n\n";
+  let start,stop = buffer#bounds in
+  buffer#apply_tag_by_name "center" ~start ~stop ; 
+   (* buffer's text *)
+  buffer#insert ~iter ~tag_names:["heading"] "First words\n";
+  buffer#insert ~iter ~tag_names:["subsection"] "First of all, you have to know this is an experimental application. If you find a bug, please report it to developpers. If you want a particular fonctionnality, report it too";
+  let start,stop = buffer#bounds in
+  buffer#apply_tag_by_name "word_wrap" ~start ~stop ; 
+  ()
+
+
+
 (* menu action handbook *)
 let handbook () =
-Format.eprintf "Implemented soon@."
-
-
+  let dialog = GWindow.dialog
+    ~width:450 
+    ~height:450 
+    ~title:"Handbook"
+    () in 
+  let view = GText.view () in
+  let sw = GBin.scrolled_window ~packing:dialog#vbox#add ()
+  in
+  sw#add view#coerce;
+  handbook_text view;
+  dialog#add_button_stock `CLOSE `CLOSE;
+  match dialog#run () with
+    | `CLOSE | `DELETE_EVENT -> dialog#destroy ()
+    
 (* menu bar, based on ui_manager *)
 let ui_info = "<ui>\
   <menubar name='MenuBar'>\
