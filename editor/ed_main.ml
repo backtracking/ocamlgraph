@@ -911,6 +911,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
 let handbook_text (view:GText.view) =
   let buffer = view#buffer in
   (* text's tags *)
+  ignore (buffer#create_tag ~name:"annotation" [`LEFT_MARGIN  10; `RIGHT_MARGIN 10;  `SIZE (7*Pango.scale)]);
   ignore (buffer#create_tag ~name:"center" [`JUSTIFICATION `CENTER]);
   ignore (buffer#create_tag ~name:"heading" [`UNDERLINE `SINGLE; `WEIGHT `BOLD; `SIZE (14*Pango.scale)]);
   ignore (buffer#create_tag ~name:"italic" [`LEFT_MARGIN  10; `RIGHT_MARGIN 10; `STYLE `ITALIC]);
@@ -935,9 +936,9 @@ let handbook_text (view:GText.view) =
   buffer#insert ~iter ~tag_names:["subsection"] 
     ("\tFirst of all, you have to know this is an experimental application. " 
      ^"If you find a bug, please report it to developpers. "
-     ^"This application have only prime fonctionnalities on graphs, so if you want a new fonctionnality, send it too.\n");
+     ^"This application have only basic fonctionnalities on graphs, so if you want a new fonctionnality, send it too.\n");
   buffer#insert ~iter ~tag_names:["subsection"] 
-    (ed_name^" represent a graph in hyperbolic geometry, and precisely in Poincaré's disk representation.\n\n"
+    (ed_name^" represents a graph in hyperbolic geometry, and precisely in Poincaré's disk representation.\n\n"
      ^ed_name^" is organized in four parts :\n");
   buffer#insert ~iter ~tag_names:["item"] "- a menu bar\n";
   buffer#insert ~iter ~tag_names:["item"] "- a vertices list, on the left side\n";
@@ -945,7 +946,7 @@ let handbook_text (view:GText.view) =
   buffer#insert ~iter ~tag_names:["item"] "- and an associated contextual menu\n\n";
   buffer#insert ~iter ~tag_names:["heading"] "Menu bar\n";
   buffer#insert ~iter ~tag_names:["subsection"] 
-    "\t It gives standard fonctionnalities. You can create a new graph, open and save graphs from/to gml and dot formats.\n"; 
+    "\t It gives standard fonctionnalities. You can create a new graph, open and save graphs from/to Gml and Dot formats.\n"; 
   buffer#insert ~iter ~tag_names:["italic"] 
   "Don't forget to save your changes before create or load a new graph.\n\n";
   buffer#insert ~iter ~tag_names:["heading"] "Vertices list\n";
@@ -953,17 +954,22 @@ let handbook_text (view:GText.view) =
     "\t You can change root of graph drawing by clicking on a vertex name. If you expand one, you can see successors of it.\n\n"; 
   buffer#insert ~iter ~tag_names:["heading"] "Poincaré's disk\n";
   buffer#insert ~iter ~tag_names:["subsection"] 
-    ("\t The graph is displayed in a disk. You can drag a vertex (a bug remains, you can't drag root to much on the right-side, but on the left-side it is infinite).\n"
-     ^"By double-clicking on a node, you add/remove it to selection. If <Ctrl>+double-click you select all nodes, or unselect all (if one or more node i already selected)"
+    ("\t The graph is displayed in a disk. You can drag a vertex.");
+  buffer#insert ~iter ~tag_names:["annotation"] "[1]\n";
+  buffer#insert ~iter ~tag_names:["subsection"] 
+    ("By double-clicking on a node, you add/remove it to selection.\nWith a <Ctrl>+double-click you select all nodes, or unselect all (if one or more node is already selected)"
      ^"\n\n"); 
   buffer#insert ~iter ~tag_names:["heading"] "Contextual menu\n";
   buffer#insert ~iter ~tag_names:["subsection"] 
-    ("\t This is the main way (and the only for the moment) to edit a graph. There is two differents menus, but it's transparent for your use.\n" 
-     ^"The first is only composed by an adding node menu, and appear when you clic in the disk.\n"
+    ("\t This is the main way (and the only for the moment) to edit a graph. There are two differents menus, but it is transparent for your use.\n" 
+     ^"The first is only composed by an adding node menu, and appear when you click in the disk.\n"
      ^"The second menu appears when you click on a vertex."
      ^" You can change root of graph drawing, add a successor or remove focused vertex."
      ^" Rest of menu depends of selected nodes. You can add or remove an edge with one of selected, or with all."
      ^"\n\n"); 
+
+  buffer#insert ~iter ~tag_names:["annotation"] "[1] :";
+  buffer#insert ~iter ~tag_names:["subsection"] " a bug still remains, you can't drag root to much on the right-side, but on the left-side it is infinite";
 
   let start,stop = buffer#bounds in
   buffer#apply_tag_by_name "word_wrap" ~start ~stop ; 
