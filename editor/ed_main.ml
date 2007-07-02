@@ -441,11 +441,10 @@ let sub_edge_to modif_type vertex list =
     if not (G.V.equal v2 vertex)
     then begin
       match modif_type with
-	| Add ->ignore((!sub_menu)#add_item (string_of_label v2) 
-	       ~callback:( add_edge v2 vertex));
-	| Remove -> if (edge v2 vertex) 
-	  then ignore((!sub_menu)#add_item (string_of_label v2) 
-	       ~callback:(remove_edge v2 vertex));
+	| Add -> ignore((!sub_menu)#add_item (string_of_label v2) 
+			  ~callback:( add_edge v2 vertex));
+	| Remove -> ignore((!sub_menu)#add_item (string_of_label v2) 
+			     ~callback:(remove_edge v2 vertex));
     end;
   in
   let rec make_sub_menu vertex list nb =
@@ -532,35 +531,40 @@ let contextual_menu vertex ev =
 
   (*edge menu*)
   begin
-    let sel_list = selected_list () in
-    match sel_list with
-      | [] -> ()
-      | list ->
-	  let ll =List.length list in
-	  let isel = is_selected vertex in
-	  begin
-	    if isel && ll=1 then ()
-	    else
-	      begin
-		let edge_menu = new GMenu.factory (GMenu.menu ()) in
-		if isel && ll=2 ||
-		  not isel && ll=1
-		then begin
-		  ignore (edge_menu#add_item "Add edge with" ~submenu: (edge_to Add vertex list)#menu);
-		  ignore (edge_menu#add_separator ());
-		  ignore (edge_menu#add_item "Remove edge with" ~submenu: (edge_to Remove vertex list)#menu);
-		end;
-		if isel && ll>2 ||
-		  not isel && ll>1
-		then  begin
-		  ignore (edge_menu#add_item "Add edge with" ~submenu: (edge_to Add vertex list)#menu);
-		  all_edges edge_menu vertex list;
-		  ignore (edge_menu#add_separator ());
-		  ignore (edge_menu#add_item "Remove edge with" ~submenu: (edge_to Remove vertex list)#menu);
-		end;
-		ignore(menu#add_item "Edge ops" ~submenu: edge_menu#menu);
-	      end;
-	  end;
+    let add_list = selected_list (ADD_FROM vertex) in
+    let rem_list = selected_list (REMOVE_FROM vertex) in
+    let al =List.length add_list in	  
+    let rl =List.length rem_list in
+    let isel = is_selected vertex in
+    let menu_bool = ref false in
+    let edge_menu = new GMenu.factory (GMenu.menu ()) in
+    begin
+      (* add menu *)
+      if isel && al=2 
+	|| not isel && al=1
+      then begin
+	ignore (edge_menu#add_item "Add edge with" ~submenu: (edge_to Add vertex add_list)#menu);
+	menu_bool := true;   
+      end 
+      else begin
+	if isel && al>2 ||
+	  not isel && al>1
+	then  begin
+	  ignore (edge_menu#add_item "Add edge with" ~submenu: (edge_to Add vertex add_list)#menu);
+	  all_edges edge_menu vertex add_list;
+	  menu_bool := true;   
+	end
+      end;
+      (* remove menu *)
+      if isel && rl>=2 ||
+	not isel && rl>=1
+      then begin
+	if !menu_bool then ignore (edge_menu#add_separator ());
+	ignore (edge_menu#add_item "Remove edge with" ~submenu: (edge_to Remove vertex rem_list)#menu);
+	menu_bool := true;   
+      end;
+      if !menu_bool then ignore(menu#add_item "Edge ops" ~submenu: edge_menu#menu);
+    end;
   end;	  
   menu#menu#popup ~button:3 ~time:(GdkEvent.Button.time ev)
 	    
@@ -967,10 +971,8 @@ let handbook_text (view:GText.view) =
      ^" You can change root of graph drawing, add a successor or remove focused vertex."
      ^" Rest of menu depends of selected nodes. You can add or remove an edge with one of selected, or with all."
      ^"\n\n"); 
-
   buffer#insert ~iter ~tag_names:["annotation"] "[1] :";
   buffer#insert ~iter ~tag_names:["subsection"] " a bug still remains, you can't drag root to much on the right-side, but on the left-side it is infinite";
-
   let start,stop = buffer#bounds in
   buffer#apply_tag_by_name "word_wrap" ~start ~stop ; 
   ()
