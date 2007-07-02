@@ -116,7 +116,7 @@ let () = Model.reset ()
 
 open GtkTree
 
-
+let ed_name = "Ocamlgraph's Editor"
 
   
 (* Main GTK window *)
@@ -127,8 +127,8 @@ let window = GWindow.window ~border_width: 10 ~position: `CENTER ()
 let set_window_title () =
 window#set_title
   (match !graph_name with
-     | None ->  "Editor"
-     | Some name -> "Editor : "^(Filename.chop_extension (Filename.basename name)))
+     | None -> ed_name
+     | Some name -> ed_name^" : "^(Filename.chop_extension (Filename.basename name)))
 
 
 (* menu bar *)
@@ -880,7 +880,7 @@ let about () =
 	      "   Jean-Christophe Filliatre";
 	      "   Julien Signoles";
 	      "";
-	      "Editor :";
+	      ed_name^" :";
 	      "   Vadon Benjamin"]
     ~comments:" Ocamlgraph: a generic graph library for OCaml"
     ~copyright:"Copyright (C) 2004-2007 
@@ -894,7 +894,7 @@ This software is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of 
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
     ~logo:(GdkPixbuf.from_file"ed_icon.xpm" )
-    ~name:"Ocamlgraph's editor"
+    ~name:ed_name
     ~version:"0.99"
     ~website:"http://ocamlgraph.lri.fr/"
     ~parent:window
@@ -912,13 +912,15 @@ let handbook_text (view:GText.view) =
   let buffer = view#buffer in
   (* text's tags *)
   ignore (buffer#create_tag ~name:"center" [`JUSTIFICATION `CENTER]);
-  ignore (buffer#create_tag ~name:"heading" [`WEIGHT `BOLD; `SIZE (15*Pango.scale)]);
+  ignore (buffer#create_tag ~name:"heading" [`UNDERLINE `SINGLE; `WEIGHT `BOLD; `SIZE (14*Pango.scale)]);
+  ignore (buffer#create_tag ~name:"italic" [`LEFT_MARGIN  10; `RIGHT_MARGIN 10; `STYLE `ITALIC]);
+  ignore (buffer#create_tag ~name:"item" [`LEFT_MARGIN  20; `RIGHT_MARGIN 10]);
   ignore (buffer#create_tag ~name:"subsection" [`LEFT_MARGIN  10; `RIGHT_MARGIN 10]);
   ignore (buffer#create_tag ~name:"title" [`WEIGHT `BOLD; `SIZE (17*Pango.scale);`JUSTIFICATION `CENTER]);
   ignore (buffer#create_tag ~name:"word_wrap" [`WRAP_MODE `WORD; `EDITABLE false]);
   let iter = buffer#get_iter_at_char 0 in
   (* title *)
-  buffer#insert ~iter ~tag_names:["title"] "Ocamlgraph's Editor Handbook\n";
+  buffer#insert ~iter ~tag_names:["title"] (ed_name^" Handbook\n");
   (* editor's icon *)
   let image_anchor = buffer#create_child_anchor iter in
   let image = GMisc.image 
@@ -930,7 +932,39 @@ let handbook_text (view:GText.view) =
   buffer#apply_tag_by_name "center" ~start ~stop ; 
    (* buffer's text *)
   buffer#insert ~iter ~tag_names:["heading"] "First words\n";
-  buffer#insert ~iter ~tag_names:["subsection"] "First of all, you have to know this is an experimental application. If you find a bug, please report it to developpers. If you want a particular fonctionnality, report it too.";
+  buffer#insert ~iter ~tag_names:["subsection"] 
+    ("\tFirst of all, you have to know this is an experimental application. " 
+     ^"If you find a bug, please report it to developpers. "
+     ^"This application have only prime fonctionnalities on graphs, so if you want a new fonctionnality, send it too.\n");
+  buffer#insert ~iter ~tag_names:["subsection"] 
+    (ed_name^" represent a graph in hyperbolic geometry, and precisely in Poincaré's disk representation.\n\n"
+     ^ed_name^" is organized in four parts :\n");
+  buffer#insert ~iter ~tag_names:["item"] "- a menu bar\n";
+  buffer#insert ~iter ~tag_names:["item"] "- a vertices list, on the left side\n";
+  buffer#insert ~iter ~tag_names:["item"] "- the Poincaré's disk\n";
+  buffer#insert ~iter ~tag_names:["item"] "- and an associated contextual menu\n\n";
+  buffer#insert ~iter ~tag_names:["heading"] "Menu bar\n";
+  buffer#insert ~iter ~tag_names:["subsection"] 
+    "\t It gives standard fonctionnalities. You can create a new graph, open and save graphs from/to gml and dot formats.\n"; 
+  buffer#insert ~iter ~tag_names:["italic"] 
+  "Don't forget to save your changes before create or load a new graph.\n\n";
+  buffer#insert ~iter ~tag_names:["heading"] "Vertices list\n";
+  buffer#insert ~iter ~tag_names:["subsection"] 
+    "\t You can change root of graph drawing by clicking on a vertex name. If you expand one, you can see successors of it.\n\n"; 
+  buffer#insert ~iter ~tag_names:["heading"] "Poincaré's disk\n";
+  buffer#insert ~iter ~tag_names:["subsection"] 
+    ("\t The graph is displayed in a disk. You can drag a vertex (a bug remains, you can't drag root to much on the right-side, but on the left-side it is infinite).\n"
+     ^"By double-clicking on a node, you add/remove it to selection. If <Ctrl>+double-click you select all nodes, or unselect all (if one or more node i already selected)"
+     ^"\n\n"); 
+  buffer#insert ~iter ~tag_names:["heading"] "Contextual menu\n";
+  buffer#insert ~iter ~tag_names:["subsection"] 
+    ("\t This is the main way (and the only for the moment) to edit a graph. There is two differents menus, but it's transparent for your use.\n" 
+     ^"The first is only composed by an adding node menu, and appear when you clic in the disk.\n"
+     ^"The second menu appears when you click on a vertex."
+     ^" You can change root of graph drawing, add a successor or remove focused vertex."
+     ^" Rest of menu depends of selected nodes. You can add or remove an edge with one of selected, or with all."
+     ^"\n\n"); 
+
   let start,stop = buffer#bounds in
   buffer#apply_tag_by_name "word_wrap" ~start ~stop ; 
   ()
