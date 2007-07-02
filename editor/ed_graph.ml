@@ -183,9 +183,9 @@ exception Choose of G.V.t
 let choose_root () =
   try
     G.iter_vertex (fun v -> raise (Choose v)) !graph;
-    Format.eprintf "empty graph@.";exit 0
+    None
   with Choose v ->
-    v
+    Some v
 
 
 (* Parsing of the command line *)

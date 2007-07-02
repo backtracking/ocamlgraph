@@ -186,8 +186,11 @@ let do_refresh () =
 
 (* graph drawing *)
 let draw tortue canvas =
-  Ed_draw.draw_graph !root tortue;
-  Ed_display.draw_graph !root canvas;
+match !root with
+  | None -> ()
+  | Some root -> 
+  Ed_draw.draw_graph root tortue;
+  Ed_display.draw_graph root canvas;
   if do_refresh () then
     canvas_root#canvas#update_now ()
 
@@ -214,7 +217,7 @@ let root_change vertex ()=
 let node_selection ~(model : GTree.tree_store) path =
   let row = model#get_iter path in
   let vertex = model#get ~row ~column: Model.vertex in
-  root_change vertex ()
+  root_change (Some vertex) ()
 
 
 
@@ -272,7 +275,7 @@ let add_node () =
 			  ignore (Model.add_vertex vertex);
 			  Ed_display.add_node canvas_root vertex;
 			  !set_vertex_event_fun vertex;
-			  if !is_as_root  then root_change vertex () ;
+			  if !is_as_root  then root_change (Some vertex) () ;
 			  if !is_in_selection then update_vertex vertex Select;
 			  let  tor = make_turtle !origine 0.0 in
 			  draw tor canvas_root))
@@ -425,8 +428,12 @@ let remove_vertex vertex () =
   H.remove nodes vertex;
   ignore (Model.remove_vertex vertex);
   G.remove_vertex !graph vertex;
-  if (G.V.equal !root vertex) && not (G.is_empty !graph)
-  then root := choose_root();
+  begin  match !root with
+    | None -> ()
+    | Some root_v ->
+	if (G.V.equal root_v vertex)
+	then root := choose_root();
+  end;
   refresh_draw ()
     
 
@@ -516,7 +523,7 @@ let contextual_menu vertex ev =
 
   let menu = new GMenu.factory (GMenu.menu ()) in
   (* change root*)
-  ignore (menu#add_item "As root" ~callback:(root_change vertex));
+  ignore (menu#add_item "As root" ~callback:(root_change (Some vertex)));
 
   (*vertex menu*)
   let vertex_menu = new GMenu.factory (GMenu.menu ()) in
@@ -568,11 +575,6 @@ let contextual_menu vertex ev =
   end;	  
   menu#menu#popup ~button:3 ~time:(GdkEvent.Button.time ev)
 	    
-
-
-
-
-
 
 
 (* unit circle callback *)
