@@ -145,6 +145,13 @@ AC_CHECK_PROG(OCAMLFIND,ocamlfind,ocamlfind)
 
 # checking for lablgtk2
 AC_CHECK_PROG(LABLGTK2,lablgtk2,yes,no)
+if test "$LABLGTK2" = yes ; then
+   if test -d "$OCAMLLIB/lablgtk2" ; then
+      INCLUDEGTK2="-I +lablgtk2"
+   else
+      LABLGTK2=no
+   fi      
+fi
 
 # platform
 AC_MSG_CHECKING(Win32 platform)
@@ -179,6 +186,7 @@ AC_SUBST(EXE)
 AC_SUBST(LIBEXT)
 AC_SUBST(OBJEXT)
 AC_SUBST(FORPACK)
+AC_SUBST(INCLUDEGTK2)
 
 # Finally create the Makefile from Makefile.in
 AC_OUTPUT(Makefile)

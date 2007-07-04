@@ -635,6 +635,7 @@ EXE
 LIBEXT
 OBJEXT
 FORPACK
+INCLUDEGTK2
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -2237,6 +2238,13 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
+if test "$LABLGTK2" = yes ; then
+   if test -d "$OCAMLLIB/lablgtk2" ; then
+      INCLUDEGTK2="-I +lablgtk2"
+   else
+      LABLGTK2=no
+   fi
+fi
 
 # platform
 { echo "$as_me:$LINENO: checking Win32 platform" >&5
@@ -2258,6 +2266,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 # substitutions to perform
+
 
 
 
@@ -2964,11 +2973,12 @@ EXE!$EXE$ac_delim
 LIBEXT!$LIBEXT$ac_delim
 OBJEXT!$OBJEXT$ac_delim
 FORPACK!$FORPACK$ac_delim
+INCLUDEGTK2!$INCLUDEGTK2$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 60; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 61; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

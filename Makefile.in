@@ -40,7 +40,7 @@ EXE = @EXE@
 LIBEXT = @LIBEXT@
 OBJEXT = @OBJEXT@
 
-INCLUDES = -I +lablgtk2 -I +threads -I editor
+INCLUDES = @INCLUDEGTK2@ -I +threads -I editor
 BFLAGS = $(INCLUDES)
 OFLAGS = $(INCLUDES) @FORPACK@
 
