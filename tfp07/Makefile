@@ -1,5 +1,13 @@
 
-all: main-pp.ps
+all: main-pp.ps cameraready.ps
+
+cameraready.ps: cameraready.tex paper.tex paper.bib
+	latex cameraready
+	bibtex cameraready
+	latex cameraready
+	latex cameraready
+	dvips cameraready -o $@
+
 
 main-pp.ps: main-pp.tex
 	latex main-pp

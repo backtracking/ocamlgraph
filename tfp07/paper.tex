@@ -1,62 +1,24 @@
-%-----------------------------------------------------------------------------
-%
-%               Template for LaTeX Class/Style File
-%
-% Name:         sigplanconf-template.tex
-% Purpose:      A template for sigplanconf.cls, which is a LaTeX 2e class
-%               file for SIGPLAN conference proceedings.
-%
-% Author:       Paul C. Anagnostopoulos
-%               Windfall Software
-%               978 371-2316
-%               paul@windfall.com
-%
-% Created:      15 February 2005
-%
-%-----------------------------------------------------------------------------
+\chaptitle{Designing a Generic Graph Library using ML Functors}
 
-\documentclass[tfpsymp,pagenumbers]{tfp07symp}
-\setcounter{paper}{12}
+\chapter{Designing a Generic Graph Library using ML Functors}
 
-\usepackage{amsmath}
-\usepackage{url}
-\usepackage{xspace}
-\usepackage{alltt}
-\usepackage{verbatim,rotating}
-%\usepackage{color}
-%\usepackage[dvips]{epsfig}
-\usepackage{graphicx}
+\chapauthors{Sylvain Conchon\footnotemark[1]{},
+             Jean-Christophe Filli\^atre\footnotemark[1]{},
+             Julien Signoles\footnotemark[2]{}}
+\footnotetext[1]{LRI, Univ Paris-Sud, CNRS, INRIA Futurs (ProVal), 91893 Orsay, France;\\
+  Email: {\tt \{Sylvain.Conchon,Jean-Christophe.Filliatre\}@lri.fr}}
 
-\newcommand{\ocamlgraph}{\textsc{Ocamlgraph}\xspace}
-\newcommand{\ocaml}{\textsc{Ocaml}\xspace}
-\newcommand{\fl}{\ensuremath{\rightarrow}}
+\footnotetext[2]{CEA-LIST, Laboratoire S\^uret\'e des Logiciels, 
+  91191 Gif-sur-Yvette cedex, France;
+  Email: {\tt Julien.Signoles@cea.fr}}
 
-\begin{document}
+\addtocounter{footnote}{2}
+\chapauthorstoc{Sylvain Conchon, Jean-Christophe Filli\^atre, Julien Signoles}
 
-\title{Designing a Generic Graph Library \\ using ML Functors}
+% Abstract
+%===============================================================================
 
-\author
-    {Sylvain Conchon\inst{1} \and 
-     Jean-Christophe Filli\^atre\inst{1} \and 
-     Julien Signoles\inst{2}\protect\footnote[1]{This work was mostly done
-    while the third author was at LRI.}}
-\authorrunning{S. Conchon \and J.-C. Filli\^atre \and J. Signoles}
-
-\institute{LRI, Univ Paris-Sud, CNRS, Orsay F-91405\\
-INRIA Futurs, ProVal, Orsay F-91893\\
-  \email{\{conchon,filliatr\}@lri.fr}
-  \and CEA-LIST, Laboratoire S\^uret\'e des Logiciels \\
-  \email{Julien.Signoles@cea.fr}}
-
-%% \institute{LRI Universit\'e Paris Sud 91405 Orsay France \\
-%%   \texttt{\{conchon,filliatr\}@lri.fr Julien.Signoles@cea.fr}}
-
-%\email{conchon@lri.fr filliatr@lri.fr Julien.Signoles@cea.fr}
-
-
-\maketitle
-
-\begin{abstract}
+\paragraph{Abstract:}
   This paper details the design and implementation of \ocamlgraph, a
   highly generic graph library for the programming language \ocaml.
   This library features a large set of graph data
@@ -68,16 +30,8 @@ INRIA Futurs, ProVal, Orsay F-91893\\
   (resp. data structure).  Genericity is obtained through massive use
   of the \ocaml module system and its functions, the so-called
   \emph{functors}.
-\end{abstract}
 
-%\category{D.2}{Software Engineering}{Software Architectures; Design;
-%  Reusable Software}
 
-%\terms
-%term1, term2
-
-%\keywords
-%Graph library, Generic programming, Functors
 
 \section{Introduction}
 
@@ -85,7 +39,7 @@ Finding a graph library for one's favorite programming language is
 usually easy. But applying the provided algorithms to one's own graph
 data structure or building undirected persistent graphs with vertices
 and edges labeled with data other than integers is likely to be more
-difficult. Figure~\ref{comparison:tab} quickly compares several graph
+difficult. Figure~\ref{XII:comparison:tab} quickly compares several graph
 libraries according to the following criteria: number of graph data
 structures; purely applicative or imperative nature of the structures;
 and ability to apply the provided algorithms to a user-defined graph
@@ -93,7 +47,7 @@ data structure.  As one can notice, none of these libraries gives full
 satisfaction.  This paper introduces
 \ocamlgraph\footnote{\url{http://www.lri.fr/~filliatr/ocamlgraph/}}, a
 highly generic graph library for the programming language
-\ocaml~\cite{ObjectiveCaml}, which intends to fulfill all these
+\ocaml~\cite{XII:ObjectiveCaml}, which intends to fulfill all these
 criteria.
 
 % Beside the mere presentation of this
@@ -111,7 +65,7 @@ these implement a minimal set of functionalities.
 
 Without proper parameterization, such a large set of variants may
 easily result in unmanageable code. We avoid this pitfall using the
-\ocaml module system~\cite{leroy00}, which appears to be the tool of
+\ocaml module system~\cite{XII:leroy00}, which appears to be the tool of
 choice for this kind of meta-programming.  The genericity of
 \ocamlgraph is indeed achieved through a massive use of \ocaml
 functors. On one hand, they are used to avoid code duplication between
@@ -121,52 +75,177 @@ the other hand, they are used to write graph algorithms independently
 from the underlying graph data structure, with as much genericity as
 possible while keeping efficiency in mind.
 
-This paper is organized as follows. Section~\ref{motivatingexample}
-demonstrates the use of \ocamlgraph through an example.
-Section~\ref{implementation} exposes the design of the common
-interface for all graph data structures and explains how the code is
-shared among various implementations.  Section~\ref{algos}
-describes the algorithms provided in \ocamlgraph and how
-genericity  is obtained with respect to the graph data structure.
-Finally Section~\ref{bench} presents some benchmarks.
+This paper is organized as follows.  Section~\ref{XII:systememodules}
+gives an overview of \ocaml module system.
+Section~\ref{XII:motivatingexample} demonstrates the use of
+\ocamlgraph through an example.  Section~\ref{XII:implementation}
+exposes the design of the common interface for all graph data
+structures and explains how the code is shared among various
+implementations.  Section~\ref{XII:algos} describes the algorithms
+provided in \ocamlgraph and how genericity is obtained with respect to
+the graph data structure.  Finally Section~\ref{XII:bench} presents
+some benchmarks.
 
 % \section{Related Work}
-% \label{comparaison}
+% \label{XII:comparaison}
 
 % This section details the features of several other graph libraries, in
 % order to make a comparison with \ocamlgraph. Our list is not
 % exhaustive and only focuses on programming languages where some kind
-% of generic programming is possible. Figure~\ref{comparison:tab}
+% of generic programming is possible. Figure~\ref{XII:comparison:tab}
 % summarizes our comparison criteria which are mainly based on the
 % genericity of the data structures and algorithms proposed by some
 % other libraries.
 
 \begin{figure*}[t]
-\newcommand{\present}{\large\boldmath $\surd$}
-\newcommand{\absent}{\large\boldmath $\oslash$}
+\newcommand{\present}{yes}
+\newcommand{\absent}{no}
 
   \centering
   \begin{tabular}{|l||c|c|c|c|c|}
     \hline
-     &          & graph data & persistent / & generic    \\
-     & language & structures & imperative   & algorithms \\\hline\hline
-     GTL \cite{Gtl} & C++     & 1  & I & \absent   \\\hline
-     LEDA \cite{Leda} & C++    & 2  & I & \absent   \\\hline
-     BGL \cite{Bgl} & C++     & 2  & I & \present  \\\hline
-     JDSL \cite{Jdsl} & Java   & 1  & I & \present  \\\hline
-     FGL \cite{Fgl} & Haskell & 1  & P & \present  \\\hline
-     MLRisc \cite{Mlrisc} & SML  & 1  & I & \absent   \\\hline
-     Baire \cite{Baire}\footnotemark & \ocaml & 8 &P/I& ---      \\\hline
+     &          & graph data & imperative / & generic    \\
+     & language & structures & persistent\footnotemark   & algorithms \\\hline\hline
+     GTL \cite{XII:Gtl} & C++     & 1  & I & \absent   \\\hline
+     LEDA \cite{XII:Leda} & C++    & 2  & I & \absent   \\\hline
+     BGL \cite{XII:Bgl} & C++     & 2  & I & \present  \\\hline
+     JDSL \cite{XII:Jdsl} & Java   & 1  & I & \present  \\\hline
+     FGL \cite{XII:Fgl,XII:Erwig} & Haskell & 1  & P & \present  \\\hline
+     MLRisc \cite{XII:Mlrisc} & SML  & 1  & I & \absent   \\\hline
+     Baire \cite{XII:Baire}\footnotemark & \ocaml & 8 &P/I& meaningless      \\\hline
 %     \ocamlgraph& \ocaml &P/I& \present & 19 \\\hline
   \end{tabular}
   \medskip
   \caption{Comparison with other graph libraries}
-  \label{comparison:tab}
+  \label{XII:comparison:tab}
 \end{figure*}
+\addtocounter{footnote}{-1} \footnotetext{An imperative graph is a
+  mutable data structure where modifications are performed in-place,
+  while a persistent graph is an immutable data structure; see for
+  instance Okasaki's book~\cite{XII:okasaki98} for more details about
+  persistent data structures.}
+\addtocounter{footnote}{1}
 \footnotetext{The Baire library seems to be no longer available from
   Internet.}
 
-\section{Motivating Example}\label{motivatingexample}
+
+\section{Overview of \ocaml Module System}\label{XII:systememodules}
+
+This section quickly describes the \ocaml module system. Any reader
+familiar with \ocaml can safely skip this section.
+
+The module system of \ocaml is a language by itself, on top of the
+core \ocaml language, which only fulfills software engineering
+purposes: separate compilation, names space structuring, encapsulation
+and genericity. This language appears to be independent of the core
+language~\cite{XII:leroy00} and may be unfolded statically.  It is a
+strongly typed higher-order functional language. Its terms are called
+\emph{modules} or \emph{structures}.  They are the basic blocks in
+\ocaml programs, that package together types, values, exceptions
+and sub-modules. 
+
+\subsection{Structures}
+
+Modules are introduced using the \texttt{struct...end} construct and
+the (optional) \texttt{module} binding is used to give them a name.
+Outside a module, its components can be referred to using the
+\emph{dot notation}: \texttt{M.c} denotes the component
+\texttt{c} defined in the module \texttt{M}.
+
+For instance, a module packaging together a type for a graph data
+structure and some basic operations can be implemented in the
+following way:
+\begin{alltt}
+module Graph = struct
+  type label = int 
+  type t = (int \fois label) list array
+  let create n = Array.create n []
+  let add_edge g v1 v2 l = g.(v1) \flg (v2,l)::g.(v1)
+  let iter_succ g f v = List.iter f g.(v)
+end
+\end{alltt}
+The type \texttt{Graph.t} defines a naive graph data structure using
+adjacency lists with edges labeled with integers: a graph is an array
+(indexed by integers representing vertices) whose elements are lists of
+pairs of integers and labels (declared as an alias for the type
+\texttt{int}). 
+
+\subsection{Signatures}
+
+The type of a module is called a \emph{signature} or an
+\emph{interface}\footnote{with the same meaning as in \textsc{Modula}
+  but not as in \textsc{Java}} and can be used to hide some components
+or the definition of a type (then called an \emph{abstract data
+  type}). Signatures are defined using the \texttt{sig...end}
+construct and the (optional) \texttt{module type} binding is used to
+give them a name. Constants and functions are declared 
+via the keyword \texttt{val} and types via the keyword \texttt{type}.
+
+For instance, a possible signature for the \texttt{Graph} module
+above, that hides the graph representation and the type of labels,
+could be the following:
+\begin{alltt}
+module type GRAPH = sig
+  type label
+  type t
+  val create : int \fl t
+  val add_edge : t \fl int \fl int \fl label \fl unit 
+  val iter_succ : 
+    t \fl (int \fois label \fl unit) \fl int \fl unit
+end
+\end{alltt}
+Restricting a structure by a signature results in another view of the
+structure. This is done as follows:
+\begin{alltt}
+module G' = (G : GRAPH)
+\end{alltt}
+Since interfaces and structures are clearly separated, it is possible
+to have several implementations for the same interface. Conversely, a
+structure may have several signatures (hiding and restricting more
+or less components). 
+
+\subsection{Functors}
+
+The functions of the module system are called \emph{functors} and
+allow us to define modules parameterized by other modules. Then they
+can be applied one or several times to particular modules with the
+expected signature. The benefits of functors in software engineering
+are appreciated as soon as one has to parameterize a \emph{set} of
+types and functions by another \emph{set} of types and functions, in a
+sound way\footnote{See for instance Norman Ramsey's \emph{ML Module
+    Mania}~\cite{XII:ramsey05} as an example of a massive use of ML
+  functors.}. 
+For instance, to implement Dijkstra's shortest path
+algorithm for any graph implementation where edges are labeled with
+integers, one can write a functor looking like:
+\begin{alltt}
+module type S = sig
+  type label
+  type t
+  val iter_succ : 
+    t \fl (int \fois label \fl unit) \fl int \fl unit
+end
+
+module Dijkstra (G : S with type label = int) = 
+  struct
+    let dijkstra g v1 v2 = (* ... *)
+  end
+\end{alltt}
+The \texttt{with type} annotation is used here to unify the abstract
+type \texttt{label} from the signature \texttt{S} with the type
+\texttt{int}. One may also notice that the signature \texttt{S}
+required for the functor's argument only contains what is necessary to
+implement the algorithm. However, we can apply the functor to any
+module whose signature contains \emph{at least} \texttt{S} i.e. is a
+\emph{subtype} of \texttt{S}.
+
+Functors are also first-class values, i.e they can be passed as
+arguments to other functors. Finally, it is possible to aggregate
+signatures or modules using the \texttt{include} construct which can
+be naively seen as a textual inclusion.
+
+
+\section{Motivating Example}\label{XII:motivatingexample}
 
 To illustrate the use of \ocamlgraph, we consider a Sudoku solver
 based on graph 
@@ -174,9 +253,9 @@ coloring.  The idea is to represent the Sudoku grid as an undirected
 graph with $9\times 9$ vertices, each vertex being connected to all
 other vertices on the same row, column and $3\times 3$ group.
 Solving the Sudoku is equivalent to 9-coloring this graph.
-Figure~\ref{fig:sudoku} displays the sketch of a solution to
+Figure~\ref{XII:fig:sudoku} displays the sketch of a solution to
 this problem using \ocamlgraph\footnote{Full source code for the
-  Sudoku example is given in appendix~\ref{appendix}.}. There are
+  Sudoku example is given in appendix~\ref{XII:appendix}.}. There are
 four steps in this code:
 \begin{enumerate}
 \item We choose a graph data structure for our Sudoku solver: it is an
@@ -198,9 +277,9 @@ code above.
 \begin{figure}[t]
 \hrulefill\\[-2em]
 \begin{center}
-\begin{ocaml}
+\begin{alltt}
 module G = Imperative.Graph.Abstract
-             (struct type t = int * int end) 
+             (struct type t = int \ensuremath{\times} int end) 
 
 let g = G.create ()
 
@@ -212,12 +291,12 @@ let () =
 module C = Coloring(G)       
 
 let () = C.coloring g 9
-\end{ocaml}
+\end{alltt}
 \end{center}
 \hrule
 
   \caption{A Sudoku solver using \ocamlgraph}
-  \label{fig:sudoku}
+  \label{XII:fig:sudoku}
 \end{figure}
  
 
@@ -244,21 +323,21 @@ let () = C.coloring g 9
 % Then algorithms are provided as ML functors whose arguments must have
 % signatures compatible with \texttt{G}.
 
-\section{Signatures and Graph Data Structures}\label{implementation}
+\section{Signatures and Graph Data Structures}\label{XII:implementation}
 
 Managing many variants of graph data structures without proper
 parameterization results into unmanageable code.
 %
 Here we show how we factorized the \ocamlgraph implementation to avoid
-such pitfall.  Section~\ref{interface} describes the common
-sub-signatures shared by all graphs. Section~\ref{structuresdedonnees}
+such pitfall.  Section~\ref{XII:interface} describes the common
+sub-signatures shared by all graphs. Section~\ref{XII:structuresdedonnees}
 details their various implementations.
 
-% First Section~\ref{interface} describes the common signatures for all
-% graph data structures.  Then Section~\ref{structuresdedonnees} details
+% First Section~\ref{XII:interface} describes the common signatures for all
+% graph data structures.  Then Section~\ref{XII:structuresdedonnees} details
 % the various graph implementations.
 
-\subsection{Sharing Signatures for All Graphs}\label{interface}
+\subsection{Sharing Signatures for All Graphs}\label{XII:interface}
 
 
 All graph data structures share a common sub-signature \texttt{G} for
@@ -278,43 +357,41 @@ which are massively used in graph algorithms.  The common signature
 looks like:
 
 %\newpage 
-
-\begin{ocaml}
+\begin{alltt}
 module type G = sig
   type t
   module V : sig type t ... end
   module E : sig
     type t 
     type label 
-    val label : t -> label
+    val label : t \ensuremath{\rightarrow} label
     ...
   end
-  val iter_vertex : (V.t -> unit) -> t -> unit
-  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
+  val iter_vertex : (V.t \ensuremath{\rightarrow} unit) \ensuremath{\rightarrow} t \ensuremath{\rightarrow} unit
+  val iter_succ : (V.t \ensuremath{\rightarrow} unit) \ensuremath{\rightarrow} t \ensuremath{\rightarrow} V.t \ensuremath{\rightarrow} unit
   ...
 end
-\end{ocaml}
+\end{alltt}
 We distinguish the signature \texttt{P} for persistent graphs
 from the signature \texttt{I} for imperative graphs, since the modifiers do
 not have the same type in both:
-\begin{ocaml}
+\begin{alltt}
 module type P = sig
   include G
   val empty : t
-  val add_vertex : t -> V.t -> t
-  val add_edge : t -> V.t -> V.t -> t
+  val add_vertex : t \ensuremath{\rightarrow} V.t \ensuremath{\rightarrow} t
+  val add_edge : t \ensuremath{\rightarrow} V.t \ensuremath{\rightarrow} V.t \ensuremath{\rightarrow} t
   ...
 end
 module type I = sig
   include G
-  val create : unit -> t
-  val add_vertex : t -> V.t -> unit
-  val add_edge : t -> V.t -> V.t -> unit
+  val create : unit \ensuremath{\rightarrow} t
+  val add_vertex : t \ensuremath{\rightarrow} V.t \ensuremath{\rightarrow} unit
+  val add_edge : t \ensuremath{\rightarrow} V.t \ensuremath{\rightarrow} V.t \ensuremath{\rightarrow} unit
   ...
 end
-\end{ocaml}
-
-\subsection{19 Graph Data Structures in 1000 Lines of Code}\label{structuresdedonnees}
+\end{alltt}
+\subsection{19 Graph Data Structures in 1000 Lines of Code}\label{XII:structuresdedonnees}
 
 \ocamlgraph provides 19 graph data structures, which include all the
 possible combinations of the following 4 criteria:
@@ -336,14 +413,14 @@ are used in our Sudoku solver.
 
 A functor is provided for each data structure. It is parameterized by
 user types for vertex labels and possibly edge labels. These functors
-are displayed in Figure~\ref{fig:interfaces} as square boxes mapping
+are displayed in Figure~\ref{XII:fig:interfaces} as square boxes mapping
 signatures of input modules to the signature of the graph module.
 Of these, 8 functors exist in both directed and undirected versions.
 \begin{figure*}
   \centering
   %\includegraphics[width=\textwidth]{interface.pdf}    
   \includegraphics[width=\textwidth]{interface.eps} 
-  \caption{\ocamlgraph data structures components}\label{fig:interfaces}
+  \caption{\ocamlgraph data structures components}\label{XII:fig:interfaces}
 \end{figure*}
 Input signatures \texttt{ANY\_TYPE}, \texttt{ORDERED\_TYPE\_DFT} and
 \texttt{COMPARABLE} define the user types for vertices and edges
@@ -357,30 +434,30 @@ implementations do not offer the same combination of criteria as the
 previous ones.
 
 Several functors are used internally to avoid code duplication among the
-functors presented in Figure~\ref{fig:interfaces}. For instance, a
+functors presented in Figure~\ref{XII:fig:interfaces}. For instance, a
 functor adds labels to 
 unlabeled graphs; another one encapsulates concrete vertices into an
 abstract data type; etc.  Putting it all together, the code size for
 the 19 graph data structures is about 1000 lines. This is clearly
-small enough to be easily maintained. In Section~\ref{bench} we will
+small enough to be easily maintained. In Section~\ref{XII:bench} we will
 show that this code is also quite efficient.
 
 The graph data structure for our Sudoku solver is simply an imperative
 undirected graph with abstract vertices labeled with pairs of integers
 and unlabeled edges. It is obtained as:
-\begin{ocaml}
+\begin{alltt}
 module G = Imperative.Graph.Abstract
-             (struct type t = int * int end) 
-\end{ocaml}
+             (struct type t = int \ensuremath{\times} int end) 
+\end{alltt}
 
-\section{Generic Algorithms}\label{algos}
+\section{Generic Algorithms}\label{XII:algos}
 
 This section introduces the second use of functors in \ocamlgraph:
 generic programming of graph algorithms.
 
 \subsection{Decoupling Algorithms and Graph Data Structures}
 
-As demonstrated in Section~\ref{implementation}, our library provides
+As demonstrated in Section~\ref{XII:implementation}, our library provides
 many graph data structures. It makes it necessary to factorize the
 code for graph algorithms that operate on these structures. Again,
 functors provide a nice encoding of generic algorithms.
@@ -403,7 +480,7 @@ apply an existing algorithm on his own graph data structure.
 %% libraries.
 
 \subsection{Example: Depth-First Traversal}
-\label{dfs}
+\label{XII:dfs}
 
 We illustrate the generic programming of graph algorithms on the
 particular example of depth-first prefix traversal (DFS).  To implement DFS,
@@ -413,39 +490,39 @@ also need to build a data structure to store the visited nodes.
 We choose a hash table for this purpose and thus we require a hash
 function and an equality over vertices.
 Thus the minimal input signature for the DFS functor is as follows:
-\begin{ocaml}
+\begin{alltt}
 module type G = sig
   type t
   module V : sig
     type t 
-    val hash : t -> int 
-    val equal : t -> t -> bool 
+    val hash : t \ensuremath{\rightarrow} int 
+    val equal : t \ensuremath{\rightarrow} t \ensuremath{\rightarrow} bool 
   end
-  val iter_vertex : (V.t -> unit) -> t -> unit
-  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
+  val iter_vertex : (V.t \ensuremath{\rightarrow} unit) \ensuremath{\rightarrow} t \ensuremath{\rightarrow} unit
+  val iter_succ : (V.t \ensuremath{\rightarrow} unit) \ensuremath{\rightarrow} t \ensuremath{\rightarrow} V.t \ensuremath{\rightarrow} unit
 end
-\end{ocaml}
+\end{alltt}
 The DFS algorithm is then implemented as a functor with an argument of
 signature \texttt{G}. The result of functor application is a module
 providing a single function \texttt{dfs} to traverse a given graph
 while applying a given function on all visited vertices:
-\begin{ocaml}
+\begin{alltt}
 module Dfs(G : G) : 
-  sig val dfs : (G.V.t -> unit) -> G.t -> unit end
-\end{ocaml}
+  sig val dfs : (G.V.t \ensuremath{\rightarrow} unit) \ensuremath{\rightarrow} G.t \ensuremath{\rightarrow} unit end
+\end{alltt}
 To implement this functor, we first instantiate \ocaml's generic hash
 tables on graph vertices:
-\begin{ocaml}
+\begin{alltt}
 module Dfs(G : G) = struct
   module H = Hashtbl.Make(G.V)
-\end{ocaml}
+\end{alltt}
 Then we can implement the traversal. The following code uses a hash
 table \texttt{h} to store the vertices already visited and an explicit
 stack \texttt{stack} to store the vertices to be visited (to avoid the
 possible stack overflow of a recursive implementation). Function
 \texttt{G.iter\_vertex} is used to start a DFS on every vertex. The
 DFS itself is performed in function \texttt{loop} using \texttt{G.iter\_succ}:
-\begin{ocaml}
+\begin{alltt}
   let dfs f g = 
     let h = H.create 65537 in
     let stack = Stack.create () in
@@ -460,16 +537,16 @@ DFS itself is performed in function \texttt{loop} using \texttt{G.iter\_succ}:
         G.iter_succ push g v
       done
     in
-    G.iter_vertex (fun v -> push v; loop ()) g
+    G.iter_vertex (fun v \ensuremath{\rightarrow} push v; loop ()) g
 end
-\end{ocaml}
+\end{alltt}
 Beside this simple algorithm, \ocamlgraph\ provides other kinds of
 traversals (breadth-first, postfix, etc.) and more efficient
 implementations when the graph data structure contains mutable marks
 on vertices.
 
 \subsection{Example: Graph Coloring}
-\label{coloring}
+\label{XII:coloring}
 
 As a second example, we present a graph coloring algorithm used in our
 Sudoku solver.
@@ -479,32 +556,62 @@ operations on integer marks associated to vertices. We use these marks
 to store the color assigned to each vertex. We also need iterators
 over vertices and successors. Thus the minimal signature for a graph
 data structure used in our graph coloring algorithm is the following:
-\begin{ocaml}
+\begin{alltt}
 module type GM = sig
   type t
   module V : sig type t ... end
   module Mark : sig
-    val get : V.t -> int
-    val set : V.t -> int -> unit
+    val get : V.t \ensuremath{\rightarrow} int
+    val set : V.t \ensuremath{\rightarrow} int \ensuremath{\rightarrow} unit
   end
-  val iter_vertex : (V.t -> unit) -> t -> unit
-  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
+  val iter_vertex : (V.t \ensuremath{\rightarrow} unit) \ensuremath{\rightarrow} t \ensuremath{\rightarrow} unit
+  val iter_succ : (V.t \ensuremath{\rightarrow} unit) \ensuremath{\rightarrow} t \ensuremath{\rightarrow} V.t \ensuremath{\rightarrow} unit
 end
-\end{ocaml}
+\end{alltt}
 \ocamlgraph already provides implementations for such a
 signature. This is the case for the graph data structure used in our
 Sudoku solver.
 Then the graph coloring algorithm is implemented as the following functor:
-\begin{ocaml}
+\begin{alltt}
 module Coloring(G : GM) : sig
-  val coloring : G.t -> int -> unit
+  val coloring : G.t \ensuremath{\rightarrow} int \ensuremath{\rightarrow} unit
 end
-\end{ocaml}
+\end{alltt}
 It provides a single function \texttt{coloring} which colors a given
 graph with a given number of colors. Some marks may contain initial
 constraints. 
+% To implement this functor we use a simple backtracking algorithm which
+% performs a breadth-first traversal of the graph and successively tries
+% each color for each visited vertex. To be able to backtrack during the
+% traversal we use persistent cursors~\cite{XII:filliatre06} provided by
+% the \texttt{Traverse.Bfs} functor.
+% \begin{alltt}
+% module Coloring(G : GM) = struct
+%   module Bfs = Traverse.Bfs(G)
+%
+%   let coloring g k =
+%     Mark.clear g;
+%     let try_color v i =
+%       iter_succ 
+%         (fun w -> 
+%           if Mark.get w = i then raise NoColor) 
+%         g v;
+%       Mark.set v i
+%     in
+%     let rec iterate iter =
+%       let v = Bfs.get iter in
+%       for i = 1 to k do
+%         try try_color v i; iterate (Bfs.step iter); 
+%             assert false
+%         with NoColor -> ()
+%       done;
+%       Mark.set v 0; raise NoColor
+%     in
+%     try iterate (Bfs.start g); assert false 
+%     with Exit -> ()
+% \end{alltt}
 To complete our Sudoku solver, we simply need to apply the above
-functor on our graph module \texttt{G}:
+functor on our graph module~\texttt{G}:
 \begin{alltt}
 module C = Coloring(G)
 \end{alltt}
@@ -516,7 +623,58 @@ C.coloring g 9
 \end{alltt}
 
 
-\section{Benchmarks}\label{bench}
+\subsection{Building Graphs}\label{XII:builder}
+
+In Section~\ref{XII:interface}, we have shown that persistent and
+imperative graphs have creation functions with different signatures.
+However, as we have written algorithms in a generic way, we may want
+to build graphs in a generic way, that is independently of the
+underlying data structure. For instance, we may want to implement
+graph operations (such as union, transitive closure, etc.) or to build
+some classic graphs (such as the full graph with $n$ vertices, the de
+Bruijn graph of order $n$, etc.) or even random graphs. In all these
+cases, the persistent or imperative nature of the graph is not really
+significant but the signature difference disallows genericity.
+
+To solve this issue, we introduce a module \texttt{Builder}. It
+defines a common interface for graphs building:
+\begin{alltt}
+module type S = sig
+  module G : Sig.G
+  val empty : unit \fl G.t
+  val copy : G.t \fl G.t
+  val add_vertex : G.t \fl G.V.t \fl G.t
+  val add_edge : G.t \fl G.V.t \fl G.V.t \fl G.t
+  val add_edge_e : G.t \fl G.E.t \fl G.t
+end
+\end{alltt}
+It is immediate to realize such a signature for persistent or
+imperative graphs:
+\begin{alltt}
+module P(G : Sig.P) : S with module G = G
+module I(G : Sig.I) : S with module G = G
+\end{alltt}
+It is important to notice that for imperative graphs the values
+returned by the functions \texttt{add\_vertex},
+\texttt{add\_edge} and \texttt{add\_edge\_e} are meaningless.
+
+Therefore, it is easy to write a generic algorithm that builds graphs.
+First we write a generic version as a functor taking a module of
+signature \texttt{Builder.S} as argument:
+\begin{alltt}
+module Make(B : Builder.S) = struct ... end
+\end{alltt}
+and then we can trivially provide two variants of this functor for
+both persistent and imperative graphs, with the following two lines:
+\begin{alltt}
+module P(G : Sig.P) = Make(Builder.P(G))
+module I(G : Sig.I) = Make(Builder.I(G))
+\end{alltt}
+Thus the use of the module \texttt{Builder} is entirely hidden from
+the user point of view.
+
+
+\section{Benchmarks}\label{XII:bench}
 
 Surprisingly, we could not find any standard benchmark for graph
 libraries. In order to give an idea of \ocamlgraph efficiency, we
@@ -530,7 +688,7 @@ performed on a Pentium 4 2.4 GHz.
 We first test the efficiency of graph creation and mutation.  For that
 purpose, we build cliques of $V$ vertices (and thus $E=V(V+1)/2$
 edges since we include self loops).  Then we repeatedly delete all
-edges and vertices in these graphs.  Figure~\ref{fig:bench:build}
+edges and vertices in these graphs.  Figure~\ref{XII:fig:bench:build}
 displays the creation and deletion timings in seconds up to $V=1000$
 (that is half a million edges).  The speed of creation observed is
 roughly 100,000 edges per second for imperative graphs. The creation
@@ -553,16 +711,16 @@ consumption, all four data structures use approximately 5 machine words
 %%   \end{minipage}
 %%   \end{tabular}
   \caption{Benchmarking creation (top) and deletion (bottom)}
-  \label{fig:bench:build}
+  \label{XII:fig:bench:build}
 \end{figure*}
 
-Our second benchmark consists in building graphs corresponding to 2D
-mazes using a percolation algorithm and traversing them using
-depth-first and breadth-first traversals. Given an integer $N$, we
-build a graph with $V=N^2$ vertices and $E=V-1$ edges.
-Figure~\ref{fig:bench:maze} displays the timings in seconds for
-various values of $N$ up to 600 (i.e. 360,000 vertices). The observed
-speed is between 500,000 and 1 million traversed edges per second.
+Our second benchmark consists in generating graphs corresponding to 2D
+mazes and traversing them using depth-first and breadth-first
+traversals. Given an integer $N$, we build a graph with $V=N^2$
+vertices and $E=V-1$ edges.  Figure~\ref{XII:fig:bench:maze} displays
+the timings in seconds for various values of $N$ up to 600 (i.e.
+360,000 vertices). The observed speed is between 500,000 and 1 million
+traversed edges per second.
 
 % on enleve Dijkstra parce que le resultat est bizarre
 % \input{./bench2dij}
@@ -582,7 +740,7 @@ speed is between 500,000 and 1 million traversed edges per second.
   \input{./bench2bfs}
 \vspace*{-1em}
   \caption{Benchmarking DFS (top) and BFS (bottom)}
-  \label{fig:bench:maze}
+  \label{XII:fig:bench:maze}
 \end{figure*}
 
 % memory use : pas probant ; donner plutot les chiffres directement
@@ -609,42 +767,35 @@ allows combining user data structure (resp. algorithm) with
 is no library for any applicative language as generic as \ocamlgraph.
 This genericity is obtained using \ocaml module system and especially
 its functors which allow sharing large pieces of code and provide
-greater consistency than the mere use of higher-order functions.  The
-same level of genericity could probably be achieved using Haskell's
-multi-parameter type classes~\cite{Dreyer2007,Wehr2005,Oleg}.
-Regarding imperative 
-languages, graph libraries are rarely as generic and never provide as
-many different data structures.
+clear separation between data structures and algorithms.  The same
+level of genericity could probably be achieved using Haskell's
+multi-parameter type
+classes~\cite{XII:Dreyer2007,XII:Wehr2005,XII:Oleg}.  Regarding
+imperative languages, graph libraries are rarely as generic and never
+provide as many different data structures.
 
 Since its first release (Feb. 2004), the number of \ocamlgraph users
-has been increasing steadily and several of them contributed code to the
-library. Some of them provided new graph data structures (such as
-\texttt{ConcreteBidirectional}) and others new algorithms
-(e.g. minimal separators). It clearly shows the benefits of a generic
-library where data structures and algorithms are separated.
+has been increasing steadily and several of them contributed code to
+the library. Some of them provided new graph data structures
+(\emph{e.g.}  \texttt{ConcreteBidirectional}) and others new
+algorithms (\emph{e.g.} minimal separators). It clearly shows the
+benefits of a generic library where data structures and algorithms are
+separated.
 
-% \appendix
-% \section{Appendix Title}
 
-% This is the text of the appendix, if you need one.
+\section*{Acknowledgements}
 
-% \acks
+We would like to thank the anonymous reviewers for their helpful
+comments. We already improved the implementation of \ocamlgraph
+following one of the reviewer suggestions (generalizing mutable marks
+from integer to arbitrary types).
 
-% Acknowledgments, if needed.
-
-%\nocite{*}
 \bibliographystyle{plain}
-\bibliography{./biblio}
-% \begin{thebibliography}{}
+\bibliography{./paper}
+ 
 
-% \bibitem{smith02}
-% Smith, P. Q. reference text
-
-% \end{thebibliography}
-
-\newpage
 \appendix
-\section{Simple Sudoku Solver using Ocamlgraph}\label{appendix}
+\section{Simple Sudoku Solver using Ocamlgraph}\label{XII:appendix}
 Below is the full listing for a Sudoku solver using \ocamlgraph, as
 described in this paper. This program reads the Sudoku problem on 
 standard input and prints the solution on standard output.
@@ -717,5 +868,9 @@ let () =
   Format.printf "@?"
 \end{verbatim}}
 
-\end{document}
-%1-59593-090-6/05/0007
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "cameraready"
+%%% End: 
