@@ -1,5 +1,13 @@
 
-all: main-pp.ps cameraready.ps
+all: cameraready.pdf
+
+cameraready.pdf: cameraready.tex paper.tex macros.tex interface.pdf paper.bib
+	pdflatex cameraready
+	bibtex cameraready
+	pdflatex cameraready
+	pdflatex cameraready
+
+old: main-pp.ps cameraready.ps
 
 cameraready.ps: cameraready.tex paper.tex paper.bib
 	latex cameraready

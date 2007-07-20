@@ -45,7 +45,8 @@ structures; purely applicative or imperative nature of the structures;
 and ability to apply the provided algorithms to a user-defined graph
 data structure.  As one can notice, none of these libraries gives full
 satisfaction.  This paper introduces
-\ocamlgraph\footnote{\url{http://www.lri.fr/~filliatr/ocamlgraph/}}, a
+\ocamlgraph\footnote{\ocamlgraph is an open source library available
+  at \textrm{http://ocamlgraph.lri.fr/}.}, a
 highly generic graph library for the programming language
 \ocaml~\cite{XII:ObjectiveCaml}, which intends to fulfill all these
 criteria.
@@ -412,20 +413,29 @@ abstract vertices can be equipped with integer mutable marks, which
 are used in our Sudoku solver.
 
 A functor is provided for each data structure. It is parameterized by
-user types for vertex labels and possibly edge labels. These functors
+user types for vertex labels and possibly edge labels. These
+functors\footnote{The signatures of all these functors are 
+  available at \textrm{http://ocamlgraph.lri.fr/doc/}.} 
 are displayed in Figure~\ref{XII:fig:interfaces} as square boxes mapping
-signatures of input modules to the signature of the graph module.
+signatures of input modules (incoming plain edges) to the signature of
+the graph module (outgoing plain edges). 
 Of these, 8 functors exist in both directed and undirected versions.
 \begin{figure*}
   \centering
-  %\includegraphics[width=\textwidth]{interface.pdf}    
-  \includegraphics[width=\textwidth]{interface.eps} 
+  \includegraphics[width=\textwidth]{interface.pdf}    
+  %\includegraphics[width=\textwidth]{interface.eps} 
   \caption{\ocamlgraph data structures components}\label{XII:fig:interfaces}
 \end{figure*}
 Input signatures \texttt{ANY\_TYPE}, \texttt{ORDERED\_TYPE\_DFT} and
 \texttt{COMPARABLE} define the user types for vertices and edges
-labels. Output signature \texttt{IM} extends signature \texttt{I} with
-mutable marks. Three other implementations complete the set of graph
+labels. For instance, functor
+\texttt{AbstractLabelled} from \texttt{Imperative.Graph} takes as
+arguments two modules of signatures \texttt{ANY\_TYPE} and
+\texttt{ORDERED\_TYPE\_DFT} respectively and produces a module implementing
+signature \texttt{IM}. This signature extends signature \texttt{I} with
+mutable marks, as indicated by the dashed edge from \texttt{IM} to
+\texttt{I}. 
+Three other implementations complete the set of graph
 data structures, namely \texttt{ConcreteBidirectional} for graphs with
 an efficient access to predecessors, and
 \texttt{Matrix.}(\texttt{Graph}, \texttt{Digraph}) for graphs
@@ -671,9 +681,320 @@ consumption, all four data structures use approximately 5 machine words
 
 \begin{figure*}
   \centering%\hspace*{-2em}
-  \input{./bench1c.tex}
+  %\input{./bench1c.tex}
+% GNUPLOT: LaTeX picture
+\setlength{\unitlength}{0.240900pt}
+\ifx\plotpoint\undefined\newsavebox{\plotpoint}\fi
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\begin{picture}(1049,629)(0,0)
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(120.0,123.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100,123){\makebox(0,0)[r]{ 0}}
+\put(969.0,123.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120.0,170.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100,170){\makebox(0,0)[r]{ 2}}
+\put(969.0,170.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120.0,216.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100,216){\makebox(0,0)[r]{ 4}}
+\put(969.0,216.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120.0,263.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100,263){\makebox(0,0)[r]{ 6}}
+\put(969.0,263.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120.0,310.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100,310){\makebox(0,0)[r]{ 8}}
+\put(969.0,310.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120.0,357.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100,357){\makebox(0,0)[r]{ 10}}
+\put(969.0,357.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120.0,403.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100,403){\makebox(0,0)[r]{ 12}}
+\put(969.0,403.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120.0,450.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100,450){\makebox(0,0)[r]{ 14}}
+\put(969.0,450.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120.0,497.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100,497){\makebox(0,0)[r]{ 16}}
+\put(969.0,497.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120.0,543.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100,543){\makebox(0,0)[r]{ 18}}
+\put(969.0,543.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120.0,590.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100,590){\makebox(0,0)[r]{ 20}}
+\put(969.0,590.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(120,82){\makebox(0,0){ 100}}
+\put(120.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(217.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(217,82){\makebox(0,0){ 200}}
+\put(217.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(313.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(313,82){\makebox(0,0){ 300}}
+\put(313.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(410.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(410,82){\makebox(0,0){ 400}}
+\put(410.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(506.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(506,82){\makebox(0,0){ 500}}
+\put(506.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(603.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(603,82){\makebox(0,0){ 600}}
+\put(603.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(699.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(699,82){\makebox(0,0){ 700}}
+\put(699.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(796.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(796,82){\makebox(0,0){ 800}}
+\put(796.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(892.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(892,82){\makebox(0,0){ 900}}
+\put(892.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(989.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(989,82){\makebox(0,0){ 1000}}
+\put(989.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(120.0,123.0){\rule[-0.200pt]{209.342pt}{0.400pt}}
+\put(989.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\put(120.0,590.0){\rule[-0.200pt]{209.342pt}{0.400pt}}
+\put(120.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\put(554,21){\makebox(0,0){number of nodes $V$}}
+\put(180,550){\makebox(0,0)[r]{IA}}
+\put(200.0,550.0){\rule[-0.200pt]{24.090pt}{0.400pt}}
+\put(120,124){\usebox{\plotpoint}}
+\multiput(120.00,124.60)(14.080,0.468){5}{\rule{9.800pt}{0.113pt}}
+\multiput(120.00,123.17)(76.660,4.000){2}{\rule{4.900pt}{0.400pt}}
+\multiput(217.00,128.58)(4.505,0.492){19}{\rule{3.591pt}{0.118pt}}
+\multiput(217.00,127.17)(88.547,11.000){2}{\rule{1.795pt}{0.400pt}}
+\multiput(313.00,139.58)(2.739,0.495){33}{\rule{2.256pt}{0.119pt}}
+\multiput(313.00,138.17)(92.318,18.000){2}{\rule{1.128pt}{0.400pt}}
+\multiput(410.00,157.58)(1.939,0.497){47}{\rule{1.636pt}{0.120pt}}
+\multiput(410.00,156.17)(92.604,25.000){2}{\rule{0.818pt}{0.400pt}}
+\multiput(506.00,182.58)(1.479,0.497){63}{\rule{1.276pt}{0.120pt}}
+\multiput(506.00,181.17)(94.352,33.000){2}{\rule{0.638pt}{0.400pt}}
+\multiput(603.00,215.58)(2.111,0.496){43}{\rule{1.770pt}{0.120pt}}
+\multiput(603.00,214.17)(92.327,23.000){2}{\rule{0.885pt}{0.400pt}}
+\multiput(699.00,238.58)(1.188,0.498){79}{\rule{1.046pt}{0.120pt}}
+\multiput(699.00,237.17)(94.828,41.000){2}{\rule{0.523pt}{0.400pt}}
+\multiput(796.00,279.58)(0.801,0.499){117}{\rule{0.740pt}{0.120pt}}
+\multiput(796.00,278.17)(94.464,60.000){2}{\rule{0.370pt}{0.400pt}}
+\multiput(892.00,339.58)(1.249,0.498){75}{\rule{1.095pt}{0.120pt}}
+\multiput(892.00,338.17)(94.728,39.000){2}{\rule{0.547pt}{0.400pt}}
+\put(180,509){\makebox(0,0)[r]{IC}}
+\multiput(200,509)(20.756,0.000){5}{\usebox{\plotpoint}}
+\put(300,509){\usebox{\plotpoint}}
+\put(120,124){\usebox{\plotpoint}}
+\multiput(120,124)(20.685,1.706){5}{\usebox{\plotpoint}}
+\multiput(217,132)(20.665,1.937){5}{\usebox{\plotpoint}}
+\multiput(313,141)(20.368,3.990){5}{\usebox{\plotpoint}}
+\multiput(410,160)(20.086,5.231){4}{\usebox{\plotpoint}}
+\multiput(506,185)(20.572,2.757){5}{\usebox{\plotpoint}}
+\multiput(603,198)(18.564,9.282){5}{\usebox{\plotpoint}}
+\multiput(699,246)(18.293,9.806){6}{\usebox{\plotpoint}}
+\multiput(796,298)(19.299,7.639){5}{\usebox{\plotpoint}}
+\multiput(892,336)(18.135,10.096){5}{\usebox{\plotpoint}}
+\put(989,390){\usebox{\plotpoint}}
+\sbox{\plotpoint}{\rule[-0.400pt]{0.800pt}{0.800pt}}%
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(180,468){\makebox(0,0)[r]{PA}}
+\sbox{\plotpoint}{\rule[-0.400pt]{0.800pt}{0.800pt}}%
+\put(200.0,468.0){\rule[-0.400pt]{24.090pt}{0.800pt}}
+\put(120,124){\usebox{\plotpoint}}
+\multiput(120.00,125.40)(5.330,0.514){13}{\rule{7.960pt}{0.124pt}}
+\multiput(120.00,122.34)(80.479,10.000){2}{\rule{3.980pt}{0.800pt}}
+\multiput(217.00,135.40)(5.975,0.516){11}{\rule{8.733pt}{0.124pt}}
+\multiput(217.00,132.34)(77.874,9.000){2}{\rule{4.367pt}{0.800pt}}
+\multiput(313.00,144.41)(2.377,0.505){35}{\rule{3.895pt}{0.122pt}}
+\multiput(313.00,141.34)(88.915,21.000){2}{\rule{1.948pt}{0.800pt}}
+\multiput(410.00,165.41)(1.311,0.503){67}{\rule{2.276pt}{0.121pt}}
+\multiput(410.00,162.34)(91.277,37.000){2}{\rule{1.138pt}{0.800pt}}
+\multiput(506.00,202.41)(0.996,0.502){91}{\rule{1.784pt}{0.121pt}}
+\multiput(506.00,199.34)(93.298,49.000){2}{\rule{0.892pt}{0.800pt}}
+\multiput(603.00,251.41)(1.311,0.503){67}{\rule{2.276pt}{0.121pt}}
+\multiput(603.00,248.34)(91.277,37.000){2}{\rule{1.138pt}{0.800pt}}
+\multiput(699.00,288.41)(0.854,0.502){107}{\rule{1.561pt}{0.121pt}}
+\multiput(699.00,285.34)(93.759,57.000){2}{\rule{0.781pt}{0.800pt}}
+\multiput(796.00,345.41)(0.640,0.501){143}{\rule{1.224pt}{0.121pt}}
+\multiput(796.00,342.34)(93.460,75.000){2}{\rule{0.612pt}{0.800pt}}
+\multiput(892.00,420.41)(0.614,0.501){151}{\rule{1.182pt}{0.121pt}}
+\multiput(892.00,417.34)(94.546,79.000){2}{\rule{0.591pt}{0.800pt}}
+\sbox{\plotpoint}{\rule[-0.500pt]{1.000pt}{1.000pt}}%
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(180,427){\makebox(0,0)[r]{PC}}
+\sbox{\plotpoint}{\rule[-0.500pt]{1.000pt}{1.000pt}}%
+\multiput(200,427)(20.756,0.000){5}{\usebox{\plotpoint}}
+\put(300,427){\usebox{\plotpoint}}
+\put(120,125){\usebox{\plotpoint}}
+\multiput(120,125)(20.598,2.548){5}{\usebox{\plotpoint}}
+\multiput(217,137)(20.595,2.574){5}{\usebox{\plotpoint}}
+\multiput(313,149)(19.941,5.756){5}{\usebox{\plotpoint}}
+\multiput(410,177)(18.718,8.969){5}{\usebox{\plotpoint}}
+\multiput(506,223)(17.652,10.918){5}{\usebox{\plotpoint}}
+\multiput(603,283)(18.793,8.809){5}{\usebox{\plotpoint}}
+\multiput(699,328)(15.215,14.117){7}{\usebox{\plotpoint}}
+\multiput(796,418)(16.771,12.229){6}{\usebox{\plotpoint}}
+\multiput(892,488)(14.377,14.970){6}{\usebox{\plotpoint}}
+\put(989,589){\usebox{\plotpoint}}
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(120.0,123.0){\rule[-0.200pt]{209.342pt}{0.400pt}}
+\put(989.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\put(120.0,590.0){\rule[-0.200pt]{209.342pt}{0.400pt}}
+\put(120.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\end{picture}
 
-  \input{./bench1d.tex}
+  %\input{./bench1d.tex}
+% GNUPLOT: LaTeX picture
+\setlength{\unitlength}{0.240900pt}
+\ifx\plotpoint\undefined\newsavebox{\plotpoint}\fi
+\begin{picture}(1049,629)(0,0)
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(100.0,123.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(80,123){\makebox(0,0)[r]{ 0}}
+\put(969.0,123.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100.0,175.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(80,175){\makebox(0,0)[r]{ 1}}
+\put(969.0,175.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100.0,227.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(80,227){\makebox(0,0)[r]{ 2}}
+\put(969.0,227.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100.0,279.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(80,279){\makebox(0,0)[r]{ 3}}
+\put(969.0,279.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100.0,331.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(80,331){\makebox(0,0)[r]{ 4}}
+\put(969.0,331.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100.0,382.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(80,382){\makebox(0,0)[r]{ 5}}
+\put(969.0,382.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100.0,434.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(80,434){\makebox(0,0)[r]{ 6}}
+\put(969.0,434.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100.0,486.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(80,486){\makebox(0,0)[r]{ 7}}
+\put(969.0,486.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100.0,538.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(80,538){\makebox(0,0)[r]{ 8}}
+\put(969.0,538.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100.0,590.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(80,590){\makebox(0,0)[r]{ 9}}
+\put(969.0,590.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(100.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(100,82){\makebox(0,0){ 100}}
+\put(100.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(199.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(199,82){\makebox(0,0){ 200}}
+\put(199.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(298.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(298,82){\makebox(0,0){ 300}}
+\put(298.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(396.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(396,82){\makebox(0,0){ 400}}
+\put(396.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(495.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(495,82){\makebox(0,0){ 500}}
+\put(495.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(594.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(594,82){\makebox(0,0){ 600}}
+\put(594.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(693.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(693,82){\makebox(0,0){ 700}}
+\put(693.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(791.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(791,82){\makebox(0,0){ 800}}
+\put(791.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(890.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(890,82){\makebox(0,0){ 900}}
+\put(890.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(989.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(989,82){\makebox(0,0){ 1000}}
+\put(989.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(100.0,123.0){\rule[-0.200pt]{214.160pt}{0.400pt}}
+\put(989.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\put(100.0,590.0){\rule[-0.200pt]{214.160pt}{0.400pt}}
+\put(100.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\put(544,21){\makebox(0,0){number of nodes $V$}}
+\put(160,550){\makebox(0,0)[r]{IA}}
+\put(180.0,550.0){\rule[-0.200pt]{24.090pt}{0.400pt}}
+\put(100,124){\usebox{\plotpoint}}
+\multiput(100.00,124.61)(21.895,0.447){3}{\rule{13.300pt}{0.108pt}}
+\multiput(100.00,123.17)(71.395,3.000){2}{\rule{6.650pt}{0.400pt}}
+\multiput(199.00,127.59)(8.898,0.482){9}{\rule{6.700pt}{0.116pt}}
+\multiput(199.00,126.17)(85.094,6.000){2}{\rule{3.350pt}{0.400pt}}
+\multiput(298.00,133.58)(4.600,0.492){19}{\rule{3.664pt}{0.118pt}}
+\multiput(298.00,132.17)(90.396,11.000){2}{\rule{1.832pt}{0.400pt}}
+\multiput(396.00,144.58)(2.964,0.495){31}{\rule{2.429pt}{0.119pt}}
+\multiput(396.00,143.17)(93.958,17.000){2}{\rule{1.215pt}{0.400pt}}
+\multiput(495.00,161.58)(3.370,0.494){27}{\rule{2.740pt}{0.119pt}}
+\multiput(495.00,160.17)(93.313,15.000){2}{\rule{1.370pt}{0.400pt}}
+\multiput(594.00,176.58)(0.739,0.499){131}{\rule{0.691pt}{0.120pt}}
+\multiput(594.00,175.17)(97.566,67.000){2}{\rule{0.346pt}{0.400pt}}
+\multiput(693.00,241.92)(3.867,-0.493){23}{\rule{3.115pt}{0.119pt}}
+\multiput(693.00,242.17)(91.534,-13.000){2}{\rule{1.558pt}{0.400pt}}
+\multiput(791.58,230.00)(0.499,0.576){195}{\rule{0.120pt}{0.561pt}}
+\multiput(790.17,230.00)(99.000,112.836){2}{\rule{0.400pt}{0.280pt}}
+\multiput(890.00,344.58)(1.156,0.498){83}{\rule{1.021pt}{0.120pt}}
+\multiput(890.00,343.17)(96.881,43.000){2}{\rule{0.510pt}{0.400pt}}
+\put(160,509){\makebox(0,0)[r]{IC}}
+\multiput(180,509)(20.756,0.000){5}{\usebox{\plotpoint}}
+\put(280,509){\usebox{\plotpoint}}
+\put(100,124){\usebox{\plotpoint}}
+\multiput(100,124)(20.739,0.838){5}{\usebox{\plotpoint}}
+\multiput(199,128)(20.717,1.256){5}{\usebox{\plotpoint}}
+\multiput(298,134)(20.602,2.523){5}{\usebox{\plotpoint}}
+\multiput(396,146)(20.754,0.210){5}{\usebox{\plotpoint}}
+\multiput(495,147)(17.350,11.391){5}{\usebox{\plotpoint}}
+\multiput(594,212)(20.751,-0.419){5}{\usebox{\plotpoint}}
+\multiput(693,210)(15.918,13.319){6}{\usebox{\plotpoint}}
+\multiput(791,292)(18.750,8.901){5}{\usebox{\plotpoint}}
+\multiput(890,339)(17.028,11.868){6}{\usebox{\plotpoint}}
+\put(989,408){\usebox{\plotpoint}}
+\sbox{\plotpoint}{\rule[-0.400pt]{0.800pt}{0.800pt}}%
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(160,468){\makebox(0,0)[r]{PA}}
+\sbox{\plotpoint}{\rule[-0.400pt]{0.800pt}{0.800pt}}%
+\put(180.0,468.0){\rule[-0.400pt]{24.090pt}{0.800pt}}
+\put(100,125){\usebox{\plotpoint}}
+\multiput(100.00,126.40)(8.534,0.526){7}{\rule{11.514pt}{0.127pt}}
+\multiput(100.00,123.34)(75.102,7.000){2}{\rule{5.757pt}{0.800pt}}
+\multiput(199.00,133.41)(3.032,0.507){27}{\rule{4.859pt}{0.122pt}}
+\multiput(199.00,130.34)(88.915,17.000){2}{\rule{2.429pt}{0.800pt}}
+\multiput(298.00,150.41)(4.378,0.511){17}{\rule{6.733pt}{0.123pt}}
+\multiput(298.00,147.34)(84.025,12.000){2}{\rule{3.367pt}{0.800pt}}
+\multiput(396.00,162.41)(1.801,0.504){49}{\rule{3.029pt}{0.121pt}}
+\multiput(396.00,159.34)(92.714,28.000){2}{\rule{1.514pt}{0.800pt}}
+\multiput(495.00,190.41)(0.828,0.502){113}{\rule{1.520pt}{0.121pt}}
+\multiput(495.00,187.34)(95.845,60.000){2}{\rule{0.760pt}{0.800pt}}
+\multiput(594.00,250.41)(1.084,0.502){85}{\rule{1.922pt}{0.121pt}}
+\multiput(594.00,247.34)(95.011,46.000){2}{\rule{0.961pt}{0.800pt}}
+\multiput(693.00,296.41)(0.819,0.502){113}{\rule{1.507pt}{0.121pt}}
+\multiput(693.00,293.34)(94.873,60.000){2}{\rule{0.753pt}{0.800pt}}
+\multiput(791.00,356.41)(0.688,0.501){137}{\rule{1.300pt}{0.121pt}}
+\multiput(791.00,353.34)(96.302,72.000){2}{\rule{0.650pt}{0.800pt}}
+\multiput(890.00,428.41)(0.669,0.501){141}{\rule{1.270pt}{0.121pt}}
+\multiput(890.00,425.34)(96.363,74.000){2}{\rule{0.635pt}{0.800pt}}
+\sbox{\plotpoint}{\rule[-0.500pt]{1.000pt}{1.000pt}}%
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(160,427){\makebox(0,0)[r]{PC}}
+\sbox{\plotpoint}{\rule[-0.500pt]{1.000pt}{1.000pt}}%
+\multiput(180,427)(20.756,0.000){5}{\usebox{\plotpoint}}
+\put(280,427){\usebox{\plotpoint}}
+\put(100,125){\usebox{\plotpoint}}
+\multiput(100,125)(20.704,1.464){5}{\usebox{\plotpoint}}
+\multiput(199,132)(20.171,4.890){5}{\usebox{\plotpoint}}
+\multiput(298,156)(20.414,3.750){5}{\usebox{\plotpoint}}
+\multiput(396,174)(19.569,6.918){5}{\usebox{\plotpoint}}
+\multiput(495,209)(17.350,11.391){6}{\usebox{\plotpoint}}
+\multiput(594,274)(20.261,4.503){5}{\usebox{\plotpoint}}
+\multiput(693,296)(13.599,15.680){7}{\usebox{\plotpoint}}
+\multiput(791,409)(15.435,13.876){6}{\usebox{\plotpoint}}
+\multiput(890,498)(15.984,13.240){6}{\usebox{\plotpoint}}
+\put(989,580){\usebox{\plotpoint}}
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(100.0,123.0){\rule[-0.200pt]{214.160pt}{0.400pt}}
+\put(989.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\put(100.0,590.0){\rule[-0.200pt]{214.160pt}{0.400pt}}
+\put(100.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\end{picture}
+
+
+
 %%   \begin{tabular}{cc}
 %%   \begin{minipage}{0.5\linewidth}
 %%     \input{./bench1c.tex}
@@ -707,9 +1028,282 @@ traversed edges per second.
 %% \input{./bench2bfs}
 %%   \end{minipage}
 %%   \end{tabular}
-  \input{./bench2dfs}
+%  \input{./bench2dfs}
+% GNUPLOT: LaTeX picture
+\setlength{\unitlength}{0.240900pt}
+\ifx\plotpoint\undefined\newsavebox{\plotpoint}\fi
+\begin{picture}(1049,629)(0,0)
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(140.0,123.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,123){\makebox(0,0)[r]{ 0}}
+\put(969.0,123.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,201.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,201){\makebox(0,0)[r]{ 0.5}}
+\put(969.0,201.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,279.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,279){\makebox(0,0)[r]{ 1}}
+\put(969.0,279.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,356.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,356){\makebox(0,0)[r]{ 1.5}}
+\put(969.0,356.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,434.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,434){\makebox(0,0)[r]{ 2}}
+\put(969.0,434.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,512.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,512){\makebox(0,0)[r]{ 2.5}}
+\put(969.0,512.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,590.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,590){\makebox(0,0)[r]{ 3}}
+\put(969.0,590.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(140,82){\makebox(0,0){ 0}}
+\put(140.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(282.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(282,82){\makebox(0,0){ 100}}
+\put(282.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(423.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(423,82){\makebox(0,0){ 200}}
+\put(423.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(565.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(565,82){\makebox(0,0){ 300}}
+\put(565.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(706.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(706,82){\makebox(0,0){ 400}}
+\put(706.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(848.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(848,82){\makebox(0,0){ 500}}
+\put(848.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(989.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(989,82){\makebox(0,0){ 600}}
+\put(989.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(140.0,123.0){\rule[-0.200pt]{204.524pt}{0.400pt}}
+\put(989.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\put(140.0,590.0){\rule[-0.200pt]{204.524pt}{0.400pt}}
+\put(140.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\put(564,21){\makebox(0,0){maze width $N$}}
+\put(200,550){\makebox(0,0)[r]{IA}}
+\put(220.0,550.0){\rule[-0.200pt]{24.090pt}{0.400pt}}
+\put(225,125){\usebox{\plotpoint}}
+\multiput(225.00,125.61)(18.770,0.447){3}{\rule{11.433pt}{0.108pt}}
+\multiput(225.00,124.17)(61.270,3.000){2}{\rule{5.717pt}{0.400pt}}
+\multiput(310.00,128.60)(12.325,0.468){5}{\rule{8.600pt}{0.113pt}}
+\multiput(310.00,127.17)(67.150,4.000){2}{\rule{4.300pt}{0.400pt}}
+\multiput(395.00,132.59)(5.579,0.488){13}{\rule{4.350pt}{0.117pt}}
+\multiput(395.00,131.17)(75.971,8.000){2}{\rule{2.175pt}{0.400pt}}
+\multiput(480.00,140.59)(4.922,0.489){15}{\rule{3.878pt}{0.118pt}}
+\multiput(480.00,139.17)(76.951,9.000){2}{\rule{1.939pt}{0.400pt}}
+\multiput(565.00,149.58)(3.312,0.493){23}{\rule{2.685pt}{0.119pt}}
+\multiput(565.00,148.17)(78.428,13.000){2}{\rule{1.342pt}{0.400pt}}
+\multiput(649.00,162.58)(0.947,0.498){87}{\rule{0.856pt}{0.120pt}}
+\multiput(649.00,161.17)(83.224,45.000){2}{\rule{0.428pt}{0.400pt}}
+\multiput(734.00,207.59)(7.633,0.482){9}{\rule{5.767pt}{0.116pt}}
+\multiput(734.00,206.17)(73.031,6.000){2}{\rule{2.883pt}{0.400pt}}
+\multiput(819.00,213.58)(0.852,0.498){97}{\rule{0.780pt}{0.120pt}}
+\multiput(819.00,212.17)(83.381,50.000){2}{\rule{0.390pt}{0.400pt}}
+\multiput(904.00,263.58)(0.582,0.499){143}{\rule{0.566pt}{0.120pt}}
+\multiput(904.00,262.17)(83.826,73.000){2}{\rule{0.283pt}{0.400pt}}
+\put(200,509){\makebox(0,0)[r]{IC}}
+\multiput(220,509)(20.756,0.000){5}{\usebox{\plotpoint}}
+\put(320,509){\usebox{\plotpoint}}
+\put(225,134){\usebox{\plotpoint}}
+\multiput(225,134)(20.754,0.244){5}{\usebox{\plotpoint}}
+\multiput(310,135)(20.720,1.219){4}{\usebox{\plotpoint}}
+\multiput(395,140)(20.352,4.070){4}{\usebox{\plotpoint}}
+\multiput(480,157)(19.782,6.284){4}{\usebox{\plotpoint}}
+\multiput(565,184)(19.472,7.186){4}{\usebox{\plotpoint}}
+\multiput(649,215)(16.207,12.966){6}{\usebox{\plotpoint}}
+\multiput(734,283)(18.343,9.711){4}{\usebox{\plotpoint}}
+\multiput(819,328)(15.026,14.319){6}{\usebox{\plotpoint}}
+\multiput(904,409)(18.608,9.194){5}{\usebox{\plotpoint}}
+\put(989,451){\usebox{\plotpoint}}
+\sbox{\plotpoint}{\rule[-0.400pt]{0.800pt}{0.800pt}}%
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(200,468){\makebox(0,0)[r]{PA}}
+\sbox{\plotpoint}{\rule[-0.400pt]{0.800pt}{0.800pt}}%
+\put(220.0,468.0){\rule[-0.400pt]{24.090pt}{0.800pt}}
+\put(225,128){\usebox{\plotpoint}}
+\put(225,126.84){\rule{20.476pt}{0.800pt}}
+\multiput(225.00,126.34)(42.500,1.000){2}{\rule{10.238pt}{0.800pt}}
+\multiput(310.00,130.40)(6.111,0.520){9}{\rule{8.700pt}{0.125pt}}
+\multiput(310.00,127.34)(66.943,8.000){2}{\rule{4.350pt}{0.800pt}}
+\multiput(395.00,138.40)(4.179,0.512){15}{\rule{6.382pt}{0.123pt}}
+\multiput(395.00,135.34)(71.754,11.000){2}{\rule{3.191pt}{0.800pt}}
+\multiput(480.00,149.41)(3.790,0.511){17}{\rule{5.867pt}{0.123pt}}
+\multiput(480.00,146.34)(72.823,12.000){2}{\rule{2.933pt}{0.800pt}}
+\multiput(565.00,161.41)(1.288,0.503){59}{\rule{2.236pt}{0.121pt}}
+\multiput(565.00,158.34)(79.358,33.000){2}{\rule{1.118pt}{0.800pt}}
+\multiput(649.00,194.41)(0.972,0.502){81}{\rule{1.745pt}{0.121pt}}
+\multiput(649.00,191.34)(81.377,44.000){2}{\rule{0.873pt}{0.800pt}}
+\multiput(734.00,238.41)(2.446,0.506){29}{\rule{3.978pt}{0.122pt}}
+\multiput(734.00,235.34)(76.744,18.000){2}{\rule{1.989pt}{0.800pt}}
+\multiput(819.00,256.41)(0.761,0.502){105}{\rule{1.414pt}{0.121pt}}
+\multiput(819.00,253.34)(82.065,56.000){2}{\rule{0.707pt}{0.800pt}}
+\multiput(904.00,312.41)(0.761,0.502){105}{\rule{1.414pt}{0.121pt}}
+\multiput(904.00,309.34)(82.065,56.000){2}{\rule{0.707pt}{0.800pt}}
+\sbox{\plotpoint}{\rule[-0.500pt]{1.000pt}{1.000pt}}%
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(200,427){\makebox(0,0)[r]{PC}}
+\sbox{\plotpoint}{\rule[-0.500pt]{1.000pt}{1.000pt}}%
+\multiput(220,427)(20.756,0.000){5}{\usebox{\plotpoint}}
+\put(320,427){\usebox{\plotpoint}}
+\put(225,128){\usebox{\plotpoint}}
+\multiput(225,128)(20.685,1.704){5}{\usebox{\plotpoint}}
+\multiput(310,135)(20.480,3.373){4}{\usebox{\plotpoint}}
+\multiput(395,149)(19.912,5.857){4}{\usebox{\plotpoint}}
+\multiput(480,174)(19.192,7.903){4}{\usebox{\plotpoint}}
+\multiput(565,209)(18.739,8.923){5}{\usebox{\plotpoint}}
+\multiput(649,249)(15.293,14.033){5}{\usebox{\plotpoint}}
+\multiput(734,327)(18.865,8.656){5}{\usebox{\plotpoint}}
+\multiput(819,366)(10.605,17.842){8}{\usebox{\plotpoint}}
+\multiput(904,509)(18.432,9.541){5}{\usebox{\plotpoint}}
+\put(989,553){\usebox{\plotpoint}}
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(140.0,123.0){\rule[-0.200pt]{204.524pt}{0.400pt}}
+\put(989.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\put(140.0,590.0){\rule[-0.200pt]{204.524pt}{0.400pt}}
+\put(140.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\end{picture}
 
-  \input{./bench2bfs}
+
+  %\input{./bench2bfs}
+% GNUPLOT: LaTeX picture
+\setlength{\unitlength}{0.240900pt}
+\ifx\plotpoint\undefined\newsavebox{\plotpoint}\fi
+\begin{picture}(1049,629)(0,0)
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(140.0,123.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,123){\makebox(0,0)[r]{ 0}}
+\put(969.0,123.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,190.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,190){\makebox(0,0)[r]{ 0.5}}
+\put(969.0,190.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,256.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,256){\makebox(0,0)[r]{ 1}}
+\put(969.0,256.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,323.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,323){\makebox(0,0)[r]{ 1.5}}
+\put(969.0,323.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,390.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,390){\makebox(0,0)[r]{ 2}}
+\put(969.0,390.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,457.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,457){\makebox(0,0)[r]{ 2.5}}
+\put(969.0,457.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,523.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,523){\makebox(0,0)[r]{ 3}}
+\put(969.0,523.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,590.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(120,590){\makebox(0,0)[r]{ 3.5}}
+\put(969.0,590.0){\rule[-0.200pt]{4.818pt}{0.400pt}}
+\put(140.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(140,82){\makebox(0,0){ 0}}
+\put(140.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(282.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(282,82){\makebox(0,0){ 100}}
+\put(282.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(423.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(423,82){\makebox(0,0){ 200}}
+\put(423.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(565.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(565,82){\makebox(0,0){ 300}}
+\put(565.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(706.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(706,82){\makebox(0,0){ 400}}
+\put(706.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(848.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(848,82){\makebox(0,0){ 500}}
+\put(848.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(989.0,123.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(989,82){\makebox(0,0){ 600}}
+\put(989.0,570.0){\rule[-0.200pt]{0.400pt}{4.818pt}}
+\put(140.0,123.0){\rule[-0.200pt]{204.524pt}{0.400pt}}
+\put(989.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\put(140.0,590.0){\rule[-0.200pt]{204.524pt}{0.400pt}}
+\put(140.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\put(564,21){\makebox(0,0){maze width $N$}}
+\put(200,550){\makebox(0,0)[r]{IA}}
+\put(220.0,550.0){\rule[-0.200pt]{24.090pt}{0.400pt}}
+\put(225,124){\usebox{\plotpoint}}
+\multiput(225.00,124.61)(18.770,0.447){3}{\rule{11.433pt}{0.108pt}}
+\multiput(225.00,123.17)(61.270,3.000){2}{\rule{5.717pt}{0.400pt}}
+\multiput(310.00,127.59)(6.442,0.485){11}{\rule{4.957pt}{0.117pt}}
+\multiput(310.00,126.17)(74.711,7.000){2}{\rule{2.479pt}{0.400pt}}
+\multiput(395.00,134.59)(5.579,0.488){13}{\rule{4.350pt}{0.117pt}}
+\multiput(395.00,133.17)(75.971,8.000){2}{\rule{2.175pt}{0.400pt}}
+\multiput(480.00,142.58)(4.404,0.491){17}{\rule{3.500pt}{0.118pt}}
+\multiput(480.00,141.17)(77.736,10.000){2}{\rule{1.750pt}{0.400pt}}
+\multiput(565.00,152.58)(3.068,0.494){25}{\rule{2.500pt}{0.119pt}}
+\multiput(565.00,151.17)(78.811,14.000){2}{\rule{1.250pt}{0.400pt}}
+\multiput(649.00,166.58)(1.426,0.497){57}{\rule{1.233pt}{0.120pt}}
+\multiput(649.00,165.17)(82.440,30.000){2}{\rule{0.617pt}{0.400pt}}
+\multiput(734.00,196.58)(1.123,0.498){73}{\rule{0.995pt}{0.120pt}}
+\multiput(734.00,195.17)(82.935,38.000){2}{\rule{0.497pt}{0.400pt}}
+\multiput(819.00,234.58)(0.852,0.498){97}{\rule{0.780pt}{0.120pt}}
+\multiput(819.00,233.17)(83.381,50.000){2}{\rule{0.390pt}{0.400pt}}
+\multiput(904.00,284.58)(1.186,0.498){69}{\rule{1.044pt}{0.120pt}}
+\multiput(904.00,283.17)(82.832,36.000){2}{\rule{0.522pt}{0.400pt}}
+\put(200,509){\makebox(0,0)[r]{IC}}
+\multiput(220,509)(20.756,0.000){5}{\usebox{\plotpoint}}
+\put(320,509){\usebox{\plotpoint}}
+\put(225,138){\usebox{\plotpoint}}
+\multiput(225,138)(20.743,-0.732){5}{\usebox{\plotpoint}}
+\multiput(310,135)(20.733,0.976){4}{\usebox{\plotpoint}}
+\multiput(395,139)(20.397,3.839){4}{\usebox{\plotpoint}}
+\multiput(480,155)(20.150,4.978){4}{\usebox{\plotpoint}}
+\multiput(565,176)(19.159,7.983){4}{\usebox{\plotpoint}}
+\multiput(649,211)(17.982,10.366){5}{\usebox{\plotpoint}}
+\multiput(734,260)(18.164,10.043){5}{\usebox{\plotpoint}}
+\multiput(819,307)(18.073,10.206){5}{\usebox{\plotpoint}}
+\multiput(904,355)(13.135,16.071){6}{\usebox{\plotpoint}}
+\put(989,459){\usebox{\plotpoint}}
+\sbox{\plotpoint}{\rule[-0.400pt]{0.800pt}{0.800pt}}%
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(200,468){\makebox(0,0)[r]{PA}}
+\sbox{\plotpoint}{\rule[-0.400pt]{0.800pt}{0.800pt}}%
+\put(220.0,468.0){\rule[-0.400pt]{24.090pt}{0.800pt}}
+\put(225,127){\usebox{\plotpoint}}
+\put(225,125.84){\rule{20.476pt}{0.800pt}}
+\multiput(225.00,125.34)(42.500,1.000){2}{\rule{10.238pt}{0.800pt}}
+\multiput(310.00,129.40)(6.111,0.520){9}{\rule{8.700pt}{0.125pt}}
+\multiput(310.00,126.34)(66.943,8.000){2}{\rule{4.350pt}{0.800pt}}
+\multiput(395.00,137.41)(3.790,0.511){17}{\rule{5.867pt}{0.123pt}}
+\multiput(395.00,134.34)(72.823,12.000){2}{\rule{2.933pt}{0.800pt}}
+\multiput(480.00,149.41)(2.446,0.506){29}{\rule{3.978pt}{0.122pt}}
+\multiput(480.00,146.34)(76.744,18.000){2}{\rule{1.989pt}{0.800pt}}
+\multiput(565.00,167.41)(1.288,0.503){59}{\rule{2.236pt}{0.121pt}}
+\multiput(565.00,164.34)(79.358,33.000){2}{\rule{1.118pt}{0.800pt}}
+\multiput(649.00,200.41)(1.544,0.504){49}{\rule{2.629pt}{0.121pt}}
+\multiput(649.00,197.34)(79.544,28.000){2}{\rule{1.314pt}{0.800pt}}
+\multiput(734.00,228.41)(1.603,0.504){47}{\rule{2.719pt}{0.121pt}}
+\multiput(734.00,225.34)(79.358,27.000){2}{\rule{1.359pt}{0.800pt}}
+\multiput(819.00,255.41)(0.531,0.501){153}{\rule{1.050pt}{0.121pt}}
+\multiput(819.00,252.34)(82.821,80.000){2}{\rule{0.525pt}{0.800pt}}
+\multiput(904.00,335.41)(1.982,0.505){37}{\rule{3.291pt}{0.122pt}}
+\multiput(904.00,332.34)(78.170,22.000){2}{\rule{1.645pt}{0.800pt}}
+\sbox{\plotpoint}{\rule[-0.500pt]{1.000pt}{1.000pt}}%
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(200,427){\makebox(0,0)[r]{PC}}
+\sbox{\plotpoint}{\rule[-0.500pt]{1.000pt}{1.000pt}}%
+\multiput(220,427)(20.756,0.000){5}{\usebox{\plotpoint}}
+\put(320,427){\usebox{\plotpoint}}
+\put(225,127){\usebox{\plotpoint}}
+\multiput(225,127)(20.685,1.704){5}{\usebox{\plotpoint}}
+\multiput(310,134)(20.552,2.901){4}{\usebox{\plotpoint}}
+\multiput(395,146)(19.975,5.640){4}{\usebox{\plotpoint}}
+\multiput(480,170)(19.572,6.908){4}{\usebox{\plotpoint}}
+\multiput(565,200)(19.077,8.176){5}{\usebox{\plotpoint}}
+\multiput(649,236)(16.394,12.729){5}{\usebox{\plotpoint}}
+\multiput(734,302)(16.675,12.359){5}{\usebox{\plotpoint}}
+\multiput(819,365)(15.746,13.523){5}{\usebox{\plotpoint}}
+\multiput(904,438)(13.442,15.814){7}{\usebox{\plotpoint}}
+\put(989,538){\usebox{\plotpoint}}
+\sbox{\plotpoint}{\rule[-0.200pt]{0.400pt}{0.400pt}}%
+\put(140.0,123.0){\rule[-0.200pt]{204.524pt}{0.400pt}}
+\put(989.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\put(140.0,590.0){\rule[-0.200pt]{204.524pt}{0.400pt}}
+\put(140.0,123.0){\rule[-0.200pt]{0.400pt}{112.500pt}}
+\end{picture}
+
 \vspace*{-1em}
   \caption{Benchmarking DFS (top) and BFS (bottom)}
   \label{XII:fig:bench:maze}
@@ -870,7 +1464,7 @@ module Coloring(G : GM) = struct
         g v;
       G.Mark.set v i
     in
-    (* traversal of the graph using the persistent cursor iter *)
+    (* traversal of g using persistent cursor iter *)
     let rec iterate iter =
       let v = Bfs.get iter in
       for i = 1 to k do
