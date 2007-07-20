@@ -475,7 +475,9 @@ Such a ``functorization'' of algorithms has two benefits: first, it
 allows to add quickly new algorithms to the library, without
 duplicating code for all data structures; secondly, it allows the user to
 apply an existing algorithm on his own graph data structure.
-
+Note that on the latter case the user is responsible for fulfilling
+the requirements over the functor parameters (which are available from
+\ocamlgraph documentation).
 
 \subsection{Example: Depth-First Traversal}
 \label{XII:dfs}
