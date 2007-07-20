@@ -476,8 +476,6 @@ allows to add quickly new algorithms to the library, without
 duplicating code for all data structures; secondly, it allows the user to
 apply an existing algorithm on his own graph data structure.
 
-%% , which is an original feature of \ocamlgraph\ w.r.t. other graph
-%% libraries.
 
 \subsection{Example: Depth-First Traversal}
 \label{XII:dfs}
@@ -580,36 +578,8 @@ end
 It provides a single function \texttt{coloring} which colors a given
 graph with a given number of colors. Some marks may contain initial
 constraints. 
-% To implement this functor we use a simple backtracking algorithm which
-% performs a breadth-first traversal of the graph and successively tries
-% each color for each visited vertex. To be able to backtrack during the
-% traversal we use persistent cursors~\cite{XII:filliatre06} provided by
-% the \texttt{Traverse.Bfs} functor.
-% \begin{alltt}
-% module Coloring(G : GM) = struct
-%   module Bfs = Traverse.Bfs(G)
-%
-%   let coloring g k =
-%     Mark.clear g;
-%     let try_color v i =
-%       iter_succ 
-%         (fun w -> 
-%           if Mark.get w = i then raise NoColor) 
-%         g v;
-%       Mark.set v i
-%     in
-%     let rec iterate iter =
-%       let v = Bfs.get iter in
-%       for i = 1 to k do
-%         try try_color v i; iterate (Bfs.step iter); 
-%             assert false
-%         with NoColor -> ()
-%       done;
-%       Mark.set v 0; raise NoColor
-%     in
-%     try iterate (Bfs.start g); assert false 
-%     with Exit -> ()
-% \end{alltt}
+The implementation of this coloring algorithm is given in
+appendix~\ref{XII:appendix:coloring}. 
 To complete our Sudoku solver, we simply need to apply the above
 functor on our graph module~\texttt{G}:
 \begin{alltt}
@@ -868,7 +838,56 @@ let () =
   Format.printf "@?"
 \end{verbatim}}
 
+\section{Graph Coloring Implementation}\label{XII:appendix:coloring}
 
+Below is the code of the graph coloring functor introduced in
+Section~\ref{XII:coloring} and used to write the Sudoku solver.
+The code uses a simple backtracking algorithm which
+performs a breadth-first traversal of the graph and successively tries
+each color for each visited vertex. To be able to backtrack during the
+traversal we use persistent cursors~\cite{XII:filliatre06} provided by
+another \ocamlgraph functor, namely \texttt{Traverse.Bfs}. A
+persistent cursor is created with function \texttt{start}, the
+visited element is obtained with function \texttt{get} and the cursor
+is moved to the next element with function \texttt{step}. The latter
+returns a new cursor, contrary to usual cursors which are modified
+in-place, thus allowing backtracking.
+\begin{alltt}
+module Coloring(G : GM) = struct
+  module Bfs = Traverse.Bfs(G)
+
+  exception NoColoring
+
+  let coloring g k =
+    (* assign color i to vertex v, if possible, 
+       and raise NoColoring otherwise *)
+    let try_color v i =
+      G.iter_succ 
+        (fun w -> 
+          if G.Mark.get w = i then raise NoColoring) 
+        g v;
+      G.Mark.set v i
+    in
+    (* traversal of the graph using the persistent cursor iter *)
+    let rec iterate iter =
+      let v = Bfs.get iter in
+      for i = 1 to k do
+        try try_color v i; iterate (Bfs.step iter); 
+            assert false
+        with NoColoring -> ()
+      done;
+      G.Mark.set v 0; raise NoColoring
+    in
+    try iterate (Bfs.start g); assert false 
+    with Exit -> ()
+
+end
+\end{alltt}
+Note that the actual implementation in \ocamlgraph is slightly more complex
+since it uses Kempe's linear-time simplification (vertices of degree
+less than $k$ are repeatedly removed and pushed on a stack, then the
+backtracking algorithm above is performed and finally vertices
+initially removed are popped from the stack and colored).
 
 %%% Local Variables: 
 %%% mode: latex
