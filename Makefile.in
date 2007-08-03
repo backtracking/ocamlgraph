@@ -42,7 +42,7 @@ OBJEXT = @OBJEXT@
 
 # Others global variables
 SRCDIR	= src
-LIBDIR	= src/external
+LIBDIR	= lib
 
 INCLUDES= -I $(SRCDIR) -I $(LIBDIR)
 BFLAGS = $(INCLUDES)
