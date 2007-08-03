@@ -25,27 +25,6 @@ open Util
 let cpt_vertex = ref min_int
   (* global counter for abstract vertex *)
 
-module type VERTEX = sig
-  type t 
-  val compare : t -> t -> int 
-  val hash : t -> int 
-  val equal : t -> t -> bool
-  type label
-  val label : t -> label
-  val create : label -> t
-end
-
-module type EDGE = sig
-  type vertex
-  type t
-  val src : t -> vertex
-  val dst : t -> vertex
-  val compare : t -> t -> int
-  type label
-  val label : t -> label
-  val create : vertex -> label -> vertex -> t
-end
-
 (* Common signature to an imperative/persistent association table *)
 module type HM = sig
   type 'a return
