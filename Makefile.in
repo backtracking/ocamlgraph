@@ -358,7 +358,7 @@ configure: configure.in
 #######
 
 clean:
-	rm -f $~
+	rm -f *~
 	for d in $(SRCDIR) $(LIBDIR) $(ED_DIR); do \
 	  rm -f $$d/*.cm[iox] $$d/*$(OBJEXT) $$d/*~; \
 	done

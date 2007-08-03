@@ -4,10 +4,8 @@ Vers la v1.0:
 =============
 
 * Parcours commençant à partir d'un certain noeud (suggestion F. Derepas)
-* Parcours topologique privilégiant la profondeur ou la largeur
-* Meilleure interface pour le parseur dot
 * Plus de commentaires dans les interfaces
-* Meilleures documentations "externes" (FAQ, ...)
+* Meilleures documentations "externes" (page web, FAQ, ...)
 * Améliorer factorisation per_imp, imperative, persistent (?)
 * Mieux architecturer les algos
 * Marques génériques (plutôt que int) (?)
@@ -15,6 +13,6 @@ Vers la v1.0:
 * Foncteurs pour des sommets non étiquetés ?
 * Généralisés les graphes bidirectionnels
 * Marshalling
-* Que faire des modules spéciaux ?
+* Que faire des modules spéciaux ? (Minsep, Strat, ...)
 
 * Appel à contributions / Features request (au moins partiel)
