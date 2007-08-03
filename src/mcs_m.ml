@@ -22,8 +22,8 @@
   Maximal Cardinality Search for Computing Minimal Triangulations of Graphs.
   by A. Berry, Jean R. S. Blair, Pinar Heggernes & Barry W. Peyton.
   
-  @author Matthieu Sozeau <mattam@mattam.org>
-  @author Pierre-Loic Garoche <ploc@garoche.net>
+  @author Matthieu Sozeau <mattam\@mattam.org>
+  @author Pierre-Loic Garoche <ploc\@garoche.net>
   
   $Id: mcs_m.ml,v 1.5 2005-11-02 13:43:35 filliatr Exp $
 *)

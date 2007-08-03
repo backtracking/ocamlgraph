@@ -18,7 +18,7 @@
 (* $Id: imperative.ml,v 1.27 2006-05-12 14:07:16 filliatr Exp $ *)
 
 open Sig
-open Per_imp
+open Blocks
 
 module type S = sig
 
@@ -598,7 +598,7 @@ module Matrix = struct
 
     module G = Digraph 
 
-    include Per_imp.Graph(G)		 
+    include Blocks.Graph(G)		 
     (* Export some definitions of [G] *)
 
     let create = G.create

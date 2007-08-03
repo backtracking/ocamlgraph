@@ -19,7 +19,7 @@
 
 open Sig
 open Util
-open Per_imp
+open Blocks
 
 module type S = sig
 

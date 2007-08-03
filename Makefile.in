@@ -62,7 +62,7 @@ all: byte $(OCAMLBEST)
 LIB= unionfind heap bitv
 LIB:=$(patsubst %, $(LIBDIR)/%.cmo, $(LIB))
 
-CMO = util  per_imp persistent imperative \
+CMO = util blocks persistent imperative \
 	delaunay builder classic rand oper \
 	path traverse coloring topological components kruskal flow \
         graphviz gml dot_parser dot_lexer dot pack \
@@ -221,16 +221,16 @@ endif
 
 DOCFILES=$(NAME).ps $(NAME).html
 
-NODOC	= dot_parser dot_lexer
+NODOC	= util blocks dot_parser dot_lexer
 NODOC	:= $(patsubst %, $(SRCDIR)/%.cmo, $(NODOC))
 DOC_CMO	= $(filter-out $(NODOC) $(LIB), $(CMO))
-DOC_SRC	= sig.mli sig_pack.mli $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
+DOC_SRC	= src/sig.mli src/sig_pack.mli $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
 
 .PHONY: doc
 doc: $(DOC_CMO)
 	mkdir -p doc
 	rm -f doc/*
-	$(OCAMLDOC) -d doc -html $(DOC_SRC)
+	$(OCAMLDOC) -d doc -html $(INCLUDES) $(DOC_SRC)
 
 # literate programming
 $(NAME).tex: $(DOC_SRC)
