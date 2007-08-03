@@ -222,6 +222,121 @@ module Unlabeled(V: COMPARABLE)(HM: HM with type key = V.t) = struct
 
 end
 
+(* Common implementation to all the labeled (directed) graphs. *)
+module Labeled(V: COMPARABLE)(E: ORDERED_TYPE)(HM: HM with type key = V.t) = 
+struct
+
+  module VE = OTProduct(V)(E)
+
+  module S = Set.Make(VE)
+
+  module E = struct
+    type vertex = V.t
+    type label = E.t
+    type t = vertex * label * vertex
+    let src (v, _, _) = v
+    let dst (_, _, v) = v
+    let label (_, l, _) = l
+    let create v1 l v2 = v1, l, v2
+    module C = OTProduct(V)(VE)
+    let compare (x1, x2, x3) (y1, y2, y3) = 
+      C.compare (x1, (x3, x2)) (y1, (y3, y2))
+  end
+
+  type edge = E.t
+
+  let mem_edge g v1 v2 = 
+    try
+      S.exists (fun (v2', _) -> V.equal v2 v2') (HM.find v1 g)
+    with Not_found ->
+      false
+
+  let mem_edge_e g (v1, l, v2) =
+    try
+      let ve = v2, l in
+      S.exists (fun ve' -> VE.compare ve ve' == 0) (HM.find v1 g)
+    with Not_found ->
+      false
+
+  exception Found of edge
+  let find_edge g v1 v2 =
+    try
+      S.iter 
+	(fun (v2', l) -> if V.equal v2 v2' then raise (Found (v1, l, v2')))
+	(HM.find v1 g);
+      raise Not_found
+    with Found e ->
+      e
+
+  let unsafe_remove_edge g v1 v2 = 
+    HM.add v1 (S.filter 
+		 (fun (v2', _) -> not (V.equal v2 v2')) (HM.find v1 g)) g
+
+  let unsafe_remove_edge_e g (v1, l, v2) = 
+    HM.add v1 (S.remove (v2, l) (HM.find v1 g)) g
+
+  let remove_edge g v1 v2 =
+    if not (HM.mem v2 g) then invalid_arg "remove_edge";
+    HM.add v1 (S.filter 
+		 (fun (v2', _) -> not (V.equal v2 v2'))
+		 (HM.find_and_raise v1 g "remove_edge")) g
+
+  let remove_edge_e g (v1, l, v2) = 
+    if not (HM.mem v2 g) then invalid_arg "remove_edge_e";
+    HM.add v1 (S.remove (v2, l) (HM.find_and_raise v1 g "remove_edge_e")) g
+
+  let iter_succ f g v = 
+    S.iter (fun (w, _) -> f w) (HM.find_and_raise v g "iter_succ")
+  let fold_succ f g v = 
+    S.fold (fun (w, _) -> f w) (HM.find_and_raise v g "fold_succ")
+
+  let iter_succ_e f g v = 
+    S.iter (fun (w, l) -> f (v, l, w)) (HM.find_and_raise v g "iter_succ_e")
+  let fold_succ_e f g v = 
+    S.fold (fun (w, l) -> f (v, l, w)) (HM.find_and_raise v g "fold_succ_e")
+
+  let succ g v = fold_succ (fun w l -> w :: l) g v []
+  let succ_e g v = fold_succ_e (fun e l -> e :: l) g v []
+
+  let map_vertex f = 
+    HM.map (fun v s -> 
+	      f v, S.fold (fun (v, l) s -> S.add (f v, l) s) s S.empty)
+
+  module I = struct
+    type t = S.t HM.t
+    module PV = V
+    module PE = E
+
+    let iter_edges f = HM.iter (fun v -> S.iter (fun (w, _) -> f v w))
+    let fold_edges f = HM.fold (fun v -> S.fold (fun (w, _) -> f v w))
+    let iter_edges_e f = 
+      HM.iter (fun v -> S.iter (fun (w, l) -> f (v, l, w)))
+    let fold_edges_e f = 
+      HM.fold (fun v -> S.fold (fun (w, l) -> f (v, l, w)))
+  end
+  include I
+
+  include Pred(struct include I let mem_vertex = HM.mem end)
+
+end
+
+(* The vertex module and the vertex table for the concrete graphs. *)
+module ConcreteVertex
+  (F : functor(X: COMPARABLE) -> HM with type key = X.t)
+  (V: COMPARABLE) = 
+struct
+
+  module V = struct
+    include V
+    type label = t
+    let label v = v
+    let create v = v
+  end
+
+  module HM = F(V)
+
+end
+
 (* Support for explicitly maintaining edge set of
    predecessors.  Crucial for algorithms that do a lot of backwards
    traversal. *)
@@ -339,121 +454,6 @@ struct
   let fold_pred_e f g v = fold_pred (fun v2 -> f (v2,v)) g v
 
   let pred_e g v = fold_pred_e (fun e l -> e :: l) g v []   
-end
-
-(* Common implementation to all the labeled (directed) graphs. *)
-module Labeled(V: COMPARABLE)(E: ORDERED_TYPE)(HM: HM with type key = V.t) = 
-struct
-
-  module VE = OTProduct(V)(E)
-
-  module S = Set.Make(VE)
-
-  module E = struct
-    type vertex = V.t
-    type label = E.t
-    type t = vertex * label * vertex
-    let src (v, _, _) = v
-    let dst (_, _, v) = v
-    let label (_, l, _) = l
-    let create v1 l v2 = v1, l, v2
-    module C = OTProduct(V)(VE)
-    let compare (x1, x2, x3) (y1, y2, y3) = 
-      C.compare (x1, (x3, x2)) (y1, (y3, y2))
-  end
-
-  type edge = E.t
-
-  let mem_edge g v1 v2 = 
-    try
-      S.exists (fun (v2', _) -> V.equal v2 v2') (HM.find v1 g)
-    with Not_found ->
-      false
-
-  let mem_edge_e g (v1, l, v2) =
-    try
-      let ve = v2, l in
-      S.exists (fun ve' -> VE.compare ve ve' == 0) (HM.find v1 g)
-    with Not_found ->
-      false
-
-  exception Found of edge
-  let find_edge g v1 v2 =
-    try
-      S.iter 
-	(fun (v2', l) -> if V.equal v2 v2' then raise (Found (v1, l, v2')))
-	(HM.find v1 g);
-      raise Not_found
-    with Found e ->
-      e
-
-  let unsafe_remove_edge g v1 v2 = 
-    HM.add v1 (S.filter 
-		 (fun (v2', _) -> not (V.equal v2 v2')) (HM.find v1 g)) g
-
-  let unsafe_remove_edge_e g (v1, l, v2) = 
-    HM.add v1 (S.remove (v2, l) (HM.find v1 g)) g
-
-  let remove_edge g v1 v2 =
-    if not (HM.mem v2 g) then invalid_arg "remove_edge";
-    HM.add v1 (S.filter 
-		 (fun (v2', _) -> not (V.equal v2 v2'))
-		 (HM.find_and_raise v1 g "remove_edge")) g
-
-  let remove_edge_e g (v1, l, v2) = 
-    if not (HM.mem v2 g) then invalid_arg "remove_edge_e";
-    HM.add v1 (S.remove (v2, l) (HM.find_and_raise v1 g "remove_edge_e")) g
-
-  let iter_succ f g v = 
-    S.iter (fun (w, _) -> f w) (HM.find_and_raise v g "iter_succ")
-  let fold_succ f g v = 
-    S.fold (fun (w, _) -> f w) (HM.find_and_raise v g "fold_succ")
-
-  let iter_succ_e f g v = 
-    S.iter (fun (w, l) -> f (v, l, w)) (HM.find_and_raise v g "iter_succ_e")
-  let fold_succ_e f g v = 
-    S.fold (fun (w, l) -> f (v, l, w)) (HM.find_and_raise v g "fold_succ_e")
-
-  let succ g v = fold_succ (fun w l -> w :: l) g v []
-  let succ_e g v = fold_succ_e (fun e l -> e :: l) g v []
-
-  let map_vertex f = 
-    HM.map (fun v s -> 
-	      f v, S.fold (fun (v, l) s -> S.add (f v, l) s) s S.empty)
-
-  module I = struct
-    type t = S.t HM.t
-    module PV = V
-    module PE = E
-
-    let iter_edges f = HM.iter (fun v -> S.iter (fun (w, _) -> f v w))
-    let fold_edges f = HM.fold (fun v -> S.fold (fun (w, _) -> f v w))
-    let iter_edges_e f = 
-      HM.iter (fun v -> S.iter (fun (w, l) -> f (v, l, w)))
-    let fold_edges_e f = 
-      HM.fold (fun v -> S.fold (fun (w, l) -> f (v, l, w)))
-  end
-  include I
-
-  include Pred(struct include I let mem_vertex = HM.mem end)
-
-end
-
-(* The vertex module and the vertex table for the concrete graphs. *)
-module ConcreteVertex
-  (F : functor(X: COMPARABLE) -> HM with type key = X.t)
-  (V: COMPARABLE) = 
-struct
-
-  module V = struct
-    include V
-    type label = t
-    let label v = v
-    let create v = v
-  end
-
-  module HM = F(V)
-
 end
 
 (* Abstract [G]. *)
