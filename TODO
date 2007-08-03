@@ -1,7 +1,20 @@
 $Id: TODO,v 1.14 2004-10-22 14:42:06 signoles Exp $
 
-* parser graphviz
-* rendre consistant singulier/pluriel vertex/edges
-* supprimer Util.DataV utilisé dans Mcs_m
-* améliorer Mcs_m
-* améliorer Md
+Vers la v1.0:
+=============
+
+* Parcours commençant à partir d'un certain noeud (suggestion F. Derepas)
+* Parcours topologique privilégiant la profondeur ou la largeur
+* Meilleure interface pour le parseur dot
+* Plus de commentaires dans les interfaces
+* Meilleures documentations "externes" (FAQ, ...)
+* Améliorer factorisation per_imp, imperative, persistent (?)
+* Mieux architecturer les algos
+* Marques génériques (plutôt que int) (?)
+* Marques persistantes pour les graphes persistants ?
+* Foncteurs pour des sommets non étiquetés ?
+* Généralisés les graphes bidirectionnels
+* Marshalling
+* Que faire des modules spéciaux ?
+
+* Appel à contributions / Features request (au moins partiel)

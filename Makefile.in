@@ -15,15 +15,15 @@
 #                                                                        #
 ##########################################################################
 
-# where to install the binaries
+# Where to install the binaries
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 BINDIR=@bindir@
 
-# where to install the man page
+# Where to install the man page
 MANDIR=@mandir@
 
-# other variables set by ./configure
+# Other variables set by ./configure
 OCAMLC   = @OCAMLC@
 OCAMLOPT = @OCAMLOPT@
 OCAMLDEP = @OCAMLDEP@
@@ -40,7 +40,11 @@ EXE = @EXE@
 LIBEXT = @LIBEXT@
 OBJEXT = @OBJEXT@
 
-INCLUDES = @INCLUDEGTK2@ -I +threads -I editor
+# Others global variables
+SRCDIR	= src
+LIBDIR	= src/external
+
+INCLUDES= -I $(SRCDIR) -I $(LIBDIR)
 BFLAGS = $(INCLUDES)
 OFLAGS = $(INCLUDES) @FORPACK@
 
@@ -55,18 +59,26 @@ all: byte $(OCAMLBEST)
 # bytecode and native-code compilation
 ######################################
 
-CMO 	= util unionfind heap bitv \
-	per_imp persistent imperative \
+LIB= unionfind heap bitv
+LIB:=$(patsubst %, $(LIBDIR)/%.cmo, $(LIB))
+
+CMO = util  per_imp persistent imperative \
 	delaunay builder classic rand oper \
 	path traverse coloring topological components kruskal flow \
         graphviz gml dot_parser dot_lexer dot pack \
 	gmap minsep cliquetree mcs_m md strat
-CMO	:= $(addsuffix .cmo, $(CMO))
+CMO := $(LIB) $(patsubst %, $(SRCDIR)/%.cmo, $(CMO))
+
 CMX = $(CMO:.cmo=.cmx)
 CMA = graph.cma
 CMXA = graph.cmxa
 
-GENERATED = gml.ml version.ml META
+CMI = sig sig_pack
+CMI := $(patsubst %, src/%.cmi, $(CMI))
+
+GENERATED = META \
+	src/gml.ml src/version.ml \
+	src/dot_parser.ml src/dot_parser.mli src/dot_lexer.ml
 
 byte: $(CMA)
 opt: $(CMXA)
@@ -77,99 +89,115 @@ graph.cma: graph.cmo
 graph.cmxa: graph.cmx
 	$(OCAMLOPT) -a -o $@ $^
 
-graph.cmo: sig.cmi sig_pack.cmi $(CMO)
+graph.cmo: $(CMI) $(CMO)
 	$(OCAMLC) -pack -o $@ $^
 
-graph.cmx: sig.cmi sig_pack.cmi $(CMX)
+graph.cmx: $(CMI) $(CMX)
 	$(OCAMLOPT) -pack -o $@ $^
 
 .PHONY: demo
-demo: demo.opt
+demo: bin/demo.$(OCAMLBEST)
 
-demo.byte: $(CMA) demo.cmo
+bin/demo.byte: $(CMA) examples/demo.cmo
 	$(OCAMLC) -o $@ $^
 
-demo.opt: $(CMXA) demo.cmx
+bin/demo.opt: $(CMXA) examples/demo.cmx
 	$(OCAMLOPT) -o $@ $^
 
-demo_planar.byte: $(CMA) demo_planar.cmo
+bin/demo_planar.byte: $(CMA) examples/demo_planar.cmo
 	$(OCAMLC) -o $@ graphics.cma unix.cma $^
 
-demo_planar.opt: $(CMXA) demo_planar.cmx
+bin/demo_planar.opt: $(CMXA) examples/demo_planar.cmx
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
-color.byte: $(CMA) color.cmo
+bin/color.byte: $(CMA) examples/color.cmo
 	$(OCAMLC) -o $@ graphics.cma unix.cma $^
 
-color.opt: $(CMXA) color.cmx
+bin/color.opt: $(CMXA) examples/color.cmx
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
-sudoku.byte: $(CMA) sudoku.cmo
+bin/sudoku.byte: $(CMA) examples/sudoku.cmo
 	$(OCAMLC) -o $@ graphics.cma unix.cma $^
 
-sudoku.opt: $(CMXA) sudoku.cmx
+bin/sudoku.opt: $(CMXA) examples/sudoku.cmx
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
-test: $(CMA) test.ml
+test: $(CMA) tests/test.ml
 	ocaml unix.cma graphics.cma $^
 
-test.byte: $(CMA) test.cmo
+bin/test.byte: $(CMA) tests/test.cmo
 	$(OCAMLC) -g -unsafe -o $@ unix.cma graphics.cma $^
 
-test.opt: $(CMXA) test.cmx
+bin/test.opt: $(CMXA) tests/test.cmx
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa graphics.cmxa $^
 
-test_rand.opt: $(CMXA) time.ml test_rand.ml
+bin/test_rand.opt: $(CMXA) time.ml test_rand.ml
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa $^
 
-test_strat.opt: $(CMXA) test_strat.ml
+bin/test_strat.opt: $(CMXA) tests/strat.ml
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ $^
 
-test_dot.opt: $(CMXA) test_dot.ml
+bin/test_dot.opt: $(CMXA) tests/dot.ml
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ $^
 
-bench: bench.opt
+bench: bin/bench.$(OCAMLBEST)
 	./bench.opt
 
-bench.opt: $(CMXA) bench.ml
+bin/bench.opt: $(CMXA) tests/bench.ml
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa $^
 
-check: $(CMA) check.ml
+check: $(CMA) tests/check.ml
 	ocaml $^
 
 # gtk2 graph editor
 
+ED_DIR=editor
+
 editor-no:
-editor-yes: editor/editor.$(OCAMLBEST)
+editor-yes: $(ED_DIR)/editor.$(OCAMLBEST)
 
-EDCMO = editor/ed_hyper.cmo editor/ed_graph.cmo editor/ed_draw.cmo editor/ed_display.cmo editor/ed_main.cmo
-EDCMX = $(EDCMO:.cmo=.cmx)
+editor: $(ED_DIR)/editor.byte editor-yes
 
-editor/editor.byte: $(CMA) $(EDCMO)
-	$(OCAMLC) -g -o $@ -I +lablgtk2 lablgtk.cma lablgnomecanvas.cma unix.cma $^
+ED_CMO = ed_hyper ed_graph ed_draw ed_display ed_main
+ED_CMO:= $(patsubst %, $(ED_DIR)/%.cmo, $(ED_CMO))
+ED_CMX = $(ED_CMO:.cmo=.cmx)
 
-editor/editor.opt: $(CMXA) $(EDCMX)
-	$(OCAMLOPT) -o $@ -I +lablgtk2 lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
+ED_INCLUDES = @INCLUDEGTK2@ -I +threads -I $(ED_DIR)
 
+$(ED_CMO): BFLAGS+= $(ED_INCLUDES)
+$(ED_CMX): OFLAGS+= $(ED_INCLUDES)
+
+$(ED_DIR)/editor.byte: $(CMA) $(ED_CMO)
+	$(OCAMLC) -g -o $@ @INCLUDEGTK2@ \
+		lablgtk.cma lablgnomecanvas.cma unix.cma $^
+
+$(ED_DIR)/editor.opt: $(CMXA) $(ED_CMX)
+	$(OCAMLOPT) -o $@ @INCLUDEGTK2@ \
+		lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
 
 VERSION=0.99
 
-version.ml: Makefile
-	echo "let version = \""$(VERSION)"\"" > version.ml
-	echo "let date = \""`date`"\"" >> version.ml
+src/version.ml: Makefile
+	echo "let version = \""$(VERSION)"\"" > $@
+	echo "let date = \""`date`"\"" >> $@
 
 META: META.in Makefile
 	sed -e s/VERSION/$(VERSION)/ -e s/CMA/$(CMA)/ -e s/CMXA/$(CMXA)/ \
-		META.in > META
+		$@.in > $@
 
 # Additional rules
 ##################
 
-DPD_GRAPH_ML= demo demo_planar color sudoku test check
-DPD_GRAPH_ML:= $(addsuffix .ml, $(DPD_GRAPH_ML))
+EXAMPLES = demo color demo_planar sudoku
+EXAMPLES:= $(patsubst %, examples/%.ml, $(EXAMPLES))
 
-$(DPD_GRAPH_ML) $(DPD_GRAPH_ML:.ml=.cmo): $(CMA)
-$(DPD_GRAPH_ML) $(DPD_GRAPH_ML:.ml=.cmx): $(CMXA)
+TESTS = test check
+TESTS := $(patsubst %, tests/%.ml, $(TESTS))
+
+DPD_GRAPH_ML= $(TESTS) $(EXAMPLES)
+
+$(DPD_GRAPH_ML:.ml=.cmo): $(CMA)
+$(DPD_GRAPH_ML:.ml=.cmx): $(CMXA)
 
 # installation
 ##############
@@ -193,29 +221,32 @@ endif
 
 DOCFILES=$(NAME).ps $(NAME).html
 
-DOC_CMO	= $(filter-out per_imp.cmo util.cmo bitv.cmo heap.cmo unionfind.cmo, \
-			$(CMO))
-DOC_ML	= sig.mli sig_pack.mli $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
+NODOC	= dot_parser dot_lexer
+NODOC	:= $(patsubst %, $(SRCDIR)/%.cmo, $(NODOC))
+DOC_CMO	= $(filter-out $(NODOC) $(LIB), $(CMO))
+DOC_SRC	= sig.mli sig_pack.mli $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
 
 .PHONY: doc
 doc: $(DOC_CMO)
 	mkdir -p doc
 	rm -f doc/*
-	$(OCAMLDOC) -d doc -html $(DOC_ML)
+	$(OCAMLDOC) -d doc -html $(DOC_SRC)
 
 # literate programming
-$(NAME).tex: $(DOC_ML)
+$(NAME).tex: $(DOC_SRC)
 	$(OCAMLWEB) -o $@ $^
 
 wc:
-	ocamlwc -p *.mli *.ml
+	ocamlwc -p $(SRCDIRC)/*.mli $(SRCDIRC)/*.ml
 
 # file headers
 ##############
 headers:
 	headache -c misc/headache_config.txt -h misc/header.txt \
 		Makefile.in configure.in README \
-		*.ml *.ml[ily] editor/*.ml editor/*.mli
+		$(LIBDIR)*.ml $(LIBDIR)*.ml[ily] \
+		$(SRCDIR)*.ml $(SRCDIR)*.ml[ily] \
+		$(ED_DIR)/*.ml $(ED_DIR)/*.mli \
 
 # export
 ########
@@ -230,8 +261,6 @@ FILES = *.ml* Makefile.in configure configure.in META.in  \
 	editor/ed_*.ml* editor/Makefile \
         editor/tests/*.dot editor/tests/*.gml \
 	.depend README FAQ CREDITS INSTALL COPYING LICENSE CHANGES
-
-EXAMPLES = demo.ml color.ml demo_planar.ml sudoku.ml
 
 export: source export-doc export-web export-delaunay
 
@@ -298,6 +327,9 @@ export-delaunay:
 # Emacs tags
 ############
 
+otags:
+	otags -r src editor
+
 tags:
 	find . -name "*.ml*" | sort -r | xargs \
 	etags "--regex=/let[ \t]+\([^ \t]+\)/\1/" \
@@ -326,19 +358,29 @@ configure: configure.in
 #######
 
 clean:
-	rm -f *.cm[iox] *$(OBJEXT) *~ graph.*a graph$(LIBEXT)
-	rm -f $(GENERATED) parser.output
-	rm -f $(NAME).byte $(NAME).opt
+	rm -f $~
+	for d in $(SRCDIR) $(LIBDIR) $(ED_DIR); do \
+	  rm -f $$d/*.cm[iox] $$d/*$(OBJEXT) $$d/*~; \
+	done
+	rm -f $(GENERATED) $(SRCDIR)/dot_parser.output
+	rm -f graph.*a graph$(LIBEXT) bin/$(NAME).byte bin/$(NAME).opt
 	rm -f *.haux *.aux *.log $(NAME).tex $(NAME).dvi $(DOCFILES)
 
 dist-clean distclean:: clean
 	rm -f Makefile config.cache config.log config.status *.byte *.opt
 
+svnclean svn-clean:: dist-clean
+	rm -f config.* configure configure.lineno
+
 # depend
 ########
 
+.PHONY: depend
 .depend depend: $(GENERATED)
 	rm -f .depend
-	$(OCAMLDEP) $(INCLUDES) *.ml *.mli editor/*.mli editor/*.ml > .depend
+	$(OCAMLDEP) $(INCLUDES) \
+		$(LIBDIR)/*.ml $(LIBDIR)/*.mli \
+		$(SRCDIR)/*.ml $(SRCDIR)/*.mli \
+		$(ED_DIR)/*.mli $(ED_DIR)/*.ml > .depend
 
 include .depend

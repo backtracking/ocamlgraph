@@ -33,7 +33,7 @@
 
 # check for one particular file of the sources 
 # ADAPT THE FOLLOWING LINE TO YOUR SOURCES!
-AC_INIT(sig.mli)
+AC_INIT(src/sig.mli)
 
 # Check for Ocaml compilers
 
