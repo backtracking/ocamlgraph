@@ -84,20 +84,17 @@ module Digraph = struct
 
     include I.Digraph.Concrete(V)
 
-    let add_vertex g v = if not (HM.mem v g) then unsafe_add_vertex g v
+    let add_vertex g v = ignore (add_vertex g v)
+    let remove_vertex g v = ignore (remove_vertex g v)
+    let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
+    let remove_edge_e g e = ignore (remove_edge_e g e)
 
     let add_edge g v1 v2 = 
       add_vertex g v1;
       add_vertex g v2;
-      unsafe_add_edge g v1 v2
+      ignore (unsafe_add_edge g v1 v2)
 
     let add_edge_e g (v1, v2) = add_edge g v1 v2
-
-    let remove_vertex g v =
-      if HM.mem v g then begin
-	HM.remove v g;
-	HM.iter (fun k s -> HM.add k (S.remove v s) g) g
-      end
 
     let copy = HM.copy
 
@@ -107,23 +104,27 @@ module Digraph = struct
 
     include I.Digraph.ConcreteBidirectional(V)
 
-    let add_vertex g v = if not (HM.mem v g) then unsafe_add_vertex g v
+    let add_vertex g v = 
+      if not (HM.mem v g) then ignore (unsafe_add_vertex g v)
 
     let add_edge g v1 v2 = 
       add_vertex g v1;
       add_vertex g v2;
-      unsafe_add_edge g v1 v2
+      ignore (unsafe_add_edge g v1 v2)
 
     let add_edge_e g (v1, v2) = add_edge g v1 v2
 
     let remove_vertex g v =
       if HM.mem v g then begin
-	iter_pred_e ( fun e -> remove_edge_e g e ) g v ;
-	iter_succ_e ( fun e -> remove_edge_e g e ) g v ;
-	HM.remove v g
+	iter_pred_e (fun e -> ignore (remove_edge_e g e)) g v;
+	iter_succ_e (fun e -> ignore (remove_edge_e g e)) g v;
+	ignore (HM.remove v g)
       end
 
     let copy = HM.copy
+
+    let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
+    let remove_edge_e g e = ignore (remove_edge_e g e)
 
   end
 
@@ -133,12 +134,14 @@ module Digraph = struct
 
     include I.Digraph.ConcreteLabeled(V)(E)
 
-    let add_vertex g v = if not (HM.mem v g) then unsafe_add_vertex g v
+    let add_vertex g v = ignore (add_vertex g v)
+    let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
+    let remove_edge_e g e = ignore (remove_edge_e g e)
 
     let add_edge_e g (v1, l, v2) = 
       add_vertex g v1;
       add_vertex g v2;
-      unsafe_add_edge g v1 (v2, l)
+      ignore (unsafe_add_edge g v1 (v2, l))
 
     let add_edge g v1 v2 = add_edge_e g (v1, default, v2)
 
@@ -149,8 +152,8 @@ module Digraph = struct
 	    (fun (v2, _ as e) s -> if not (V.equal v v2) then S.add e s else s)
 	    s S.empty
 	in
-	HM.remove v g;
-	HM.iter (fun k s -> HM.add k (remove s) g) g
+	ignore (HM.remove v g);
+	HM.iter (fun k s -> ignore (HM.add k (remove s) g)) g
 
     let copy = HM.copy
 
@@ -160,26 +163,26 @@ module Digraph = struct
     
     include I.Digraph.Abstract(AbstractVertex(V))
 
-    let create () = { edges = create (); size = 0 }
+    let create n = { edges = G.create n; size = 0 }
 
     let add_vertex g v = 
       if not (HM.mem v g.edges) then begin
 	g.size <- Pervasives.succ g.size;
-	unsafe_add_vertex g.edges v
+	ignore (G.unsafe_add_vertex g.edges v)
       end
 
     let add_edge g v1 v2 = 
       add_vertex g v1;
       add_vertex g v2;
-      unsafe_add_edge g.edges v1 v2
+      ignore (unsafe_add_edge g.edges v1 v2)
 
     let add_edge_e g (v1, v2) = add_edge g v1 v2
 
     let remove_vertex g v = 
       if HM.mem v g.edges then
 	let e = g.edges in
-	HM.remove v e;
-	HM.iter (fun k s -> HM.add k (S.remove v s) e) e;
+	ignore (HM.remove v e);
+	HM.iter (fun k s -> ignore (HM.add k (S.remove v s) e)) e;
 	g.size <- Pervasives.pred g.size
 
     module Mark = Make_Mark(struct 
@@ -189,16 +192,19 @@ module Digraph = struct
 			    end)
 
     let copy g =
-      let h = HM.create () in
+      let h = HM.create 997 in
       let vertex v = 
 	try
 	  HM.find v h
 	with Not_found ->
 	  let v' = V.create (V.label v) in
-	  HM.add v v' h;
+	  ignore (HM.add v v' h);
 	  v'
       in
       map_vertex vertex g
+
+    let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
+    let remove_edge_e g e = ignore (remove_edge_e g e)
 
   end
 
@@ -206,18 +212,18 @@ module Digraph = struct
     
     include I.Digraph.AbstractLabeled(AbstractVertex(V))(Edge)
 
-    let create () = { edges = create (); size = 0 }
+    let create n = { edges = G.create n; size = 0 }
 
     let add_vertex g v = 
       if not (HM.mem v g.edges) then begin
 	g.size <- Pervasives.succ g.size;
-	unsafe_add_vertex g.edges v
+	ignore (G.unsafe_add_vertex g.edges v)
       end
 
     let add_edge_e g (v1, l, v2) =
       add_vertex g v1;
       add_vertex g v2;
-      unsafe_add_edge g.edges v1 (v2, l)
+      ignore (unsafe_add_edge g.edges v1 (v2, l))
 
     let add_edge g v1 v2 = add_edge_e g (v1, Edge.default, v2)
 
@@ -229,8 +235,8 @@ module Digraph = struct
 	    s S.empty
 	in
 	let e = g.edges in
-	HM.remove v e;
-	HM.iter (fun k s -> HM.add k (remove s) e) e;
+	ignore (HM.remove v e);
+	HM.iter (fun k s -> ignore (HM.add k (remove s) e)) e;
 	g.size <- Pervasives.pred g.size
 
     module Mark = Make_Mark(struct 
@@ -240,16 +246,19 @@ module Digraph = struct
 			    end)
 
     let copy g =
-      let h = HM.create () in
+      let h = HM.create 997 in
       let vertex v = 
 	try
 	  HM.find v h
 	with Not_found ->
 	  let v' = V.create (V.label v) in
-	  HM.add v v' h;
+	  ignore (HM.add v v' h);
 	  v'
       in
       map_vertex vertex g
+
+    let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
+    let remove_edge_e g e = ignore (remove_edge_e g e)
 
   end
 
@@ -275,14 +284,14 @@ module Graph = struct
     let add_edge g v1 v2 = 
       G.add_edge g v1 v2;
       assert (G.HM.mem v1 g && G.HM.mem v2 g);
-      G.unsafe_add_edge g v2 v1
+      ignore (G.unsafe_add_edge g v2 v1)
 
     let add_edge_e g (v1, v2) = add_edge g v1 v2
 
     let remove_edge g v1 v2 =
       G.remove_edge g v1 v2;
       assert (G.HM.mem v1 g && G.HM.mem v2 g);
-      G.unsafe_remove_edge g v2 v1
+      ignore (G.unsafe_remove_edge g v2 v1)
 
     let remove_edge_e g (v1, v2) = remove_edge g v1 v2
 
@@ -306,19 +315,19 @@ module Graph = struct
     let add_edge_e g (v1, l, v2 as e) =
       G.add_edge_e g e;
       assert (G.HM.mem v1 g && G.HM.mem v2 g);
-      G.unsafe_add_edge g v2 (v1, l)
+      ignore (G.unsafe_add_edge g v2 (v1, l))
 
     let add_edge g v1 v2 = add_edge_e g (v1, G.default, v2)
 
     let remove_edge g v1 v2 =
       G.remove_edge g v1 v2;
       assert (G.HM.mem v1 g && G.HM.mem v2 g);
-      G.unsafe_remove_edge g v2 v1
+      ignore (G.unsafe_remove_edge g v2 v1)
 
     let remove_edge_e g (v1, l, v2 as e) =
       G.remove_edge_e g e;
       assert (G.HM.mem v1 g && G.HM.mem v2 g);
-      G.unsafe_remove_edge_e g (v2, l, v1)
+      ignore (G.unsafe_remove_edge_e g (v2, l, v1))
 
   end
 
@@ -341,14 +350,14 @@ module Graph = struct
     let add_edge g v1 v2 = 
       G.add_edge g v1 v2;
       assert (G.HM.mem v1 g.G.edges && G.HM.mem v2 g.G.edges);
-      G.unsafe_add_edge g.G.edges v2 v1
+      ignore (G.unsafe_add_edge g.G.edges v2 v1)
 
     let add_edge_e g (v1, v2) = add_edge g v1 v2
 
     let remove_edge g v1 v2 =
       G.remove_edge g v1 v2;
       assert (G.HM.mem v1 g.G.edges && G.HM.mem v2 g.G.edges);
-      G.unsafe_remove_edge g.G.edges v2 v1
+      ignore (G.unsafe_remove_edge g.G.edges v2 v1)
 
     let remove_edge_e g (v1, v2) = remove_edge g v1 v2
 
@@ -373,19 +382,19 @@ module Graph = struct
     let add_edge_e g (v1, l, v2 as e) = 
       G.add_edge_e g e;
       assert (G.HM.mem v1 g.G.edges && G.HM.mem v2 g.G.edges);
-      G.unsafe_add_edge g.G.edges v2 (v1, l)
+      ignore (G.unsafe_add_edge g.G.edges v2 (v1, l))
 
     let add_edge g v1 v2 = add_edge_e g (v1, Edge.default, v2)
 
     let remove_edge g v1 v2 =
       G.remove_edge g v1 v2;
       assert (G.HM.mem v1 g.G.edges && G.HM.mem v2 g.G.edges);
-      G.unsafe_remove_edge g.G.edges v2 v1
+      ignore (G.unsafe_remove_edge g.G.edges v2 v1)
 
     let remove_edge_e g (v1, l, v2 as e) =
-      G.remove_edge_e g e;
+      ignore (G.remove_edge_e g e);
       assert (G.HM.mem v1 g.G.edges && G.HM.mem v2 g.G.edges);
-      G.unsafe_remove_edge_e g.G.edges (v2, l, v1)
+      ignore (G.unsafe_remove_edge_e g.G.edges (v2, l, v1))
 
   end
 
@@ -426,7 +435,7 @@ module Matrix = struct
     type vertex = V.t
     type edge = E.t
 
-    let create () = 
+    let create _ = 
       failwith "do not use Matrix.create; please use Matrix.make instead"
 		      
     let make n =
@@ -587,13 +596,13 @@ module Matrix = struct
 
     let add_edge g v1 v2 = 
       G.add_edge g v1 v2;
-      G.unsafe_add_edge g v2 v1
+      ignore (G.unsafe_add_edge g v2 v1)
 
     let add_edge_e g (v1, v2) = add_edge g v1 v2
 
     let remove_edge g v1 v2 =
       G.remove_edge g v1 v2;
-      G.unsafe_remove_edge g v2 v1
+      ignore (G.unsafe_remove_edge g v2 v1)
 
     let remove_edge_e g (v1, v2) = remove_edge g v1 v2
 

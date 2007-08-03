@@ -32,15 +32,14 @@ let cpt_vertex = ref min_int
 (** Common signature to an imperative/persistent association table *)
 module type HM = sig
   type 'a return
-    (** Type returned by setters. *)
-
   type 'a t
   type key
-  val create : unit -> 'a t
+  val create : int -> 'a t
+  val create_from : 'a t -> 'a t
   val empty : 'a return
   val is_empty : 'a t -> bool
-  val add : key -> 'a -> 'a t -> 'a return
-  val remove : key -> 'a t -> 'a return
+  val add : key -> 'a -> 'a t -> 'a t
+  val remove : key -> 'a t -> 'a t
   val mem : key -> 'a t -> bool
   val find : key -> 'a t -> 'a
   val find_and_raise : key -> 'a t -> string -> 'a
@@ -59,32 +58,27 @@ module type TBL_BUILDER = functor(X: COMPARABLE) -> HM with type key = X.t
 module Make_Hashtbl(X: COMPARABLE) = struct
 
   include Hashtbl.Make(X)
-  type 'a return = unit
 
+  type 'a return = unit
   let empty = ()
     (* never call and not visible for the user thank's to signature 
        constraints *)
 
-  let create () = create 997
+  let create_from h = create (length h)
 
-  let is_empty h =
-    try
-      iter (fun _ -> raise Exit) h;
-      true
-    with Exit ->
-      false
+  let is_empty h = (length h = 0)
 
-  let add k v h = replace h k v
-  let remove k h = remove h k
-  let mem k h = mem h k
-  let find k h = find h k
-
-  let find_and_raise k h s = try find k h with Not_found -> invalid_arg s
+  let find_and_raise k h s = try find h k with Not_found -> invalid_arg s
 
   let map f h = 
-    let h' = create ()  in
-    iter (fun k v -> let k, v = f k v in add k v h') h;
+    let h' = create_from h  in
+    iter (fun k v -> let k, v = f k v in add h' k v) h;
     h'
+
+  let add k v h = replace h k v; h
+  let remove k h = remove h k; h
+  let mem k h = mem h k
+  let find k h = find h k
 
 end
 
@@ -93,9 +87,10 @@ module Make_Map(X: COMPARABLE) = struct
   include Map.Make(X)
   type 'a return = 'a t
   let is_empty m = (m = empty)
-  let create () = assert false
+  let create _ = assert false
     (* never call and not visible for the user thank's to 
        signature constraints *)
+  let create_from _ = empty
   let copy m = m
   let map f m = fold (fun k v m -> let k, v = f k v in add k v m) m empty
   let find_and_raise k h s = try find k h with Not_found -> invalid_arg s
@@ -124,6 +119,8 @@ module Minimal(S: Set.S)(HM: HM) = struct
 
   let unsafe_add_vertex g v = HM.add v S.empty g
   let unsafe_add_edge g v1 v2 = HM.add v1 (S.add v2 (HM.find v1 g)) g
+
+  let add_vertex g v = if HM.mem v g then g else unsafe_add_vertex g v
 
   let iter_vertex f = HM.iter (fun v _ -> f v)
   let fold_vertex f = HM.fold (fun v _ -> f v)
@@ -470,14 +467,14 @@ module Make_Abstract
      module HM: HM
      module S: Set.S
      include G with type t = S.t HM.t and type V.t = HM.key
-     val remove_edge: t -> vertex -> vertex -> S.t HM.return
-     val remove_edge_e: t -> edge -> S.t HM.return
-     val unsafe_add_vertex: t -> vertex -> S.t HM.return
-     val unsafe_add_edge: t -> vertex -> S.elt -> S.t HM.return
-     val unsafe_remove_edge: t -> vertex -> vertex -> S.t HM.return
-     val unsafe_remove_edge_e: t -> edge -> S.t HM.return
+     val remove_edge: t -> vertex -> vertex -> t
+     val remove_edge_e: t -> edge -> t
+     val unsafe_add_vertex: t -> vertex -> t
+     val unsafe_add_edge: t -> vertex -> S.elt -> t
+     val unsafe_remove_edge: t -> vertex -> vertex -> t
+     val unsafe_remove_edge_e: t -> edge -> t
      val empty: S.t HM.return
-     val create: unit -> t
+     val create: int -> t
    end) = 
 struct
 
@@ -516,13 +513,11 @@ struct
   module HM = G.HM
   module S = G.S
 
-  let unsafe_add_vertex = G.unsafe_add_vertex
   let unsafe_add_edge = G.unsafe_add_edge
   let unsafe_remove_edge = G.unsafe_remove_edge
   let unsafe_remove_edge_e = G.unsafe_remove_edge_e
   let is_directed = G.is_directed
-  let empty = G.empty
-  let create = G.create
+
   let remove_edge g = G.remove_edge g.edges
   let remove_edge_e g = G.remove_edge_e g.edges
 
@@ -557,6 +552,24 @@ module Make(F : TBL_BUILDER) = struct
       include ConcreteVertex(F)(V)
       include Unlabeled(V)(HM)
       include Minimal(S)(HM)
+
+      let add_edge g v1 v2 = 
+	let g = add_vertex g v1 in
+	let g = add_vertex g v2 in
+	unsafe_add_edge g v1 v2
+
+      let add_edge_e g (v1, v2) = add_edge g v1 v2
+
+      let remove_vertex g v =
+	if HM.mem v g then
+	  let g = HM.remove v g in
+	  HM.fold 
+	    (fun k s g -> HM.add k (S.remove v s) g) 
+	    g 
+	    (HM.create_from g)
+	else
+	  g
+
     end
 
     module ConcreteBidirectional(V: COMPARABLE) = struct

@@ -13,6 +13,8 @@ Vers la v1.0:
 
 * Améliorer factorisation de l'implantation des structures de données
 	==> [JS 4 août:] en cours
+	. En reprenant le principe du builder, on peut factoriser les setters
+		==> commencer (c'est effectivement possible, en partie)
 
 * Mieux architecturer les algos
 

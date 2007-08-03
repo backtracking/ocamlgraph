@@ -1,4 +1,7 @@
 
+ ° Sig.I.create and Sig_pack.create are now of type int -> t 
+   (instead of unit -> t)
+
 version 0.99, June 27th, 2007
 -----------------------------
  o experimental: GTK-based graph editor based on hyperbolic geometry;

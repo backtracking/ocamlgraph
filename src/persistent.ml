@@ -65,33 +65,11 @@ end
 
 module Digraph = struct
 
-  module Concrete (V: COMPARABLE) = struct
-
-    include P.Digraph.Concrete(V)
-
-    let add_vertex g v = if HM.mem v g then g else unsafe_add_vertex g v
-
-    let add_edge g v1 v2 = 
-      let g = add_vertex g v1 in
-      let g = add_vertex g v2 in
-      unsafe_add_edge g v1 v2
-
-    let add_edge_e g (v1, v2) = add_edge g v1 v2
-
-    let remove_vertex g v =
-      if HM.mem v g then
-	let g = HM.remove v g in
-	HM.fold (fun k s g -> HM.add k (S.remove v s) g) g HM.empty
-      else
-	g
-
-  end
+  module Concrete = P.Digraph.Concrete
 
   module ConcreteLabeled(V: COMPARABLE)(Edge: ORDERED_TYPE_DFT) = struct
 
     include P.Digraph.ConcreteLabeled(V)(Edge)
-
-    let add_vertex g v = if HM.mem v g then g else unsafe_add_vertex g v
 
     let add_edge_e g (v1, l, v2) = 
       let g = add_vertex g v1 in
@@ -118,18 +96,19 @@ module Digraph = struct
 
     include P.Digraph.Abstract(AbstractVertex(V))
 
-    let empty = { edges = empty; size = 0 }
+    let empty = { edges = G.empty; size = 0 }
 
     let add_vertex g v = 
-      if HM.mem v g.edges then 
+      if mem_vertex g v then 
 	g 
       else
-	{ edges = unsafe_add_vertex g.edges v; size = Pervasives.succ g.size }
+	{ edges = G.unsafe_add_vertex g.edges v; 
+	  size = Pervasives.succ g.size }
 
     let add_edge g v1 v2 = 
       let g = add_vertex g v1 in
       let g = add_vertex g v2 in
-      { g with edges = unsafe_add_edge g.edges v1 v2 }
+      { g with edges = G.unsafe_add_edge g.edges v1 v2 }
 
     let add_edge_e g (v1, v2) = add_edge g v1 v2
 
@@ -150,18 +129,19 @@ module Digraph = struct
 
     include P.Digraph.AbstractLabeled(AbstractVertex(V))(Edge)
 
-    let empty = { edges = empty; size = 0 }
+    let empty = { edges = G.empty; size = 0 }
 
     let add_vertex g v = 
-      if HM.mem v g.edges then 
+      if mem_vertex g v then 
 	g 
       else
-	{ edges = unsafe_add_vertex g.edges v; size = Pervasives.succ g.size }
+	{ edges = G.unsafe_add_vertex g.edges v; 
+	  size = Pervasives.succ g.size }
 
     let add_edge_e g (v1, l, v2) = 
       let g = add_vertex g v1 in
       let g = add_vertex g v2 in
-      { g with edges = unsafe_add_edge g.edges v1 (v2, l) }
+      { g with edges = G.unsafe_add_edge g.edges v1 (v2, l) }
 
     let add_edge g v1 v2 = add_edge_e g (v1, Edge.default, v2)
 

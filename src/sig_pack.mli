@@ -76,7 +76,7 @@ module type S = sig
 
   (** {2 Graph constructors and destructors} *)
 
-  val create : unit -> t
+  val create : int -> t
     (** Return an empty graph. *)
 
   val copy : t -> t

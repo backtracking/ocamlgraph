@@ -19,7 +19,7 @@
 
 (** Signatures for graph implementations *)
 
-(** {1 Signatures for graph implementations} *)
+(** {2 Signatures for graph implementations} *)
 
 (** Interface for vertices *)
 
@@ -224,8 +224,10 @@ end
 module type I = sig
   include G
 
-  val create : unit -> t
-    (** Return an empty graph. *)
+  val create : int -> t
+    (** [create n] returns an empty graph. For best results, [n] should be on
+	the order of the expected number of vertices that will be in the
+	graph. The graph grows as needed, so [n] is just an initial guess. *)
 
   val copy : t -> t
     (** [copy g] returns a copy of [g]. Vertices and edges (and eventually
@@ -282,7 +284,7 @@ module type IM = sig
   module Mark : MARK with type graph = t and type vertex = vertex
 end
 
-(** {1 Signature for ordered and hashable types} *)
+(** {2 Signature for ordered and hashable types} *)
 
 module type ANY_TYPE = sig type t end
 
