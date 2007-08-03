@@ -1,18 +1,31 @@
 $Id: TODO,v 1.14 2004-10-22 14:42:06 signoles Exp $
 
+* résoudre le shift/reduce conflict de dot_parser.mly
+
 Vers la v1.0:
 =============
 
 * Parcours commençant à partir d'un certain noeud (suggestion F. Derepas)
+
 * Plus de commentaires dans les interfaces
+
 * Meilleures documentations "externes" (page web, FAQ, ...)
-* Améliorer factorisation per_imp, imperative, persistent (?)
+
+* Améliorer factorisation de l'implantation des structures de données
+	==> [JS 4 août:] en cours
+
 * Mieux architecturer les algos
+
 * Marques génériques (plutôt que int) (?)
+
 * Marques persistantes pour les graphes persistants ?
+
 * Foncteurs pour des sommets non étiquetés ?
+
 * Généralisés les graphes bidirectionnels
+
 * Marshalling
+
 * Que faire des modules spéciaux ? (Minsep, Strat, ...)
 
 * Appel à contributions / Features request (au moins partiel)

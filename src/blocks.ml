@@ -17,7 +17,7 @@
 
 (* $Id: per_imp.ml,v 1.32 2006-02-03 09:27:29 filliatr Exp $ *)
 
-(* Common implementation to persistent and imperative graphs. *)
+(** Common implementation to persistent and imperative graphs. *)
 
 open Sig
 open Util
@@ -25,9 +25,15 @@ open Util
 let cpt_vertex = ref min_int
   (* global counter for abstract vertex *)
 
-(* Common signature to an imperative/persistent association table *)
+(* ************************************************************************* *)
+(** {2 Association table builder} *)
+(* ************************************************************************* *)
+
+(** Common signature to an imperative/persistent association table *)
 module type HM = sig
   type 'a return
+    (** Type returned by setters. *)
+
   type 'a t
   type key
   val create : unit -> 'a t
@@ -38,7 +44,7 @@ module type HM = sig
   val mem : key -> 'a t -> bool
   val find : key -> 'a t -> 'a
   val find_and_raise : key -> 'a t -> string -> 'a
-    (* [find_and_raise k t s] is equivalent to [find k t] but
+    (** [find_and_raise k t s] is equivalent to [find k t] but
        raises [Invalid_argument s] when [find k t] raises [Not_found] *)
 
   val iter : (key -> 'a -> unit) -> 'a t -> unit
@@ -47,7 +53,9 @@ module type HM = sig
   val copy : 'a t -> 'a t
 end
 
-(* [HM] implementation using hashtbl. *)
+module type TBL_BUILDER = functor(X: COMPARABLE) -> HM with type key = X.t
+
+(** [HM] implementation using hashtbl. *)
 module Make_Hashtbl(X: COMPARABLE) = struct
 
   include Hashtbl.Make(X)
@@ -80,7 +88,7 @@ module Make_Hashtbl(X: COMPARABLE) = struct
 
 end
 
-(* [HM] implementation using map *)
+(** [HM] implementation using map *)
 module Make_Map(X: COMPARABLE) = struct
   include Map.Make(X)
   type 'a return = 'a t
@@ -93,7 +101,11 @@ module Make_Map(X: COMPARABLE) = struct
   let find_and_raise k h s = try find k h with Not_found -> invalid_arg s
 end
 
-(* Common implementation to all (directed) graph implementations. *)
+(* ************************************************************************* *)
+(** {2 Blocks builder} *)
+(* ************************************************************************* *)
+
+(** Common implementation to all (directed) graph implementations. *)
 module Minimal(S: Set.S)(HM: HM) = struct
 
   type vertex = HM.key
@@ -118,7 +130,7 @@ module Minimal(S: Set.S)(HM: HM) = struct
     
 end
 
-(* All the predecessor operations from the iterators on the edges *)
+(** All the predecessor operations from the iterators on the edges *)
 module Pred(S: sig
 	      module PV: COMPARABLE
 	      module PE: EDGE with type vertex = PV.t
@@ -159,7 +171,7 @@ struct
 
 end
 
-(* Common implementation to all the unlabeled (directed) graphs. *)
+(** Common implementation to all the unlabeled (directed) graphs. *)
 module Unlabeled(V: COMPARABLE)(HM: HM with type key = V.t) = struct
   
   module S = Set.Make(V)
@@ -222,7 +234,7 @@ module Unlabeled(V: COMPARABLE)(HM: HM with type key = V.t) = struct
 
 end
 
-(* Common implementation to all the labeled (directed) graphs. *)
+(** Common implementation to all the labeled (directed) graphs. *)
 module Labeled(V: COMPARABLE)(E: ORDERED_TYPE)(HM: HM with type key = V.t) = 
 struct
 
@@ -320,11 +332,8 @@ struct
 
 end
 
-(* The vertex module and the vertex table for the concrete graphs. *)
-module ConcreteVertex
-  (F : functor(X: COMPARABLE) -> HM with type key = X.t)
-  (V: COMPARABLE) = 
-struct
+(** The vertex module and the vertex table for the concrete graphs. *)
+module ConcreteVertex(F : TBL_BUILDER)(V: COMPARABLE) = struct
 
   module V = struct
     include V
@@ -456,27 +465,29 @@ struct
   let pred_e g v = fold_pred_e (fun e l -> e :: l) g v []   
 end
 
-(* Abstract [G]. *)
-(* JS: factorisation de remove_edge impossible due à un bug caml;
-   laisser le code en commentaire en attendant un fix *)
-(*
-module Make_Abstract(G: sig 
-		       type return 
-		       include Graph.S
-		       val remove_edge : t -> V.t -> V.t -> return
-		       val remove_edge_e : t -> E.t -> return
-		     end) = 
+module Make_Abstract
+  (G: sig
+     module HM: HM
+     module S: Set.S
+     include G with type t = S.t HM.t and type V.t = HM.key
+     val remove_edge: t -> vertex -> vertex -> S.t HM.return
+     val remove_edge_e: t -> edge -> S.t HM.return
+     val unsafe_add_vertex: t -> vertex -> S.t HM.return
+     val unsafe_add_edge: t -> vertex -> S.elt -> S.t HM.return
+     val unsafe_remove_edge: t -> vertex -> vertex -> S.t HM.return
+     val unsafe_remove_edge_e: t -> edge -> S.t HM.return
+     val empty: S.t HM.return
+     val create: unit -> t
+   end) = 
 struct
-*)
-module Make_Abstract(G: Sig.G) = struct
 
   module I = struct
     type t = { edges : G.t; mutable size : int }
 	(* BE CAREFUL: [size] is only mutable in the imperative version.
-	   As there is no extensible records in ocaml 3.07,
-	   and for genericity reasons, [size] is mutable in both the
+	   As there is no extensible records in current ocaml version,
+	   and for genericity purpose, [size] is mutable in both the
 	   imperative and persistent implementation.
-	   Do not modify size in the persistent implementation ! *)
+	   Do not modify size in the persistent implementation! *)
 
     type vertex = G.vertex
     type edge = G.edge
@@ -500,6 +511,20 @@ module Make_Abstract(G: Sig.G) = struct
   let nb_vertex g = g.size
 
   (* redefinitions *)
+  module V = G.V
+  module E = G.E
+  module HM = G.HM
+  module S = G.S
+
+  let unsafe_add_vertex = G.unsafe_add_vertex
+  let unsafe_add_edge = G.unsafe_add_edge
+  let unsafe_remove_edge = G.unsafe_remove_edge
+  let unsafe_remove_edge_e = G.unsafe_remove_edge_e
+  let is_directed = G.is_directed
+  let empty = G.empty
+  let create = G.create
+  let remove_edge g = G.remove_edge g.edges
+  let remove_edge_e g = G.remove_edge_e g.edges
 
   let out_degree g = G.out_degree g.edges
   let in_degree g = G.in_degree g.edges
@@ -511,12 +536,6 @@ module Make_Abstract(G: Sig.G) = struct
   let mem_edge_e g = G.mem_edge_e g.edges
   let find_edge g = G.find_edge g.edges
 
-(* JS: factorisation de remove_edge impossible due à un bug caml;
-   laisser le code en commentaire en attendant un fix *)
-(*
-  let remove_edge g = G.remove_edge g.edges
-  let remove_edge_e g = G.remove_edge_e g.edges
-*)
   let iter_vertex f g = G.iter_vertex f g.edges
   let fold_vertex f g = G.fold_vertex f g.edges
   let iter_succ f g = G.iter_succ f g.edges
@@ -528,18 +547,16 @@ module Make_Abstract(G: Sig.G) = struct
 
 end
 
-(* Build persistent (resp. imperative) graphs from a persistent (resp. 
-   imperative) association table *)
-module Make(F : functor(X: COMPARABLE) -> HM with type key = X.t) = struct
+(** Build persistent (resp. imperative) graphs from a persistent (resp. 
+    imperative) association table *)
+module Make(F : TBL_BUILDER) = struct
 
   module Digraph = struct
 
     module Concrete(V: COMPARABLE) = struct
-
       include ConcreteVertex(F)(V)
       include Unlabeled(V)(HM)
       include Minimal(S)(HM)
-
     end
 
     module ConcreteBidirectional(V: COMPARABLE) = struct
@@ -549,101 +566,44 @@ module Make(F : functor(X: COMPARABLE) -> HM with type key = X.t) = struct
     end
 
     module ConcreteLabeled(V: COMPARABLE)(E: ORDERED_TYPE_DFT) = struct
-
-      let default = E.default
-
       include ConcreteVertex(F)(V)
       include Labeled(V)(E)(HM)
       include Minimal(S)(HM)
-
     end
 
     module Abstract(V: VERTEX) = struct
-
       module G = struct
 	module V = V
 	module HM = F(V)
 	include Unlabeled(V)(HM) 
 	include Minimal(S)(HM)
       end
-
-      (* export some definitions of G *)
-      module V = G.V
-      module E = G.E
-      module HM = G.HM
-      module S = G.S
-      let unsafe_add_vertex = G.unsafe_add_vertex
-      let unsafe_add_edge = G.unsafe_add_edge
-      let unsafe_remove_edge = G.unsafe_remove_edge
-      let unsafe_remove_edge_e = G.unsafe_remove_edge_e
-      let is_directed = G.is_directed
-      let empty = G.empty
-      let create = G.create
-
-(* JS: factorisation de remove_edge impossible due à un bug caml;
-   laisser le code en commentaire en attendant un fix *)
-(*      
-      include Make_Abstract(struct type return = S.t HM.return include G end)
-*)
       include Make_Abstract(G)
-
-      (* JS: 
-	 2 lignes suivantes à supprimer quand la factorisation sera possible *)
-      let remove_edge g = G.remove_edge g.edges
-      let remove_edge_e g = G.remove_edge_e g.edges
-
     end
 
     module AbstractLabeled(V: VERTEX)(E: ORDERED_TYPE_DFT) = struct
-
-      let default = E.default
-
       module G = struct
 	module V = V
 	module HM = F(V)
 	include Labeled(V)(E)(HM) 
 	include Minimal(S)(HM)
       end
-
-      (* export some definitions of G *)
-      module V = G.V
-      module E = G.E
-      module HM = G.HM
-      module S = G.S
-      let unsafe_add_vertex = G.unsafe_add_vertex
-      let unsafe_add_edge = G.unsafe_add_edge
-      let unsafe_remove_edge = G.unsafe_remove_edge
-      let unsafe_remove_edge_e = G.unsafe_remove_edge_e
-      let is_directed = G.is_directed
-      let empty = G.empty
-      let create = G.create
-
-(* JS: factorisation de remove_edge impossible due à un bug caml;
-   laisser le code en commentaire en attendant un fix *)
-(*      
-      include Make_Abstract(struct type return = S.t HM.return include G end)
-*)
       include Make_Abstract(G)
-      (* JS: 
-	 2 lignes suivantes à supprimer quand la factorisation sera possible *)
-      let remove_edge g = G.remove_edge g.edges
-      let remove_edge_e g = G.remove_edge_e g.edges
-
     end
 
   end
 
 end
 
-(* Implementation of undirected graphs from implementation of directed graphs.
- *)
+(** Implementation of undirected graphs from implementation of directed
+    graphs. *)
 module Graph(G: Sig.G) = struct
 
   include G
 
   let is_directed = false
 
-  (* Optimise the edges iterators. *)
+  (* Redefine iterators and [nb_edges]. *)
 
   let iter_edges f =
     iter_edges (fun v1 v2 -> if V.compare v1 v2 >= 0 then f v1 v2)
@@ -660,8 +620,6 @@ module Graph(G: Sig.G) = struct
     fold_edges_e
       (fun e acc -> 
 	 if V.compare (E.src e) (E.dst e) >= 0 then f e acc else acc)
-
-  (* Redefine [nb_edges] *)
 
   let nb_edges g = fold_edges_e (fun _ -> (+) 1) g 0
 

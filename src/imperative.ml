@@ -64,15 +64,11 @@ end
 module AbstractVertex(V: sig type t end) = struct
 
   type label = V.t
-
   type t = label abstract_vertex
 
   let compare x y = compare x.tag y.tag 
-
   let hash x = Hashtbl.hash x.tag
-
   let equal x y = x.tag = y.tag
-
   let label x = x.label
 
   let create l = 
@@ -87,10 +83,6 @@ module Digraph = struct
   module Concrete (V: COMPARABLE) = struct
 
     include I.Digraph.Concrete(V)
-
-    type it = t
-    type iv = V.t
-    type ie = E.t
 
     let add_vertex g v = if not (HM.mem v g) then unsafe_add_vertex g v
 
@@ -114,10 +106,6 @@ module Digraph = struct
   module ConcreteBidirectional (V: COMPARABLE) = struct
 
     include I.Digraph.ConcreteBidirectional(V)
-
-    type it = t
-    type iv = V.t
-    type ie = E.t
 
     let add_vertex g v = if not (HM.mem v g) then unsafe_add_vertex g v
 
@@ -145,10 +133,6 @@ module Digraph = struct
 
     include I.Digraph.ConcreteLabeled(V)(E)
 
-    type it = t
-    type iv = V.t
-    type ie = E.t
-
     let add_vertex g v = if not (HM.mem v g) then unsafe_add_vertex g v
 
     let add_edge_e g (v1, l, v2) = 
@@ -175,10 +159,6 @@ module Digraph = struct
   module Abstract(V: sig type t end) = struct
     
     include I.Digraph.Abstract(AbstractVertex(V))
-
-    type it = t
-    type iv = V.t
-    type ie = E.t
 
     let create () = { edges = create (); size = 0 }
 
@@ -222,13 +202,9 @@ module Digraph = struct
 
   end
 
-  module AbstractLabeled(V: sig type t end)(E: ORDERED_TYPE_DFT) = struct
+  module AbstractLabeled(V: sig type t end)(Edge: ORDERED_TYPE_DFT) = struct
     
-    include I.Digraph.AbstractLabeled(AbstractVertex(V))(E)
-
-    type it = t
-    type iv = V.t
-    type ie = E.t
+    include I.Digraph.AbstractLabeled(AbstractVertex(V))(Edge)
 
     let create () = { edges = create (); size = 0 }
 
@@ -243,7 +219,7 @@ module Digraph = struct
       add_vertex g v2;
       unsafe_add_edge g.edges v1 (v2, l)
 
-    let add_edge g v1 v2 = add_edge_e g (v1, default, v2)
+    let add_edge g v1 v2 = add_edge_e g (v1, Edge.default, v2)
 
     let remove_vertex g v =
       if HM.mem v g.edges then
@@ -378,9 +354,9 @@ module Graph = struct
 
   end
 
-  module AbstractLabeled (V: sig type t end)(E: ORDERED_TYPE_DFT) = struct
+  module AbstractLabeled (V: sig type t end)(Edge: ORDERED_TYPE_DFT) = struct
 
-    module G = Digraph.AbstractLabeled(V)(E)
+    module G = Digraph.AbstractLabeled(V)(Edge)
 
     include Graph(G)
 
@@ -399,7 +375,7 @@ module Graph = struct
       assert (G.HM.mem v1 g.G.edges && G.HM.mem v2 g.G.edges);
       G.unsafe_add_edge g.G.edges v2 (v1, l)
 
-    let add_edge g v1 v2 = add_edge_e g (v1, G.default, v2)
+    let add_edge g v1 v2 = add_edge_e g (v1, Edge.default, v2)
 
     let remove_edge g v1 v2 =
       G.remove_edge g v1 v2;
