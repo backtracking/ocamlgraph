@@ -5,6 +5,9 @@ $Id: TODO,v 1.14 2004-10-22 14:42:06 signoles Exp $
 Vers la v1.0:
 =============
 
+* Le type de "default" dans ORDERED_TYPE_DFT devrait plutôt être unit -> E.label
+  (suggestion B. Monate)
+
 * Parcours commençant à partir d'un certain noeud (suggestion F. Derepas)
 
 * Plus de commentaires dans les interfaces
