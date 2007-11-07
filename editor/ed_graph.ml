@@ -290,7 +290,7 @@ let update_vertex vertex event =
 	  | Focused, Select -> edge_info.edge_mode <- Selected_Focused
 	  | Focused, Unfocus -> edge_info.edge_mode <- Normal
 	  | Focused, _ -> ()
-	  | Selected_Focused, Unselect -> if not(is_selected dest_vertex) then edge_info.edge_mode <- Focused
+	  | Selected_Focused, Unselect -> if not(is_selected dest_vertex) then edge_info.edge_mode <- Focused; decr nb_selected
 	  | Selected_Focused, Unfocus -> edge_info.edge_mode <- Selected
 	  | Selected_Focused, _ -> ()
 	end;		   

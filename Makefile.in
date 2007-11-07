@@ -73,7 +73,7 @@ CMX = $(CMO:.cmo=.cmx)
 CMA = graph.cma
 CMXA = graph.cmxa
 
-CMI = sig sig_pack
+CMI = sig dot_ast sig_pack
 CMI := $(patsubst %, src/%.cmi, $(CMI))
 
 GENERATED = META \
@@ -224,7 +224,7 @@ DOCFILES=$(NAME).ps $(NAME).html
 NODOC	= util blocks dot_parser dot_lexer
 NODOC	:= $(patsubst %, $(SRCDIR)/%.cmo, $(NODOC))
 DOC_CMO	= $(filter-out $(NODOC) $(LIB), $(CMO))
-DOC_SRC	= src/sig.mli src/sig_pack.mli $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
+DOC_SRC	= $(CMI) $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
 
 .PHONY: doc
 doc: $(DOC_CMO)
