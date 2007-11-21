@@ -224,14 +224,16 @@ end
 module type I = sig
   include G
 
-  val create : int -> t
-    (** [create n] returns an empty graph. For best results, [n] should be on
-	the order of the expected number of vertices that will be in the
-	graph. The graph grows as needed, so [n] is just an initial guess. *)
+  val create : ?size:int -> unit -> t
+    (** [create ()] returns an empty graph. Optionally, a size can be
+        given, which should be on the order of the expected number of
+        vertices that will be in the graph (for hash tables-based
+        implementations).  The graph grows as needed, so [size] is
+        just an initial guess. *)
 
   val copy : t -> t
     (** [copy g] returns a copy of [g]. Vertices and edges (and eventually
-      marks, see module [Mark]) are duplicated. *)
+	marks, see module [Mark]) are duplicated. *)
 
   val add_vertex : t -> vertex -> unit
     (** [add_vertex g v] adds the vertex [v] from the graph [g].

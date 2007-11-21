@@ -44,7 +44,7 @@ OBJEXT = @OBJEXT@
 SRCDIR	= src
 LIBDIR	= lib
 
-INCLUDES= -I $(SRCDIR) -I $(LIBDIR)
+INCLUDES= -I $(SRCDIR) -I $(LIBDIR) 
 BFLAGS = $(INCLUDES)
 OFLAGS = $(INCLUDES) @FORPACK@
 
@@ -95,6 +95,13 @@ graph.cmo: $(CMI) $(CMO)
 graph.cmx: $(CMI) $(CMX)
 	$(OCAMLOPT) -pack -o $@ $^
 
+EXAMPLES=bin/demo.$(OCAMLBEST) bin/demo_planar.$(OCAMLBEST) \
+  bin/bench.$(OCAMLBEST) bin/color.$(OCAMLBEST) bin/sudoku.$(OCAMLBEST) \
+  bin/test.$(OCAMLBEST) 
+
+.PHONY: examples
+examples: $(EXAMPLES)
+
 .PHONY: demo
 demo: bin/demo.$(OCAMLBEST)
 
@@ -131,17 +138,8 @@ bin/test.byte: $(CMA) tests/test.cmo
 bin/test.opt: $(CMXA) tests/test.cmx
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa graphics.cmxa $^
 
-bin/test_rand.opt: $(CMXA) time.ml test_rand.ml
-	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa $^
-
-bin/test_strat.opt: $(CMXA) tests/strat.ml
-	$(OCAMLOPT) -unsafe -inline 100 -o $@ $^
-
-bin/test_dot.opt: $(CMXA) tests/dot.ml
-	$(OCAMLOPT) -unsafe -inline 100 -o $@ $^
-
 bench: bin/bench.$(OCAMLBEST)
-	./bench.opt
+	bin/bench.opt
 
 bin/bench.opt: $(CMXA) tests/bench.ml
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa $^
@@ -224,7 +222,7 @@ DOCFILES=$(NAME).ps $(NAME).html
 NODOC	= util blocks dot_parser dot_lexer
 NODOC	:= $(patsubst %, $(SRCDIR)/%.cmo, $(NODOC))
 DOC_CMO	= $(filter-out $(NODOC) $(LIB), $(CMO))
-DOC_SRC	= $(CMI) $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
+DOC_SRC	= $(CMI:.cmi=.mli) $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
 
 .PHONY: doc
 doc: $(DOC_CMO)
@@ -257,9 +255,10 @@ TAR=$(EXPORTDIR).tar
 FTP = $$HOME/ftp/$(NAME)
 WWW = $$HOME/WWW/$(NAME)
 
-FILES = *.ml* Makefile.in configure configure.in META.in  \
+FILES = src/*.ml* lib/*.ml* Makefile.in configure configure.in META.in  \
 	editor/ed_*.ml* editor/Makefile \
         editor/tests/*.dot editor/tests/*.gml \
+	examples/*.ml tests/*.ml \
 	.depend README FAQ CREDITS INSTALL COPYING LICENSE CHANGES
 
 export: source export-doc export-web export-delaunay
@@ -267,7 +266,7 @@ export: source export-doc export-web export-delaunay
 source: 
 	mkdir -p export
 	cd export; rm -rf $(EXPORTDIR)
-	mkdir -p export/$(EXPORTDIR)
+	mkdir -p export/$(EXPORTDIR)/bin
 	cp --parents $(FILES) export/$(EXPORTDIR)
 	cd export ; tar cf $(TAR) $(EXPORTDIR) ; gzip -f --best $(TAR)
 	cp export/$(TAR).gz $(FTP)
@@ -281,7 +280,7 @@ export-web: www/version.prehtml
 
 export-doc: $(DOC_CMO)
 	rm -f $(WWW)/doc/*
-	-$(OCAMLDOC) -d $(WWW)/doc -html $(DOC_ML)
+	-$(OCAMLDOC) -d $(WWW)/doc -html $(INCLUDES) $(DOC_SRC)
 
 MISCFTP = $(HOME)/WWW/ftp/ocaml/misc
 DELAUNAY=delaunay.ml delaunay.mli
@@ -365,6 +364,7 @@ clean:
 	rm -f $(GENERATED) $(SRCDIR)/dot_parser.output
 	rm -f graph.*a graph$(LIBEXT) bin/$(NAME).byte bin/$(NAME).opt
 	rm -f *.haux *.aux *.log $(NAME).tex $(NAME).dvi $(DOCFILES)
+	rm -f $(EXAMPLES)
 
 dist-clean distclean:: clean
 	rm -f Makefile config.cache config.log config.status *.byte *.opt

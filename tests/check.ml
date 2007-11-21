@@ -91,7 +91,6 @@ module Generic = struct
       let e1 = 1, 0, 2 in
       let e2 = 1, 1, 3 in
       let e3 = 2, 2, 1 in
-      let e4 = 2, 1, 2 in
       G.add_edge_e g e1;
       G.add_edge_e g e2;
       G.add_edge_e g e3;
@@ -395,7 +394,7 @@ module Minsep = struct
     let s234 = S.add v2 (S.add v3 (S.singleton v4))
     let bigs = VS.add s5 (VS.add s15 (VS.singleton s234))
     let () =
-      let g' =  G.copy g in
+      let _ =  G.copy g in
       assert (VS.equal (M.set_of_allminsep g) bigs)
 
   end

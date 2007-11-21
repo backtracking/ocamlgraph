@@ -76,8 +76,12 @@ module type S = sig
 
   (** {2 Graph constructors and destructors} *)
 
-  val create : int -> t
-    (** Return an empty graph. *)
+  val create : ?size:int -> unit -> t
+    (** Return an empty graph. Optionally, a size can be
+        given, which should be on the order of the expected number of
+        vertices that will be in the graph (for hash tables-based
+        implementations).  The graph grows as needed, so [size] is
+        just an initial guess. *)
 
   val copy : t -> t
     (** [copy g] returns a copy of [g]. Vertices and edges (and eventually

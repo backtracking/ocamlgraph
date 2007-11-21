@@ -1,6 +1,9 @@
 
- ° Sig.I.create and Sig_pack.create are now of type int -> t 
-   (instead of unit -> t)
+version 0.99a, November 21st, 2007
+---------------------------------
+ o fixed bug in Makefile when lablgtk2 is not installed
+ o Sig.I.create and Sig_pack.create are now of type ?size:int -> unit -> t 
+   (instead of unit -> t) to indicate an initial guess on the graph size
 
 version 0.99, June 27th, 2007
 -----------------------------

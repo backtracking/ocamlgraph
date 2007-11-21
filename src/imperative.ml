@@ -84,6 +84,8 @@ module Digraph = struct
 
     include I.Digraph.Concrete(V)
 
+    let create ?(size=997) () = create size
+
     let add_vertex g v = ignore (add_vertex g v)
     let remove_vertex g v = ignore (remove_vertex g v)
     let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
@@ -103,6 +105,8 @@ module Digraph = struct
   module ConcreteBidirectional (V: COMPARABLE) = struct
 
     include I.Digraph.ConcreteBidirectional(V)
+
+    let create ?(size=997) () = create size
 
     let add_vertex g v = 
       if not (HM.mem v g) then ignore (unsafe_add_vertex g v)
@@ -134,6 +138,8 @@ module Digraph = struct
 
     include I.Digraph.ConcreteLabeled(V)(E)
 
+    let create ?(size=997) () = create size
+
     let add_vertex g v = ignore (add_vertex g v)
     let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
     let remove_edge_e g e = ignore (remove_edge_e g e)
@@ -163,7 +169,7 @@ module Digraph = struct
     
     include I.Digraph.Abstract(AbstractVertex(V))
 
-    let create n = { edges = G.create n; size = 0 }
+    let create ?(size=997) () = { edges = G.create size; size = 0 }
 
     let add_vertex g v = 
       if not (HM.mem v g.edges) then begin
@@ -212,7 +218,7 @@ module Digraph = struct
     
     include I.Digraph.AbstractLabeled(AbstractVertex(V))(Edge)
 
-    let create n = { edges = G.create n; size = 0 }
+    let create ?(size=997) () = { edges = G.create size; size = 0 }
 
     let add_vertex g v = 
       if not (HM.mem v g.edges) then begin
@@ -435,7 +441,7 @@ module Matrix = struct
     type vertex = V.t
     type edge = E.t
 
-    let create _ = 
+    let create ?size () = 
       failwith "do not use Matrix.create; please use Matrix.make instead"
 		      
     let make n =
