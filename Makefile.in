@@ -256,7 +256,7 @@ FTP = $$HOME/ftp/$(NAME)
 WWW = $$HOME/WWW/$(NAME)
 
 FILES = src/*.ml* lib/*.ml* Makefile.in configure configure.in META.in  \
-	editor/ed_*.ml* editor/Makefile \
+	.depend editor/ed_*.ml* editor/Makefile \
         editor/tests/*.dot editor/tests/*.gml \
 	examples/*.ml tests/*.ml \
 	.depend README FAQ CREDITS INSTALL COPYING LICENSE CHANGES
