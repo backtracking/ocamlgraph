@@ -84,23 +84,23 @@ byte: $(CMA)
 opt: $(CMXA)
 
 graph.cma: graph.cmo
-	$(OCAMLC) -a -o $@ $^
+	$(OCAMLC) $(INCLUDES) -a -o $@ $^
 
 graph.cmxa: graph.cmx
-	$(OCAMLOPT) -a -o $@ $^
+	$(OCAMLOPT) $(INCLUDES) -a -o $@ $^
 
 graph.cmo: $(CMI) $(CMO)
-	$(OCAMLC) -pack -o $@ $^
+	$(OCAMLC) $(INCLUDES) -pack -o $@ $^
 
 graph.cmx: $(CMI) $(CMX)
-	$(OCAMLOPT) -pack -o $@ $^
+	$(OCAMLOPT) $(INCLUDES) -pack -o $@ $^
 
-EXAMPLES=bin/demo.$(OCAMLBEST) bin/demo_planar.$(OCAMLBEST) \
+EXAMPLESBIN=bin/demo.$(OCAMLBEST) bin/demo_planar.$(OCAMLBEST) \
   bin/bench.$(OCAMLBEST) bin/color.$(OCAMLBEST) bin/sudoku.$(OCAMLBEST) \
   bin/test.$(OCAMLBEST) 
 
 .PHONY: examples
-examples: $(EXAMPLES)
+examples: $(EXAMPLESBIN)
 
 .PHONY: demo
 demo: bin/demo.$(OCAMLBEST)
@@ -358,13 +358,13 @@ configure: configure.in
 
 clean:
 	rm -f *~
-	for d in $(SRCDIR) $(LIBDIR) $(ED_DIR); do \
+	for d in $(SRCDIR) $(LIBDIR) $(ED_DIR) tests examples; do \
 	  rm -f $$d/*.cm[iox] $$d/*$(OBJEXT) $$d/*~; \
 	done
 	rm -f $(GENERATED) $(SRCDIR)/dot_parser.output
 	rm -f graph.*a graph$(LIBEXT) bin/$(NAME).byte bin/$(NAME).opt
 	rm -f *.haux *.aux *.log $(NAME).tex $(NAME).dvi $(DOCFILES)
-	rm -f $(EXAMPLES)
+	rm -f $(EXAMPLESBIN)
 
 dist-clean distclean:: clean
 	rm -f Makefile config.cache config.log config.status *.byte *.opt
