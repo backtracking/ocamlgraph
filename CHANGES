@@ -1,4 +1,9 @@
 
+version 0.99b, December 18th, 2007
+----------------------------------
+ o fixed link bug with ocaml 3.09 
+   (see http://caml.inria.fr/mantis/view.php?id=4124)
+
 version 0.99a, November 21st, 2007
 ---------------------------------
  o fixed bug in Makefile when lablgtk2 is not installed

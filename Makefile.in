@@ -173,7 +173,7 @@ $(ED_DIR)/editor.opt: $(CMXA) $(ED_CMX)
 	$(OCAMLOPT) -o $@ @INCLUDEGTK2@ \
 		lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
 
-VERSION=0.99a
+VERSION=0.99b
 
 src/version.ml: Makefile
 	echo "let version = \""$(VERSION)"\"" > $@
