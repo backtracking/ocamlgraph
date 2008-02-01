@@ -164,7 +164,7 @@ Designing a Generic Graph Library using ML Functors</a>
 
 <h4>Distribution</h4> 
 
-<#def LICENSE><a href="http://www.lri.fr/~filliatr/ftp/ocamlgraph/LICENSE">LICENSE</a></#def>
+<#def LICENSE><a href="download/LICENSE">LICENSE</a></#def>
 
 <#fr>
 ocamlgraph est distribué librement, sous la licence GNU Library
@@ -172,10 +172,10 @@ General Public License version 2, avec une exception concernant
 l'édition de lien décrite dans le fichier <#LICENSE>. <br>
 Il est disponible sous forme de sources :
 <ul>
-<li><a href="http://www.lri.fr/~filliatr/ftp/ocamlgraph/ocamlgraph-<#version>.tar.gz">ocamlgraph-<#version>.tar.gz</a>
+<li><a href="download/ocamlgraph-<#version>.tar.gz">ocamlgraph-<#version>.tar.gz</a>
 </ul>
-Vous pouvez accéder à la <a href="http://www.lri.fr/~filliatr/ftp/ocamlgraph">zone FTP</a> directement.
-Voici les derniers <a href="http://www.lri.fr/~filliatr/ftp/ocamlgraph/CHANGES">changements</a>.
+Vous pouvez accéder à la <a href="download/">zone de téléchargement</a> directement.
+Voici les derniers <a href="download/CHANGES">changements</a>.
 </#fr>
 <#en>
 ocamlgraph is freely available, under the terms of the GNU Library
@@ -184,11 +184,11 @@ described in file <#LICENSE>.
 <br>
 It is available as a source tarball:
 <ul>
-<li><a href="http://www.lri.fr/~filliatr/ftp/ocamlgraph/ocamlgraph-<#version>.tar.gz">ocamlgraph-<#version>.tar.gz</a>
+<li><a href="download/ocamlgraph-<#version>.tar.gz">ocamlgraph-<#version>.tar.gz</a>
 </ul>
 <p>
-You can access the <a href="http://www.lri.fr/~filliatr/ftp/ocamlgraph/">FTP zone</a> directly.
-Here are the recent <a href="http://www.lri.fr/~filliatr/ftp/ocamlgraph/CHANGES">CHANGES</a>.
+You can access the <a href="download/">download zone</a> directly.
+Here are the recent <a href="download/CHANGES">CHANGES</a>.
 </#en>
 
 <h4><#fr>Crédits</#fr><#en>Credits</#en></h4>

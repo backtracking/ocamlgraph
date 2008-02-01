@@ -252,8 +252,8 @@ headers:
 EXPORTDIR=$(NAME)-$(VERSION)
 TAR=$(EXPORTDIR).tar
 
-FTP = $$HOME/ftp/$(NAME)
-WWW = $$HOME/WWW/$(NAME)
+FTP = /users/www-perso/projets/ocamlgraph/download
+WWW = /users/www-perso/projets/ocamlgraph
 
 FILES = src/*.ml* lib/*.ml* Makefile.in configure configure.in META.in  \
 	.depend editor/ed_*.ml* editor/Makefile \

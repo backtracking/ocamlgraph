@@ -4,9 +4,7 @@ TOP = /users/demons/filliatr/www
 INCLUDES = $(TOP)/macros.prehtml  $(TOP)/footer.prehtml version.prehtml
 LIBS = -I $(TOP)
 
-HOME = /users/demons/filliatr
-WWW = $(HOME)/WWW
-OCAMLGRAPHHOME = $(WWW)/ocamlgraph
+OCAMLGRAPHHOME = /users/www-perso/projets/ocamlgraph
 
 ALL = index.fr.html  index.en.html
 
@@ -18,7 +16,7 @@ all: $(ALL)
 clean::
 	rm -f *~ *.fr.html *.en.html 
 
-YAMLPP=$$HOME/bin/$$OSTYPE/yamlpp $(TOP)/macros.prehtml version.prehtml
+YAMLPP=yamlpp $(TOP)/macros.prehtml version.prehtml
 
 version.prehtml:
 	make -C .. www/version.prehtml
