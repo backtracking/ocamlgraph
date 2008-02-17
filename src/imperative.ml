@@ -616,3 +616,95 @@ module Matrix = struct
 
 end
 
+(* Faster implementations when vertices are not shared between graphs. *)
+(****
+
+module UV = struct
+
+  let cpt_vertex = ref min_int
+
+  type ('label, 'succ) vertex = { 
+    tag : int; 
+    label : 'label; 
+    mutable mark : int; 
+    mutable succ : 'succ;
+  }
+
+  module Digraph = struct
+
+    module Abstract(L: ANY_TYPE) : 
+      Sig.IM with type V.label = L.t and type E.label = unit 
+    = 
+    struct
+
+      module rec V : 
+        VERTEX with type label = L.t and type t = (L.t, S.t) vertex  = 
+      struct
+	type label = L.t
+	type t = (L.t, S.t) vertex
+	    
+	let compare x y = compare x.tag y.tag 
+	let hash x = Hashtbl.hash x.tag
+	let equal x y = x.tag = y.tag
+	let label x = x.label
+	  
+	let create l = 
+	  assert (!cpt_vertex < max_int);
+	  incr cpt_vertex;
+	  { tag = !cpt_vertex; label = l; mark = 0; succ = S.empty }
+      end
+      and S : Set.S with type elt = V.t = Set.Make(V)
+
+      type vertex = V.t
+
+      module E = struct
+	type t = V.t * V.t
+	type vertex = V.t
+	let compare = Pervasives.compare
+	type label = unit
+	let create v1 _ v2 = (v1, v2)
+	let src = fst
+	let dst = snd
+	let label _ = ()
+      end
+
+      type edge = E.t
+
+      type t = {
+	mutable vertices : S.t;
+      }
+
+      let create ?size () = { vertices = S.empty }
+      let is_directed = true
+      let is_empty g = S.is_empty g.vertices
+      let nb_vertex g = S.cardinal g.vertices
+      let out_degree _ v = S.cardinal v.succ
+
+      let add_vertex g v = g.vertices <- S.add v g.vertices
+      let mem_vertex g v = S.mem v g.vertices
+      let iter_vertex f g = S.iter f g.vertices
+      let fold_vertex f g = S.fold f g.vertices
+      let succ _ v = S.elements v.succ
+
+    end
+
+    module AbstractLabeled (V: ANY_TYPE)(E: ORDERED_TYPE_DFT) :
+      Sig.IM with type V.label = V.t and type E.label = E.t 
+    =
+    AbstractLabeled
+      (V)(struct type t = unit let compare _ _ = 0 let default = () end)
+
+  end
+
+  module Graph = struct
+
+    module Abstract(V: ANY_TYPE) : 
+      Sig.IM with type V.label = V.t and type E.label = unit
+
+    module AbstractLabeled (V: ANY_TYPE)(E: ORDERED_TYPE_DFT) :
+      Sig.IM with type V.label = V.t and type E.label = E.t
+
+  end
+
+end
+*****)

@@ -85,3 +85,35 @@ module Matrix : sig
 
 end
 
+(** Faster implementations for abstract (un)labeled (di)graphs
+    when vertices are _not shared_ between different graphs.
+    This means that, when using the following implementations, two different
+    graphs (created with two calls to [create]) must have disjoint sets of
+    vertices. *)
+(****
+module UV : sig
+
+  (** directed graphs *)
+  module Digraph : sig
+
+    module Abstract(V: ANY_TYPE) : 
+      Sig.IM with type V.label = V.t and type E.label = unit
+
+    module AbstractLabeled (V: ANY_TYPE)(E: ORDERED_TYPE_DFT) :
+      Sig.IM with type V.label = V.t and type E.label = E.t
+
+  end
+
+  (** undirected graphs *)
+  module Graph : sig
+
+    module Abstract(V: ANY_TYPE) : 
+      Sig.IM with type V.label = V.t and type E.label = unit
+
+    module AbstractLabeled (V: ANY_TYPE)(E: ORDERED_TYPE_DFT) :
+      Sig.IM with type V.label = V.t and type E.label = E.t
+
+  end
+
+end
+****)
