@@ -49,7 +49,7 @@ module Generic = struct
     (G : Sig.I with type V.t = int)
     (V : sig val v: int val e: int end) = 
   struct
-    let g = G.create ()
+    let g = G.create 100
     let () =
       G.add_edge g 1 2;
       G.add_edge g 1 3;
@@ -78,7 +78,7 @@ module Generic = struct
     =
   struct
 
-    let g = G.create ()
+    let g = G.create 100
 
     let test_exn v1 v2 =
       try
@@ -203,7 +203,7 @@ module Traversal = struct
   module Dfs = Traverse.Dfs(G)
   module Mark = Traverse.Mark(G)
 
-  let g = G.create ()
+  let g = G.create 100
   let newv () = let v = G.V.create 0 in G.add_vertex g v; v
   let v1 = newv ()
   let v2 = newv ()
@@ -313,7 +313,7 @@ module Neighbourhood = struct
   module G = Graph.Imperative.Graph.Concrete(Int)
   open G
 
-  let g = create ()
+  let g = create 100
   let add = add_edge g
   let () =
     add 1 2;
@@ -369,7 +369,7 @@ module Minsep = struct
     module G = Graph.Imperative.Graph.Abstract(struct type t = unit end)
     open G
     
-    let g = create ()
+    let g = create 100
     let v1 = V.create ()
     let v2 = V.create ()
     let v3 = V.create ()

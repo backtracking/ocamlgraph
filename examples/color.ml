@@ -272,3 +272,10 @@ let () =
   print_utime coloring_b ();
   ignore (Graphics.wait_next_event [ Key_pressed ]);
   close_graph ()
+
+
+(*
+Local Variables: 
+compile-command: "make -C .. bin/color.opt"
+End: 
+*)

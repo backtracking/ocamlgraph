@@ -26,7 +26,7 @@ open Graph
 module G = Imperative.Graph.Abstract(struct type t = int * int end)
 
 (* The Sudoku grid = a graph with 9x9 nodes *)
-let g = G.create ()
+let g = G.create 100
 
 (* We create the 9x9 nodes, add them to the graph and keep them in a matrix 
    for later access *)
@@ -78,4 +78,8 @@ module C = Coloring.Mark(G)
 let () = C.coloring g 9; display ()
 
 
-
+(*
+Local Variables: 
+compile-command: "make -C .. bin/sudoku.opt"
+End: 
+*)

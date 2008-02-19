@@ -187,7 +187,10 @@ META: META.in Makefile
 ##################
 
 EXAMPLES = demo color demo_planar sudoku
+EXAMPLESBIN:=$(patsubst %, bin/%.opt, $(EXAMPLES))
 EXAMPLES:= $(patsubst %, examples/%.ml, $(EXAMPLES))
+
+examples: $(EXAMPLESBIN)
 
 TESTS = test check
 TESTS := $(patsubst %, tests/%.ml, $(TESTS))
