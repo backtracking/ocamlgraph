@@ -26,7 +26,7 @@ open Graph
 module G = Imperative.Graph.Abstract(struct type t = int * int end)
 
 (* The Sudoku grid = a graph with 9x9 nodes *)
-let g = G.create 100
+let g = G.create ()
 
 (* We create the 9x9 nodes, add them to the graph and keep them in a matrix 
    for later access *)

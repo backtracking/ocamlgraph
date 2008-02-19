@@ -36,8 +36,8 @@ let () = show g'
 
 (* Intersection and union *)
 
-let g1 = create 100
-let g2 = create 100
+let g1 = create ()
+let g2 = create ()
 
 let v1 = V.create 1
 let v2 = V.create 2

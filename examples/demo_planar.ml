@@ -120,7 +120,7 @@ let read_graph f =
       Array.map (fun xy -> V.create (calibrate xy)) (Array.of_list !l)
     in
     let t = Triangulation.triangulate vertices in
-    let g = create 1000 in
+    let g = create () in
     Array.iter (G.add_vertex g) vertices;
     let add_edge v1 v2 = 
       let e = E.create v1 (Point.distance v1 v2) v2 in G.add_edge_e g e
