@@ -204,12 +204,12 @@ module Traversal = struct
   module Mark = Traverse.Mark(G)
 
   let g = G.create ()
-  let newv () = let v = G.V.create 0 in G.add_vertex g v; v
-  let v1 = newv ()
-  let v2 = newv ()
-  let v3 = newv ()
-  let v4 = newv ()
-  let v5 = newv ()
+  let newv g = let v = G.V.create 0 in G.add_vertex g v; v
+  let v1 = newv g
+  let v2 = newv g
+  let v3 = newv g
+  let v4 = newv g
+  let v5 = newv g
   let add_edge g v1 l v2 = G.add_edge_e g (G.E.create v1 l v2)
   let () =
     add_edge g v1 10 v2;
@@ -220,10 +220,33 @@ module Traversal = struct
     add_edge g v4 20 v3;
     add_edge g v4 60 v5
   let () = assert (not (Mark.has_cycle g) && not (Dfs.has_cycle g))
-  let v6 = newv ()
+  let v6 = newv g
   let () = assert (not (Mark.has_cycle g) && not (Dfs.has_cycle g))
   let () = add_edge g v5 10 v1
   let () = assert (Mark.has_cycle g && Dfs.has_cycle g)
+
+(*** debug dfs 
+  let g = G.create ()
+  let newv i = let v = G.V.create i in G.add_vertex g v; v
+  let v1 = newv 1
+  let v2 = newv 2
+  let v3 = newv 4
+  let v4 = newv 3
+  let v20 = newv 20
+  let v30 = newv 30
+  let () =
+    add_edge g v1 1 v2;
+    add_edge g v1 1 v3;
+    add_edge g v1 1 v4;
+    add_edge g v2 1 v3;
+    add_edge g v2 1 v20;
+    add_edge g v3 1 v30
+  open Format
+  let pre v = printf "pre %d@." (G.V.label v)
+  let post v = printf "post %d@." (G.V.label v)
+  let () = printf "iter:@."; Dfs.iter ~pre ~post g
+  let () = printf "prefix:@."; Dfs.prefix pre g
+***)
 
 end
 
