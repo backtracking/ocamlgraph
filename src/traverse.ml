@@ -85,7 +85,8 @@ module Dfs(G : G) = struct
 	  if not (H.mem h v) then begin
 	    H.add h v ();
 	    f v;
-	    G.iter_succ (fun w -> Stack.push w stack) g v
+	    G.iter_succ 
+	      (fun w -> if not (H.mem h w) then Stack.push w stack) g v
 	  end
 	done
       in
@@ -103,7 +104,7 @@ module Dfs(G : G) = struct
 	if not (H.mem h v) then begin
 	  H.add h v ();
 	  f v;
-	  G.iter_succ (fun w -> Stack.push w stack) g v
+	  G.iter_succ (fun w -> if not (H.mem h w) then Stack.push w stack) g v
 	end
       done
 
