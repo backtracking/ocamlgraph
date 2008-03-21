@@ -225,28 +225,37 @@ module Traversal = struct
   let () = add_edge g v5 10 v1
   let () = assert (Mark.has_cycle g && Dfs.has_cycle g)
 
-(*** debug dfs 
+(* debug dfs / Cormen p 479 *)
+
   let g = G.create ()
   let newv i = let v = G.V.create i in G.add_vertex g v; v
-  let v1 = newv 1
-  let v2 = newv 2
-  let v3 = newv 4
-  let v4 = newv 3
-  let v20 = newv 20
-  let v30 = newv 30
+  let u = newv 1
+  let v = newv 2
+  let w = newv 3
+  let x = newv 4
+  let y = newv 5
+  let z = newv 6
+  let edge a b = add_edge g a 0 b
   let () =
-    add_edge g v1 1 v2;
-    add_edge g v1 1 v3;
-    add_edge g v1 1 v4;
-    add_edge g v2 1 v3;
-    add_edge g v2 1 v20;
-    add_edge g v3 1 v30
+    edge u v; edge u x;
+    edge v y;
+    edge w y; edge w z;
+    edge x v;
+    edge y x;
+    edge z z
   open Format
   let pre v = printf "pre %d@." (G.V.label v)
   let post v = printf "post %d@." (G.V.label v)
-  let () = printf "iter:@."; Dfs.iter ~pre ~post g
-  let () = printf "prefix:@."; Dfs.prefix pre g
-***)
+  let () = printf "iter:@."; Dfs.iter_component ~pre ~post g w
+  let () = printf "prefix:@."; Dfs.prefix_component pre g w
+  let () =
+    printf "step:@.";
+    let rec visit it =
+      let v = Dfs.get it in
+      printf "visit %d@." (G.V.label v);
+      visit (Dfs.step it)
+    in
+    try visit (Dfs.start g) with Exit -> ()
 
 end
 

@@ -79,31 +79,32 @@ module Dfs(G : G) = struct
     let iter f g = 
       let h = H.create 65537 in
       let stack = Stack.create () in
-      (* invariant: [h] contains exactly the vertices which have been pushed *)
-      let push v = 
-	if not (H.mem h v) then begin H.add h v (); Stack.push v stack end
-      in
       let loop () =
 	while not (Stack.is_empty stack) do
 	  let v = Stack.pop stack in
-	  f v;
-	  G.iter_succ push g v
+	  if not (H.mem h v) then begin
+	    H.add h v ();
+	    f v;
+	    G.iter_succ (fun w -> Stack.push w stack) g v
+	  end
 	done
       in
-      G.iter_vertex (fun v -> push v; loop ()) g
+      G.iter_vertex 
+	(fun v -> 
+	  if not (H.mem h v) then begin Stack.push v stack; loop () end)
+	g
 
     let iter_component f g v0 = 
       let h = H.create 65537 in
       let stack = Stack.create () in
-      (* invariant: [h] contains exactly the vertices which have been pushed *)
-      let push v = 
-	if not (H.mem h v) then begin H.add h v (); Stack.push v stack end
-      in
-      push v0;
+      Stack.push v0 stack;
       while not (Stack.is_empty stack) do
 	let v = Stack.pop stack in
-	f v;
-	G.iter_succ push g v
+	if not (H.mem h v) then begin
+	  H.add h v ();
+	  f v;
+	  G.iter_succ (fun w -> Stack.push w stack) g v
+	end
       done
 
   end
@@ -114,34 +115,29 @@ module Dfs(G : G) = struct
   (* step-by-step iterator *)
   module S = Set.Make(G.V)
 
-  (* state is [(s,st,g)] : [s] contains elements never been pushed in [st] *)
   type iterator = S.t * G.V.t list * G.t
+      (** (h, st, g) where h is the set of marked vertices and st the stack
+	  invariant: the first element of st is not in h i.e. to be visited *)
 
   let start g =
-    let s = G.fold_vertex S.add g S.empty in
-    s, [], g
+    let st = G.fold_vertex (fun v st -> v :: st) g [] in
+    S.empty, st, g
 
   let get (s,st,_) = match st with
-    | [] -> if S.is_empty s then raise Exit else S.choose s
-    | v :: _ -> v
+    | [] -> raise Exit
+    | v :: _  -> v
 
-  let step (s,st,g) =
-    let push v (s,st as acc) = 
-      if S.mem v s then 
-	S.remove v s, v :: st
-      else
-	acc 
-    in
-    let v,s',st' = match st with
-      | [] ->
-	  if S.is_empty s then raise Exit;
-	  let v = S.choose s in
-	  (v, S.remove v s, [])
-      | v :: st' ->
-	  (v, s, st')
-    in
-    let s'',st'' = G.fold_succ push g v (s',st') in
-    (s'',st'',g)
+  let step (s,st,g) = match st with
+    | [] -> 
+	raise Exit
+    | v :: st ->
+	let s' = S.add v s in
+	let st' = G.fold_succ (fun w st -> w :: st) g v st in
+	let rec clean = function
+	  | w :: st when S.mem w s' -> clean st
+	  | st -> st
+	in
+	(s', clean st', g)
 
 end
 

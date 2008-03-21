@@ -1,4 +1,6 @@
 
+ o fixed DFS traversal in Traverse.Dfs.{prefix,prefix_component,iterator}
+
 version 0.99b, December 18th, 2007
 ----------------------------------
  o fixed link bug with ocaml 3.09 
