@@ -1,8 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(*  Ocamlgraph: a generic graph library for OCaml                         *)
-(*  Copyright (C) 2004-2007                                               *)
-(*  Sylvain Conchon, Jean-Christophe Filliatre and Julien Signoles        *)
+(*  Copyright (C) Jean-Christophe Filliatre                               *)
 (*                                                                        *)
 (*  This software is free software; you can redistribute it and/or        *)
 (*  modify it under the terms of the GNU Library General Public           *)
@@ -15,7 +13,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(*i $Id: bitv.ml,v 1.3 2004-07-13 12:54:42 filliatr Exp $ i*)
+(*i $Id: bitv.ml,v 1.18 2008/04/01 09:59:03 filliatr Exp $ i*)
 
 (*s Bit vectors. The interface and part of the code are borrowed from the 
     [Array] module of the ocaml standard library (but things are simplified
@@ -186,19 +184,20 @@ let blit_int a v n =
     to [blit_bits] for the two bounds. *)
 
 let unsafe_blit v1 ofs1 v2 ofs2 len =
-  let (bi,bj) = pos ofs1 in
-  let (ei,ej) = pos (ofs1 + len - 1) in
-  if bi == ei then
-    blit_bits (Array.unsafe_get v1 bi) bj len v2 ofs2
-  else begin
-    blit_bits (Array.unsafe_get v1 bi) bj (bpi - bj) v2 ofs2;
-    let n = ref (ofs2 + bpi - bj) in
-    for i = succ bi to pred ei do
-      blit_int (Array.unsafe_get v1 i) v2 !n;
-      n := !n + bpi
-    done;
-    blit_bits (Array.unsafe_get v1 ei) 0 (succ ej) v2 !n
-  end
+  if len > 0 then
+    let (bi,bj) = pos ofs1 in
+    let (ei,ej) = pos (ofs1 + len - 1) in
+    if bi == ei then
+      blit_bits (Array.unsafe_get v1 bi) bj len v2 ofs2
+    else begin
+      blit_bits (Array.unsafe_get v1 bi) bj (bpi - bj) v2 ofs2;
+      let n = ref (ofs2 + bpi - bj) in
+      for i = succ bi to pred ei do
+	blit_int (Array.unsafe_get v1 i) v2 !n;
+	n := !n + bpi
+      done;
+      blit_bits (Array.unsafe_get v1 ei) 0 (succ ej) v2 !n
+    end
 
 let blit v1 ofs1 v2 ofs2 len =
   if len < 0 or ofs1 < 0 or ofs1 + len > v1.length
@@ -253,34 +252,36 @@ let concat vl =
     [max_int]. *)
 
 let blit_zeros v ofs len =
-  let (bi,bj) = pos ofs in
-  let (ei,ej) = pos (ofs + len - 1) in
-  if bi == ei then
-    blit_bits 0 bj len v ofs
-  else begin
-    blit_bits 0 bj (bpi - bj) v ofs;
-    let n = ref (ofs + bpi - bj) in
-    for i = succ bi to pred ei do
-      blit_int 0 v !n;
-      n := !n + bpi
-    done;
-    blit_bits 0 0 (succ ej) v !n
-  end
+  if len > 0 then
+    let (bi,bj) = pos ofs in
+    let (ei,ej) = pos (ofs + len - 1) in
+    if bi == ei then
+      blit_bits 0 bj len v ofs
+    else begin
+      blit_bits 0 bj (bpi - bj) v ofs;
+      let n = ref (ofs + bpi - bj) in
+      for i = succ bi to pred ei do
+	blit_int 0 v !n;
+	n := !n + bpi
+      done;
+      blit_bits 0 0 (succ ej) v !n
+    end
 
 let blit_ones v ofs len =
-  let (bi,bj) = pos ofs in
-  let (ei,ej) = pos (ofs + len - 1) in
-  if bi == ei then
-    blit_bits max_int bj len v ofs
-  else begin
-    blit_bits max_int bj (bpi - bj) v ofs;
-    let n = ref (ofs + bpi - bj) in
-    for i = succ bi to pred ei do
-      blit_int max_int v !n;
-      n := !n + bpi
-    done;
-    blit_bits max_int 0 (succ ej) v !n
-  end
+  if len > 0 then
+    let (bi,bj) = pos ofs in
+    let (ei,ej) = pos (ofs + len - 1) in
+    if bi == ei then
+      blit_bits max_int bj len v ofs
+    else begin
+      blit_bits max_int bj (bpi - bj) v ofs;
+      let n = ref (ofs + bpi - bj) in
+      for i = succ bi to pred ei do
+	blit_int max_int v !n;
+	n := !n + bpi
+      done;
+      blit_bits max_int 0 (succ ej) v !n
+    end
 
 let fill v ofs len b =
   if ofs < 0 or len < 0 or ofs + len > v.length then invalid_arg "Bitv.fill";
@@ -340,6 +341,16 @@ let foldi_right f v x =
     r := f i (unsafe_get v i) !r
   done;
   !r
+
+let iteri_true f v =
+  Array.iteri 
+    (fun i n -> if n != 0 then begin
+       let i_bpi = i * bpi in
+       for j = 0 to bpi - 1 do
+	 if n land (Array.unsafe_get bit_j j) > 0 then f (i_bpi + j)
+       done
+     end) 
+    v.bits
 
 (*s Bitwise operations. It is straigthforward, since bitwise operations
     can be realized by the corresponding bitwise operations over integers.
@@ -564,7 +575,6 @@ let of_int32_s i = match Sys.word_size with
 		      (Int32.to_int hi) land 3 |] }
   | 64 -> { length = 32; bits = [| (Int32.to_int i) land ffffffff |] }
   | _ -> assert false
-
 let to_int32_s v =
   if v.length < 32 then invalid_arg "Bitv.to_int32_s"; 
   match Sys.word_size with
