@@ -1,4 +1,6 @@
 
+ o improved efficiency of Path.Dijkstra
+
 version 0.99c, April 3rd, 2008
 ------------------------------
  o replicated a bug fix of Bitv (could not affect Matrix, though)

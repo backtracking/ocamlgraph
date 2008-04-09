@@ -181,16 +181,6 @@ module Dijkstra = struct
   module G3 = Imperative.Digraph.ConcreteLabeled(Int)(Int)
   module Test3 = TestDijkstra(G3)(Builder.I(G3))
 
-  (* Dijkstra on Persistent Abstract Labeled Graphs *)
-    (*
-      module G = Persistent.Graph.AbstractLabeled(Int)(Int)
-      module Test4 = TestDijkstra(G)(Builder.APLG(G))
-    *)
-
-  (* Dijkstra on adjacency matrices *)
-
-  module Test4 = TestDijkstra
-
 end
 
 (********************************************)

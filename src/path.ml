@@ -71,7 +71,10 @@ struct
 	if not (H.mem visited v) then begin
 	  H.add visited v ();
 	  G.iter_succ_e
-	    (fun e -> PQ.add q (W.add w (W.weight (label e)), dst e, e :: p))
+	    (fun e -> 
+	      let de = dst e in
+	      if not (H.mem visited de) then
+		PQ.add q (W.add w (W.weight (label e)), de, e :: p))
 	    g v
 	end;
 	loop ()
