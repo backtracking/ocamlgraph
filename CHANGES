@@ -1,4 +1,5 @@
 
+ o fixed bug in Oper.intersect
  o improved efficiency of Path.Dijkstra
 
 version 0.99c, April 3rd, 2008

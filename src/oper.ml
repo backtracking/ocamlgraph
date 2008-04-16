@@ -82,7 +82,7 @@ module Make(B : Builder.S) = struct
 	     (fun e g -> 
 		if List.mem e succ 
 		then B.add_edge_e g e 
-		else B.add_vertex g (G.E.dst e))
+		else g)
 	     g1 v (B.add_vertex g v)
 	 with Invalid_argument _ -> 
 	   (* $v \notin g2$ *)
