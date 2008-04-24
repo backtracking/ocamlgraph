@@ -265,7 +265,7 @@ FILES = src/*.ml* lib/*.ml* Makefile.in configure configure.in META.in  \
 	.depend editor/ed_*.ml* editor/Makefile \
         editor/tests/*.dot editor/tests/*.gml \
 	examples/*.ml tests/*.ml \
-	.depend README FAQ CREDITS INSTALL COPYING LICENSE CHANGES
+	README FAQ CREDITS INSTALL COPYING LICENSE CHANGES
 
 export: source export-doc export-web export-delaunay
 
@@ -277,6 +277,16 @@ source:
 	cd export ; tar cf $(TAR) $(EXPORTDIR) ; gzip -f --best $(TAR)
 	cp export/$(TAR).gz $(FTP)
 	cp README FAQ CREDITS COPYING LICENSE CHANGES $(EXAMPLES) $(FTP)
+
+framac: EXPORTDIR=ocamlgraph
+framac: FTP=$$HOME/frama-c
+framac:
+	mkdir -p export
+	cd export; rm -rf $(EXPORTDIR)
+	mkdir -p export/$(EXPORTDIR)/bin
+	cp --parents $(FILES) export/$(EXPORTDIR)
+	cd export ; tar cf $(TAR) $(EXPORTDIR) ; gzip -f --best $(TAR)
+	cp export/$(TAR).gz $(FTP)
 
 www/version.prehtml: Makefile.in
 	echo "<#def version>$(VERSION)</#def>" > www/version.prehtml
