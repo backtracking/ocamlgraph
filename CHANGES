@@ -1,4 +1,7 @@
-
+version 0.99d, April 24th, 2008
+-------------------------------
+ o fixed bug in Makefile when ocamlfind is installed
+ o fixed bug in Topological.Make.{iter,fold}
  o fixed bug in Oper.intersect
  o improved efficiency of Path.Dijkstra
 

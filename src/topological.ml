@@ -32,17 +32,38 @@ module Make(G: G) = struct
   let fold f g acc =
     let degree = H.create 997 in
     let todo = Queue.create () in
+    let push x =
+      H.remove degree x;
+      Queue.push x todo
+    in
     let rec walk acc = 
       try
 	let v = Queue.pop todo in
 	let acc = f v acc in
 	G.iter_succ 
-	  (fun x-> let d = H.find degree x in
-	   if d=1 then Queue.push x todo
-	   else H.replace degree x (d-1))
+	  (fun x-> 
+             try 
+               let d = H.find degree x in
+	       if d=1 then push x else H.replace degree x (d-1)
+             with Not_found -> 
+	       (* [x] already visited *)
+	       ())
 	  g v; 
 	walk acc
-      with Queue.Empty -> acc
+      with Queue.Empty ->
+        (* let's find any node of minimal degree *)
+	let min =
+	  H.fold
+	    (fun v d acc -> 
+	       match acc with
+	       | None -> Some (v, d)
+	       | Some(_, min) -> if d < min then Some (v, d) else acc)
+	    degree
+	    None
+	in
+	match min with
+	| None -> acc
+	| Some(v, d) -> push v; walk acc
     in
     G.iter_vertex 
       (fun v -> 

@@ -18,6 +18,7 @@
 # Where to install the binaries
 prefix=@prefix@
 exec_prefix=@exec_prefix@
+datarootdir=@datarootdir@
 BINDIR=@bindir@
 
 # Where to install the man page
@@ -45,7 +46,7 @@ SRCDIR	= src
 LIBDIR	= lib
 
 INCLUDES= -I $(SRCDIR) -I $(LIBDIR) 
-BFLAGS = $(INCLUDES)
+BFLAGS = $(INCLUDES) -g
 OFLAGS = $(INCLUDES) @FORPACK@
 
 # main target
@@ -88,6 +89,8 @@ graph.cma: graph.cmo
 
 graph.cmxa: graph.cmx
 	$(OCAMLOPT) $(INCLUDES) -a -o $@ $^
+
+graph.cmi: graph.cmo
 
 graph.cmo: $(CMI) $(CMO)
 	$(OCAMLC) $(INCLUDES) -pack -o $@ $^
@@ -173,7 +176,7 @@ $(ED_DIR)/editor.opt: $(CMXA) $(ED_CMX)
 	$(OCAMLOPT) -o $@ @INCLUDEGTK2@ \
 		lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
 
-VERSION=0.99c
+VERSION=0.99d
 
 src/version.ml: Makefile
 	echo "let version = \""$(VERSION)"\"" > $@
@@ -213,7 +216,7 @@ install-opt: install-byte
 
 install-findlib: META
 ifdef OCAMLFIND
-	$(OCAMLFIND) install ocamlgraph META *.mli \
+	$(OCAMLFIND) install ocamlgraph META $(SRCDIR)/*.mli \
 		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA)
 endif
 
