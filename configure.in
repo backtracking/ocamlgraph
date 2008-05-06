@@ -155,7 +155,8 @@ fi
 
 # platform
 AC_MSG_CHECKING(Win32 platform)
-if echo "let _ = Sys.os_type;;" | ocaml | grep -q Win32; then
+echo "print_endline Sys.os_type" > check_arch.ml
+if ocaml check_arch.ml | grep -q Win32; then
     AC_MSG_RESULT(yes)
     OCAMLWIN32=yes
     EXE=.exe
@@ -168,6 +169,7 @@ else
     LIBEXT=.a
     OBJEXT=.o
 fi
+rm -f check_arch.ml
 
 # substitutions to perform
 AC_SUBST(OCAMLC)
