@@ -45,7 +45,7 @@ module I = Make(Make_Hashtbl)
 
 type 'a abstract_vertex = { tag : int; label : 'a; mutable mark : int }
 
-(* Implement the module [Mark]. *)
+(* Implement module type [MARK]. *)
 module Make_Mark
   (X: sig 
      type graph
@@ -60,53 +60,40 @@ struct
   let clear g = X.iter_vertex (fun v -> set v 0) g
 end
 
-(* Vertex for the abstract imperative graphs. *)
+(* Vertex for abstract imperative graphs:
+   comparing to vertex for abstract **persistent** graphs, marks are added. *)
 module AbstractVertex(V: sig type t end) = struct
-
   type label = V.t
   type t = label abstract_vertex
-
-  let compare x y = compare x.tag y.tag 
-  let hash x = Hashtbl.hash x.tag
+  let compare x y = Pervasives.compare x.tag y.tag 
+  let hash x = x.tag
   let equal x y = x.tag = y.tag
   let label x = x.label
-
   let create l = 
     assert (!cpt_vertex < max_int);
     incr cpt_vertex;
     { tag = !cpt_vertex; label = l; mark = 0 }
-
 end
 
 module Digraph = struct
 
-  module Concrete (V: COMPARABLE) = struct
-
+  module Concrete(V: COMPARABLE) = struct
     include I.Digraph.Concrete(V)
-
-    let create ?(size=997) () = create size
-
     let add_vertex g v = ignore (add_vertex g v)
-    let remove_vertex g v = ignore (remove_vertex g v)
+    let add_edge g v1 v2 = ignore (add_edge g v1 v2)
     let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
     let remove_edge_e g e = ignore (remove_edge_e g e)
-
-    let add_edge g v1 v2 = 
-      add_vertex g v1;
-      add_vertex g v2;
-      ignore (unsafe_add_edge g v1 v2)
-
-    let add_edge_e g (v1, v2) = add_edge g v1 v2
-
-    let copy = HM.copy
-
+    let add_edge_e g e = ignore (add_edge_e g e)
+    let remove_vertex g v =
+      if HM.mem v g then begin
+	ignore (HM.remove v g);
+	HM.iter (fun k s -> ignore (HM.add k (S.remove v s) g)) g
+      end
   end
 
-  module ConcreteBidirectional (V: COMPARABLE) = struct
+  module ConcreteBidirectional(V: COMPARABLE) = struct
 
     include I.Digraph.ConcreteBidirectional(V)
-
-    let create ?(size=997) () = create size
 
     let add_vertex g v = 
       if not (HM.mem v g) then ignore (unsafe_add_vertex g v)
@@ -125,51 +112,29 @@ module Digraph = struct
 	ignore (HM.remove v g)
       end
 
-    let copy = HM.copy
-
     let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
     let remove_edge_e g e = ignore (remove_edge_e g e)
 
   end
 
   module ConcreteLabeled(V: COMPARABLE)(E: ORDERED_TYPE_DFT) = struct
-
-    let default = E.default
-
     include I.Digraph.ConcreteLabeled(V)(E)
-
-    let create ?(size=997) () = create size
-
     let add_vertex g v = ignore (add_vertex g v)
     let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
     let remove_edge_e g e = ignore (remove_edge_e g e)
-
-    let add_edge_e g (v1, l, v2) = 
-      add_vertex g v1;
-      add_vertex g v2;
-      ignore (unsafe_add_edge g v1 (v2, l))
-
-    let add_edge g v1 v2 = add_edge_e g (v1, default, v2)
-
+    let add_edge_e g e = ignore (add_edge_e g e)
+    let add_edge g v1 v2 = ignore (add_edge g v1 v2)
     let remove_vertex g v =
-      if HM.mem v g then
-	let remove s =
-	  S.fold 
-	    (fun (v2, _ as e) s -> if not (V.equal v v2) then S.add e s else s)
-	    s S.empty
-	in
+      if HM.mem v g then begin
 	ignore (HM.remove v g);
-	HM.iter (fun k s -> ignore (HM.add k (remove s) g)) g
-
-    let copy = HM.copy
-
+	let remove v = S.filter (fun (v2, _) -> not (V.equal v v2)) in
+	HM.iter (fun k s -> ignore (HM.add k (remove v s) g)) g
+      end
   end
 
   module Abstract(V: sig type t end) = struct
     
     include I.Digraph.Abstract(AbstractVertex(V))
-
-    let create ?(size=997) () = { edges = G.create size; size = 0 }
 
     let add_vertex g v = 
       if not (HM.mem v g.edges) then begin
@@ -191,23 +156,13 @@ module Digraph = struct
 	HM.iter (fun k s -> ignore (HM.add k (S.remove v s) e)) e;
 	g.size <- Pervasives.pred g.size
 
-    module Mark = Make_Mark(struct 
-			      type graph = t 
-			      type label = V.label 
-			      let iter_vertex = iter_vertex 
-			    end)
-
-    let copy g =
-      let h = HM.create 997 in
-      let vertex v = 
-	try
-	  HM.find v h
-	with Not_found ->
-	  let v' = V.create (V.label v) in
-	  ignore (HM.add v v' h);
-	  v'
-      in
-      map_vertex vertex g
+    module Mark = 
+      Make_Mark
+	(struct 
+	   type graph = t 
+	   type label = V.label 
+	   let iter_vertex = iter_vertex 
+	 end)
 
     let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
     let remove_edge_e g e = ignore (remove_edge_e g e)
@@ -217,8 +172,6 @@ module Digraph = struct
   module AbstractLabeled(V: sig type t end)(Edge: ORDERED_TYPE_DFT) = struct
     
     include I.Digraph.AbstractLabeled(AbstractVertex(V))(Edge)
-
-    let create ?(size=997) () = { edges = G.create size; size = 0 }
 
     let add_vertex g v = 
       if not (HM.mem v g.edges) then begin
@@ -245,23 +198,13 @@ module Digraph = struct
 	HM.iter (fun k s -> ignore (HM.add k (remove s) e)) e;
 	g.size <- Pervasives.pred g.size
 
-    module Mark = Make_Mark(struct 
-			      type graph = t 
-			      type label = V.label 
-			      let iter_vertex = iter_vertex 
-			    end)
-
-    let copy g =
-      let h = HM.create 997 in
-      let vertex v = 
-	try
-	  HM.find v h
-	with Not_found ->
-	  let v' = V.create (V.label v) in
-	  ignore (HM.add v v' h);
-	  v'
-      in
-      map_vertex vertex g
+    module Mark = 
+      Make_Mark
+	(struct 
+	   type graph = t 
+	   type label = V.label 
+	   let iter_vertex = iter_vertex 
+	 end)
 
     let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
     let remove_edge_e g e = ignore (remove_edge_e g e)
@@ -274,16 +217,8 @@ module Graph = struct
 
   module Concrete(V: COMPARABLE) = struct
 
-    module G = Digraph.Concrete(V) 
-
+    module G = struct include Digraph.Concrete(V) type return = unit end
     include Graph(G)
-
-    (* Export some definitions of [G] *)
-
-    let create = G.create
-    let copy = G.copy
-    let add_vertex = G.add_vertex
-    let remove_vertex = G.remove_vertex
 
     (* Redefine the [add_edge] and [remove_edge] operations *)
 
@@ -303,18 +238,13 @@ module Graph = struct
 
   end
 
-  module ConcreteLabeled (V: COMPARABLE)(E: ORDERED_TYPE_DFT) = struct
+  module ConcreteLabeled (V: COMPARABLE)(Edge: ORDERED_TYPE_DFT) = struct
 
-    module G = Digraph.ConcreteLabeled(V)(E)
-
+    module G = struct
+      include Digraph.ConcreteLabeled(V)(Edge)
+      type return = unit
+    end
     include Graph(G)
-
-    (* Export some definitions of [G] *)
-
-    let create = G.create
-    let copy = G.copy
-    let add_vertex = G.add_vertex
-    let remove_vertex = G.remove_vertex
 
     (* Redefine the [add_edge] and [remove_edge] operations *)
 
@@ -323,7 +253,7 @@ module Graph = struct
       assert (G.HM.mem v1 g && G.HM.mem v2 g);
       ignore (G.unsafe_add_edge g v2 (v1, l))
 
-    let add_edge g v1 v2 = add_edge_e g (v1, G.default, v2)
+    let add_edge g v1 v2 = add_edge_e g (v1, Edge.default, v2)
 
     let remove_edge g v1 v2 =
       G.remove_edge g v1 v2;
@@ -339,17 +269,11 @@ module Graph = struct
 
   module Abstract(V: sig type t end) = struct
 
-    module G = Digraph.Abstract(V)
-
+    module G = struct include Digraph.Abstract(V) type return = unit end
     include Graph(G)
 
     (* Export some definitions of [G] *)
-
     module Mark = G.Mark
-    let create = G.create
-    let copy = G.copy
-    let add_vertex = G.add_vertex
-    let remove_vertex = G.remove_vertex
 
     (* Redefine the [add_edge] and [remove_edge] operations *)
 
@@ -371,17 +295,14 @@ module Graph = struct
 
   module AbstractLabeled (V: sig type t end)(Edge: ORDERED_TYPE_DFT) = struct
 
-    module G = Digraph.AbstractLabeled(V)(Edge)
-
+    module G = struct
+      include Digraph.AbstractLabeled(V)(Edge)
+      type return = unit
+    end
     include Graph(G)
 
     (* Export some definitions of [G] *)
-
     module Mark = G.Mark
-    let create = G.create
-    let copy = G.copy
-    let add_vertex = G.add_vertex
-    let remove_vertex = G.remove_vertex
 
     (* Redefine the [add_edge] and [remove_edge] operations *)
 
@@ -442,10 +363,11 @@ module Matrix = struct
     type edge = E.t
 
     let create ?size () = 
-      failwith "do not use Matrix.create; please use Matrix.make instead"
+      failwith 
+	"[ocamlgraph] do not use Matrix.create; please use Matrix.make instead"
 		      
     let make n =
-      if n < 0 then invalid_arg "Matrix.make";
+      if n < 0 then invalid_arg "[ocamlgraph] Matrix.make";
       Array.init n (fun _ -> Bitv.create n false)
 
     let is_directed = true
@@ -538,7 +460,7 @@ module Matrix = struct
 	   let fi = f i in
 	   let fj = f j in
 	   if fi < 0 || fi >= n || fj < 0 || fj >= n then 
-	     invalid_arg "map_vertex";
+	     invalid_arg "[ocamlgraph] map_vertex";
 	   Bitv.unsafe_set g'.(fi) fj true)
 	g;
       g'
@@ -587,16 +509,11 @@ module Matrix = struct
 
   module Graph = struct
 
-    module G = Digraph 
-
+    module G = struct include Digraph type return = unit end
     include Blocks.Graph(G)		 
-    (* Export some definitions of [G] *)
 
-    let create = G.create
+    (* Export some definitions of [G] *)
     let make = G.make
-    let copy = G.copy
-    let add_vertex = G.add_vertex
-    let remove_vertex = G.remove_vertex
 
     (* Redefine the [add_edge] and [remove_edge] operations *)
 

@@ -36,36 +36,122 @@ module W = struct
   let compare = compare
 end
 
-
 (********************************************)
 (* Generic functions                        *)
 (********************************************)
 
 module Generic = struct
 
-  (* nb_vertex and nb_edges *)
-
+  (* Generic tests for imperative graphs *)
   module Make
-    (G : Sig.I with type V.t = int)
+    (G : Sig.I with type V.label = int)
     (V : sig val v: int val e: int end) = 
   struct
     let g = G.create ()
     let () =
-      G.add_edge g 1 2;
-      G.add_edge g 1 3;
-      G.add_edge g 2 1;
-      G.add_edge g 2 2;
-      G.add_edge g 2 2;
+      let v1 = G.V.create 1 in
+      let v2 = G.V.create 2 in
+      let v3 = G.V.create 3 in
+      G.add_edge g v1 v2;
+      G.add_edge g v1 v3;
+      G.add_edge g v2 v1;
+      G.add_edge g v2 v2;
+      G.add_edge g v2 v2;
       assert (G.nb_vertex g = V.v && G.nb_edges g = V.e);
+      G.remove_vertex g v1;
+      assert (G.nb_vertex g = 2 && G.nb_edges g = 1);
+      G.remove_vertex g v2;
+      assert (G.nb_vertex g = 1 && G.nb_edges g = 0)
   end
 
   let () =
-    let module D = Make
+    let module A = Make
       (Imperative.Digraph.ConcreteLabeled(Int)(Int))
       (struct let v = 3 let e = 4 end)
     in
-    let module G = Make
+    let module A = Make
       (Imperative.Graph.ConcreteLabeled(Int)(Int))
+      (struct let v = 3 let e = 3 end)
+    in
+    let module A = Make
+      (Imperative.Digraph.AbstractLabeled(Int)(Int))
+      (struct let v = 3 let e = 4 end)
+    in
+    let module A = Make
+      (Imperative.Graph.AbstractLabeled(Int)(Int))
+      (struct let v = 3 let e = 3 end)
+    in
+    let module A = Make
+      (Imperative.Digraph.Concrete(Int))
+      (struct let v = 3 let e = 4 end)
+    in
+    let module A = Make
+      (Imperative.Graph.Concrete(Int))
+      (struct let v = 3 let e = 3 end)
+    in
+    let module A = Make
+      (Imperative.Digraph.Abstract(Int))
+      (struct let v = 3 let e = 4 end)
+    in
+    let module A = Make
+      (Imperative.Graph.Abstract(Int))
+      (struct let v = 3 let e = 3 end)
+    in
+    ()
+
+  (* Generic tests for persistent graphs *)
+  module MakeP
+    (G : Sig.P with type V.label = int)
+    (V : sig val v: int val e: int end) = 
+  struct
+    let () =
+      let g = G.empty in
+      let v1 = G.V.create 1 in
+      let v2 = G.V.create 2 in
+      let v3 = G.V.create 3 in
+      let g = G.add_edge g v1 v2 in
+      let g = G.add_edge g v1 v3 in
+      let g = G.add_edge g v2 v1 in
+      let g = G.add_edge g v2 v2 in
+      let g = G.add_edge g v2 v2 in
+      assert (G.nb_vertex g = V.v && G.nb_edges g = V.e);
+      let g = G.remove_vertex g v1 in
+      assert (G.nb_vertex g = 2 && G.nb_edges g = 1);
+      let g = G.remove_vertex g v2 in
+      assert (G.nb_vertex g = 1 && G.nb_edges g = 0)
+  end
+
+  let () =
+    let module A = MakeP
+      (Persistent.Digraph.ConcreteLabeled(Int)(Int))
+      (struct let v = 3 let e = 4 end)
+    in
+    let module A = MakeP
+      (Persistent.Graph.ConcreteLabeled(Int)(Int))
+      (struct let v = 3 let e = 3 end)
+    in
+    let module A = MakeP
+      (Persistent.Digraph.AbstractLabeled(Int)(Int))
+      (struct let v = 3 let e = 4 end)
+    in
+    let module A = MakeP
+      (Persistent.Graph.AbstractLabeled(Int)(Int))
+      (struct let v = 3 let e = 3 end)
+    in
+    let module A = MakeP
+      (Persistent.Digraph.Concrete(Int))
+      (struct let v = 3 let e = 4 end)
+    in
+    let module A = MakeP
+      (Persistent.Graph.Concrete(Int))
+      (struct let v = 3 let e = 3 end)
+    in
+    let module A = MakeP
+      (Persistent.Digraph.Abstract(Int))
+      (struct let v = 3 let e = 4 end)
+    in
+    let module A = MakeP
+      (Persistent.Graph.Abstract(Int))
       (struct let v = 3 let e = 3 end)
     in
     ()
@@ -98,7 +184,9 @@ module Generic = struct
       assert (G.find_edge g 1 2 = e1);
       test_exn 2 3;
       test_exn 2 4;
-      test_exn 5 2
+      test_exn 5 2;
+      G.remove_vertex g 2;
+      assert (G.nb_vertex g = 2 && G.nb_edges g = 1)
 
   end
 
@@ -478,12 +566,10 @@ module type RightSigPack = sig
   val dot_output : t -> string -> unit 
 end
 
-module TestSigPack : RightSigPack = 
-struct 
+module TestSigPack : RightSigPack = struct 
   include Pack.Digraph
   type g = t 
 end
-
 
 (*
 Local Variables: 

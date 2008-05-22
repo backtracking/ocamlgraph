@@ -52,8 +52,11 @@ module type EDGE = sig
   (** Edges are directed. *)
 
   type vertex
+
   val src : t -> vertex
+    (** Edge origin. *)
   val dst : t -> vertex
+    (** Edge destination. *)
       
   (** Edges are labeled. *)
       
@@ -74,17 +77,15 @@ module type G = sig
   type t
 
   (** Vertices have type [V.t] and are labeled with type [V.label]
-    (note that an implementation may identify the vertex with its
-    label) *)
+      (note that an implementation may identify the vertex with its
+      label) *)
   module V : VERTEX
-
   type vertex = V.t
 
   (** Edges have type [E.t] and are labeled with type [E.label].
       [src] (resp. [dst]) returns the origin (resp. the destination) of a
       given edge. *)
   module E : EDGE with type vertex = vertex
-
   type edge = E.t
 
   (** Is this an implementation of directed graphs? *)
@@ -100,11 +101,11 @@ module type G = sig
 
   val out_degree : t -> vertex -> int
     (** [out_degree g v] returns the out-degree of [v] in [g].
-      @raise Invalid_argument if [v] is not in [g]. *)
+	@raise Invalid_argument if [v] is not in [g]. *)
 
   val in_degree : t -> vertex -> int
     (** [in_degree g v] returns the in-degree of [v] in [g].
-      @raise Invalid_argument if [v] is not in [g]. *)
+	@raise Invalid_argument if [v] is not in [g]. *)
 
   (** {2 Membership functions} *)
 
@@ -114,8 +115,8 @@ module type G = sig
 
   val find_edge : t -> vertex -> vertex -> edge
     (** [find_edge g v1 v2] returns the edge from [v1] to [v2] if it exists.
-      The behaviour is unspecified if [g] has several edges from [v1] to [v2].
-      @raise Not_found if no such edge exists. *)
+	Unspecified behaviour if [g] has several edges from [v1] to [v2].
+	@raise Not_found if no such edge exists. *)
 
   (** {2 Successors and predecessors} *)
 
@@ -139,26 +140,35 @@ module type G = sig
 
   (** {2 Graph iterators} *)
 
-  (** iter/fold on all vertices/edges of a graph *)
-
   val iter_vertex : (vertex -> unit) -> t -> unit
-  val iter_edges : (vertex -> vertex -> unit) -> t -> unit
+    (** Iter on all vertices of a graph. *)
+
   val fold_vertex : (vertex -> 'a -> 'a) -> t  -> 'a -> 'a
+    (** Fold on all vertices of a graph. *)
+
+  val iter_edges : (vertex -> vertex -> unit) -> t -> unit
+    (** Iter on all edges of a graph. Edge label is ignored. *)
+
   val fold_edges : (vertex -> vertex -> 'a -> 'a) -> t -> 'a -> 'a
-
-  (** map iterator on vertex *)
-  val map_vertex : (vertex -> vertex) -> t -> t
-
-  (** iter/fold on all labeled edges of a graph *)
+    (** Fold on all edges of a graph. Edge label is ignored. *)
 
   val iter_edges_e : (edge -> unit) -> t -> unit
+    (** Iter on all edges of a graph. *)
+
   val fold_edges_e : (edge -> 'a -> 'a) -> t -> 'a -> 'a
+    (** Fold on all edges of a graph. *)
+
+  val map_vertex : (vertex -> vertex) -> t -> t
+    (** Map on all vertices of a graph. *)
 
   (** {2 Vertex iterators} 
 
-    Each iterator [iterator f v g] iters [f] to the successors/predecessors
-    of [v] in the graph [g] and raises [Invalid_argument] if [v] is not in
-    [g]. *)
+      Each iterator [iterator f v g] iters [f] to the successors/predecessors
+      of [v] in the graph [g] and raises [Invalid_argument] if [v] is not in
+      [g]. 
+      
+      it is the same for functions [fold_*] which use an additional
+      accumulator. *)
 
   (** iter/fold on all successors/predecessors of a vertex. *)
 
@@ -186,36 +196,36 @@ module type P = sig
 
   val add_vertex : t -> vertex -> t
     (** [add_vertex g v] adds the vertex [v] from the graph [g].
-      Just return [g] if [v] is already in [g]. *)
+	Just return [g] if [v] is already in [g]. *)
 
   val remove_vertex : t -> vertex -> t
     (** [remove g v] removes the vertex [v] from the graph [g] 
-      (and all the edges going from [v] in [g]).
-      Just return [g] if [v] is not in [g]. *)
+	(and all the edges going from [v] in [g]).
+	Just return [g] if [v] is not in [g]. *)
 
   val add_edge : t -> vertex -> vertex -> t
     (** [add_edge g v1 v2] adds an edge from the vertex [v1] to the vertex [v2]
-      in the graph [g]. 
-      Add also [v1] (resp. [v2]) in [g] if [v1] (resp. [v2]) is not in [g]. 
-      Just return [g] if this edge is already in [g]. *) 
+	in the graph [g]. 
+	Add also [v1] (resp. [v2]) in [g] if [v1] (resp. [v2]) is not in [g]. 
+	Just return [g] if this edge is already in [g]. *) 
 
   val add_edge_e : t -> edge -> t
     (** [add_edge_e g e] adds the edge [e] in the graph [g].
-      Add also [E.src e] (resp. [E.dst e]) in [g] if [E.src e] (resp. [E.dst
-      e]) is not in [g]. 
-      Just return [g] if [e] is already in [g]. *)
+	Add also [E.src e] (resp. [E.dst e]) in [g] if [E.src e] (resp. [E.dst
+	e]) is not in [g]. 
+	Just return [g] if [e] is already in [g]. *)
 
   val remove_edge : t -> vertex -> vertex -> t
     (** [remove_edge g v1 v2] removes the edge going from [v1] to [v2] from the
-      graph [g]. If the graph is labelled, all the edges going from [v1] to
-      [v2] are removed from [g].
-      Just return [g] if this edge is not in [g].
-      @raise Invalid_argument if [v1] or [v2] are not in [g]. *)
+	graph [g]. If the graph is labelled, all the edges going from [v1] to
+	[v2] are removed from [g].
+	Just return [g] if this edge is not in [g].
+	@raise Invalid_argument if [v1] or [v2] are not in [g]. *)
 
   val remove_edge_e : t -> edge -> t
     (** [remove_edge_e g e] removes the edge [e] from the graph [g].
-      Just return [g] if [e] is not in [g]. 
-      @raise Invalid_argument if [E.src e] or [E.dst e] are not in [g]. *)
+	Just return [g] if [e] is not in [g]. 
+	@raise Invalid_argument if [E.src e] or [E.dst e] are not in [g]. *)
 
 end
 
@@ -237,61 +247,65 @@ module type I = sig
 
   val add_vertex : t -> vertex -> unit
     (** [add_vertex g v] adds the vertex [v] from the graph [g].
-      Do nothing if [v] is already in [g]. *)
+	Do nothing if [v] is already in [g]. *)
 
   val remove_vertex : t -> vertex -> unit
     (** [remove g v] removes the vertex [v] from the graph [g] 
-      (and all the edges going from [v] in [g]).
-      Do nothing if [v] is not in [g]. *)
+	(and all the edges going from [v] in [g]).
+	Do nothing if [v] is not in [g]. *)
 
   val add_edge : t -> vertex -> vertex -> unit
     (** [add_edge g v1 v2] adds an edge from the vertex [v1] to the vertex [v2]
-      in the graph [g]. 
-      Add also [v1] (resp. [v2]) in [g] if [v1] (resp. [v2]) is not in [g]. 
-      Do nothing if this edge is already in [g]. *) 
+	in the graph [g]. 
+	Add also [v1] (resp. [v2]) in [g] if [v1] (resp. [v2]) is not in [g]. 
+	Do nothing if this edge is already in [g]. *) 
 
   val add_edge_e : t -> edge -> unit
     (** [add_edge_e g e] adds the edge [e] in the graph [g].
-      Add also [E.src e] (resp. [E.dst e]) in [g] if [E.src e] (resp. [E.dst
-      e]) is not in [g]. 
-      Do nothing if [e] is already in [g]. *)
+	Add also [E.src e] (resp. [E.dst e]) in [g] if [E.src e] (resp. [E.dst
+	e]) is not in [g]. 
+	Do nothing if [e] is already in [g]. *)
 
   val remove_edge : t -> vertex -> vertex -> unit
     (** [remove_edge g v1 v2] removes the edge going from [v1] to [v2] from the
-      graph [g]. If the graph is labelled, all the edges going from [v1] to
-      [v2] are removed from [g].
-      Do nothing if this edge is not in [g].
-      @raise Invalid_argument if [v1] or [v2] are not in [g]. *)
+	graph [g]. If the graph is labelled, all the edges going from [v1] to
+	[v2] are removed from [g].
+	Do nothing if this edge is not in [g].
+	@raise Invalid_argument if [v1] or [v2] are not in [g]. *)
 
   val remove_edge_e : t -> edge -> unit
     (** [remove_edge_e g e] removes the edge [e] from the graph [g].
-      Do nothing if [e] is not in [g].
-      @raise Invalid_argument if [E.src e] or [E.dst e] are not in [g]. *)
+	Do nothing if [e] is not in [g].
+	@raise Invalid_argument if [E.src e] or [E.dst e] are not in [g]. *)
 
 end
 
 (** Imperative implementation with marks *)
 
+(** Signature for marks on vertices. *)
 module type MARK = sig
   type graph
   type vertex
   val clear : graph -> unit
       (** [clear g] sets all the marks to 0 for all the vertices of [g]. *)
   val get : vertex -> int
+    (** Mark value (in O(1)). *)
   val set : vertex -> int -> unit
 end
 
 module type IM = sig
   include I
+
+  (** Mark on vertices.
+      Marks can be used if you want to store some information on vertices:
+      it is more efficient to use marks than an external table. *)
   module Mark : MARK with type graph = t and type vertex = vertex
 end
 
 (** {2 Signature for ordered and hashable types} *)
 
 module type ANY_TYPE = sig type t end
-
 module type ORDERED_TYPE = sig type t val compare : t -> t -> int end
-
 module type ORDERED_TYPE_DFT = sig include ORDERED_TYPE val default : t end
 
 module type HASHABLE = sig
@@ -300,7 +314,7 @@ module type HASHABLE = sig
   val equal : t -> t -> bool
 end
 
-(** Comparable = Ordered + Hashable *)
+(** [Comparable = Ordered + Hashable] *)
 module type COMPARABLE = sig 
   type t 
   val compare : t -> t -> int 

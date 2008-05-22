@@ -17,6 +17,8 @@
 
 (* $Id: util.mli,v 1.12 2005-03-31 13:32:51 filliatr Exp $ *)
 
+(** Some useful operations. *)
+
 open Sig
 
 module OTProduct(X: ORDERED_TYPE)(Y: ORDERED_TYPE) : 

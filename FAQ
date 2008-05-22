@@ -55,3 +55,12 @@ A: Here we bump into ocaml's type system limitations: the number of type
    own functions for the functor arguments.
 
 -----
+
+Q: How to choose between concrete and abstract vertices for my graph 
+   implementation?
+
+A: If you fall into one of the following cases, use abstract vertices:
+   - you cannot provide efficient comparison/hash functions for vertices; or
+   - you wish to get two different vertices with the same label.
+   In other cases, it is certainly easier to use concrete vertices.
+   

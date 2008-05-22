@@ -17,6 +17,8 @@
 
 (* $Id:$ *)
 
+(** AST for DOT file format. *)
+
 type id = 
   | Ident of string
   | Number of string

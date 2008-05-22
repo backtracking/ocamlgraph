@@ -47,49 +47,39 @@ type 'a abstract_vertex = { tag : int; label : 'a }
 
 (* Vertex for the abstract persistent graphs. *)
 module AbstractVertex(V: sig type t end) = struct
-
   type label = V.t
   type t = label abstract_vertex
-
-  let compare x y = compare x.tag y.tag 
-  let hash x = Hashtbl.hash x.tag
+  let compare x y = Pervasives.compare x.tag y.tag 
+  let hash x = x.tag
   let equal x y = x.tag = y.tag
   let label x = x.label
-
   let create l = 
     assert (!cpt_vertex < max_int);
     incr cpt_vertex;
     { tag = !cpt_vertex; label = l }
-    
 end
 
 module Digraph = struct
 
-  module Concrete = P.Digraph.Concrete
-
-  module ConcreteLabeled(V: COMPARABLE)(Edge: ORDERED_TYPE_DFT) = struct
-
-    include P.Digraph.ConcreteLabeled(V)(Edge)
-
-    let add_edge_e g (v1, l, v2) = 
-      let g = add_vertex g v1 in
-      let g = add_vertex g v2 in
-      unsafe_add_edge g v1 (v2, l)
-
-    let add_edge g v1 v2 = add_edge_e g (v1, Edge.default, v2)
-
+  module Concrete(V:COMPARABLE) = struct 
+    include P.Digraph.Concrete(V)
     let remove_vertex g v =
       if HM.mem v g then
-	let remove v s =
-	  S.fold 
-	    (fun (v2, _ as e) s -> if not (V.equal v v2) then S.add e s else s)
-	    s S.empty
-	in
 	let g = HM.remove v g in
-	HM.fold (fun k s g -> HM.add k (remove v s) g) g HM.empty
+	HM.fold (fun k s -> HM.add k (S.remove v s)) g empty
       else
 	g
+  end
 
+  module ConcreteLabeled(V:COMPARABLE)(E:ORDERED_TYPE_DFT) = struct
+    include P.Digraph.ConcreteLabeled(V)(E)
+    let remove_vertex g v =
+      if HM.mem v g then
+	let g = HM.remove v g in
+	let remove v = S.filter (fun (v2, _) -> not (V.equal v v2)) in
+	HM.fold (fun k s -> HM.add k (remove v s)) g empty
+      else
+	g
   end
 
   module Abstract(V: sig type t end) = struct
@@ -170,15 +160,11 @@ module Graph = struct
 
   module Concrete(V: COMPARABLE) = struct
 
-    module G = Digraph.Concrete(V) 
-
+    module G = struct include Digraph.Concrete(V) type return = t end
     include Graph(G)
 
     (* Export some definitions of [G] *)
-
     let empty = G.empty
-    let add_vertex = G.add_vertex
-    let remove_vertex = G.remove_vertex
 
     (* Redefine the [add_edge] and [remove_edge] operations *)
 
@@ -200,15 +186,14 @@ module Graph = struct
 
   module ConcreteLabeled(V: COMPARABLE)(Edge: ORDERED_TYPE_DFT) = struct
 
-    module G = Digraph.ConcreteLabeled(V)(Edge)
-
+    module G = struct 
+      include Digraph.ConcreteLabeled(V)(Edge) 
+      type return = t 
+    end
     include Graph(G)
 
     (* Export some definitions of [G] *)
-
     let empty = G.empty
-    let add_vertex = G.add_vertex
-    let remove_vertex = G.remove_vertex
 
     (* Redefine the [add_edge] and [remove_edge] operations *)
 
@@ -233,15 +218,11 @@ module Graph = struct
 
   module Abstract(V: sig type t end) = struct
 
-    module G = Digraph.Abstract(V)
-
+    module G = struct include Digraph.Abstract(V) type return = t end
     include Graph(G)
 
     (* Export some definitions of [G] *)
-
     let empty = G.empty
-    let add_vertex = G.add_vertex
-    let remove_vertex = G.remove_vertex
 
     (* Redefine the [add_edge] and [remove_edge] operations *)
 
@@ -263,15 +244,14 @@ module Graph = struct
 
   module AbstractLabeled (V: sig type t end)(Edge: ORDERED_TYPE_DFT) = struct
 
-    module G = Digraph.AbstractLabeled(V)(Edge)
-
+    module G = struct 
+      include Digraph.AbstractLabeled(V)(Edge) 
+      type return = t 
+    end
     include Graph(G)
 
     (* Export some definitions of [G] *)
-
     let empty = G.empty
-    let add_vertex = G.add_vertex
-    let remove_vertex = G.remove_vertex
 
     (* Redefine the [add_edge] and [remove_edge] operations *)
 
