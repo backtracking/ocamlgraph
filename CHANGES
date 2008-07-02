@@ -1,4 +1,5 @@
 
+ o Makefile: patch to the build system for a DESTDIR (patch of Igor Galic)
  o Dot: fixed bug in the parsing of attributes
 
 version 0.99d, April 24th, 2008
