@@ -206,13 +206,15 @@ $(DPD_GRAPH_ML:.ml=.cmx): $(CMXA)
 # installation
 ##############
 
+DESTDIR	=
+
 install: install-$(OCAMLBEST) install-byte
 
 install-byte: 
-	cp -f graph.cmo graph.cmi $(CMA) "$(OCAMLLIB)"
+	cp -f graph.cmo graph.cmi $(CMA) "$(DESTDIR)$(OCAMLLIB)"
 
 install-opt: install-byte
-	cp -f graph$(LIBEXT) graph.cmx $(CMXA) "$(OCAMLLIB)"
+	cp -f graph$(LIBEXT) graph.cmx $(CMXA) "$(DESTDIR)$(OCAMLLIB)"
 
 install-findlib: META
 ifdef OCAMLFIND
