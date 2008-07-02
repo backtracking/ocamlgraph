@@ -1,3 +1,6 @@
+
+ o Dot: fixed bug in the parsing of attributes
+
 version 0.99d, April 24th, 2008
 -------------------------------
  o fixed bug in Makefile when ocamlfind is installed

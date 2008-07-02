@@ -31,13 +31,41 @@ module Parse
    end) =
 struct
 
+  module Attr = struct
+    module M = Map.Make(struct type t = id let compare = compare end)
+    type t = id option M.t
+    let empty = M.empty
+    let add = List.fold_left (fun a (x,v) -> M.add x v a)
+    let addl = List.fold_left add
+    let list a = M.fold (fun x v l -> (x,v) :: l) a []
+  end
+
   let create_graph dot =
+    (* pass 1: collect node attributes, in table node_attr *)
+    let def_node_attr = ref Attr.empty in
+    let node_attr = Hashtbl.create 97 in
+    let add_node_attr id al =
+      let l = try Hashtbl.find node_attr id with Not_found -> !def_node_attr in
+      Hashtbl.replace node_attr id (Attr.addl l al)
+    in
+    List.iter (function
+      | Node_stmt (id, al) -> add_node_attr id al
+      | Attr_node al -> def_node_attr := Attr.addl !def_node_attr al
+      | Edge_stmt (NodeId id, nl, _) -> 
+	  add_node_attr id [];
+	  List.iter (function NodeId id -> add_node_attr id [] | _ -> ()) nl
+      | _ -> ()
+    )
+    dot.stmts;
+    (* pass 2: build the graph *)
+    let def_edge_attr = ref Attr.empty in
     let nodes = Hashtbl.create 97 in
     let node g id l =
       try
 	g, Hashtbl.find nodes id
       with Not_found ->
-	let n = B.G.V.create (L.node id l) in
+	let l = try Hashtbl.find node_attr id with Not_found -> Attr.empty in
+	let n = B.G.V.create (L.node id [Attr.list l]) in
 	Hashtbl.add nodes id n;
 	B.add_vertex g n, n
     in
@@ -46,7 +74,8 @@ struct
 	| Node_stmt (id, al) ->
 	    let g,_ = node g id al in g
 	| Edge_stmt (NodeId id, nl, al) ->
-	    let el = L.edge al in
+	    let al = Attr.addl !def_edge_attr al in
+	    let el = L.edge [Attr.list al] in
 	    let g,vn = node g id [] in
 	    List.fold_left
 	      (fun g m -> match m with
@@ -57,6 +86,9 @@ struct
 		| NodeSub _ -> 
 		    g)
 	      g nl
+	| Attr_edge al ->
+	    def_edge_attr := Attr.addl !def_edge_attr al;
+	    g
 	| _ ->
 	    g)
       (B.empty ()) 
