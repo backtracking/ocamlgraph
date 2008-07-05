@@ -6,7 +6,7 @@
 (*                                                                        *)
 (*  This software is free software; you can redistribute it and/or        *)
 (*  modify it under the terms of the GNU Library General Public           *)
-(*  License version 2, with the special exception on linking              *)
+(*  License version 2.1, with the special exception on linking            *)
 (*  described in file LICENSE.                                            *)
 (*                                                                        *)
 (*  This software is distributed in the hope that it will be useful,      *)
@@ -88,7 +88,7 @@ module Make_Map(X: COMPARABLE) = struct
   include Map.Make(X)
   type 'a return = 'a t
   let is_empty m = (m = empty)
-  let create ?size:_ () = assert false
+  let create ?size () = assert false
     (* never call and not visible for the user thank's to 
        signature constraints *)
   let create_from _ = empty

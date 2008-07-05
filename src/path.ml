@@ -6,7 +6,7 @@
 (*                                                                        *)
 (*  This software is free software; you can redistribute it and/or        *)
 (*  modify it under the terms of the GNU Library General Public           *)
-(*  License version 2, with the special exception on linking              *)
+(*  License version 2.1, with the special exception on linking            *)
 (*  described in file LICENSE.                                            *)
 (*                                                                        *)
 (*  This software is distributed in the hope that it will be useful,      *)
@@ -61,6 +61,7 @@ struct
 
   let shortest_path g v1 v2 =
     let visited = H.create 97 in
+    let dist = H.create 97 in
     let q = PQ.create 17 in
     let rec loop () = 
       if PQ.is_empty q then raise Not_found;
@@ -72,15 +73,24 @@ struct
 	  H.add visited v ();
 	  G.iter_succ_e
 	    (fun e -> 
-	      let de = dst e in
-	      if not (H.mem visited de) then
-		PQ.add q (W.add w (W.weight (label e)), de, e :: p))
+	       let ev = dst e in
+	       if not (H.mem visited ev) then begin
+		 let dev = W.add w (W.weight (label e)) in
+		 let improvement =
+		   try W.compare dev (H.find dist ev) < 0 with Not_found -> true
+		 in
+		 if improvement then begin
+		   H.replace dist ev dev;
+		   PQ.add q (dev, ev, e :: p)
+		 end
+	       end)
 	    g v
 	end;
 	loop ()
       end
     in
     PQ.add q (W.zero, v1, []);
+    H.add dist v1 W.zero;
     loop ()
 
 end
