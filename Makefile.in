@@ -380,7 +380,8 @@ clean:
 	  rm -f $$d/*.cm[iox] $$d/*$(OBJEXT) $$d/*~; \
 	done
 	rm -f $(GENERATED) $(SRCDIR)/dot_parser.output
-	rm -f graph.*a graph$(LIBEXT) bin/$(NAME).byte bin/$(NAME).opt
+	rm -f graph.*a graph.cm* graph.o graph$(LIBEXT) 
+	rm -f bin/$(NAME).byte bin/$(NAME).opt
 	rm -f *.haux *.aux *.log $(NAME).tex $(NAME).dvi $(DOCFILES)
 	rm -f $(EXAMPLESBIN)
 
