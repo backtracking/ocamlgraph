@@ -1,8 +1,8 @@
 
- o Topological: folding is now tail-recursive (patch of Michael Furr)
+ o Topological: folding is now tail-recursive (patch by Michael Furr)
  o license: LGPL updated to version 2.1
  o Path: improved efficiency of shortest_path
- o Makefile: patch to the build system for a DESTDIR (patch of Igor Galic)
+ o Makefile: patch to the build system for a DESTDIR (patch by Igor Galic)
  o Dot: fixed bug in the parsing of attributes
 
 version 0.99d, April 24th, 2008
