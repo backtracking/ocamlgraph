@@ -3,7 +3,7 @@
 How to create the library ?
 ===========================
 
-You need Objective Caml >= 3.08 to compile this library.
+You need Objective Caml >= 3.10.2 to compile this library.
 
 Configure with 
 
