@@ -17,7 +17,7 @@
 
 (* $Id: delaunay.mli,v 1.8 2004-02-20 14:37:40 signoles Exp $ *)
 
-(** Delaunay triangulation *)
+(** Delaunay triangulation. *)
 
 (** Delaunay triangulation is available for any CCC system in the sense
     of Knuth's ``Axioms and Hulls'' *)

@@ -15,7 +15,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id:$ *)
+(* $Id$ *)
 
 (** Strategies 
 
@@ -41,8 +41,8 @@ module type G = sig
 end
 
 (** Signature for graph add-ons: an initial vertex, final vertices
-   and membership of vertices to either true or false,
-   i.e. first or second player *)
+    and membership of vertices to either true or false,
+    i.e. first or second player *)
 module type PLAYER = sig
 
   type t
@@ -56,7 +56,7 @@ module type PLAYER = sig
 end
 
 (** Signature for strategies: for a given state, the strategy tells
-   which state to go to *)
+    which state to go to *)
 module type STRAT = sig
 
   type t
@@ -66,12 +66,14 @@ module type STRAT = sig
   val add : t -> vertex -> vertex -> t
 
   val next : t -> vertex -> vertex
-    (* Raises [Invalid_argument] if vertex's image is not defined *)
+    (** @raise Invalid_argument if vertex's image is not defined *)
 
 end
 
 (** Implements strategy algorithms on graphs *)
-module Algo (G : G) (P : PLAYER with type vertex = G.vertex)
+module Algo
+  (G : G)
+  (P : PLAYER with type vertex = G.vertex)
   (S : STRAT with type vertex = G.vertex) :
 sig
 
@@ -100,4 +102,5 @@ sig
       player. In this case, the winning
       strategy is provided. *)
   val strategyA : G.t -> P.t -> (bool * S.t)
+
 end

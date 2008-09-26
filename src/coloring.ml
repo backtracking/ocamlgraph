@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-exception NoColoring
-
 module type GM = sig
   type t
   val nb_vertex : t -> int
@@ -35,6 +33,8 @@ end
 (** Graph coloring with marking. 
     Only applies to imperative graphs with marks. *)
 module Mark(G : GM) = struct
+
+  exception NoColoring
 
   module Bfs = Traverse.Bfs(G)
   

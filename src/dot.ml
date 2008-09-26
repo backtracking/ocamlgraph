@@ -48,15 +48,19 @@ struct
       let l = try Hashtbl.find node_attr id with Not_found -> !def_node_attr in
       Hashtbl.replace node_attr id (Attr.addl l al)
     in
-    List.iter (function
-      | Node_stmt (id, al) -> add_node_attr id al
-      | Attr_node al -> def_node_attr := Attr.addl !def_node_attr al
-      | Edge_stmt (NodeId id, nl, _) -> 
-	  add_node_attr id [];
-	  List.iter (function NodeId id -> add_node_attr id [] | _ -> ()) nl
-      | _ -> ()
-    )
-    dot.stmts;
+    let rec collect_node_attr stmts =
+      List.iter (
+        function
+          | Node_stmt (id, al) -> add_node_attr id al
+          | Attr_node al -> def_node_attr := Attr.addl !def_node_attr al
+          | Edge_stmt (NodeId id, nl, _) -> 
+              add_node_attr id [];
+              List.iter (function NodeId id -> add_node_attr id [] | _ -> ()) nl
+          | Subgraph (SubgraphDef (_, stmts)) -> collect_node_attr stmts
+          | _ -> ()
+      ) stmts
+    in
+    collect_node_attr dot.stmts;
     (* pass 2: build the graph *)
     let def_edge_attr = ref Attr.empty in
     let nodes = Hashtbl.create 97 in
@@ -69,30 +73,32 @@ struct
 	Hashtbl.add nodes id n;
 	B.add_vertex g n, n
     in
-    List.fold_left
-      (fun g s -> match s with
-	| Node_stmt (id, al) ->
-	    let g,_ = node g id al in g
-	| Edge_stmt (NodeId id, nl, al) ->
-	    let al = Attr.addl !def_edge_attr al in
-	    let el = L.edge [Attr.list al] in
-	    let g,vn = node g id [] in
-	    List.fold_left
-	      (fun g m -> match m with
-		| NodeId idm -> 
-		    let g,vm = node g idm [] in
-		    let e = B.G.E.create vn el vm in
-		    B.add_edge_e g e
-		| NodeSub _ -> 
-		    g)
-	      g nl
-	| Attr_edge al ->
-	    def_edge_attr := Attr.addl !def_edge_attr al;
-	    g
-	| _ ->
-	    g)
-      (B.empty ()) 
-      dot.stmts
+    let rec add_stmts g stmts =
+      List.fold_left
+        (fun g s -> match s with
+           | Node_stmt (id, al) ->
+               let g,_ = node g id al in g
+           | Edge_stmt (NodeId id, nl, al) ->
+               let al = Attr.addl !def_edge_attr al in
+               let el = L.edge [Attr.list al] in
+               let g,vn = node g id [] in
+                 List.fold_left
+                   (fun g m -> match m with
+                      | NodeId idm -> 
+                          let g,vm = node g idm [] in
+                          let e = B.G.E.create vn el vm in
+                            B.add_edge_e g e
+                      | NodeSub _ -> 
+                          g)
+                   g nl
+           | Attr_edge al -> 
+               def_edge_attr := Attr.addl !def_edge_attr al; g
+           | Subgraph (SubgraphDef (_, stmts)) ->
+               add_stmts g stmts
+           | _ -> g
+        )
+        g stmts
+    in add_stmts (B.empty ()) dot.stmts
 
   let parse f =
     let c = open_in f in

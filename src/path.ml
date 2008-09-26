@@ -21,9 +21,9 @@ module type WEIGHT = sig
   type label
   type t
   val weight : label -> t
-  val zero : t
-  val add : t -> t -> t
   val compare : t -> t -> int
+  val add : t -> t -> t
+  val zero : t
 end
 
 module type G = sig

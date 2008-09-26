@@ -16,8 +16,8 @@
 (**************************************************************************)
 
 module type FLOW = sig
-  type label
   type t
+  type label
   val max_capacity : label -> t
   val min_capacity : label -> t
   val flow : label -> t

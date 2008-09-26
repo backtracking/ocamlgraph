@@ -54,8 +54,11 @@ OFLAGS = $(INCLUDES) @FORPACK@
 
 NAME=ocamlgraph
 
+ifeq (@LABLGTK2@,no)
 all: byte $(OCAMLBEST)
-#all: byte $(OCAMLBEST) editor-@LABLGTK2@
+else
+all: byte $(OCAMLBEST) editor-@LABLGTK2@
+endif
 
 # bytecode and native-code compilation
 ######################################

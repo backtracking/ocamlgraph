@@ -20,25 +20,16 @@
 open Sig
 
 module OTProduct(X: ORDERED_TYPE)(Y: ORDERED_TYPE) = struct 
-
   type t = X.t * Y.t 
-
   let compare (x1, y1) (x2, y2) = 
     let cv = X.compare x1 x2 in
     if cv != 0 then cv else Y.compare y1 y2
-
 end
 
 module HTProduct(X: HASHABLE)(Y: HASHABLE) = struct
-
   type t = X.t * Y.t
-
-  let equal (x1, y1) (x2, y2) =
-    X.equal x1 x2 && Y.equal y1 y2
-
-  let hash (x, y) = 
-    Hashtbl.hash (X.hash x, Y.hash y)
-
+  let equal (x1, y1) (x2, y2) = X.equal x1 x2 && Y.equal y1 y2
+  let hash (x, y) = Hashtbl.hash (X.hash x, Y.hash y)
 end
 
 module CMPProduct(X: COMPARABLE)(Y: COMPARABLE) = struct 
@@ -46,19 +37,13 @@ module CMPProduct(X: COMPARABLE)(Y: COMPARABLE) = struct
   include (OTProduct(X)(Y): sig val compare : t -> t -> int end)
 end
 
-module DataV(L : sig type t end)(V : Sig.COMPARABLE) = 
-struct
+module DataV(L : sig type t end)(V : Sig.COMPARABLE) = struct
   type data = L.t
   type label = V.t
   type t = data ref * V.t
-      
-  let compare ((_, x) : t) ((_, x') : t) =
-    V.compare x x'
-      
-  let hash ((_, x) : t) = V.hash x
-
-  let equal ((_, x) : t) ((_, x') : t) = V.equal x x'
-				   
+  let compare (_, x) (_, x') = V.compare x x'
+  let hash (_, x) = V.hash x
+  let equal (_, x) (_, x') = V.equal x x'
   let create y lbl = (ref y, lbl)
   let label (_, z) = z
   let data (y, _) = !y

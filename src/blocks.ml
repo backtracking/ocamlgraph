@@ -22,8 +22,16 @@
 open Sig
 open Util
 
-let cpt_vertex = ref min_int
+let first_value_for_cpt_vertex = 0
+let cpt_vertex = ref first_value_for_cpt_vertex
   (* global counter for abstract vertex *)
+
+let max_cpt c1 c2 = max (c1 + min_int) (c2 + min_int) - min_int
+
+(* This function must be called after the unserialisation of any abstract
+   vertex if you want to create new vertices. *)
+let after_unserialization serialized_cpt_vertex =
+  cpt_vertex := max_cpt serialized_cpt_vertex !cpt_vertex
 
 (* ************************************************************************* *)
 (** {2 Association table builder} *)
@@ -45,7 +53,6 @@ module type HM = sig
   val find_and_raise : key -> 'a t -> string -> 'a
     (** [find_and_raise k t s] is equivalent to [find k t] but
        raises [Invalid_argument s] when [find k t] raises [Not_found] *)
-
   val iter : (key -> 'a -> unit) -> 'a t -> unit
   val map : (key -> 'a -> key * 'a) -> 'a t -> 'a t
   val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b

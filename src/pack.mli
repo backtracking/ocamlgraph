@@ -17,12 +17,16 @@
 
 (* $Id: pack.mli,v 1.1 2004-02-04 11:52:02 filliatr Exp $ *)
 
-(** Immediate access to the library. *)
+(** {b Immediate access to the library}: provides implementation of imperative
+    graphs labeled with integer as well as algorithms on such graphs. 
 
+    So if you bother functors, you can use this module. *)
+
+(** Directed imperative graphs with edges and vertices labeled with integer. *)
 module Digraph : Sig_pack.S
-  (** Directed graphs *)
 
+(** Undirected imperative graphs with edges and vertices labeled with
+    integer. *)
 module Graph : Sig_pack.S
-  (** Undirected graphs *)
 
 

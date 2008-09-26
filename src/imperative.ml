@@ -70,7 +70,8 @@ module AbstractVertex(V: sig type t end) = struct
   let equal x y = x.tag = y.tag
   let label x = x.label
   let create l = 
-    assert (!cpt_vertex < max_int);
+    if !cpt_vertex = first_value_for_cpt_vertex - 1 then
+      invalid_arg "Too much vertices";
     incr cpt_vertex;
     { tag = !cpt_vertex; label = l; mark = 0 }
 end

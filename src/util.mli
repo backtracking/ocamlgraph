@@ -21,20 +21,20 @@
 
 open Sig
 
+(** Cartesian product of two ordered types. *)
 module OTProduct(X: ORDERED_TYPE)(Y: ORDERED_TYPE) : 
   ORDERED_TYPE with type t = X.t * Y.t
 
+(** Cartesian product of two hashable types. *)
 module HTProduct(X: HASHABLE)(Y: HASHABLE) :
   HASHABLE with type t = X.t * Y.t
 
+(** Cartesian product of two comparable types. *)
 module CMPProduct(X: COMPARABLE)(Y: COMPARABLE) : 
   COMPARABLE with type t = X.t * Y.t
 
 (** Create a vertex type with some data attached to it *)
-module DataV 
-  (L : sig type t end)
-  (V : Sig.COMPARABLE) :
-sig
+module DataV(L : sig type t end)(V : Sig.COMPARABLE) : sig
   type data = L.t
   and label = V.t
   and t = data ref * V.t

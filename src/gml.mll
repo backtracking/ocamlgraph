@@ -134,26 +134,28 @@ and value = parse
       
   end
 
+  module type G = sig
+    module V : sig
+      type t
+      val hash : t -> int
+      val equal : t -> t -> bool
+      type label
+      val label : t -> label
+    end
+    module E : sig
+      type t
+      type label
+      val src : t -> V.t
+      val dst : t -> V.t
+      val label : t -> label
+    end
+    type t
+    val iter_vertex : (V.t -> unit) -> t -> unit
+    val iter_edges_e : (E.t -> unit) -> t -> unit
+  end
+
   module Print
-    (G : sig
-       module V : sig
-	 type t
-	 val hash : t -> int
-	 val equal : t -> t -> bool
-	 type label
-	 val label : t -> label
-       end
-       module E : sig
-	 type t
-	 type label
-	 val src : t -> V.t
-	 val dst : t -> V.t
-	 val label : t -> label
-       end
-       type t
-       val iter_vertex : (V.t -> unit) -> t -> unit
-       val iter_edges_e : (E.t -> unit) -> t -> unit
-     end)
+    (G : G)
     (L : sig
        val node : G.V.label -> value_list
        val edge : G.E.label -> value_list

@@ -19,12 +19,12 @@
 
 (** Minimum Degree algorithm
   
-  Based on the article:
-  The Minimum Degree Heuristic and the Minimal Triangulation Process
-  by A. Berry, Pinar Heggernes & Geneviève Simonet.
+    Based on the article:
+    The Minimum Degree Heuristic and the Minimal Triangulation Process
+    by A. Berry, Pinar Heggernes & Geneviève Simonet.
   
-  @author Matthieu Sozeau
-  @author Pierre-Loic Garoche *)
+    @author Matthieu Sozeau
+    @author Pierre-Loic Garoche *)
 
 module P(G : Sig.P) : sig
 

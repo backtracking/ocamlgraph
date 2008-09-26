@@ -15,20 +15,19 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(** Parser for DOT file format *)
+(** Parser for DOT file format. *)
 
 open Dot_ast
 
+(** Provide a parser for DOT file format. *)
 module Parse 
   (B : Builder.S)
   (L : sig 
      val node : node_id -> attr list -> B.G.V.label
-       (** how to build the node label out of the set of attributes *)
+       (** How to build the node label out of the set of attributes *)
      val edge : attr list -> B.G.E.label 
-       (** how to build the edge label out of the set of attributes *)
+       (** How to build the edge label out of the set of attributes *)
    end) :
 sig
-  
   val parse : string -> B.G.t
-
 end

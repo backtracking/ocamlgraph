@@ -15,18 +15,16 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(**
-  Maximal Cardinality Search (MCS-M) algorithm
+(* $Id: mcs_m.mli,v 1.2 2004-10-19 15:21:44 signoles Exp $ *)
+
+(** Maximal Cardinality Search (MCS-M) algorithm
   
-  Based on the article:
-  Maximal Cardinality Search for Computing Minimal Triangulations of Graphs.
-  by A. Berry, Jean R. S. Blair, Pinar Heggernes & Barry W. Peyton.
+    Based on the article:
+    Maximal Cardinality Search for Computing Minimal Triangulations of Graphs.
+    by A. Berry, Jean R. S. Blair, Pinar Heggernes & Barry W. Peyton.
   
-  @author Matthieu Sozeau
-  @author Pierre-Loic Garoche
-  
-  $Id: mcs_m.mli,v 1.2 2004-10-19 15:21:44 signoles Exp $
-*)
+    @author Matthieu Sozeau
+    @author Pierre-Loic Garoche *)
 
 module MaximalCardinalitySearch : sig
   module P(G : Sig.P) : sig

@@ -17,15 +17,14 @@
 
 (* $Id: sig.mli,v 1.21 2006-05-12 14:07:16 filliatr Exp $ *)
 
-(** Signatures for graph implementations *)
+(** {b Signatures for graph implementations.} *)
 
 (** {2 Signatures for graph implementations} *)
 
-(** Interface for vertices *)
-
+(** Signature for vertices. *)
 module type VERTEX = sig
 
-  (** Vertices are [COMPARABLE] *)
+  (** Vertices are {!COMPARABLE}. *)
   
   type t 
   val compare : t -> t -> int 
@@ -40,11 +39,10 @@ module type VERTEX = sig
 
 end
 
-(** Interface for edges *)
-
+(** Signature for edges. *)
 module type EDGE = sig
 
-  (** Edges are [ORDERED]. *)
+  (** Edges are {!ORDERED_TYPE}. *)
 
   type t
   val compare : t -> t -> int
@@ -64,11 +62,11 @@ module type EDGE = sig
   val create : vertex -> label -> vertex -> t
       (** [create v1 l v2] creates an edge from [v1] to [v2] with label [l] *)
   val label : t -> label
+    (** Get the label of an edge. *)
 
 end
 
-(** Common interface for all graph implementations *)
-
+(** Common signature for all graphs. *)
 module type G = sig
 
   (** {2 Graph structure} *)
@@ -186,10 +184,11 @@ module type G = sig
 
 end
 
-(** Persistent (i.e. immutable) implementation *)
-
+(** Signature for persistent (i.e. immutable) graph. *)
 module type P = sig
+
   include G
+    (** A persistent graph is a graph. *)
 
   val empty : t
     (** The empty graph. *)
@@ -229,10 +228,11 @@ module type P = sig
 
 end
 
-(** Imperative (i.e. mutable) implementation *)
-
+(** Signature for imperative (i.e. mutable) graphs. *)
 module type I = sig
+
   include G
+    (** An imperative graph is a graph. *)
 
   val create : ?size:int -> unit -> t
     (** [create ()] returns an empty graph. Optionally, a size can be
@@ -280,21 +280,24 @@ module type I = sig
 
 end
 
-(** Imperative implementation with marks *)
-
 (** Signature for marks on vertices. *)
 module type MARK = sig
   type graph
+    (** Type of graphs. *)
   type vertex
+    (** Type of graph vertices. *)
   val clear : graph -> unit
       (** [clear g] sets all the marks to 0 for all the vertices of [g]. *)
   val get : vertex -> int
     (** Mark value (in O(1)). *)
   val set : vertex -> int -> unit
+    (** Set the mark of the given vertex. *)
 end
 
+(** Signature for imperative graphs with marks on vertices. *)
 module type IM = sig
   include I
+    (** An imperative graph with marks is an imperative graph. *)
 
   (** Mark on vertices.
       Marks can be used if you want to store some information on vertices:
@@ -304,17 +307,23 @@ end
 
 (** {2 Signature for ordered and hashable types} *)
 
+(** Signature with only an abstract type. *)
 module type ANY_TYPE = sig type t end
+
+(** Signature equivalent to [Set.OrderedType]. *)
 module type ORDERED_TYPE = sig type t val compare : t -> t -> int end
+
+(** Signature equivalent to [Set.OrderedType] with a default value. *)
 module type ORDERED_TYPE_DFT = sig include ORDERED_TYPE val default : t end
 
+(** Signature equivalent to [Hashtbl.HashedType]. *)
 module type HASHABLE = sig
   type t 
   val hash : t -> int 
   val equal : t -> t -> bool
 end
 
-(** [Comparable = Ordered + Hashable] *)
+(** Signature merging {!ORDERED_TYPE} and {!HASHABLE}. *)
 module type COMPARABLE = sig 
   type t 
   val compare : t -> t -> int 

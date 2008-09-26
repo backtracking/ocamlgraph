@@ -17,11 +17,12 @@
 
 (* $Id: sig_pack.mli,v 1.23 2005-07-18 07:10:35 filliatr Exp $ *)
 
-(** Immediate access to the library.
-    Signature [S] gathers an imperative implementation and all algorithms into 
-    a single module. 
+(** Immediate access to the library: contain a signature gathering an
+    imperative graph signature and all algorithms.
     Vertices and edges are labeled with integers. *)
 
+(** Signature gathering an imperative graph signature and all algorithms. 
+    Vertices and edges are labeled with integers. *)
 module type S = sig
 
   (** {2 Graph structure} *)

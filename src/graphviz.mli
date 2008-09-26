@@ -22,12 +22,8 @@
     This module provides a basic interface with dot and neato,
     two programs of the GraphViz toolbox.
     These tools are available at the following URLs:
-
-    {v http://www.graphviz.org/ v}
-
-    {v http://www.research.att.com/sw/tools/graphviz/ v}
-
- *)
+    - {v http://www.graphviz.org v}
+    - {v http://www.research.att.com/sw/tools/graphviz v} *)
 
 open Format
 
@@ -98,8 +94,7 @@ module CommonAttributes : sig
           their file sequence *)
     ] 
 
-  (** Attributes of vertices.
-   *)
+  (** Attributes of vertices. *)
   type vertex =
     [ `Color of color
         (** Sets the color of the border of the vertex. 
@@ -142,8 +137,7 @@ module CommonAttributes : sig
         (** Sets the minimum width.  Default value is [0.75]. *)
     ]     
 
-  (** Attributes of edges.
-   *)
+  (** Attributes of edges. *)
   type edge =
     [ `Color of color
         (** Sets the edge stroke color.  Default value is [black]. *)
@@ -188,8 +182,7 @@ module DotAttributes : sig
       several specific ones.  All attributes described in the "dot User's
       Manual, February 4, 2002" are handled, excepted: clusterank, color,
       compound, labeljust, labelloc, ordering, rank, remincross, rotate,
-      searchsize and style.
-   *)
+      searchsize and style. *)
   type graph =
     [ CommonAttributes.graph
     | `Bgcolor of color
@@ -235,8 +228,7 @@ module DotAttributes : sig
   (** Attributes of nodes.  They include all common node attributes and
       several specific ones.  All attributes described in the "dot User's
       Manual, February 4, 2002" are handled, excepted: bottomlabel, group,
-      shapefile and toplabel.
-   *)
+      shapefile and toplabel. *)
   type vertex =
     [ CommonAttributes.vertex
     | `Comment of string
@@ -261,8 +253,7 @@ module DotAttributes : sig
 
   (** Attributes of edges.  They include all common edge attributes and
       several specific ones.  All attributes described in the "dot User's
-      Manual, February 4, 2002" are handled, excepted: lhead and ltail.
-   *)
+      Manual, February 4, 2002" are handled, excepted: lhead and ltail. *)
   type edge =
     [ CommonAttributes.edge
     | `Arrowhead of arrow_style
@@ -313,22 +304,22 @@ module DotAttributes : sig
             [1]. *)
     ] 
 
-    type subgraph = {
-      sg_name : string;
-      sg_attributes : vertex list;
-    }
+  (** Subgraphs have a name and some vertices. *)
+  type subgraph = {
+    sg_name : string;
+    sg_attributes : vertex list;
+  }
 
 end
 
 module Dot
   (X : sig
 
-     (** Graph implementation. *)
+     (** Graph implementation. Sub-signature of {!Sig.G} *)
 
      type t
      module V : sig type t end
      module E : sig type t val src : t -> V.t val dst : t -> V.t end
-       
      val iter_vertex : (V.t -> unit) -> t -> unit
      val iter_edges_e : (E.t -> unit) -> t -> unit
        
@@ -351,13 +342,13 @@ module Dot
    end) :
 sig
 
-  (** [fprint_graph ppf graph] pretty prints the graph [graph] in
-    the CGL language on the formatter [ppf]. *)
   val fprint_graph: formatter -> X.t -> unit
+    (** [fprint_graph ppf graph] pretty prints the graph [graph] in
+	the CGL language on the formatter [ppf]. *)
 
-  (** [output_graph oc graph] pretty prints the graph [graph] in the dot
-    language on the channel [oc]. *)
   val output_graph: out_channel -> X.t -> unit
+    (** [output_graph oc graph] pretty prints the graph [graph] in the dot
+	language on the channel [oc]. *)
 
 end
 
@@ -368,8 +359,7 @@ module NeatoAttributes : sig
 
   (** Attributes of graphs.  They include all common graph attributes and
       several specific ones.  All attributes described in the "Neato User's
-      manual, April 10, 2002" are handled.
-   *)
+      manual, April 10, 2002" are handled. *)
   type graph =
     [ CommonAttributes.graph
     | `Margin of float * float
@@ -389,8 +379,7 @@ module NeatoAttributes : sig
 
   (** Attributes of nodes.  They include all common node attributes and
       several specific ones.  All attributes described in the "Neato User's
-      manual, April 10, 2002" are handled.
-   *)
+      manual, April 10, 2002" are handled. *)
   type vertex =
     [ CommonAttributes.vertex
     | `Pos of float * float
@@ -399,8 +388,7 @@ module NeatoAttributes : sig
 
   (** Attributes of edges.  They include all common edge attributes and
       several specific ones.  All attributes described in the "Neato User's
-      manual, April 10, 2002" are handled.
-   *)
+      manual, April 10, 2002" are handled. *)
   type edge =
     [ CommonAttributes.edge
     | `Id of string
@@ -411,6 +399,7 @@ module NeatoAttributes : sig
         (** Strength of edge spring.  Default value is [1.0]. *)
     ] 
 
+  (** Subgraphs have a name and some vertices. *)
   type subgraph = {
     sg_name : string;
     sg_attributes : vertex list;
@@ -421,7 +410,7 @@ end
 module Neato
   (X : sig
 
-     (** Graph implementation. *)
+     (** Graph implementation. Sub-signature of {!Sig.G}. *)
 
      type t
      module V : sig type t end
@@ -449,21 +438,21 @@ module Neato
    end) :
 sig
 
-  (** Several functions provided by this module run the external program
-      {i neato}.  By default, this command is supposed to be in the default
-      path and is invoked by {i neato}.  The function
-      [set_command] allows to set an alternative path at run time. *)
   val set_command: string -> unit
+    (** Several functions provided by this module run the external program
+	{i neato}.  By default, this command is supposed to be in the default
+	path and is invoked by {i neato}.  The function
+	[set_command] allows to set an alternative path at run time. *)
 
   exception Error of string
   val handle_error: ('a -> 'b) -> 'a -> 'b
 
-  (** [fprint_graph ppf graph] pretty prints the graph [graph] in
-    the CGL language on the formatter [ppf]. *)
   val fprint_graph: formatter -> X.t -> unit
+    (** [fprint_graph ppf graph] pretty prints the graph [graph] in
+	the CGL language on the formatter [ppf]. *)
 
-  (** [output_graph oc graph] pretty prints the graph [graph] in the dot
-    language on the channel [oc]. *)
   val output_graph: out_channel -> X.t -> unit
+    (** [output_graph oc graph] pretty prints the graph [graph] in the dot
+	language on the channel [oc]. *)
 
 end

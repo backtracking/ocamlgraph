@@ -17,7 +17,7 @@
 
 (* $Id: gml.mli,v 1.3 2005-07-06 13:20:31 conchon Exp $ *)
 
-(** Parser for GML file format *)
+(** Parser and pretty-printer for GML file format. *)
 
 type value = 
   | Int of int 
@@ -27,50 +27,56 @@ type value =
       
 and value_list = (string * value) list
 
+(** {2 Parser} *)
+
+(** Provide a parser for GML file format. *)
 module Parse 
   (B : Builder.S)
   (L : sig 
      val node : value_list -> B.G.V.label
-       (** how to build the node label out of the set of GML attributes;
-for example {v node [ id 12 label "foo" ] v} 
-will call this function with [["id", Int 12; "label", String "foo"]] *)
+       (** How to build the node label out of the set of GML attributes.
+	   For example {v node [ id 12 label "foo" ] v}  will call this
+	   function with [["id", Int 12; "label", String "foo"]] *) 
      val edge : value_list -> B.G.E.label 
-       (** how to build the edge label out of the set of GML attributes *)
+       (** How to build the edge label out of the set of GML attributes *)
    end) :
 sig
-  
   val parse : string -> B.G.t
-
 end
 
+(** {2 Pretty-printer} *)
+
+(** Signature for graph required by {!Print}.
+    Sub-signature of {!Sig.G}. *)
+module type G = sig
+  module V : sig
+    type t
+    val hash : t -> int
+    val equal : t -> t -> bool
+    type label
+    val label : t -> label
+  end
+  module E : sig
+    type t
+    type label
+    val src : t -> V.t
+    val dst : t -> V.t
+    val label : t -> label
+  end
+  type t
+  val iter_vertex : (V.t -> unit) -> t -> unit
+  val iter_edges_e : (E.t -> unit) -> t -> unit
+end
+
+(** Provide a pretty-printer for GML file format. *)
 module Print
-  (G : sig
-     module V : sig
-       type t
-       val hash : t -> int
-       val equal : t -> t -> bool
-       type label
-       val label : t -> label
-     end
-     module E : sig
-       type t
-       type label
-       val src : t -> V.t
-       val dst : t -> V.t
-       val label : t -> label
-     end
-     type t
-     val iter_vertex : (V.t -> unit) -> t -> unit
-     val iter_edges_e : (E.t -> unit) -> t -> unit
-   end)
-  (L : sig
+  (G: G)
+  (L: sig
      val node : G.V.label -> value_list
      val edge : G.E.label -> value_list
    end) :
 sig
-
   val print : Format.formatter -> G.t -> unit
-
 end
 
 

@@ -17,11 +17,12 @@
 
 (* $Id: builder.mli,v 1.13 2004-02-20 14:37:40 signoles Exp $ *)
 
-(** Graph builders *)
+(** Graph builders in order to persistent/imperative graphs sharing a same
+    signature. *)
 
 open Sig
 
-(** {1 Common interface for graph builders}.
+(** {2 Common interface for graph builders}.
 
    Note: the following functions always return graphs but this is meaningless
    for imperative implementations (the graph is modified in-place).  
@@ -41,7 +42,7 @@ module type INT = S with type G.V.label = int
 (** {1 Builders for the various graph implementations} *)
 
 module P(G : Sig.P) : S with module G = G
-  (** Persistent Graphs Builders *)
+  (** Persistent Graphs Builders. *)
 
 module I(G : Sig.I) : S with module G = G
-  (** Imperative Graphs Builders *)
+  (** Imperative Graphs Builders. *)

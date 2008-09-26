@@ -1,16 +1,16 @@
-
+ o ocamlgraph now requires ocaml 3.10 or higher
+ o New function Blocks.after_unserialization in order to be able to safely
+   serialize abstract vertices (see the FAQ)
  o Topological: folding is now tail-recursive (patch by Michael Furr)
  o license: LGPL updated to version 2.1
  o Path: improved efficiency of shortest_path
  o Makefile: patch to the build system for a DESTDIR (patch by Igor Galic)
  o Dot: fixed bug in the parsing of attributes
-
-version 0.99d, April 24th, 2008
--------------------------------
+ o Dot: fixed bug in the parsing of subgraphs (patch by Anne Pacalet)
  o fixed bug in Makefile when ocamlfind is installed
- o fixed bug in Topological.Make.{iter,fold}
- o fixed bug in Oper.intersect
- o improved efficiency of Path.Dijkstra
+ o Topological: fixed bug in Make.{iter,fold}
+ o Oper: fixed bug in intersect
+ o Path: improved efficiency of Dijkstra
 
 version 0.99c, April 3rd, 2008
 ------------------------------

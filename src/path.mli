@@ -19,7 +19,8 @@
 
 (** Paths *)
 
-(** Minimal graph signature for Dijkstra's algorithm *)
+(** Minimal graph signature for Dijkstra's algorithm.
+    Sub-signature of {!Sig.G}. *)
 module type G = sig
   type t 
   module V : Sig.COMPARABLE 
@@ -32,14 +33,20 @@ module type G = sig
   val iter_succ_e : (E.t -> unit) -> t -> V.t -> unit
 end
 
-(** Signature for edges' weights *)
+(** Signature for edges' weights. *)
 module type WEIGHT = sig
   type label
+    (** Type for labels of graph edges. *)
   type t
+    (** Type of edges' weights. *)
   val weight : label -> t
-  val zero : t
-  val add : t -> t -> t
+    (** Get the weight of an edge. *)
   val compare : t -> t -> int
+    (** Weights must be ordered. *)
+  val add : t -> t -> t
+    (** Addition of weights. *)
+  val zero : t
+    (** Neutral element for {!add}. *)
 end
 
 module Dijkstra
@@ -58,15 +65,13 @@ sig
 end
 
 
-(** Check for a path *)
-
+(** Check for a path. *)
 module Check
-  (G : 
-    sig
-      type t
-      module V : Sig.COMPARABLE
-      val iter_succ : (V.t -> unit) -> t -> V.t -> unit
-    end) : 
+  (G : sig
+     type t
+     module V : Sig.COMPARABLE
+     val iter_succ : (V.t -> unit) -> t -> V.t -> unit
+   end) : 
 sig
 
   type path_checker

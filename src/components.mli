@@ -17,11 +17,12 @@
 
 (* $Id: components.mli,v 1.12 2004-10-22 14:42:06 signoles Exp $ *)
 
-(** Strongly connected components *)
+(** Strongly connected components. *)
 
 open Util
 
-(** Minimal graph signature for [scc] *)
+(** Minimal graph signature required by {!Make}.
+    Sub-signature of {!Sig.G}. *)
 module type G = sig
   type t
   module V : Sig.COMPARABLE
@@ -29,9 +30,11 @@ module type G = sig
   val iter_succ : (V.t -> unit) -> t -> V.t -> unit
 end
 
+(** Functor providing functions to compute strongly connected components of a
+    graph. *)
 module Make (G: G) : sig
 
-  val scc : G.t -> int*(G.V.t -> int)
+  val scc : G.t -> int * (G.V.t -> int)
     (** [scc g] computes the strongly connected components of [g].
 	The result is a pair [(n,f)] where [n] is the number of
 	components. Components are numbered from [0] to [n-1], and

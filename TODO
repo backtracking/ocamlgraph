@@ -1,16 +1,28 @@
 $Id: TODO,v 1.14 2004-10-22 14:42:06 signoles Exp $
 
-* résoudre le shift/reduce conflict de dot_parser.mly
-* Le type de "default" dans ORDERED_TYPE_DFT devrait plutôt être unit -> E.label
-  (suggestion B. Monate)
-* Parcours commençant à partir d'un certain noeud (suggestion F. Derepas)
-* Plus de commentaires dans les interfaces
-* Meilleures documentations "externes" (page web, FAQ, ...)
-* Mieux architecturer les algos
-* Marques génériques (plutôt que int) (?)
-* Marques persistantes pour les graphes persistants ?
-* Foncteurs pour des sommets non étiquetés ?
-* Généralisés les graphes bidirectionnels
-* Marshalling
-* Que faire des modules spéciaux ? (Minsep, Strat, ...)
+==========
+BUG REPORT
+==========
+o shift/reduce conflict in dot_parser.mly
 
+==========
+COMPATIBLE FEATURES WISH
+==========
+o "make install" should handle the graph editor
+o Integrating viewGraph (contribution of Anne Pacalet)
+  see Frama-C, directory src/gui/viewGraph
+  Note: viewGraph uses lablgnomecanvas (and lablgtk2 of course)
+o Better website Meilleures documentations "externes" (page web, FAQ, ...)
+o It should be possible to specify the first vertex to visit in traversal 
+  algorithm (suggestion of Fabrice Derepas)
+o Implementations for graph with unlabeled vertices 
+  (exactly like graph with unlabeled edges)
+o Provide more bidirectional graph implementation:
+  only Imperative.Digraph.ConcreteBidirectional exists at this day.
+o Provide generic marks (instead of only integer marks)
+
+==========
+UNCOMPATIBLE FEATURES WISH (break compatibility with older version)
+==========
+o Type of [default] in [ORDERED_TYPE_DFT] should be [unit -> E.label]
+  (suggestion of Benjamin Monate)

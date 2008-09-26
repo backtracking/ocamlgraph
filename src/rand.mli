@@ -17,9 +17,9 @@
 
 (* $Id: rand.mli,v 1.12 2005-03-31 13:32:51 filliatr Exp $ *)
 
-(** Random graph generation *)
+(** Random graph generation. *)
 
-(** {1 Random graphs} *)
+(** {2 Random graphs} *)
 
 module type S = sig
 
@@ -69,7 +69,7 @@ module I (G : Sig.I with type V.label = int) :
     and type edge_label = G.E.label
       (** Random imperative graphs *)
 
-(** {1 Random planar graphs} *)
+(** {2 Random planar graphs} *)
 
 module Planar : sig
 

@@ -15,15 +15,42 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(** k-coloring of undirected graphs.
+(** [k]-coloring of undirected graphs.
 
-    A k-coloring of a graph g is a mapping c from nodes to \{1,...,k\} such
-    that c(u)<>c(v) for any edge u-v in g. *)
+    A [k]-coloring of a graph [g] is a mapping [c] from nodes to [\{1,...,k\}]
+    such that [c(u) <> c(v)] for any edge [u-v] in [g]. *)
 
-exception NoColoring
+(** {2 Graph coloring for graphs without marks} *)
 
-(** Graph coloring for graph with integer marks. *)
+(** Minimal graph signature for {!Make}.
+    Sub-signature of {!Sig.G}. *)
+module type G = sig
+  type t
+  val nb_vertex : t -> int
+  module V : Sig.COMPARABLE
+  val out_degree : t -> V.t -> int
+  val iter_vertex : (V.t -> unit) -> t -> unit
+  val fold_vertex : (V.t -> 'a -> 'a) -> t  -> 'a -> 'a
+  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
+  val fold_succ : (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
+end
 
+(** Provide a function for [k]-coloring a graph. *)
+module Make(G: G) : sig
+
+  module H : Hashtbl.S with type key = G.V.t
+    (** Hash tables used to store the coloring *)
+
+  val coloring : G.t -> int -> int H.t
+    (** [coloring g k] colors the graph [g] with [k] colors and returns the
+        coloring as a hash table mapping nodes to their colors. *)
+
+end
+
+(** {2 Graph coloring for graph with integer marks} *)
+
+(** Minimal graph signature for {!Mark}.
+    Sub-signature of {!Sig.IM}. *)
 module type GM = sig
   type t
   val nb_vertex : t -> int
@@ -39,7 +66,12 @@ module type GM = sig
   end
 end
 
+(** Provide a function for [k]-coloring a graph with integer marks. 
+    The provided function is more efficient that the one provided by functor
+    {!Make} above. *)
 module Mark(G : GM) : sig
+
+  exception NoColoring
 
   val coloring : G.t -> int -> unit
     (** [coloring g k] colors the nodes of graph [g] using k colors,
@@ -50,30 +82,8 @@ module Mark(G : GM) : sig
         initial values is as follows:
 	- 0: a node to be colored
 	- any value between 1 and k: a color already assigned
-	- any value greater than k: a node to be ignored *)
+	- any value greater than k: a node to be ignored 
 
-end
-
-(** Graph coloring for graphs without marks *)
-
-module type G = sig
-  type t
-  val nb_vertex : t -> int
-  module V : Sig.COMPARABLE
-  val out_degree : t -> V.t -> int
-  val iter_vertex : (V.t -> unit) -> t -> unit
-  val fold_vertex : (V.t -> 'a -> 'a) -> t  -> 'a -> 'a
-  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
-  val fold_succ : (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
-end
-
-module Make(G: G) : sig
-
-  module H : Hashtbl.S with type key = G.V.t
-    (** hash tables used to store the coloring *)
-
-  val coloring : G.t -> int -> int H.t
-    (** [coloring g k] colors the graph [g] with [k] colors and returns the
-        coloring as a hash table mapping nodes to their colors. *)
+	@raise NoColoring if [g] cannot be [k]-colored. *)
 
 end

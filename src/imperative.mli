@@ -21,7 +21,7 @@
 
 open Sig
 
-(** Signature of imperative graphs *)
+(** Signature of imperative graphs. *)
 module type S = sig
 
   (** <b>Edges may be labeled or not</b>:

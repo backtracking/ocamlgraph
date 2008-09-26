@@ -16,23 +16,13 @@
 (**************************************************************************)
 
 (* $Id: md.ml,v 1.6 2004-10-22 14:42:06 signoles Exp $ *)
-
-(** Minimum Degree.
   
-  Based on the article:
-  The Minimum Degree Heuristic and the Minimal Triangulation Process
-  by A. Berry, Pinar Heggernes & Geneviève Simonet.
-  
-  @author Matthieu Sozeau
-  @author Pierre-Loic Garoche *)
   
 module P(G : Sig.P) = struct
 
   module VertexSet = Set.Make(G.V)
   module CT = Cliquetree.CliqueTree(G)
-
   module Choose = Oper.Choose(G)
-(*  module NG = Neighborhood.Graph(G)*)
 
   type edgeset = (G.V.t * G.V.t) list
       
@@ -100,9 +90,7 @@ module I(G : Sig.I) = struct
 
   module VertexSet = Set.Make(G.V)   
   module CT = Cliquetree.CliqueTree(G)
-
   module Choose = Oper.Choose(G)
-(*  module NG = Neighborhood.Graph(G)*)
             
   type edgeset = (G.V.t * G.V.t) list
       

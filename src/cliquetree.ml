@@ -15,12 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(**
-  Clique tree of a graph.
-  
-  @author Matthieu Sozeau
-*)
-
 (*i $Id: cliquetree.ml,v 1.6 2005-11-02 13:43:35 filliatr Exp $ i*)
 
 module CliqueTree(Gr : Sig.G) = struct

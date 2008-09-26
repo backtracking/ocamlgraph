@@ -17,11 +17,12 @@
 
 (* $Id: traverse.mli,v 1.14 2005-04-01 07:13:24 filliatr Exp $ *)
 
-(** Graph traversal *)
+(** Graph traversal. *)
 
-(** {1 Dfs and Bfs} *)
+(** {2 Dfs and Bfs} *)
 
-(** Minimal graph signature for [Dfs] or [Bfs] *)
+(** Minimal graph signature for {!Dfs} and {!Bfs}.
+    Sub-signature of {!Sig.G}. *)
 module type G = sig
   type t
   module V : Sig.COMPARABLE
@@ -33,6 +34,7 @@ end
 
 (** Depth-first search *)
 module Dfs(G : G) : sig
+
   (** {2 Classical big-step iterators} *)
 
   val iter : ?pre:(G.V.t -> unit) -> 
@@ -82,6 +84,7 @@ end
 
 (** Breadth-first search *)
 module Bfs(G : G) : sig
+
   (** {2 Classical big-step iterators} *)
 
   val iter : (G.V.t -> unit) -> G.t -> unit
@@ -97,9 +100,13 @@ module Bfs(G : G) : sig
 
 end
 
-(** {1 Traversal with marking} *)
+(** {2 Traversal with marking} 
 
-(** Minimal graph signature for graph traversal with marking. *)
+    Provide a more efficient version of depth-first algorithm when graph
+    vertices are marked. *)
+
+(** Minimal graph signature for graph traversal with marking. 
+    Sub-signature of {!Sig.IM}. *)
 module type GM = sig
   type t
   module V : sig type t end

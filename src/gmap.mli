@@ -17,44 +17,56 @@
 
 (* $Id: gmap.mli,v 1.1 2004-10-20 09:59:56 signoles Exp $ *)
 
-(** Graph mapping *)
+(** Graph mapping. Map a graph to another one. *)
 
-module Vertex
-  (G_Init : sig
-     type t
-     module V : Sig.HASHABLE
-     val fold_vertex : (V.t -> 'a -> 'a) -> t -> 'a -> 'a
-   end)
-  (G_Dest : sig
-     type t
-     type vertex
-     val empty : unit -> t
-     val add_vertex : t -> vertex -> t
-   end) :
-sig
+(** {2 Mapping of vertices} *)
 
-  val map : (G_Init.V.t -> G_Dest.vertex) -> G_Init.t -> G_Dest.t
+(** Signature for the source graph. *)
+module type V_SRC = sig
+  type t
+  module V : Sig.HASHABLE
+  val fold_vertex : (V.t -> 'a -> 'a) -> t -> 'a -> 'a
+end
+
+(** Signature for the destination graph. *)
+module type V_DST = sig
+  type t
+  type vertex
+  val empty : unit -> t
+  val add_vertex : t -> vertex -> t
+end
+
+(** Provide a mapping function from a mapping of vertices. *)
+module Vertex(G_Src : V_SRC)(G_Dst : V_DST) : sig
+
+  val map : (G_Src.V.t -> G_Dst.vertex) -> G_Src.t -> G_Dst.t
     (** [map f g] applies [f] to each vertex of [g] and so builds a new graph
-      based on [g] *)
+	based on [g] *)
 
 end
 
-module Edge
-  (G_Init : sig
-     type t
-     module E : Sig.HASHABLE
-     val fold_edges_e : (E.t -> 'a -> 'a) -> t -> 'a -> 'a
-   end)
-  (G_Dest : sig
-     type t
-     type edge
-     val empty : unit -> t
-     val add_edge_e : t -> edge -> t
-   end) :
-sig
+(** {2 Mapping of edges} *)
 
-  val map : (G_Init.E.t -> G_Dest.edge) -> G_Init.t -> G_Dest.t
+(** Signature for the source graph. *)
+module type E_SRC = sig
+  type t
+  module E : Sig.HASHABLE
+  val fold_edges_e : (E.t -> 'a -> 'a) -> t -> 'a -> 'a
+end
+
+(** Signature for the destination graph. *)
+module type E_DST = sig
+  type t
+  type edge
+  val empty : unit -> t
+  val add_edge_e : t -> edge -> t
+end
+
+(** Provide a mapping function from a mapping of edges. *)
+module Edge(G_Src: E_SRC)(G_Dst: E_DST) : sig
+
+  val map : (G_Src.E.t -> G_Dst.edge) -> G_Src.t -> G_Dst.t
     (** [map f g] applies [f] to each edge of [g] and so builds a new graph
-      based on [g] *)
+	based on [g] *)
 
 end

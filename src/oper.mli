@@ -19,7 +19,7 @@
 
 (** Basic operations over graphs *)
 
-(** {1 Basic operations over graphs} *)
+(** {2 Basic operations over graphs} *)
 
 module type S = sig
 
@@ -66,7 +66,7 @@ module P(G : Sig.P) : S with type g = G.t
 module I(G : Sig.I) : S with type g = G.t
   (** Basic operations over imperative graphs *)
 
-(** {1 Choose} *)
+(** {2 Choose} *)
 
 (** Choose an element in a graph *)
 module Choose(G : sig 
@@ -88,7 +88,7 @@ sig
 
 end
 
-(** {1 Neighbourhood } *)
+(** {2 Neighbourhood} *)
 
 (** Neighbourhood of vertex / vertices *)
 module Neighbourhood(G : sig 

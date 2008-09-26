@@ -17,9 +17,10 @@
 
 (* $Id: kruskal.mli,v 1.5 2005-06-30 10:48:55 filliatr Exp $ *)
 
-(** Kruskal's algorithm *)
+(** Kruskal's algorithm. *)
 
-(** Minimal graph signature for Kruskal *)
+(** Minimal graph signature for Kruskal.
+    Sub-signature of {!Sig.G}. *)
 module type G = sig
   type t 
   module V : Sig.COMPARABLE 
@@ -34,32 +35,31 @@ module type G = sig
   val iter_edges_e : (E.t -> unit) -> t ->  unit
 end
 
-module Make
-  (G: G)
-  (W: Sig.ORDERED_TYPE with type t = G.E.label) :
-sig
-    
+(** Functor providing an implementation of the Kruskal's algorithm computing
+    spanning trees. 
+    Parameter [W] ensures that label on edges are comparable. *)
+module Make(G: G)(W: Sig.ORDERED_TYPE with type t = G.E.label) : sig
   val spanningtree : G.t -> G.E.t list
-
 end  
 
-(** Generic version where union-find implementation is provided *)
+(** {2 Generic version where union-find implementation is provided} *)
 
+(** Signature of union-find. *)
 module type UNIONFIND = sig
   type elt
   type t
-    
   val init : elt list -> t
   val find : elt -> t -> elt
   val union : elt -> elt -> t -> unit
 end
 
+(** Functor providing an implementation of the Kruskal's algorithm computing
+    spanning trees using an user-defined union-find algorithm.
+    Parameter [W] ensures that label on edges are comparable. *)
 module Generic
   (G: G)
-  (W: Sig.ORDERED_TYPE with type t=G.E.label)
-  (UF: UNIONFIND with type elt=G.V.t) : 
+  (W: Sig.ORDERED_TYPE with type t = G.E.label)
+  (UF: UNIONFIND with type elt = G.V.t) : 
 sig
-    
   val spanningtree : G.t -> G.E.t list
-
 end  
