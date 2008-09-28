@@ -27,13 +27,13 @@ A: If you fall into one of the following cases, use abstract vertices:
 ==========
 Q: Is it possible to serialize graphs?
 -----
-A: Graphs are serializable data structures: just call [Pervasives.output_value] 
+A: Graphs are serializable data structures: just call [Pervasives.output_value]
    on your graph (for example).
 
-   But abstract graphs use an integer tags to identify vertices. 
-   This tag is the global reference [Blocks.cpt_vertex].
-   If you want to create new vertices after the unserialisation of any abstract
-   vertex, you have to
+   But abstract graphs use integer tags to identify vertices;
+   this tag is made from the global reference [Blocks.cpt_vertex].
+   If you need to create new vertices after the unserialisation of an abstract
+   graph, you have to
    - serialize [!Blocks.cpt_vertex]
    - call function [Blocks.after_unserialization] after your unserialisation 
    process.
@@ -68,10 +68,10 @@ A: Of course yes. But the idea behind ocamlgraph is to be as generic as
 Q: I have a graph implementation with polymorphic types for vertices or edges
    and thus I can't apply the algorithms functors
 -----
-A: Here we bump into ocaml's type system limitations: the number of type 
+A: Here we bump into Ocaml's type system limitations: the number of type 
    parameters must be know when the functor is written and the simplest 
    choice for us was to assume no type parameter at all. (This is exactly the
-   same for functors Set.Make or Map.Make from ocaml standard library.) 
+   same for functors Set.Make or Map.Make from Ocaml standard library.) 
    As a (bad) workaround, you can copy the functor body and substitute your
    own functions for the functor arguments.
 ==========

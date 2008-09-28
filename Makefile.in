@@ -45,7 +45,7 @@ OBJEXT = @OBJEXT@
 SRCDIR	= src
 LIBDIR	= lib
 
-INCLUDES= -I $(SRCDIR) -I $(LIBDIR) 
+INCLUDES= -I $(SRCDIR) -I $(LIBDIR)
 BFLAGS = $(INCLUDES) -g
 OFLAGS = $(INCLUDES) @FORPACK@
 
@@ -400,7 +400,7 @@ svnclean svn-clean:: dist-clean
 .PHONY: depend
 .depend depend: $(GENERATED)
 	rm -f .depend
-	$(OCAMLDEP) $(INCLUDES) \
+	$(OCAMLDEP) $(INCLUDES) -I $(ED_DIR) \
 		$(LIBDIR)/*.ml $(LIBDIR)/*.mli \
 		$(SRCDIR)/*.ml $(SRCDIR)/*.mli \
 		$(ED_DIR)/*.mli $(ED_DIR)/*.ml > .depend
