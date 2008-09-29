@@ -141,13 +141,15 @@ AC_CHECK_PROG(OCAMLWEB,ocamlweb,ocamlweb,true)
 
 AC_CHECK_PROG(OCAMLFIND,ocamlfind,ocamlfind)
 
-# checking for lablgtk2
+# checking for lablgtk2 and lablgnomecanvas
 AC_CHECK_PROG(LABLGTK2,lablgtk2,yes,no)
 if test "$LABLGTK2" = yes ; then
    if test -d "$OCAMLLIB/lablgtk2" ; then
       INCLUDEGTK2="-I +lablgtk2"
+      AC_CHECK_FILE($OCAMLLIB/lablgtk2/lablgnomecanvas.cma,LABLGNOMECANVAS=yes,LABLGNOMECANVAS=no)
    else
       LABLGTK2=no
+      LABLGNOMECANVAS=no
    fi      
 fi
 
@@ -169,6 +171,10 @@ else
 fi
 rm -f check_arch.ml
 
+if test "$LABLGNOMECANVAS" = no ; then
+  AC_MSG_WARN([lablgnomecanvas not found: the graph editor will not be compiled])
+fi
+
 # substitutions to perform
 AC_SUBST(OCAMLC)
 AC_SUBST(OCAMLOPT)
@@ -181,6 +187,7 @@ AC_SUBST(OCAMLVERSION)
 AC_SUBST(OCAMLLIB)
 AC_SUBST(OCAMLWEB)
 AC_SUBST(LABLGTK2)
+AC_SUBST(LABLGNOMECANVAS)
 AC_SUBST(OCAMLWIN32)
 AC_SUBST(EXE)
 AC_SUBST(LIBEXT)

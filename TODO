@@ -3,7 +3,6 @@ $Id: TODO,v 1.14 2004-10-22 14:42:06 signoles Exp $
 ==========
 COMPATIBLE FEATURES WISH
 ==========
-o "make install" should handle the graph editor
 o Integrating viewGraph (contribution of Anne Pacalet)
   see Frama-C, directory src/gui/viewGraph
   Note: viewGraph uses lablgnomecanvas (and lablgtk2 of course)
@@ -15,9 +14,3 @@ o Implementations for graph with unlabeled vertices
 o Provide more bidirectional graph implementation:
   only Imperative.Digraph.ConcreteBidirectional exists at this day.
 o Provide generic marks (instead of only integer marks)
-
-==========
-UNCOMPATIBLE FEATURES WISH (break compatibility with older version)
-==========
-o Type of [default] in [ORDERED_TYPE_DFT] should be [unit -> E.label]
-  (suggestion of Benjamin Monate)

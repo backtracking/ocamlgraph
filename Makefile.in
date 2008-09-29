@@ -53,12 +53,7 @@ OFLAGS = $(INCLUDES) @FORPACK@
 #############
 
 NAME=ocamlgraph
-
-ifeq (@LABLGTK2@,no)
-all: byte $(OCAMLBEST)
-else
-all: byte $(OCAMLBEST) editor-@LABLGTK2@
-endif
+all: byte $(OCAMLBEST) editor-@LABLGNOMECANVAS@
 
 # bytecode and native-code compilation
 ######################################
@@ -100,6 +95,46 @@ graph.cmo: $(CMI) $(CMO)
 
 graph.cmx: $(CMI) $(CMX)
 	$(OCAMLOPT) $(INCLUDES) -pack -o $@ $^
+
+VERSION=0.99c+dev
+
+src/version.ml: Makefile
+	rm -f $@
+	echo "let version = \""$(VERSION)"\"" > $@
+	echo "let date = \""`date`"\"" >> $@
+
+# gtk2 graph editor
+###################
+
+ED_DIR=editor
+
+editor-no:
+editor-yes: $(ED_DIR)/editor.byte $(ED_DIR)/editor.$(OCAMLBEST)
+
+editor: $(ED_DIR)/editor.byte editor-yes
+
+ED_CMO = ed_hyper ed_graph ed_draw ed_display ed_main
+ED_CMO:= $(patsubst %, $(ED_DIR)/%.cmo, $(ED_CMO))
+ED_CMX = $(ED_CMO:.cmo=.cmx)
+ED_CMI = $(ED_CMO:.cmo=.cmi)
+
+ED_INCLUDES = @INCLUDEGTK2@ -I +threads -I $(ED_DIR) $(INCLUDES)
+
+$(ED_CMI) $(ED_CMO): BFLAGS+= $(ED_INCLUDES)
+$(ED_CMO): $(CMA)
+$(ED_CMX): OFLAGS+= $(ED_INCLUDES)
+$(ED_CMX): $(CMXA)
+
+$(ED_DIR)/editor.byte: $(CMA) $(ED_CMO)
+	$(OCAMLC) -g -o $@ $(ED_INCLUDES) \
+		lablgtk.cma lablgnomecanvas.cma unix.cma $^
+
+$(ED_DIR)/editor.opt: $(CMXA) $(ED_CMX)
+	$(OCAMLOPT) -o $@ $(ED_INCLUDES) \
+		lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
+
+# Examples
+##########
 
 EXAMPLESBIN=bin/demo.$(OCAMLBEST) bin/demo_planar.$(OCAMLBEST) \
   bin/bench.$(OCAMLBEST) bin/color.$(OCAMLBEST) bin/sudoku.$(OCAMLBEST) \
@@ -153,42 +188,6 @@ bin/bench.opt: $(CMXA) tests/bench.ml
 check: $(CMA) tests/check.ml
 	ocaml $^
 
-# gtk2 graph editor
-
-ED_DIR=editor
-
-editor-no:
-editor-yes: $(ED_DIR)/editor.$(OCAMLBEST)
-
-editor: $(ED_DIR)/editor.byte editor-yes
-
-ED_CMO = ed_hyper ed_graph ed_draw ed_display ed_main
-ED_CMO:= $(patsubst %, $(ED_DIR)/%.cmo, $(ED_CMO))
-ED_CMX = $(ED_CMO:.cmo=.cmx)
-
-ED_INCLUDES = @INCLUDEGTK2@ -I +threads -I $(ED_DIR)
-
-$(ED_CMO): BFLAGS+= $(ED_INCLUDES)
-$(ED_CMX): OFLAGS+= $(ED_INCLUDES)
-
-$(ED_DIR)/editor.byte: $(CMA) $(ED_CMO)
-	$(OCAMLC) -g -o $@ @INCLUDEGTK2@ \
-		lablgtk.cma lablgnomecanvas.cma unix.cma $^
-
-$(ED_DIR)/editor.opt: $(CMXA) $(ED_CMX)
-	$(OCAMLOPT) -o $@ @INCLUDEGTK2@ \
-		lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
-
-VERSION=0.99d
-
-src/version.ml: Makefile
-	echo "let version = \""$(VERSION)"\"" > $@
-	echo "let date = \""`date`"\"" >> $@
-
-META: META.in Makefile
-	sed -e s/VERSION/$(VERSION)/ -e s/CMA/$(CMA)/ -e s/CMXA/$(CMXA)/ \
-		$@.in > $@
-
 # Additional rules
 ##################
 
@@ -212,18 +211,29 @@ $(DPD_GRAPH_ML:.ml=.cmx): $(CMXA)
 DESTDIR	=
 
 install: install-$(OCAMLBEST) install-byte
+ifeq ($(OCAMLBEST),byte)
+	cp -f $(BINDIR)/graph-editor.byte $(BINDIR)/graph-editor$(EXE)
+else
+	cp -f $(BINDIR)/graph-editor.opt $(BINDIR)/graph-editor$(EXE)
+endif
 
 install-byte: 
 	cp -f graph.cmo graph.cmi $(CMA) "$(DESTDIR)$(OCAMLLIB)"
+	cp -f $(ED_DIR)/editor.byte $(BINDIR)/graph-editor.byte
 
 install-opt: install-byte
 	cp -f graph$(LIBEXT) graph.cmx $(CMXA) "$(DESTDIR)$(OCAMLLIB)"
+	cp -f $(ED_DIR)/editor.opt $(BINDIR)/graph-editor.opt
 
 install-findlib: META
 ifdef OCAMLFIND
 	$(OCAMLFIND) install ocamlgraph META $(SRCDIR)/*.mli \
 		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA)
 endif
+
+META: META.in Makefile
+	sed -e s/VERSION/$(VERSION)/ -e s/CMA/$(CMA)/ -e s/CMXA/$(CMXA)/ \
+		$@.in > $@
 
 # documentation
 ###############
@@ -250,6 +260,7 @@ wc:
 
 # file headers
 ##############
+
 headers:
 	headache -c misc/headache_config.txt -h misc/header.txt \
 		Makefile.in configure.in README \
@@ -283,6 +294,7 @@ source:
 	cp export/$(TAR).gz $(FTP)
 	cp README FAQ CREDITS COPYING LICENSE CHANGES $(EXAMPLES) $(FTP)
 
+# Build and install the .tar.gz requiered by Frama-C
 framac: EXPORTDIR=ocamlgraph
 framac: FTP=$$HOME/frama-c
 framac:
@@ -384,7 +396,7 @@ clean:
 	done
 	rm -f $(GENERATED) $(SRCDIR)/dot_parser.output
 	rm -f graph.*a graph.cm* graph.o graph$(LIBEXT) 
-	rm -f bin/$(NAME).byte bin/$(NAME).opt
+	rm -f $(ED_DIR)/editor.byte $(ED_DIR)/editor.opt
 	rm -f *.haux *.aux *.log $(NAME).tex $(NAME).dvi $(DOCFILES)
 	rm -f $(EXAMPLESBIN)
 
