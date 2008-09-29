@@ -1,11 +1,6 @@
 $Id: TODO,v 1.14 2004-10-22 14:42:06 signoles Exp $
 
 ==========
-BUG REPORT
-==========
-o shift/reduce conflict in dot_parser.mly
-
-==========
 COMPATIBLE FEATURES WISH
 ==========
 o "make install" should handle the graph editor
