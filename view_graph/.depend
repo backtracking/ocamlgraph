@@ -1,7 +1,0 @@
-viewGraph.cmo: viewGraph.cmi 
-viewGraph.cmx: viewGraph.cmi 
-viewGraph_select.cmo: viewGraph.cmi viewGraph_select.cmi 
-viewGraph_select.cmx: viewGraph.cmx viewGraph_select.cmi 
-viewGraph_test.cmo: viewGraph_select.cmi viewGraph.cmi 
-viewGraph_test.cmx: viewGraph_select.cmx viewGraph.cmx 
-viewGraph_select.cmi: viewGraph.cmi 
