@@ -324,7 +324,8 @@ WWW = /users/www-perso/projets/ocamlgraph
 FILES = src/*.ml* lib/*.ml* Makefile.in configure configure.in META.in  \
 	.depend editor/ed_*.ml* editor/Makefile \
         editor/tests/*.dot editor/tests/*.gml \
-	view_graph/*.ml view_graph/*.mli view_graph/README \
+	view_graph/*.ml view_graph/*.mli \
+	view_graph/README view_graph/Makefile \
 	examples/*.ml tests/*.ml \
 	README FAQ CREDITS INSTALL COPYING LICENSE CHANGES
 
