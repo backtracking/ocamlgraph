@@ -1,0 +1,31 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="ViewGraph_select.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="ViewGraph" rel="Chapter" href="ViewGraph.html">
+<link title="ViewGraph_select" rel="Chapter" href="ViewGraph_select.html">
+<link title="ViewGraph_test" rel="Chapter" href="ViewGraph_test.html"><title>ViewGraph_test</title>
+</head>
+<body>
+<div class="navbar"><a href="ViewGraph_select.html">Previous</a>
+&nbsp;<a href="index.html">Up</a>
+&nbsp;</div>
+<center><h1>Module <a href="type_ViewGraph_test.html">ViewGraph_test</a></h1></center>
+<br>
+<pre><span class="keyword">module</span> ViewGraph_test: <code class="code">sig</code> <a href="ViewGraph_test.html">..</a> <code class="code">end</code></pre>This is only a test file to show how to use 
+ <code class="code">ViewGraph</code> and <code class="code">ViewGraph_select</code>.
+ Just compile and test... (click on the Help button to know how to use it).<br>
+<hr width="100%">
+<pre><span class="keyword">module</span> <a href="ViewGraph_test.CbTest.html">CbTest</a>: <code class="code">sig</code> <a href="ViewGraph_test.CbTest.html">..</a> <code class="code">end</code></pre><div class="info">
+To test to callbacks : only print messages
+</div>
+<pre><span class="keyword">module</span> <a href="ViewGraph_test.V.html">V</a>: <code class="type"><a href="ViewGraph_select.VG.html">ViewGraph_select.VG</a></code><code class="code">(</code><code class="type"><a href="ViewGraph_test.CbTest.html">CbTest</a></code><code class="code">)</code></pre><pre><span class="keyword">val</span> <a name="VALopen_file"></a><a href="code_VALViewGraph_test.open_file.html">open_file</a> : <code class="type"><a href="ViewGraph_select.html#TYPEt_env">ViewGraph_select.t_env</a> -> string -> unit</code></pre><pre><span class="keyword">val</span> <a name="VALopen_cb"></a><a href="code_VALViewGraph_test.open_cb.html">open_cb</a> : <code class="type"><a href="ViewGraph_select.html#TYPEt_env">ViewGraph_select.t_env</a> -> unit -> unit</code></pre><pre><span class="keyword">val</span> <a name="VALhelp_act_cb"></a><a href="code_VALViewGraph_test.help_act_cb.html">help_act_cb</a> : <code class="type">'a -> unit</code></pre><pre><span class="keyword">val</span> <a name="VALerror_act_cb"></a><a href="code_VALViewGraph_test.error_act_cb.html">error_act_cb</a> : <code class="type">< name : string; .. > -> unit</code></pre><pre><span class="keyword">val</span> <a name="VALquit_cb"></a><a href="code_VALViewGraph_test.quit_cb.html">quit_cb</a> : <code class="type">unit -> unit</code></pre><pre><span class="keyword">val</span> <a name="VALquit_act_cb"></a><a href="code_VALViewGraph_test.quit_act_cb.html">quit_act_cb</a> : <code class="type">'a -> unit</code></pre><pre><span class="keyword">val</span> <a name="VALmenu_desc"></a><a href="code_VALViewGraph_test.menu_desc.html">menu_desc</a> : <code class="type">string</code></pre><pre><span class="keyword">val</span> <a name="VALcreate_menu"></a><a href="code_VALViewGraph_test.create_menu.html">create_menu</a> : <code class="type">unit -> GAction.ui_manager</code></pre><pre><span class="keyword">val</span> <a name="VALcreate_scrolled_canvas"></a><a href="code_VALViewGraph_test.create_scrolled_canvas.html">create_scrolled_canvas</a> : <code class="type">(GObj.widget -> unit) -> GnoCanvas.canvas</code></pre><pre><span class="keyword">val</span> <a name="VALcreate_gui"></a><a href="code_VALViewGraph_test.create_gui.html">create_gui</a> : <code class="type">unit -> GnoCanvas.canvas * <a href="ViewGraph_select.html#TYPEt_env">ViewGraph_select.t_env</a></code></pre><pre><span class="keyword">val</span> <a name="VALmain"></a><a href="code_VALViewGraph_test.main.html">main</a> : <code class="type">unit -> unit</code></pre></body></html>

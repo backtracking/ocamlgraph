@@ -2293,8 +2293,8 @@ fi
 rm -f check_arch.ml
 
 if test "$LABLGNOMECANVAS" = no ; then
-  { echo "$as_me:$LINENO: WARNING: lablgnomecanvas not found: the graph editor will not be compiled" >&5
-echo "$as_me: WARNING: lablgnomecanvas not found: the graph editor will not be compiled" >&2;}
+  { echo "$as_me:$LINENO: WARNING: lablgnomecanvas not found: the graph editor and view_graph will not be compiled" >&5
+echo "$as_me: WARNING: lablgnomecanvas not found: the graph editor and view_graph will not be compiled" >&2;}
 fi
 
 # substitutions to perform

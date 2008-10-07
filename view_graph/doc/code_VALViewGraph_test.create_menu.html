@@ -1,0 +1,32 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="ViewGraph" rel="Chapter" href="ViewGraph.html">
+<link title="ViewGraph_select" rel="Chapter" href="ViewGraph_select.html">
+<link title="ViewGraph_test" rel="Chapter" href="ViewGraph_test.html"><title>ViewGraph_test.create_menu</title>
+</head>
+<body>
+<code class="code"><span class="keyword">let</span>&nbsp;create_menu&nbsp;()&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ui_m&nbsp;=&nbsp;<span class="constructor">GAction</span>.ui_manager&nbsp;()&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;actions&nbsp;=&nbsp;<span class="constructor">GAction</span>.action_group&nbsp;~name:<span class="string">"Actions"</span>&nbsp;()&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">GAction</span>.add_actions&nbsp;actions&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">GAction</span>.add_action&nbsp;<span class="string">"FileMenu"</span>&nbsp;~label:<span class="string">"File"</span>&nbsp;;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">GAction</span>.add_action&nbsp;<span class="string">"Open"</span>&nbsp;~label:<span class="string">"Open"</span>&nbsp;~accel:<span class="string">"o"</span>&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">(*&nbsp;callback&nbsp;connected&nbsp;later&nbsp;*)</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">GAction</span>.add_action&nbsp;<span class="string">"Quit"</span>&nbsp;~label:<span class="string">"Quit"</span>&nbsp;~accel:<span class="string">"q"</span>&nbsp;~callback:quit_act_cb;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">GAction</span>.add_action&nbsp;<span class="string">"HelpMenu"</span>&nbsp;~label:<span class="string">"Help"</span>&nbsp;;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">GAction</span>.add_action&nbsp;<span class="string">"Help"</span>&nbsp;~label:<span class="string">"Help"</span>&nbsp;~accel:<span class="string">"h"</span>&nbsp;~callback:help_act_cb;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ui_m<span class="keywordsign">#</span>insert_action_group&nbsp;actions&nbsp;0&nbsp;;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_&nbsp;=&nbsp;ui_m<span class="keywordsign">#</span>add_ui_from_string&nbsp;menu_desc&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;help_item&nbsp;=&nbsp;ui_m<span class="keywordsign">#</span>get_widget&nbsp;<span class="string">"/MenuBar/HelpMenu"</span>&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;help_item&nbsp;=&nbsp;&nbsp;<span class="constructor">GtkMenu</span>.<span class="constructor">MenuItem</span>.cast&nbsp;help_item<span class="keywordsign">#</span>as_widget&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">GtkMenu</span>.<span class="constructor">MenuItem</span>.set_right_justified&nbsp;help_item&nbsp;<span class="keyword">true</span>&nbsp;;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ui_m</code></body></html>

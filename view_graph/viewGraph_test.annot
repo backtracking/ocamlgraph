@@ -1,0 +1,1991 @@
+"viewGraph_test.ml" 34 1752 1758 "viewGraph_test.ml" 34 1752 1783
+type(
+  'a -> unit
+)
+"viewGraph_test.ml" 34 1752 1784 "viewGraph_test.ml" 34 1752 1788
+type(
+  'a
+)
+"viewGraph_test.ml" 35 1792 1796 "viewGraph_test.ml" 35 1792 1809
+type(
+  (unit, Format.formatter, unit) format -> unit
+)
+"viewGraph_test.ml" 35 1792 1810 "viewGraph_test.ml" 35 1792 1849
+type(
+  (unit, Format.formatter, unit) format
+)
+"viewGraph_test.ml" 35 1792 1796 "viewGraph_test.ml" 35 1792 1849
+type(
+  unit
+)
+"viewGraph_test.ml" 37 1851 1857 "viewGraph_test.ml" 37 1851 1882
+type(
+  'b -> unit
+)
+"viewGraph_test.ml" 37 1851 1883 "viewGraph_test.ml" 37 1851 1887
+type(
+  'b
+)
+"viewGraph_test.ml" 38 1891 1895 "viewGraph_test.ml" 38 1891 1908
+type(
+  (unit, Format.formatter, unit) format -> unit
+)
+"viewGraph_test.ml" 38 1891 1909 "viewGraph_test.ml" 38 1891 1948
+type(
+  (unit, Format.formatter, unit) format
+)
+"viewGraph_test.ml" 38 1891 1895 "viewGraph_test.ml" 38 1891 1948
+type(
+  unit
+)
+"viewGraph_test.ml" 40 1950 1956 "viewGraph_test.ml" 40 1950 1983
+type(
+  'c -> unit
+)
+"viewGraph_test.ml" 40 1950 1984 "viewGraph_test.ml" 40 1950 1988
+type(
+  'c
+)
+"viewGraph_test.ml" 41 1992 1996 "viewGraph_test.ml" 41 1992 2009
+type(
+  (unit, Format.formatter, unit) format -> unit
+)
+"viewGraph_test.ml" 41 1992 2010 "viewGraph_test.ml" 41 1992 2051
+type(
+  (unit, Format.formatter, unit) format
+)
+"viewGraph_test.ml" 41 1992 1996 "viewGraph_test.ml" 41 1992 2051
+type(
+  unit
+)
+"viewGraph_test.ml" 43 2053 2059 "viewGraph_test.ml" 43 2053 2083
+type(
+  'd -> ViewGraph.t_node -> unit
+)
+"viewGraph_test.ml" 43 2053 2084 "viewGraph_test.ml" 43 2053 2088
+type(
+  'd
+)
+"viewGraph_test.ml" 43 2053 2089 "viewGraph_test.ml" 43 2053 2090
+type(
+  ViewGraph.t_node
+)
+"viewGraph_test.ml" 44 2094 2098 "viewGraph_test.ml" 44 2094 2111
+type(
+  (string -> unit, Format.formatter, unit) format -> string -> unit
+)
+"viewGraph_test.ml" 44 2094 2112 "viewGraph_test.ml" 44 2094 2152
+type(
+  (string -> unit, Format.formatter, unit) format
+)
+"viewGraph_test.ml" 45 2154 2161 "viewGraph_test.ml" 45 2154 2177
+type(
+  ViewGraph.t_node -> string
+)
+"viewGraph_test.ml" 45 2154 2178 "viewGraph_test.ml" 45 2154 2179
+type(
+  ViewGraph.t_node
+)
+"viewGraph_test.ml" 45 2154 2160 "viewGraph_test.ml" 45 2154 2180
+type(
+  string
+)
+"viewGraph_test.ml" 44 2094 2098 "viewGraph_test.ml" 45 2154 2180
+type(
+  unit
+)
+"viewGraph_test.ml" 47 2182 2188 "viewGraph_test.ml" 47 2182 2212
+type(
+  'e -> ViewGraph.t_node -> unit
+)
+"viewGraph_test.ml" 47 2182 2213 "viewGraph_test.ml" 47 2182 2217
+type(
+  'e
+)
+"viewGraph_test.ml" 47 2182 2218 "viewGraph_test.ml" 47 2182 2219
+type(
+  ViewGraph.t_node
+)
+"viewGraph_test.ml" 48 2223 2227 "viewGraph_test.ml" 48 2223 2240
+type(
+  (string -> unit, Format.formatter, unit) format -> string -> unit
+)
+"viewGraph_test.ml" 48 2223 2241 "viewGraph_test.ml" 48 2223 2281
+type(
+  (string -> unit, Format.formatter, unit) format
+)
+"viewGraph_test.ml" 49 2283 2290 "viewGraph_test.ml" 49 2283 2306
+type(
+  ViewGraph.t_node -> string
+)
+"viewGraph_test.ml" 49 2283 2307 "viewGraph_test.ml" 49 2283 2308
+type(
+  ViewGraph.t_node
+)
+"viewGraph_test.ml" 49 2283 2289 "viewGraph_test.ml" 49 2283 2309
+type(
+  string
+)
+"viewGraph_test.ml" 48 2223 2227 "viewGraph_test.ml" 49 2283 2309
+type(
+  unit
+)
+"viewGraph_test.ml" 51 2311 2317 "viewGraph_test.ml" 51 2311 2343
+type(
+  'f -> ViewGraph.t_node -> unit
+)
+"viewGraph_test.ml" 51 2311 2344 "viewGraph_test.ml" 51 2311 2348
+type(
+  'f
+)
+"viewGraph_test.ml" 51 2311 2349 "viewGraph_test.ml" 51 2311 2350
+type(
+  ViewGraph.t_node
+)
+"viewGraph_test.ml" 52 2354 2358 "viewGraph_test.ml" 52 2354 2371
+type(
+  (string -> unit, Format.formatter, unit) format -> string -> unit
+)
+"viewGraph_test.ml" 52 2354 2372 "viewGraph_test.ml" 52 2354 2414
+type(
+  (string -> unit, Format.formatter, unit) format
+)
+"viewGraph_test.ml" 53 2416 2423 "viewGraph_test.ml" 53 2416 2439
+type(
+  ViewGraph.t_node -> string
+)
+"viewGraph_test.ml" 53 2416 2440 "viewGraph_test.ml" 53 2416 2441
+type(
+  ViewGraph.t_node
+)
+"viewGraph_test.ml" 53 2416 2422 "viewGraph_test.ml" 53 2416 2442
+type(
+  string
+)
+"viewGraph_test.ml" 52 2354 2358 "viewGraph_test.ml" 53 2416 2442
+type(
+  unit
+)
+"viewGraph_test.ml" 55 2444 2450 "viewGraph_test.ml" 55 2444 2460
+type(
+  'g -> ViewGraph.t_node -> unit
+)
+"viewGraph_test.ml" 55 2444 2461 "viewGraph_test.ml" 55 2444 2465
+type(
+  'g
+)
+"viewGraph_test.ml" 55 2444 2466 "viewGraph_test.ml" 55 2444 2467
+type(
+  ViewGraph.t_node
+)
+"viewGraph_test.ml" 56 2470 2474 "viewGraph_test.ml" 56 2470 2487
+type(
+  (string -> unit, Format.formatter, unit) format -> string -> unit
+)
+"viewGraph_test.ml" 56 2470 2488 "viewGraph_test.ml" 56 2470 2514
+type(
+  (string -> unit, Format.formatter, unit) format
+)
+"viewGraph_test.ml" 56 2470 2516 "viewGraph_test.ml" 56 2470 2532
+type(
+  ViewGraph.t_node -> string
+)
+"viewGraph_test.ml" 56 2470 2533 "viewGraph_test.ml" 56 2470 2534
+type(
+  ViewGraph.t_node
+)
+"viewGraph_test.ml" 56 2470 2515 "viewGraph_test.ml" 56 2470 2535
+type(
+  string
+)
+"viewGraph_test.ml" 56 2470 2474 "viewGraph_test.ml" 56 2470 2535
+type(
+  unit
+)
+"viewGraph_test.ml" 58 2537 2543 "viewGraph_test.ml" 58 2537 2553
+type(
+  'h -> ViewGraph.t_node -> unit
+)
+"viewGraph_test.ml" 58 2537 2554 "viewGraph_test.ml" 58 2537 2558
+type(
+  'h
+)
+"viewGraph_test.ml" 58 2537 2559 "viewGraph_test.ml" 58 2537 2560
+type(
+  ViewGraph.t_node
+)
+"viewGraph_test.ml" 59 2563 2567 "viewGraph_test.ml" 59 2563 2580
+type(
+  (string -> unit, Format.formatter, unit) format -> string -> unit
+)
+"viewGraph_test.ml" 59 2563 2581 "viewGraph_test.ml" 59 2563 2607
+type(
+  (string -> unit, Format.formatter, unit) format
+)
+"viewGraph_test.ml" 59 2563 2609 "viewGraph_test.ml" 59 2563 2625
+type(
+  ViewGraph.t_node -> string
+)
+"viewGraph_test.ml" 59 2563 2626 "viewGraph_test.ml" 59 2563 2627
+type(
+  ViewGraph.t_node
+)
+"viewGraph_test.ml" 59 2563 2608 "viewGraph_test.ml" 59 2563 2628
+type(
+  string
+)
+"viewGraph_test.ml" 59 2563 2567 "viewGraph_test.ml" 59 2563 2628
+type(
+  unit
+)
+"viewGraph_test.ml" 64 2675 2679 "viewGraph_test.ml" 64 2675 2688
+type(
+  ViewGraph_select.t_env -> string -> unit
+)
+"viewGraph_test.ml" 64 2675 2689 "viewGraph_test.ml" 64 2675 2704
+type(
+  ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 64 2675 2705 "viewGraph_test.ml" 64 2675 2709
+type(
+  string
+)
+"viewGraph_test.ml" 66 2719 2727 "viewGraph_test.ml" 66 2719 2730
+type(
+  unit
+)
+"viewGraph_test.ml" 66 2719 2733 "viewGraph_test.ml" 66 2719 2735
+type(
+  unit
+)
+"viewGraph_test.ml" 67 2739 2747 "viewGraph_test.ml" 67 2739 2753
+type(
+  ViewGraph.t_graph
+)
+"viewGraph_test.ml" 67 2739 2756 "viewGraph_test.ml" 67 2739 2771
+type(
+  CbTest.t_env ->
+  ViewGraph_select.t_env -> ?dot_cmd:string -> string -> ViewGraph.t_graph
+)
+"viewGraph_test.ml" 67 2739 2772 "viewGraph_test.ml" 67 2739 2775
+type(
+  CbTest.t_env
+)
+"viewGraph_test.ml" 67 2739 2776 "viewGraph_test.ml" 67 2739 2791
+type(
+  ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 67 2739 2792 "viewGraph_test.ml" 67 2739 2796
+type(
+  string
+)
+"viewGraph_test.ml" 67 2739 2756 "viewGraph_test.ml" 67 2739 2796
+type(
+  ViewGraph.t_graph
+)
+"viewGraph_test.ml" 68 2801 2807 "viewGraph_test.ml" 68 2801 2809
+type(
+  unit
+)
+"viewGraph_test.ml" 67 2739 2743 "viewGraph_test.ml" 68 2801 2809
+type(
+  unit
+)
+"viewGraph_test.ml" 66 2719 2723 "viewGraph_test.ml" 68 2801 2809
+type(
+  unit
+)
+"viewGraph_test.ml" 69 2810 2836 "viewGraph_test.ml" 69 2810 2839
+type(
+  string
+)
+"viewGraph_test.ml" 69 2810 2817 "viewGraph_test.ml" 69 2810 2839
+type(
+  exn
+)
+"viewGraph_test.ml" 70 2843 2847 "viewGraph_test.ml" 70 2843 2867
+type(
+  title:string -> ?icon:_#GObj.widget -> ?ok:string -> string -> unit
+)
+"viewGraph_test.ml" 70 2843 2868 "viewGraph_test.ml" 70 2843 2875
+type(
+  string
+)
+"viewGraph_test.ml" 71 2877 2884 "viewGraph_test.ml" 71 2877 2898
+type(
+  (string -> string -> string, unit, string) format ->
+  string -> string -> string
+)
+"viewGraph_test.ml" 72 2900 2909 "viewGraph_test.ml" 72 2900 2966
+type(
+  (string -> string -> string, unit, string) format
+)
+"viewGraph_test.ml" 72 2900 2967 "viewGraph_test.ml" 72 2900 2970
+type(
+  string
+)
+"viewGraph_test.ml" 72 2900 2971 "viewGraph_test.ml" 72 2900 2975
+type(
+  string
+)
+"viewGraph_test.ml" 71 2877 2883 "viewGraph_test.ml" 72 2900 2976
+type(
+  string
+)
+"viewGraph_test.ml" 70 2843 2847 "viewGraph_test.ml" 72 2900 2976
+type(
+  unit
+)
+"viewGraph_test.ml" 65 2712 2714 "viewGraph_test.ml" 72 2900 2976
+type(
+  unit
+)
+"viewGraph_test.ml" 74 2978 2982 "viewGraph_test.ml" 74 2978 2989
+type(
+  ViewGraph_select.t_env -> unit -> unit
+)
+"viewGraph_test.ml" 74 2978 2990 "viewGraph_test.ml" 74 2978 3005
+type(
+  ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 74 2978 3006 "viewGraph_test.ml" 74 2978 3008
+type(
+  unit
+)
+"viewGraph_test.ml" 75 3012 3020 "viewGraph_test.ml" 75 3012 3040
+type(
+  title:string ->
+  ?dir:string ref -> ?filename:string -> unit -> string option
+)
+"viewGraph_test.ml" 75 3012 3048 "viewGraph_test.ml" 75 3012 3067
+type(
+  string
+)
+"viewGraph_test.ml" 75 3012 3068 "viewGraph_test.ml" 75 3012 3070
+type(
+  unit
+)
+"viewGraph_test.ml" 75 3012 3020 "viewGraph_test.ml" 75 3012 3070
+type(
+  string option
+)
+"viewGraph_test.ml" 76 3076 3082 "viewGraph_test.ml" 76 3076 3086
+type(
+  string option
+)
+"viewGraph_test.ml" 76 3076 3090 "viewGraph_test.ml" 76 3076 3092
+type(
+  unit
+)
+"viewGraph_test.ml" 77 3093 3104 "viewGraph_test.ml" 77 3093 3112
+type(
+  string
+)
+"viewGraph_test.ml" 77 3093 3099 "viewGraph_test.ml" 77 3093 3112
+type(
+  string option
+)
+"viewGraph_test.ml" 77 3093 3116 "viewGraph_test.ml" 77 3093 3125
+type(
+  ViewGraph_select.t_env -> string -> unit
+)
+"viewGraph_test.ml" 77 3093 3126 "viewGraph_test.ml" 77 3093 3141
+type(
+  ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 77 3093 3142 "viewGraph_test.ml" 77 3093 3150
+type(
+  string
+)
+"viewGraph_test.ml" 77 3093 3116 "viewGraph_test.ml" 77 3093 3150
+type(
+  unit
+)
+"viewGraph_test.ml" 75 3012 3014 "viewGraph_test.ml" 77 3093 3150
+type(
+  unit
+)
+"viewGraph_test.ml" 79 3152 3156 "viewGraph_test.ml" 79 3152 3167
+type(
+  'a -> unit
+)
+"viewGraph_test.ml" 79 3152 3168 "viewGraph_test.ml" 79 3152 3171
+type(
+  'a
+)
+"viewGraph_test.ml" 79 3152 3174 "viewGraph_test.ml" 79 3152 3200
+type(
+  unit -> unit
+)
+"viewGraph_test.ml" 79 3152 3201 "viewGraph_test.ml" 79 3152 3203
+type(
+  unit
+)
+"viewGraph_test.ml" 79 3152 3174 "viewGraph_test.ml" 79 3152 3203
+type(
+  unit
+)
+"viewGraph_test.ml" 81 3205 3209 "viewGraph_test.ml" 81 3205 3221
+type(
+  < name : string; .. > -> unit
+)
+"viewGraph_test.ml" 81 3205 3222 "viewGraph_test.ml" 81 3205 3224
+type(
+  < name : string; .. > as 'a
+)
+"viewGraph_test.ml" 82 3228 3230 "viewGraph_test.ml" 82 3228 3250
+type(
+  title:string -> ?icon:_#GObj.widget -> ?ok:string -> string -> unit
+)
+"viewGraph_test.ml" 82 3228 3251 "viewGraph_test.ml" 82 3228 3258
+type(
+  string
+)
+"viewGraph_test.ml" 83 3260 3265 "viewGraph_test.ml" 83 3260 3279
+type(
+  (string -> string, unit, string) format -> string -> string
+)
+"viewGraph_test.ml" 83 3260 3280 "viewGraph_test.ml" 83 3260 3321
+type(
+  (string -> string, unit, string) format
+)
+"viewGraph_test.ml" 83 3260 3322 "viewGraph_test.ml" 83 3260 3324
+type(
+  'a
+)
+"viewGraph_test.ml" 83 3260 3322 "viewGraph_test.ml" 83 3260 3329
+type(
+  string
+)
+"viewGraph_test.ml" 83 3260 3264 "viewGraph_test.ml" 83 3260 3330
+type(
+  string
+)
+"viewGraph_test.ml" 82 3228 3230 "viewGraph_test.ml" 83 3260 3330
+type(
+  unit
+)
+"viewGraph_test.ml" 85 3333 3337 "viewGraph_test.ml" 85 3333 3344
+type(
+  unit -> unit
+)
+"viewGraph_test.ml" 85 3333 3345 "viewGraph_test.ml" 85 3333 3347
+type(
+  unit
+)
+"viewGraph_test.ml" 85 3333 3350 "viewGraph_test.ml" 85 3333 3365
+type(
+  unit -> unit
+)
+"viewGraph_test.ml" 85 3333 3366 "viewGraph_test.ml" 85 3333 3368
+type(
+  unit
+)
+"viewGraph_test.ml" 85 3333 3350 "viewGraph_test.ml" 85 3333 3368
+type(
+  unit
+)
+"viewGraph_test.ml" 87 3370 3374 "viewGraph_test.ml" 87 3370 3385
+type(
+  'a -> unit
+)
+"viewGraph_test.ml" 87 3370 3386 "viewGraph_test.ml" 87 3370 3388
+type(
+  'a
+)
+"viewGraph_test.ml" 87 3370 3391 "viewGraph_test.ml" 87 3370 3398
+type(
+  unit -> unit
+)
+"viewGraph_test.ml" 87 3370 3399 "viewGraph_test.ml" 87 3370 3401
+type(
+  unit
+)
+"viewGraph_test.ml" 87 3370 3391 "viewGraph_test.ml" 87 3370 3401
+type(
+  unit
+)
+"viewGraph_test.ml" 89 3403 3407 "viewGraph_test.ml" 89 3403 3416
+type(
+  string
+)
+"viewGraph_test.ml" 89 3403 3419 "viewGraph_test.ml" 100 3673 3679
+type(
+  string
+)
+"viewGraph_test.ml" 102 3681 3685 "viewGraph_test.ml" 102 3681 3696
+type(
+  unit -> GAction.ui_manager
+)
+"viewGraph_test.ml" 102 3681 3697 "viewGraph_test.ml" 102 3681 3699
+type(
+  unit
+)
+"viewGraph_test.ml" 103 3702 3708 "viewGraph_test.ml" 103 3702 3712
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 103 3702 3715 "viewGraph_test.ml" 103 3702 3733
+type(
+  unit -> GAction.ui_manager
+)
+"viewGraph_test.ml" 103 3702 3734 "viewGraph_test.ml" 103 3702 3736
+type(
+  unit
+)
+"viewGraph_test.ml" 103 3702 3715 "viewGraph_test.ml" 103 3702 3736
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 104 3740 3746 "viewGraph_test.ml" 104 3740 3753
+type(
+  GAction.action_group
+)
+"viewGraph_test.ml" 104 3740 3756 "viewGraph_test.ml" 104 3740 3776
+type(
+  name:string -> unit -> GAction.action_group
+)
+"viewGraph_test.ml" 104 3740 3783 "viewGraph_test.ml" 104 3740 3792
+type(
+  string
+)
+"viewGraph_test.ml" 104 3740 3793 "viewGraph_test.ml" 104 3740 3795
+type(
+  unit
+)
+"viewGraph_test.ml" 104 3740 3756 "viewGraph_test.ml" 104 3740 3795
+type(
+  GAction.action_group
+)
+"viewGraph_test.ml" 105 3799 3803 "viewGraph_test.ml" 105 3799 3822
+type(
+  GAction.action_group -> unit GAction.entry list -> unit
+)
+"viewGraph_test.ml" 105 3799 3823 "viewGraph_test.ml" 105 3799 3830
+type(
+  GAction.action_group
+)
+"viewGraph_test.ml" 106 3833 3839 "viewGraph_test.ml" 106 3833 3857
+type(
+  string ->
+  ?callback:(GAction.action -> unit) ->
+  ?stock:GtkStock.id ->
+  ?label:string -> ?accel:string -> ?tooltip:string -> unit GAction.entry
+)
+"viewGraph_test.ml" 106 3833 3858 "viewGraph_test.ml" 106 3833 3868
+type(
+  string
+)
+"viewGraph_test.ml" 106 3833 3876 "viewGraph_test.ml" 106 3833 3882
+type(
+  string
+)
+"viewGraph_test.ml" 106 3833 3839 "viewGraph_test.ml" 106 3833 3882
+type(
+  unit GAction.entry
+)
+"viewGraph_test.ml" 106 3833 3839 "viewGraph_test.ml" 106 3833 3882
+type(
+  ?callback:(GAction.action -> unit) ->
+  ?stock:GtkStock.id ->
+  ?accel:string -> ?tooltip:string -> unit GAction.entry
+)
+"viewGraph_test.ml" 107 3885 3891 "viewGraph_test.ml" 107 3885 3909
+type(
+  string ->
+  ?callback:(GAction.action -> unit) ->
+  ?stock:GtkStock.id ->
+  ?label:string -> ?accel:string -> ?tooltip:string -> unit GAction.entry
+)
+"viewGraph_test.ml" 107 3885 3910 "viewGraph_test.ml" 107 3885 3916
+type(
+  string
+)
+"viewGraph_test.ml" 107 3885 3924 "viewGraph_test.ml" 107 3885 3930
+type(
+  string
+)
+"viewGraph_test.ml" 107 3885 3938 "viewGraph_test.ml" 107 3885 3941
+type(
+  string
+)
+"viewGraph_test.ml" 107 3885 3891 "viewGraph_test.ml" 107 3885 3941
+type(
+  unit GAction.entry
+)
+"viewGraph_test.ml" 107 3885 3891 "viewGraph_test.ml" 107 3885 3941
+type(
+  ?callback:(GAction.action -> unit) ->
+  ?stock:GtkStock.id -> ?tooltip:string -> unit GAction.entry
+)
+"viewGraph_test.ml" 109 4000 4006 "viewGraph_test.ml" 109 4000 4024
+type(
+  string ->
+  ?callback:(GAction.action -> unit) ->
+  ?stock:GtkStock.id ->
+  ?label:string -> ?accel:string -> ?tooltip:string -> unit GAction.entry
+)
+"viewGraph_test.ml" 109 4000 4025 "viewGraph_test.ml" 109 4000 4031
+type(
+  string
+)
+"viewGraph_test.ml" 109 4000 4039 "viewGraph_test.ml" 109 4000 4045
+type(
+  string
+)
+"viewGraph_test.ml" 109 4000 4053 "viewGraph_test.ml" 109 4000 4056
+type(
+  string
+)
+"viewGraph_test.ml" 109 4000 4067 "viewGraph_test.ml" 109 4000 4078
+type(
+  GAction.action -> unit
+)
+"viewGraph_test.ml" 109 4000 4006 "viewGraph_test.ml" 109 4000 4078
+type(
+  unit GAction.entry
+)
+"viewGraph_test.ml" 109 4000 4006 "viewGraph_test.ml" 109 4000 4078
+type(
+  ?stock:GtkStock.id -> ?tooltip:string -> unit GAction.entry
+)
+"viewGraph_test.ml" 110 4080 4086 "viewGraph_test.ml" 110 4080 4104
+type(
+  string ->
+  ?callback:(GAction.action -> unit) ->
+  ?stock:GtkStock.id ->
+  ?label:string -> ?accel:string -> ?tooltip:string -> unit GAction.entry
+)
+"viewGraph_test.ml" 110 4080 4105 "viewGraph_test.ml" 110 4080 4115
+type(
+  string
+)
+"viewGraph_test.ml" 110 4080 4123 "viewGraph_test.ml" 110 4080 4129
+type(
+  string
+)
+"viewGraph_test.ml" 110 4080 4086 "viewGraph_test.ml" 110 4080 4129
+type(
+  unit GAction.entry
+)
+"viewGraph_test.ml" 110 4080 4086 "viewGraph_test.ml" 110 4080 4129
+type(
+  ?callback:(GAction.action -> unit) ->
+  ?stock:GtkStock.id ->
+  ?accel:string -> ?tooltip:string -> unit GAction.entry
+)
+"viewGraph_test.ml" 111 4132 4138 "viewGraph_test.ml" 111 4132 4156
+type(
+  string ->
+  ?callback:(GAction.action -> unit) ->
+  ?stock:GtkStock.id ->
+  ?label:string -> ?accel:string -> ?tooltip:string -> unit GAction.entry
+)
+"viewGraph_test.ml" 111 4132 4157 "viewGraph_test.ml" 111 4132 4163
+type(
+  string
+)
+"viewGraph_test.ml" 111 4132 4171 "viewGraph_test.ml" 111 4132 4177
+type(
+  string
+)
+"viewGraph_test.ml" 111 4132 4185 "viewGraph_test.ml" 111 4132 4188
+type(
+  string
+)
+"viewGraph_test.ml" 111 4132 4199 "viewGraph_test.ml" 111 4132 4210
+type(
+  GAction.action -> unit
+)
+"viewGraph_test.ml" 111 4132 4138 "viewGraph_test.ml" 111 4132 4210
+type(
+  unit GAction.entry
+)
+"viewGraph_test.ml" 111 4132 4138 "viewGraph_test.ml" 111 4132 4210
+type(
+  ?stock:GtkStock.id -> ?tooltip:string -> unit GAction.entry
+)
+"viewGraph_test.ml" 105 3799 3831 "viewGraph_test.ml" 112 4212 4217
+type(
+  unit GAction.entry list
+)
+"viewGraph_test.ml" 105 3799 3803 "viewGraph_test.ml" 112 4212 4217
+type(
+  unit
+)
+"viewGraph_test.ml" 113 4219 4223 "viewGraph_test.ml" 113 4219 4227
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 113 4219 4223 "viewGraph_test.ml" 113 4219 4247
+type(
+  GAction.action_group -> int -> unit
+)
+"viewGraph_test.ml" 113 4219 4248 "viewGraph_test.ml" 113 4219 4255
+type(
+  GAction.action_group
+)
+"viewGraph_test.ml" 113 4219 4256 "viewGraph_test.ml" 113 4219 4257
+type(
+  int
+)
+"viewGraph_test.ml" 113 4219 4223 "viewGraph_test.ml" 113 4219 4257
+type(
+  unit
+)
+"viewGraph_test.ml" 114 4260 4268 "viewGraph_test.ml" 114 4260 4269
+type(
+  GAction.ui_id
+)
+"viewGraph_test.ml" 114 4260 4272 "viewGraph_test.ml" 114 4260 4276
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 114 4260 4272 "viewGraph_test.ml" 114 4260 4295
+type(
+  string -> GAction.ui_id
+)
+"viewGraph_test.ml" 114 4260 4296 "viewGraph_test.ml" 114 4260 4305
+type(
+  string
+)
+"viewGraph_test.ml" 114 4260 4272 "viewGraph_test.ml" 114 4260 4305
+type(
+  GAction.ui_id
+)
+"viewGraph_test.ml" 116 4310 4318 "viewGraph_test.ml" 116 4310 4327
+type(
+  GObj.widget
+)
+"viewGraph_test.ml" 116 4310 4330 "viewGraph_test.ml" 116 4310 4334
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 116 4310 4330 "viewGraph_test.ml" 116 4310 4345
+type(
+  string -> GObj.widget
+)
+"viewGraph_test.ml" 116 4310 4346 "viewGraph_test.ml" 116 4310 4365
+type(
+  string
+)
+"viewGraph_test.ml" 116 4310 4330 "viewGraph_test.ml" 116 4310 4365
+type(
+  GObj.widget
+)
+"viewGraph_test.ml" 117 4369 4377 "viewGraph_test.ml" 117 4369 4386
+type(
+  Gtk.menu_item Gtk.obj
+)
+"viewGraph_test.ml" 117 4369 4390 "viewGraph_test.ml" 117 4369 4411
+type(
+  Gtk.widget Gtk.obj -> Gtk.menu_item Gtk.obj
+)
+"viewGraph_test.ml" 117 4369 4412 "viewGraph_test.ml" 117 4369 4421
+type(
+  GObj.widget
+)
+"viewGraph_test.ml" 117 4369 4412 "viewGraph_test.ml" 117 4369 4431
+type(
+  Gtk.widget Gtk.obj
+)
+"viewGraph_test.ml" 117 4369 4390 "viewGraph_test.ml" 117 4369 4431
+type(
+  Gtk.menu_item Gtk.obj
+)
+"viewGraph_test.ml" 118 4435 4441 "viewGraph_test.ml" 118 4435 4477
+type(
+  Gtk.menu_item Gtk.obj -> bool -> unit
+)
+"viewGraph_test.ml" 118 4435 4478 "viewGraph_test.ml" 118 4435 4487
+type(
+  Gtk.menu_item Gtk.obj
+)
+"viewGraph_test.ml" 118 4435 4488 "viewGraph_test.ml" 118 4435 4492
+type(
+  bool
+)
+"viewGraph_test.ml" 118 4435 4441 "viewGraph_test.ml" 118 4435 4492
+type(
+  unit
+)
+"viewGraph_test.ml" 119 4495 4499 "viewGraph_test.ml" 119 4495 4503
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 118 4435 4441 "viewGraph_test.ml" 119 4495 4503
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 117 4369 4373 "viewGraph_test.ml" 119 4495 4503
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 116 4310 4314 "viewGraph_test.ml" 119 4495 4503
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 114 4260 4264 "viewGraph_test.ml" 119 4495 4503
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 113 4219 4223 "viewGraph_test.ml" 119 4495 4503
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 105 3799 3803 "viewGraph_test.ml" 119 4495 4503
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 104 3740 3742 "viewGraph_test.ml" 119 4495 4503
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 103 3702 3704 "viewGraph_test.ml" 119 4495 4503
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 140 5337 5341 "viewGraph_test.ml" 140 5337 5363
+type(
+  (GObj.widget -> unit) -> GnoCanvas.canvas
+)
+"viewGraph_test.ml" 140 5337 5364 "viewGraph_test.ml" 140 5337 5371
+type(
+  GObj.widget -> unit
+)
+"viewGraph_test.ml" 141 5374 5380 "viewGraph_test.ml" 141 5374 5385
+type(
+  GBin.frame
+)
+"viewGraph_test.ml" 141 5374 5388 "viewGraph_test.ml" 141 5374 5398
+type(
+  ?label:string ->
+  ?label_xalign:Gtk.clampf ->
+  ?label_yalign:Gtk.clampf ->
+  ?shadow_type:Gtk.Tags.shadow_type ->
+  ?border_width:int ->
+  ?width:int ->
+  ?height:int ->
+  ?packing:(GObj.widget -> unit) -> ?show:bool -> unit -> GBin.frame
+)
+"viewGraph_test.ml" 141 5374 5412 "viewGraph_test.ml" 141 5374 5415
+type(
+  Gtk.Tags.shadow_type
+)
+"viewGraph_test.ml" 141 5374 5416 "viewGraph_test.ml" 141 5374 5418
+type(
+  unit
+)
+"viewGraph_test.ml" 141 5374 5388 "viewGraph_test.ml" 141 5374 5418
+type(
+  GBin.frame
+)
+"viewGraph_test.ml" 142 5422 5428 "viewGraph_test.ml" 142 5422 5434
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 143 5438 5446 "viewGraph_test.ml" 143 5438 5448
+type(
+  bool
+)
+"viewGraph_test.ml" 143 5438 5451 "viewGraph_test.ml" 143 5438 5456
+type(
+  bool
+)
+"viewGraph_test.ml" 144 5480 5484 "viewGraph_test.ml" 144 5480 5500
+type(
+  ?aa:bool ->
+  ?border_width:int ->
+  ?width:int ->
+  ?height:int ->
+  ?packing:(GObj.widget -> unit) -> ?show:bool -> unit -> GnoCanvas.canvas
+)
+"viewGraph_test.ml" 144 5480 5502 "viewGraph_test.ml" 144 5480 5504
+type(
+  bool
+)
+"viewGraph_test.ml" 144 5480 5512 "viewGraph_test.ml" 144 5480 5515
+type(
+  int
+)
+"viewGraph_test.ml" 144 5480 5524 "viewGraph_test.ml" 144 5480 5527
+type(
+  int
+)
+"viewGraph_test.ml" 144 5480 5537 "viewGraph_test.ml" 144 5480 5542
+type(
+  GBin.frame
+)
+"viewGraph_test.ml" 144 5480 5537 "viewGraph_test.ml" 144 5480 5546
+type(
+  GObj.widget -> unit
+)
+"viewGraph_test.ml" 144 5480 5547 "viewGraph_test.ml" 144 5480 5549
+type(
+  unit
+)
+"viewGraph_test.ml" 144 5480 5484 "viewGraph_test.ml" 144 5480 5549
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 143 5438 5442 "viewGraph_test.ml" 144 5480 5549
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 146 5556 5562 "viewGraph_test.ml" 146 5556 5563
+type(
+  unit
+)
+"viewGraph_test.ml" 146 5556 5566 "viewGraph_test.ml" 146 5556 5572
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 146 5556 5566 "viewGraph_test.ml" 146 5556 5597
+type(
+  bool -> unit
+)
+"viewGraph_test.ml" 146 5556 5598 "viewGraph_test.ml" 146 5556 5602
+type(
+  bool
+)
+"viewGraph_test.ml" 146 5556 5566 "viewGraph_test.ml" 146 5556 5602
+type(
+  unit
+)
+"viewGraph_test.ml" 148 5662 5668 "viewGraph_test.ml" 148 5662 5673
+type(
+  GPack.table
+)
+"viewGraph_test.ml" 148 5662 5676 "viewGraph_test.ml" 148 5662 5687
+type(
+  ?columns:int ->
+  ?rows:int ->
+  ?homogeneous:bool ->
+  ?row_spacings:int ->
+  ?col_spacings:int ->
+  ?border_width:int ->
+  ?width:int ->
+  ?height:int ->
+  ?packing:(GObj.widget -> unit) -> ?show:bool -> unit -> GPack.table
+)
+"viewGraph_test.ml" 148 5662 5689 "viewGraph_test.ml" 148 5662 5696
+type(
+  GObj.widget -> unit
+)
+"viewGraph_test.ml" 149 5697 5719 "viewGraph_test.ml" 149 5697 5720
+type(
+  int
+)
+"viewGraph_test.ml" 149 5697 5730 "viewGraph_test.ml" 149 5697 5731
+type(
+  int
+)
+"viewGraph_test.ml" 149 5697 5746 "viewGraph_test.ml" 149 5697 5747
+type(
+  int
+)
+"viewGraph_test.ml" 149 5697 5762 "viewGraph_test.ml" 149 5697 5763
+type(
+  int
+)
+"viewGraph_test.ml" 149 5697 5764 "viewGraph_test.ml" 149 5697 5766
+type(
+  unit
+)
+"viewGraph_test.ml" 148 5662 5676 "viewGraph_test.ml" 149 5697 5766
+type(
+  GPack.table
+)
+"viewGraph_test.ml" 150 5770 5776 "viewGraph_test.ml" 150 5770 5777
+type(
+  unit
+)
+"viewGraph_test.ml" 150 5770 5780 "viewGraph_test.ml" 150 5770 5785
+type(
+  GPack.table
+)
+"viewGraph_test.ml" 150 5770 5780 "viewGraph_test.ml" 150 5770 5792
+type(
+  left:int ->
+  top:int ->
+  ?right:int ->
+  ?bottom:int ->
+  ?expand:Gtk.Tags.expand_type ->
+  ?fill:Gtk.Tags.expand_type ->
+  ?shrink:Gtk.Tags.expand_type ->
+  ?xpadding:int -> ?ypadding:int -> GObj.widget -> unit
+)
+"viewGraph_test.ml" 150 5770 5799 "viewGraph_test.ml" 150 5770 5800
+type(
+  int
+)
+"viewGraph_test.ml" 150 5770 5808 "viewGraph_test.ml" 150 5770 5809
+type(
+  int
+)
+"viewGraph_test.ml" 150 5770 5815 "viewGraph_test.ml" 150 5770 5816
+type(
+  int
+)
+"viewGraph_test.ml" 150 5770 5825 "viewGraph_test.ml" 150 5770 5826
+type(
+  int
+)
+"viewGraph_test.ml" 151 5827 5847 "viewGraph_test.ml" 151 5827 5852
+type(
+  Gtk.Tags.expand_type
+)
+"viewGraph_test.ml" 151 5827 5859 "viewGraph_test.ml" 151 5827 5864
+type(
+  Gtk.Tags.expand_type
+)
+"viewGraph_test.ml" 151 5827 5873 "viewGraph_test.ml" 151 5827 5878
+type(
+  Gtk.Tags.expand_type
+)
+"viewGraph_test.ml" 151 5827 5889 "viewGraph_test.ml" 151 5827 5890
+type(
+  int
+)
+"viewGraph_test.ml" 151 5827 5901 "viewGraph_test.ml" 151 5827 5902
+type(
+  int
+)
+"viewGraph_test.ml" 152 5903 5915 "viewGraph_test.ml" 152 5903 5920
+type(
+  GBin.frame
+)
+"viewGraph_test.ml" 152 5903 5915 "viewGraph_test.ml" 152 5903 5927
+type(
+  GObj.widget
+)
+"viewGraph_test.ml" 150 5770 5780 "viewGraph_test.ml" 152 5903 5927
+type(
+  unit
+)
+"viewGraph_test.ml" 153 5931 5937 "viewGraph_test.ml" 153 5931 5938
+type(
+  GRange.range
+)
+"viewGraph_test.ml" 153 5931 5941 "viewGraph_test.ml" 153 5931 5957
+type(
+  Gtk.Tags.orientation ->
+  ?adjustment:GData.adjustment ->
+  ?inverted:bool ->
+  ?update_policy:Gtk.Tags.update_type ->
+  ?packing:(GObj.widget -> unit) -> ?show:bool -> unit -> GRange.range
+)
+"viewGraph_test.ml" 153 5931 5958 "viewGraph_test.ml" 153 5931 5969
+type(
+  Gtk.Tags.orientation
+)
+"viewGraph_test.ml" 153 5931 5982 "viewGraph_test.ml" 153 5931 5988
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 153 5931 5982 "viewGraph_test.ml" 153 5931 6000
+type(
+  GData.adjustment
+)
+"viewGraph_test.ml" 153 5931 6001 "viewGraph_test.ml" 153 5931 6003
+type(
+  unit
+)
+"viewGraph_test.ml" 153 5931 5941 "viewGraph_test.ml" 153 5931 6003
+type(
+  GRange.range
+)
+"viewGraph_test.ml" 154 6008 6014 "viewGraph_test.ml" 154 6008 6015
+type(
+  unit
+)
+"viewGraph_test.ml" 154 6008 6018 "viewGraph_test.ml" 154 6008 6023
+type(
+  GPack.table
+)
+"viewGraph_test.ml" 154 6008 6018 "viewGraph_test.ml" 154 6008 6030
+type(
+  left:int ->
+  top:int ->
+  ?right:int ->
+  ?bottom:int ->
+  ?expand:Gtk.Tags.expand_type ->
+  ?fill:Gtk.Tags.expand_type ->
+  ?shrink:Gtk.Tags.expand_type ->
+  ?xpadding:int -> ?ypadding:int -> GObj.widget -> unit
+)
+"viewGraph_test.ml" 154 6008 6037 "viewGraph_test.ml" 154 6008 6038
+type(
+  int
+)
+"viewGraph_test.ml" 154 6008 6046 "viewGraph_test.ml" 154 6008 6047
+type(
+  int
+)
+"viewGraph_test.ml" 154 6008 6053 "viewGraph_test.ml" 154 6008 6054
+type(
+  int
+)
+"viewGraph_test.ml" 154 6008 6063 "viewGraph_test.ml" 154 6008 6064
+type(
+  int
+)
+"viewGraph_test.ml" 155 6065 6085 "viewGraph_test.ml" 155 6065 6087
+type(
+  Gtk.Tags.expand_type
+)
+"viewGraph_test.ml" 155 6065 6094 "viewGraph_test.ml" 155 6065 6099
+type(
+  Gtk.Tags.expand_type
+)
+"viewGraph_test.ml" 155 6065 6108 "viewGraph_test.ml" 155 6065 6110
+type(
+  Gtk.Tags.expand_type
+)
+"viewGraph_test.ml" 155 6065 6121 "viewGraph_test.ml" 155 6065 6122
+type(
+  int
+)
+"viewGraph_test.ml" 155 6065 6133 "viewGraph_test.ml" 155 6065 6134
+type(
+  int
+)
+"viewGraph_test.ml" 156 6135 6147 "viewGraph_test.ml" 156 6135 6148
+type(
+  GRange.range
+)
+"viewGraph_test.ml" 156 6135 6147 "viewGraph_test.ml" 156 6135 6155
+type(
+  GObj.widget
+)
+"viewGraph_test.ml" 154 6008 6018 "viewGraph_test.ml" 156 6135 6155
+type(
+  unit
+)
+"viewGraph_test.ml" 157 6160 6166 "viewGraph_test.ml" 157 6160 6167
+type(
+  GRange.range
+)
+"viewGraph_test.ml" 157 6160 6170 "viewGraph_test.ml" 157 6160 6186
+type(
+  Gtk.Tags.orientation ->
+  ?adjustment:GData.adjustment ->
+  ?inverted:bool ->
+  ?update_policy:Gtk.Tags.update_type ->
+  ?packing:(GObj.widget -> unit) -> ?show:bool -> unit -> GRange.range
+)
+"viewGraph_test.ml" 157 6160 6187 "viewGraph_test.ml" 157 6160 6196
+type(
+  Gtk.Tags.orientation
+)
+"viewGraph_test.ml" 157 6160 6209 "viewGraph_test.ml" 157 6160 6215
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 157 6160 6209 "viewGraph_test.ml" 157 6160 6227
+type(
+  GData.adjustment
+)
+"viewGraph_test.ml" 157 6160 6228 "viewGraph_test.ml" 157 6160 6230
+type(
+  unit
+)
+"viewGraph_test.ml" 157 6160 6170 "viewGraph_test.ml" 157 6160 6230
+type(
+  GRange.range
+)
+"viewGraph_test.ml" 158 6235 6241 "viewGraph_test.ml" 158 6235 6242
+type(
+  unit
+)
+"viewGraph_test.ml" 158 6235 6245 "viewGraph_test.ml" 158 6235 6250
+type(
+  GPack.table
+)
+"viewGraph_test.ml" 158 6235 6245 "viewGraph_test.ml" 158 6235 6257
+type(
+  left:int ->
+  top:int ->
+  ?right:int ->
+  ?bottom:int ->
+  ?expand:Gtk.Tags.expand_type ->
+  ?fill:Gtk.Tags.expand_type ->
+  ?shrink:Gtk.Tags.expand_type ->
+  ?xpadding:int -> ?ypadding:int -> GObj.widget -> unit
+)
+"viewGraph_test.ml" 158 6235 6264 "viewGraph_test.ml" 158 6235 6265
+type(
+  int
+)
+"viewGraph_test.ml" 158 6235 6273 "viewGraph_test.ml" 158 6235 6274
+type(
+  int
+)
+"viewGraph_test.ml" 158 6235 6280 "viewGraph_test.ml" 158 6235 6281
+type(
+  int
+)
+"viewGraph_test.ml" 158 6235 6290 "viewGraph_test.ml" 158 6235 6291
+type(
+  int
+)
+"viewGraph_test.ml" 159 6292 6312 "viewGraph_test.ml" 159 6292 6314
+type(
+  Gtk.Tags.expand_type
+)
+"viewGraph_test.ml" 159 6292 6321 "viewGraph_test.ml" 159 6292 6326
+type(
+  Gtk.Tags.expand_type
+)
+"viewGraph_test.ml" 159 6292 6335 "viewGraph_test.ml" 159 6292 6337
+type(
+  Gtk.Tags.expand_type
+)
+"viewGraph_test.ml" 159 6292 6348 "viewGraph_test.ml" 159 6292 6349
+type(
+  int
+)
+"viewGraph_test.ml" 159 6292 6360 "viewGraph_test.ml" 159 6292 6361
+type(
+  int
+)
+"viewGraph_test.ml" 160 6363 6375 "viewGraph_test.ml" 160 6363 6376
+type(
+  GRange.range
+)
+"viewGraph_test.ml" 160 6363 6375 "viewGraph_test.ml" 160 6363 6383
+type(
+  GObj.widget
+)
+"viewGraph_test.ml" 158 6235 6245 "viewGraph_test.ml" 160 6363 6383
+type(
+  unit
+)
+"viewGraph_test.ml" 161 6388 6392 "viewGraph_test.ml" 161 6388 6398
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 158 6235 6237 "viewGraph_test.ml" 161 6388 6398
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 157 6160 6162 "viewGraph_test.ml" 161 6388 6398
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 154 6008 6010 "viewGraph_test.ml" 161 6388 6398
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 153 5931 5933 "viewGraph_test.ml" 161 6388 6398
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 150 5770 5772 "viewGraph_test.ml" 161 6388 6398
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 148 5662 5664 "viewGraph_test.ml" 161 6388 6398
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 146 5556 5558 "viewGraph_test.ml" 161 6388 6398
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 142 5422 5424 "viewGraph_test.ml" 161 6388 6398
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 141 5374 5376 "viewGraph_test.ml" 161 6388 6398
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 164 6401 6405 "viewGraph_test.ml" 164 6401 6415
+type(
+  unit -> GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 164 6401 6416 "viewGraph_test.ml" 164 6401 6418
+type(
+  unit
+)
+"viewGraph_test.ml" 165 6421 6427 "viewGraph_test.ml" 165 6421 6433
+type(
+  GWindow.window
+)
+"viewGraph_test.ml" 165 6421 6436 "viewGraph_test.ml" 165 6421 6450
+type(
+  ?kind:Gtk.Tags.window_type ->
+  ?title:string ->
+  ?allow_grow:bool ->
+  ?allow_shrink:bool ->
+  ?icon:GdkPixbuf.pixbuf ->
+  ?modal:bool ->
+  ?resizable:bool ->
+  ?screen:Gdk.screen ->
+  ?type_hint:Gdk.Tags.window_type_hint ->
+  ?position:Gtk.Tags.window_position ->
+  ?urgency_hint:bool ->
+  ?wm_name:string ->
+  ?wm_class:string ->
+  ?border_width:int ->
+  ?width:int -> ?height:int -> ?show:bool -> unit -> GWindow.window
+)
+"viewGraph_test.ml" 165 6421 6458 "viewGraph_test.ml" 165 6421 6469
+type(
+  string
+)
+"viewGraph_test.ml" 166 6471 6502 "viewGraph_test.ml" 166 6471 6506
+type(
+  bool
+)
+"viewGraph_test.ml" 166 6471 6520 "viewGraph_test.ml" 166 6471 6524
+type(
+  bool
+)
+"viewGraph_test.ml" 166 6471 6525 "viewGraph_test.ml" 166 6471 6527
+type(
+  unit
+)
+"viewGraph_test.ml" 165 6421 6436 "viewGraph_test.ml" 166 6471 6527
+type(
+  GWindow.window
+)
+"viewGraph_test.ml" 167 6532 6538 "viewGraph_test.ml" 167 6532 6542
+type(
+  GPack.box
+)
+"viewGraph_test.ml" 167 6532 6545 "viewGraph_test.ml" 167 6532 6555
+type(
+  ?homogeneous:bool ->
+  ?spacing:int ->
+  ?border_width:int ->
+  ?width:int ->
+  ?height:int ->
+  ?packing:(GObj.widget -> unit) -> ?show:bool -> unit -> GPack.box
+)
+"viewGraph_test.ml" 167 6532 6570 "viewGraph_test.ml" 167 6532 6571
+type(
+  int
+)
+"viewGraph_test.ml" 167 6532 6581 "viewGraph_test.ml" 167 6532 6582
+type(
+  int
+)
+"viewGraph_test.ml" 167 6532 6592 "viewGraph_test.ml" 167 6532 6598
+type(
+  GWindow.window
+)
+"viewGraph_test.ml" 167 6532 6592 "viewGraph_test.ml" 167 6532 6602
+type(
+  GObj.widget -> unit
+)
+"viewGraph_test.ml" 167 6532 6603 "viewGraph_test.ml" 167 6532 6605
+type(
+  unit
+)
+"viewGraph_test.ml" 167 6532 6545 "viewGraph_test.ml" 167 6532 6605
+type(
+  GPack.box
+)
+"viewGraph_test.ml" 169 6610 6616 "viewGraph_test.ml" 169 6610 6620
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 169 6610 6623 "viewGraph_test.ml" 169 6610 6634
+type(
+  unit -> GAction.ui_manager
+)
+"viewGraph_test.ml" 169 6610 6635 "viewGraph_test.ml" 169 6610 6637
+type(
+  unit
+)
+"viewGraph_test.ml" 169 6610 6623 "viewGraph_test.ml" 169 6610 6637
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 170 6641 6645 "viewGraph_test.ml" 170 6641 6651
+type(
+  GWindow.window
+)
+"viewGraph_test.ml" 170 6641 6645 "viewGraph_test.ml" 170 6641 6667
+type(
+  Gtk.accel_group -> unit
+)
+"viewGraph_test.ml" 170 6641 6668 "viewGraph_test.ml" 170 6641 6672
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 170 6641 6668 "viewGraph_test.ml" 170 6641 6688
+type(
+  Gtk.accel_group
+)
+"viewGraph_test.ml" 170 6641 6645 "viewGraph_test.ml" 170 6641 6688
+type(
+  unit
+)
+"viewGraph_test.ml" 171 6691 6695 "viewGraph_test.ml" 171 6691 6699
+type(
+  GPack.box
+)
+"viewGraph_test.ml" 171 6691 6695 "viewGraph_test.ml" 171 6691 6704
+type(
+  ?from:Gtk.Tags.pack_type ->
+  ?expand:bool -> ?fill:bool -> ?padding:int -> GObj.widget -> unit
+)
+"viewGraph_test.ml" 171 6691 6713 "viewGraph_test.ml" 171 6691 6718
+type(
+  bool
+)
+"viewGraph_test.ml" 171 6691 6720 "viewGraph_test.ml" 171 6691 6724
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 171 6691 6720 "viewGraph_test.ml" 171 6691 6735
+type(
+  string -> GObj.widget
+)
+"viewGraph_test.ml" 171 6691 6736 "viewGraph_test.ml" 171 6691 6746
+type(
+  string
+)
+"viewGraph_test.ml" 171 6691 6719 "viewGraph_test.ml" 171 6691 6747
+type(
+  GObj.widget
+)
+"viewGraph_test.ml" 171 6691 6695 "viewGraph_test.ml" 171 6691 6747
+type(
+  unit
+)
+"viewGraph_test.ml" 173 6751 6757 "viewGraph_test.ml" 173 6751 6762
+type(
+  GBin.frame
+)
+"viewGraph_test.ml" 173 6751 6765 "viewGraph_test.ml" 173 6751 6775
+type(
+  ?label:string ->
+  ?label_xalign:Gtk.clampf ->
+  ?label_yalign:Gtk.clampf ->
+  ?shadow_type:Gtk.Tags.shadow_type ->
+  ?border_width:int ->
+  ?width:int ->
+  ?height:int ->
+  ?packing:(GObj.widget -> unit) -> ?show:bool -> unit -> GBin.frame
+)
+"viewGraph_test.ml" 173 6751 6783 "viewGraph_test.ml" 173 6751 6802
+type(
+  string
+)
+"viewGraph_test.ml" 173 6751 6812 "viewGraph_test.ml" 173 6751 6816
+type(
+  GPack.box
+)
+"viewGraph_test.ml" 173 6751 6812 "viewGraph_test.ml" 173 6751 6821
+type(
+  GObj.widget -> unit
+)
+"viewGraph_test.ml" 173 6751 6812 "viewGraph_test.ml" 173 6751 6821
+type(
+  ?from:Gtk.Tags.pack_type ->
+  ?expand:bool -> ?fill:bool -> ?padding:int -> GObj.widget -> unit
+)
+"viewGraph_test.ml" 173 6751 6822 "viewGraph_test.ml" 173 6751 6824
+type(
+  unit
+)
+"viewGraph_test.ml" 173 6751 6765 "viewGraph_test.ml" 173 6751 6824
+type(
+  GBin.frame
+)
+"viewGraph_test.ml" 174 6828 6834 "viewGraph_test.ml" 174 6828 6835
+type(
+  GMisc.label
+)
+"viewGraph_test.ml" 174 6828 6838 "viewGraph_test.ml" 174 6828 6849
+type(
+  ?text:string ->
+  ?markup:string ->
+  ?use_underline:bool ->
+  ?mnemonic_widget:_#GObj.widget ->
+  ?justify:Gtk.Tags.justification ->
+  ?line_wrap:bool ->
+  ?pattern:string ->
+  ?selectable:bool ->
+  ?ellipsize:PangoEnums.ellipsize_mode ->
+  ?xalign:float ->
+  ?yalign:float ->
+  ?xpad:int ->
+  ?ypad:int ->
+  ?width:int ->
+  ?height:int ->
+  ?packing:(GObj.widget -> unit) -> ?show:bool -> unit -> GMisc.label
+)
+"viewGraph_test.ml" 174 6828 6856 "viewGraph_test.ml" 174 6828 6899
+type(
+  string
+)
+"viewGraph_test.ml" 175 6900 6921 "viewGraph_test.ml" 175 6900 6926
+type(
+  GBin.frame
+)
+"viewGraph_test.ml" 175 6900 6921 "viewGraph_test.ml" 175 6900 6930
+type(
+  GObj.widget -> unit
+)
+"viewGraph_test.ml" 175 6900 6931 "viewGraph_test.ml" 175 6900 6933
+type(
+  unit
+)
+"viewGraph_test.ml" 174 6828 6838 "viewGraph_test.ml" 175 6900 6933
+type(
+  GMisc.label
+)
+"viewGraph_test.ml" 177 6938 6944 "viewGraph_test.ml" 177 6938 6950
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 177 6938 6953 "viewGraph_test.ml" 177 6938 6975
+type(
+  (GObj.widget -> unit) -> GnoCanvas.canvas
+)
+"viewGraph_test.ml" 177 6938 6977 "viewGraph_test.ml" 177 6938 6981
+type(
+  GPack.box
+)
+"viewGraph_test.ml" 177 6938 6977 "viewGraph_test.ml" 177 6938 6986
+type(
+  ?from:Gtk.Tags.pack_type ->
+  ?expand:bool -> ?fill:bool -> ?padding:int -> GObj.widget -> unit
+)
+"viewGraph_test.ml" 177 6938 6995 "viewGraph_test.ml" 177 6938 6999
+type(
+  bool
+)
+"viewGraph_test.ml" 177 6938 7006 "viewGraph_test.ml" 177 6938 7010
+type(
+  bool
+)
+"viewGraph_test.ml" 177 6938 6976 "viewGraph_test.ml" 177 6938 7011
+type(
+  GObj.widget -> unit
+)
+"viewGraph_test.ml" 177 6938 6976 "viewGraph_test.ml" 177 6938 7011
+type(
+  ?from:Gtk.Tags.pack_type -> ?padding:int -> GObj.widget -> unit
+)
+"viewGraph_test.ml" 177 6938 6953 "viewGraph_test.ml" 177 6938 7011
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 179 7016 7022 "viewGraph_test.ml" 179 7016 7026
+type(
+  GPack.box
+)
+"viewGraph_test.ml" 179 7016 7029 "viewGraph_test.ml" 179 7016 7039
+type(
+  ?homogeneous:bool ->
+  ?spacing:int ->
+  ?border_width:int ->
+  ?width:int ->
+  ?height:int ->
+  ?packing:(GObj.widget -> unit) -> ?show:bool -> unit -> GPack.box
+)
+"viewGraph_test.ml" 179 7016 7049 "viewGraph_test.ml" 179 7016 7050
+type(
+  int
+)
+"viewGraph_test.ml" 179 7016 7060 "viewGraph_test.ml" 179 7016 7064
+type(
+  GPack.box
+)
+"viewGraph_test.ml" 179 7016 7060 "viewGraph_test.ml" 179 7016 7069
+type(
+  GObj.widget -> unit
+)
+"viewGraph_test.ml" 179 7016 7060 "viewGraph_test.ml" 179 7016 7069
+type(
+  ?from:Gtk.Tags.pack_type ->
+  ?expand:bool -> ?fill:bool -> ?padding:int -> GObj.widget -> unit
+)
+"viewGraph_test.ml" 179 7016 7070 "viewGraph_test.ml" 179 7016 7072
+type(
+  unit
+)
+"viewGraph_test.ml" 179 7016 7029 "viewGraph_test.ml" 179 7016 7072
+type(
+  GPack.box
+)
+"viewGraph_test.ml" 180 7076 7082 "viewGraph_test.ml" 180 7076 7097
+type(
+  ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 181 7101 7105 "viewGraph_test.ml" 181 7101 7126
+type(
+  ViewGraph_select.t_options ->
+  GnoCanvas.canvas -> (GObj.widget -> unit) -> ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 181 7101 7127 "viewGraph_test.ml" 181 7101 7159
+type(
+  ViewGraph_select.t_options
+)
+"viewGraph_test.ml" 182 7160 7166 "viewGraph_test.ml" 182 7160 7172
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 182 7160 7174 "viewGraph_test.ml" 182 7160 7178
+type(
+  GPack.box
+)
+"viewGraph_test.ml" 182 7160 7174 "viewGraph_test.ml" 182 7160 7183
+type(
+  ?from:Gtk.Tags.pack_type ->
+  ?expand:bool -> ?fill:bool -> ?padding:int -> GObj.widget -> unit
+)
+"viewGraph_test.ml" 182 7160 7192 "viewGraph_test.ml" 182 7160 7196
+type(
+  bool
+)
+"viewGraph_test.ml" 182 7160 7203 "viewGraph_test.ml" 182 7160 7207
+type(
+  bool
+)
+"viewGraph_test.ml" 182 7160 7173 "viewGraph_test.ml" 182 7160 7208
+type(
+  GObj.widget -> unit
+)
+"viewGraph_test.ml" 182 7160 7173 "viewGraph_test.ml" 182 7160 7208
+type(
+  ?from:Gtk.Tags.pack_type -> ?padding:int -> GObj.widget -> unit
+)
+"viewGraph_test.ml" 181 7101 7105 "viewGraph_test.ml" 182 7160 7208
+type(
+  ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 184 7213 7219 "viewGraph_test.ml" 184 7213 7226
+type(
+  GAction.action_group
+)
+"viewGraph_test.ml" 184 7213 7235 "viewGraph_test.ml" 184 7213 7239
+type(
+  GAction.ui_manager
+)
+"viewGraph_test.ml" 184 7213 7235 "viewGraph_test.ml" 184 7213 7257
+type(
+  GAction.action_group list
+)
+"viewGraph_test.ml" 185 7263 7269 "viewGraph_test.ml" 185 7263 7270
+type(
+  GAction.action_group
+)
+"viewGraph_test.ml" 185 7263 7272 "viewGraph_test.ml" 185 7263 7274
+type(
+  GAction.action_group list
+)
+"viewGraph_test.ml" 185 7263 7269 "viewGraph_test.ml" 185 7263 7274
+type(
+  GAction.action_group list
+)
+"viewGraph_test.ml" 185 7263 7278 "viewGraph_test.ml" 185 7263 7279
+type(
+  GAction.action_group
+)
+"viewGraph_test.ml" 185 7263 7282 "viewGraph_test.ml" 185 7263 7283
+type(
+  GAction.action_group list
+)
+"viewGraph_test.ml" 185 7263 7287 "viewGraph_test.ml" 185 7263 7299
+type(
+  GAction.action_group
+)
+"viewGraph_test.ml" 184 7213 7229 "viewGraph_test.ml" 185 7263 7299
+type(
+  GAction.action_group
+)
+"viewGraph_test.ml" 187 7305 7312 "viewGraph_test.ml" 187 7305 7323
+type(
+  GAction.action
+)
+"viewGraph_test.ml" 187 7305 7326 "viewGraph_test.ml" 187 7305 7333
+type(
+  GAction.action_group
+)
+"viewGraph_test.ml" 187 7305 7326 "viewGraph_test.ml" 187 7305 7344
+type(
+  string -> GAction.action
+)
+"viewGraph_test.ml" 187 7305 7345 "viewGraph_test.ml" 187 7305 7351
+type(
+  string
+)
+"viewGraph_test.ml" 187 7305 7326 "viewGraph_test.ml" 187 7305 7351
+type(
+  GAction.action
+)
+"viewGraph_test.ml" 188 7356 7362 "viewGraph_test.ml" 188 7356 7363
+type(
+  GtkSignal.id
+)
+"viewGraph_test.ml" 188 7356 7366 "viewGraph_test.ml" 188 7356 7377
+type(
+  GAction.action
+)
+"viewGraph_test.ml" 188 7356 7366 "viewGraph_test.ml" 188 7356 7385
+type(
+  GAction.action_signals
+)
+"viewGraph_test.ml" 188 7356 7366 "viewGraph_test.ml" 188 7356 7394
+type(
+  callback:(unit -> unit) -> GtkSignal.id
+)
+"viewGraph_test.ml" 188 7356 7406 "viewGraph_test.ml" 188 7356 7413
+type(
+  ViewGraph_select.t_env -> unit -> unit
+)
+"viewGraph_test.ml" 188 7356 7414 "viewGraph_test.ml" 188 7356 7429
+type(
+  ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 188 7356 7405 "viewGraph_test.ml" 188 7356 7430
+type(
+  unit -> unit
+)
+"viewGraph_test.ml" 188 7356 7366 "viewGraph_test.ml" 188 7356 7430
+type(
+  GtkSignal.id
+)
+"viewGraph_test.ml" 190 7437 7443 "viewGraph_test.ml" 190 7437 7444
+type(
+  GtkSignal.id
+)
+"viewGraph_test.ml" 190 7437 7447 "viewGraph_test.ml" 190 7437 7453
+type(
+  GWindow.window
+)
+"viewGraph_test.ml" 190 7437 7447 "viewGraph_test.ml" 190 7437 7461
+type(
+  GContainer.container_signals
+)
+"viewGraph_test.ml" 190 7437 7447 "viewGraph_test.ml" 190 7437 7469
+type(
+  callback:(unit -> unit) -> GtkSignal.id
+)
+"viewGraph_test.ml" 190 7437 7480 "viewGraph_test.ml" 190 7437 7487
+type(
+  unit -> unit
+)
+"viewGraph_test.ml" 190 7437 7447 "viewGraph_test.ml" 190 7437 7487
+type(
+  GtkSignal.id
+)
+"viewGraph_test.ml" 191 7491 7497 "viewGraph_test.ml" 191 7491 7498
+type(
+  unit
+)
+"viewGraph_test.ml" 191 7491 7501 "viewGraph_test.ml" 191 7491 7507
+type(
+  GWindow.window
+)
+"viewGraph_test.ml" 191 7491 7501 "viewGraph_test.ml" 191 7491 7512
+type(
+  unit -> unit
+)
+"viewGraph_test.ml" 191 7491 7513 "viewGraph_test.ml" 191 7491 7515
+type(
+  unit
+)
+"viewGraph_test.ml" 191 7491 7501 "viewGraph_test.ml" 191 7491 7515
+type(
+  unit
+)
+"viewGraph_test.ml" 192 7519 7524 "viewGraph_test.ml" 192 7519 7530
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 192 7519 7532 "viewGraph_test.ml" 192 7519 7547
+type(
+  ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 192 7519 7523 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 191 7491 7493 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 190 7437 7439 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 188 7356 7358 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 187 7305 7308 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 184 7213 7215 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 180 7076 7078 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 179 7016 7018 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 177 6938 6940 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 174 6828 6830 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 173 6751 6753 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 171 6691 6695 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 170 6641 6645 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 169 6610 6612 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 167 6532 6534 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 165 6421 6423 "viewGraph_test.ml" 192 7519 7548
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 194 7550 7554 "viewGraph_test.ml" 194 7550 7558
+type(
+  unit -> unit
+)
+"viewGraph_test.ml" 194 7550 7559 "viewGraph_test.ml" 194 7550 7561
+type(
+  unit
+)
+"viewGraph_test.ml" 195 7564 7570 "viewGraph_test.ml" 195 7564 7576
+type(
+  GnoCanvas.canvas
+)
+"viewGraph_test.ml" 195 7564 7578 "viewGraph_test.ml" 195 7564 7593
+type(
+  ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 195 7564 7570 "viewGraph_test.ml" 195 7564 7593
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 195 7564 7596 "viewGraph_test.ml" 195 7564 7606
+type(
+  unit -> GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 195 7564 7607 "viewGraph_test.ml" 195 7564 7609
+type(
+  unit
+)
+"viewGraph_test.ml" 195 7564 7596 "viewGraph_test.ml" 195 7564 7609
+type(
+  GnoCanvas.canvas * ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 196 7613 7618 "viewGraph_test.ml" 196 7613 7630
+type(
+  string array -> int
+)
+"viewGraph_test.ml" 196 7613 7631 "viewGraph_test.ml" 196 7613 7639
+type(
+  string array
+)
+"viewGraph_test.ml" 196 7613 7618 "viewGraph_test.ml" 196 7613 7639
+type(
+  int
+)
+"viewGraph_test.ml" 196 7613 7640 "viewGraph_test.ml" 196 7613 7641
+type(
+  int -> int -> bool
+)
+"viewGraph_test.ml" 196 7613 7642 "viewGraph_test.ml" 196 7613 7643
+type(
+  int
+)
+"viewGraph_test.ml" 196 7613 7618 "viewGraph_test.ml" 196 7613 7643
+type(
+  bool
+)
+"viewGraph_test.ml" 197 7649 7653 "viewGraph_test.ml" 197 7649 7662
+type(
+  ViewGraph_select.t_env -> string -> unit
+)
+"viewGraph_test.ml" 197 7649 7663 "viewGraph_test.ml" 197 7649 7678
+type(
+  ViewGraph_select.t_env
+)
+"viewGraph_test.ml" 197 7649 7679 "viewGraph_test.ml" 197 7649 7687
+type(
+  string array
+)
+"viewGraph_test.ml" 197 7649 7689 "viewGraph_test.ml" 197 7649 7690
+type(
+  int
+)
+"viewGraph_test.ml" 197 7649 7679 "viewGraph_test.ml" 197 7649 7691
+type(
+  string
+)
+"viewGraph_test.ml" 197 7649 7653 "viewGraph_test.ml" 197 7649 7691
+type(
+  unit
+)
+"viewGraph_test.ml" 196 7613 7615 "viewGraph_test.ml" 197 7649 7691
+type(
+  unit
+)
+"viewGraph_test.ml" 198 7693 7695 "viewGraph_test.ml" 198 7693 7710
+type(
+  unit -> unit
+)
+"viewGraph_test.ml" 198 7693 7711 "viewGraph_test.ml" 198 7693 7713
+type(
+  unit
+)
+"viewGraph_test.ml" 198 7693 7695 "viewGraph_test.ml" 198 7693 7713
+type(
+  unit
+)
+"viewGraph_test.ml" 196 7613 7615 "viewGraph_test.ml" 198 7693 7713
+type(
+  unit
+)
+"viewGraph_test.ml" 195 7564 7566 "viewGraph_test.ml" 198 7693 7713
+type(
+  unit
+)
+"viewGraph_test.ml" 200 7715 7723 "viewGraph_test.ml" 200 7715 7737
+type(
+  (unit -> unit) -> unit -> unit
+)
+"viewGraph_test.ml" 200 7715 7738 "viewGraph_test.ml" 200 7715 7742
+type(
+  unit -> unit
+)
+"viewGraph_test.ml" 200 7715 7743 "viewGraph_test.ml" 200 7715 7745
+type(
+  unit
+)
+"viewGraph_test.ml" 200 7715 7723 "viewGraph_test.ml" 200 7715 7745
+type(
+  unit
+)

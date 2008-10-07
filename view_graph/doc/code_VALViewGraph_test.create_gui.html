@@ -1,0 +1,43 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="ViewGraph" rel="Chapter" href="ViewGraph.html">
+<link title="ViewGraph_select" rel="Chapter" href="ViewGraph_select.html">
+<link title="ViewGraph_test" rel="Chapter" href="ViewGraph_test.html"><title>ViewGraph_test.create_gui</title>
+</head>
+<body>
+<code class="code"><span class="keyword">let</span>&nbsp;create_gui&nbsp;()&nbsp;=<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;window&nbsp;=&nbsp;<span class="constructor">GWindow</span>.window&nbsp;~title:<span class="string">"ViewGraph"</span>&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;~allow_shrink:<span class="keyword">true</span>&nbsp;&nbsp;~allow_grow:<span class="keyword">true</span>&nbsp;()&nbsp;&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;vbox&nbsp;=&nbsp;<span class="constructor">GPack</span>.vbox&nbsp;~border_width:4&nbsp;~spacing:4&nbsp;~packing:window<span class="keywordsign">#</span>add&nbsp;()&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;ui_m&nbsp;=&nbsp;create_menu&nbsp;()&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;window<span class="keywordsign">#</span>add_accel_group&nbsp;ui_m<span class="keywordsign">#</span>get_accel_group&nbsp;;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;vbox<span class="keywordsign">#</span>pack&nbsp;~expand:<span class="keyword">false</span>&nbsp;(ui_m<span class="keywordsign">#</span>get_widget&nbsp;<span class="string">"/MenuBar"</span>)&nbsp;;<br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;frame&nbsp;=&nbsp;<span class="constructor">GBin</span>.frame&nbsp;~label:<span class="string">"How&nbsp;to&nbsp;use&nbsp;this&nbsp;:"</span>&nbsp;~packing:vbox<span class="keywordsign">#</span>pack&nbsp;()&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_&nbsp;=&nbsp;<span class="constructor">GMisc</span>.label&nbsp;~text:<span class="string">"\n&nbsp;Open&nbsp;the&nbsp;Help&nbsp;window&nbsp;to&nbsp;know&nbsp;more...\n"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;~packing:frame<span class="keywordsign">#</span>add&nbsp;()&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;canvas&nbsp;=&nbsp;create_scrolled_canvas&nbsp;(vbox<span class="keywordsign">#</span>pack&nbsp;~expand:<span class="keyword">true</span>&nbsp;~fill:<span class="keyword">true</span>)&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;hbox&nbsp;=&nbsp;<span class="constructor">GPack</span>.hbox&nbsp;~spacing:4&nbsp;~packing:vbox<span class="keywordsign">#</span>pack&nbsp;()&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;select_init_env&nbsp;=&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">ViewGraph_select</span>.init&nbsp;<span class="constructor">ViewGraph_select</span>.default_options<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;canvas&nbsp;(hbox<span class="keywordsign">#</span>pack&nbsp;~expand:<span class="keyword">true</span>&nbsp;~fill:<span class="keyword">true</span>)&nbsp;<span class="keyword">in</span><br>
+<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;actions&nbsp;=&nbsp;<span class="keyword">match</span>&nbsp;ui_m<span class="keywordsign">#</span>get_action_groups&nbsp;<span class="keyword">with</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keywordsign">|</span>&nbsp;a::[]&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;a&nbsp;<span class="keywordsign">|</span>&nbsp;_&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keyword">assert</span>&nbsp;<span class="keyword">false</span><br>
+&nbsp;&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;open_action&nbsp;=&nbsp;actions<span class="keywordsign">#</span>get_action&nbsp;<span class="string">"Open"</span>&nbsp;<span class="keyword">in</span>&nbsp;<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_&nbsp;=&nbsp;open_action<span class="keywordsign">#</span>connect<span class="keywordsign">#</span>activate&nbsp;~callback:(open_cb&nbsp;select_init_env)&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_&nbsp;=&nbsp;window<span class="keywordsign">#</span>connect<span class="keywordsign">#</span>destroy&nbsp;~callback:quit_cb&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;<span class="keyword">let</span>&nbsp;_&nbsp;=&nbsp;window<span class="keywordsign">#</span>show&nbsp;()&nbsp;<span class="keyword">in</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;(canvas,&nbsp;select_init_env)</code></body></html>

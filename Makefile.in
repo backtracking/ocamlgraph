@@ -1,7 +1,7 @@
 ##########################################################################
 #                                                                        #
 #  Ocamlgraph: a generic graph library for OCaml                         #
-#  Copyright (C) 2004-2007                                               #
+#  Copyright (C) 2004-2008                                               #
 #  Sylvain Conchon, Jean-Christophe Filliatre and Julien Signoles        #
 #                                                                        #
 #  This software is free software; you can redistribute it and/or        #
@@ -53,7 +53,12 @@ OFLAGS = $(INCLUDES) @FORPACK@
 #############
 
 NAME=ocamlgraph
-all: byte $(OCAMLBEST) editor-@LABLGNOMECANVAS@
+
+ifeq (@LABLGNOMECANVAS@,yes)
+all: byte $(OCAMLBEST) viewer editor
+else
+all: byte $(OCAMLBEST)
+endif
 
 # bytecode and native-code compilation
 ######################################
@@ -61,7 +66,7 @@ all: byte $(OCAMLBEST) editor-@LABLGNOMECANVAS@
 LIB= unionfind heap bitv
 LIB:=$(patsubst %, $(LIBDIR)/%.cmo, $(LIB))
 
-CMO = 	util blocks persistent imperative \
+CMO = 	version util blocks persistent imperative \
 	delaunay builder classic rand oper \
 	path traverse coloring topological components kruskal flow \
         graphviz gml dot_parser dot_lexer dot pack \
@@ -96,7 +101,7 @@ graph.cmo: $(CMI) $(CMO)
 graph.cmx: $(CMI) $(CMX)
 	$(OCAMLOPT) $(INCLUDES) -pack -o $@ $^
 
-VERSION=0.99c+dev
+VERSION=1.0
 
 src/version.ml: Makefile
 	rm -f $@
@@ -108,17 +113,14 @@ src/version.ml: Makefile
 
 ED_DIR=editor
 
-editor-no:
-editor-yes: $(ED_DIR)/editor.byte $(ED_DIR)/editor.$(OCAMLBEST)
-
-editor: $(ED_DIR)/editor.byte editor-yes
+editor: $(ED_DIR)/editor.byte $(ED_DIR)/editor.$(OCAMLBEST)
 
 ED_CMO = ed_hyper ed_graph ed_draw ed_display ed_main
 ED_CMO:= $(patsubst %, $(ED_DIR)/%.cmo, $(ED_CMO))
 ED_CMX = $(ED_CMO:.cmo=.cmx)
 ED_CMI = $(ED_CMO:.cmo=.cmi)
 
-ED_INCLUDES = @INCLUDEGTK2@ -I +threads -I $(ED_DIR) $(INCLUDES)
+ED_INCLUDES = @INCLUDEGTK2@ -I +threads -I $(ED_DIR) $(INCLUDES) -I .
 
 $(ED_CMI) $(ED_CMO): BFLAGS+= $(ED_INCLUDES)
 $(ED_CMO): $(CMA)
@@ -132,6 +134,33 @@ $(ED_DIR)/editor.byte: $(CMA) $(ED_CMO)
 $(ED_DIR)/editor.opt: $(CMXA) $(ED_CMX)
 	$(OCAMLOPT) -o $@ $(ED_INCLUDES) \
 		lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
+
+# gtk2 graph viewer
+###################
+
+VIEWER_DIR=view_graph
+
+viewer: $(VIEWER_DIR)/viewgraph.byte $(VIEWER_DIR)/viewgraph.$(OCAMLBEST)
+
+VIEWER_CMO=viewGraph viewGraph_select
+VIEWER_CMO:=$(patsubst %,$(VIEWER_DIR)/%.cmo, $(VIEWER_CMO))
+VIEWER_CMX=$(VIEWER_CMO:.cmo=.cmx)
+VIEWER_CMI=$(VIEWER_CMO:.cmo=.cmi)
+
+VIEWER_INCLUDES= @INCLUDEGTK2@ -I $(VIEWER_DIR) $(INCLUDES) -I .
+
+$(VIEWER_CMI) $(VIEWER_CMO): BFLAGS+= $(VIEWER_INCLUDES)
+$(VIEWER_CMO): $(CMA)
+$(VIEWER_CMX): OFLAGS+= $(VIEWER_INCLUDES)
+$(VIEWER_CMX): $(CMXA)
+
+$(VIEWER_DIR)/viewgraph.byte: $(CMA) $(VIEWER_CMO)
+	$(OCAMLC) -g -o $@ $(VIEWER_INCLUDES) \
+		lablgtk.cma lablgnomecanvas.cma $^
+
+$(VIEWER_DIR)/viewgraph.opt: $(CMXA) $(VIEWER_CMX)
+	$(OCAMLOPT) -o $@ $(VIEWER_INCLUDES) \
+		lablgtk.cmxa lablgnomecanvas.cmxa $^
 
 # Examples
 ##########
@@ -211,24 +240,37 @@ $(DPD_GRAPH_ML:.ml=.cmx): $(CMXA)
 DESTDIR	=
 
 install: install-$(OCAMLBEST) install-byte
+ifeq (@LABLGNOMECANVAS@,yes)
 ifeq ($(OCAMLBEST),byte)
 	cp -f $(BINDIR)/graph-editor.byte $(BINDIR)/graph-editor$(EXE)
+	cp -f $(BINDIR)/graph-viewer.byte $(BINDIR)/graph-viewer$(EXE)
 else
 	cp -f $(BINDIR)/graph-editor.opt $(BINDIR)/graph-editor$(EXE)
+	cp -f $(BINDIR)/graph-viewer.opt $(BINDIR)/graph-viewer$(EXE)
+endif
 endif
 
 install-byte: 
 	cp -f graph.cmo graph.cmi $(CMA) "$(DESTDIR)$(OCAMLLIB)"
+ifeq (@LABLGNOMECANVAS@,yes)
 	cp -f $(ED_DIR)/editor.byte $(BINDIR)/graph-editor.byte
+	cp -f $(VIEWER_CMO) "$(DESTDIR)$(OCAMLLIB)"
+	cp -f $(VIEWER_DIR)/viewgraph.byte $(BINDIR)/graph-viewer.byte
+endif
 
 install-opt: install-byte
 	cp -f graph$(LIBEXT) graph.cmx $(CMXA) "$(DESTDIR)$(OCAMLLIB)"
+ifeq (@LABLGNOMECANVAS@,yes)
 	cp -f $(ED_DIR)/editor.opt $(BINDIR)/graph-editor.opt
+	cp -f $(VIEWER_CMX) "$(DESTDIR)$(OCAMLLIB)"
+	cp -f $(VIEWER_DIR)/viewgraph.opt $(BINDIR)/graph-viewer.opt
+endif
 
 install-findlib: META
 ifdef OCAMLFIND
 	$(OCAMLFIND) install ocamlgraph META $(SRCDIR)/*.mli \
-		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA)
+		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA) \
+		$(VIEWER_CMX) $(VIEWER_CMO)
 endif
 
 META: META.in Makefile
@@ -240,7 +282,7 @@ META: META.in Makefile
 
 DOCFILES=$(NAME).ps $(NAME).html
 
-NODOC	= blocks dot_parser dot_lexer
+NODOC	= blocks dot_parser dot_lexer version
 NODOC	:= $(patsubst %, $(SRCDIR)/%.cmo, $(NODOC))
 DOC_CMO	= $(filter-out $(NODOC) $(LIB), $(CMO))
 DOC_SRC	= $(CMI:.cmi=.mli) $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
@@ -250,6 +292,7 @@ doc: $(DOC_CMO)
 	mkdir -p doc
 	rm -f doc/*
 	$(OCAMLDOC) -d doc -html $(INCLUDES) $(DOC_SRC)
+	$(MAKE) -C $(VIEWER_DIR) doc
 
 # literate programming
 $(NAME).tex: $(DOC_SRC)
@@ -280,6 +323,7 @@ WWW = /users/www-perso/projets/ocamlgraph
 FILES = src/*.ml* lib/*.ml* Makefile.in configure configure.in META.in  \
 	.depend editor/ed_*.ml* editor/Makefile \
         editor/tests/*.dot editor/tests/*.gml \
+	view_graph/*.ml view_graph/*.mli view_graph/README \
 	examples/*.ml tests/*.ml \
 	README FAQ CREDITS INSTALL COPYING LICENSE CHANGES
 
@@ -360,7 +404,7 @@ export-delaunay:
 ############
 
 otags:
-	otags -r src editor
+	otags -r src editor view_graph
 
 tags:
 	find . -name "*.ml*" | sort -r | xargs \
@@ -391,12 +435,14 @@ configure: configure.in
 
 clean:
 	rm -f *~
-	for d in $(SRCDIR) $(LIBDIR) $(ED_DIR) tests examples; do \
+	for d in $(SRCDIR) $(LIBDIR) $(ED_DIR) $(VIEWER_DIR) tests examples; \
+	do \
 	  rm -f $$d/*.cm[iox] $$d/*$(OBJEXT) $$d/*~; \
 	done
 	rm -f $(GENERATED) $(SRCDIR)/dot_parser.output
 	rm -f graph.*a graph.cm* graph.o graph$(LIBEXT) 
 	rm -f $(ED_DIR)/editor.byte $(ED_DIR)/editor.opt
+	rm -f $(VIEWER_DIR)/viewgraph.byte $(VIEWER_DIR)/viewgraph.opt
 	rm -f *.haux *.aux *.log $(NAME).tex $(NAME).dvi $(DOCFILES)
 	rm -f $(EXAMPLESBIN)
 
@@ -412,9 +458,10 @@ svnclean svn-clean:: dist-clean
 .PHONY: depend
 .depend depend: $(GENERATED)
 	rm -f .depend
-	$(OCAMLDEP) $(INCLUDES) -I $(ED_DIR) \
+	$(OCAMLDEP) $(INCLUDES) -I $(ED_DIR) -I $(VIEWER_DIR) \
 		$(LIBDIR)/*.ml $(LIBDIR)/*.mli \
 		$(SRCDIR)/*.ml $(SRCDIR)/*.mli \
-		$(ED_DIR)/*.mli $(ED_DIR)/*.ml > .depend
+		$(ED_DIR)/*.mli $(ED_DIR)/*.ml \
+		$(VIEWER_DIR)/*.mli $(VIEWER_DIR)/*.ml > .depend
 
 include .depend

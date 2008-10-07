@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="ViewGraph.html">
+<link rel="next" href="ViewGraph_test.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="ViewGraph" rel="Chapter" href="ViewGraph.html">
+<link title="ViewGraph_select" rel="Chapter" href="ViewGraph_select.html">
+<link title="ViewGraph_test" rel="Chapter" href="ViewGraph_test.html"><title>ViewGraph_select</title>
+</head>
+<body>
+<div class="navbar"><a href="ViewGraph.html">Previous</a>
+&nbsp;<a href="index.html">Up</a>
+&nbsp;<a href="ViewGraph_test.html">Next</a>
+</div>
+<center><h1>Module <a href="type_ViewGraph_select.html">ViewGraph_select</a></h1></center>
+<br>
+<pre><span class="keyword">module</span> ViewGraph_select: <code class="code">sig</code> <a href="ViewGraph_select.html">..</a> <code class="code">end</code></pre>This module can be used to add some selection feature to <a href="ViewGraph.html"><code class="code">ViewGraph</code></a>. 
+ See <a href="ViewGraph_test.html"><code class="code">ViewGraph_test</code></a> to see how to use it.
+<br>
+<hr width="100%">
+<pre><span class="keyword">type</span> <a name="TYPEt_env"></a><code class="type"></code>t_env </pre>
+<div class="info">
+object returned by <code class="code">init</code> and used by <code class="code">open_dot_file</code><br>
+</div>
+
+<br><code><span class="keyword">type</span> <a name="TYPEt_options"></a><code class="type"></code>t_options = {</code><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code>sel_1_color&nbsp;: <code class="type">string</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >color of the selected node (default "red")</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code>sel_2_color&nbsp;: <code class="type">string</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >color of the selected neighbour (default "green")</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code>center_node_when_selected&nbsp;: <code class="type">bool</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >automatically center a node when it is selected (default true)</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr></table>
+}
+
+
+<pre><span class="keyword">val</span> <a name="VALdefault_options"></a>default_options : <code class="type"><a href="ViewGraph_select.html#TYPEt_options">t_options</a></code></pre><div class="info">
+some default values for the options.
+ It is a good idea to use it and overwrite the one that have to be changed,
+ just in case some more options appear<br>
+</div>
+<pre><span class="keyword">val</span> <a name="VALinit"></a>init : <code class="type"><a href="ViewGraph_select.html#TYPEt_options">t_options</a> -><br>       GnoCanvas.canvas -> (GObj.widget -> unit) -> <a href="ViewGraph_select.html#TYPEt_env">t_env</a></code></pre><div class="info">
+should be called only once because it creates widgets.
+ The packing function is the place to put the messages about selection.<br>
+</div>
+<pre><span class="keyword">module</span> <a href="ViewGraph_select.VG.html">VG</a>: <div class="sig_block"><code class="code">functor (</code><code class="code">UserCb</code><code class="code"> : </code><code class="type"><a href="ViewGraph.SigCb.html">ViewGraph.SigCb</a></code><code class="code">) -&gt; </code><code class="code">sig</code> <a href="ViewGraph_select.VG.html">..</a> <code class="code">end</code></div></pre><div class="info">
+functor to instanciate with your callbacks
+</div>
+<pre><span class="keyword">val</span> <a name="VALshow_help"></a>show_help : <code class="type">unit -> unit</code></pre><div class="info">
+Popup a message window with some help.<br>
+</div>
+</body></html>

@@ -3,9 +3,6 @@ $Id: TODO,v 1.14 2004-10-22 14:42:06 signoles Exp $
 ==========
 COMPATIBLE FEATURES WISH
 ==========
-o Integrating viewGraph (contribution of Anne Pacalet)
-  see Frama-C, directory src/gui/viewGraph
-  Note: viewGraph uses lablgnomecanvas (and lablgtk2 of course)
 o Improve the website
 o It should be possible to specify the first vertex to visit in traversal 
   algorithm (suggestion of Fabrice Derepas)

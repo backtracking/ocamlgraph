@@ -1,7 +1,7 @@
 ##########################################################################
 #                                                                        #
 #  Ocamlgraph: a generic graph library for OCaml                         #
-#  Copyright (C) 2004-2007                                               #
+#  Copyright (C) 2004-2008                                               #
 #  Sylvain Conchon, Jean-Christophe Filliatre and Julien Signoles        #
 #                                                                        #
 #  This software is free software; you can redistribute it and/or        #
@@ -172,7 +172,7 @@ fi
 rm -f check_arch.ml
 
 if test "$LABLGNOMECANVAS" = no ; then
-  AC_MSG_WARN([lablgnomecanvas not found: the graph editor will not be compiled])
+  AC_MSG_WARN([lablgnomecanvas not found: the graph editor and view_graph will not be compiled])
 fi
 
 # substitutions to perform

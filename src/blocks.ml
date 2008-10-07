@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                                                        *)
 (*  Ocamlgraph: a generic graph library for OCaml                         *)
-(*  Copyright (C) 2004-2007                                               *)
+(*  Copyright (C) 2004-2008                                               *)
 (*  Sylvain Conchon, Jean-Christophe Filliatre and Julien Signoles        *)
 (*                                                                        *)
 (*  This software is free software; you can redistribute it and/or        *)
@@ -26,6 +26,12 @@ let first_value_for_cpt_vertex = 0
 let cpt_vertex = ref first_value_for_cpt_vertex
   (* global counter for abstract vertex *)
 
+(* [max_cpt t1 t2] returns the maximum of [t1] and [t2] wrt the total ordering
+   induced by tags creation. This ordering is defined as follow:
+   forall tags t1 t2, 
+   t1 <= t2 iff 
+   t1 is before t2 in the finite sequence 
+   [0; 1; ..; max_int; min_int; min_int-1; -1] *)
 let max_cpt c1 c2 = max (c1 + min_int) (c2 + min_int) - min_int
 
 (* This function must be called after the unserialisation of any abstract

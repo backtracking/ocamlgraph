@@ -1,11 +1,15 @@
+version 1.0, October 7th, 2008
+------------------------------
  o license: LGPL updated to version 2.1
  o ocamlgraph now requires ocaml 3.10 or higher
+ o experimental: GTK-based graph viewer based on dot 
+   (contribution of Anne Pacalet)
  o Makefile: 
      - fixed bug when lablgnomecanvas is not installed
      - fixed bug when ocamlfind is installed
      - patch to the build system for a DESTDIR (patch by Igor Galic)
      - "make -j" compliant
- o New function Blocks.after_unserialization in order to be able to safely
+ o new function Blocks.after_unserialization in order to be able to safely
    serialize abstract vertices (see the FAQ)
  o Dot: 
      - fixed bug in the parsing of attributes

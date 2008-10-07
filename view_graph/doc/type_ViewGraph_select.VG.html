@@ -1,0 +1,21 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="ViewGraph" rel="Chapter" href="ViewGraph.html">
+<link title="ViewGraph_select" rel="Chapter" href="ViewGraph_select.html">
+<link title="ViewGraph_test" rel="Chapter" href="ViewGraph_test.html"><title>ViewGraph_select.VG</title>
+</head>
+<body>
+<code class="code"><span class="keyword">functor</span>&nbsp;(<span class="constructor">UserCb</span>&nbsp;:&nbsp;<span class="constructor">ViewGraph</span>.<span class="constructor">SigCb</span>)&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;<span class="keyword">sig</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;open_dot_file&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">UserCb</span>.t_env&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">ViewGraph_select</span>.t_env&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?dot_cmd:string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">ViewGraph</span>.t_graph<br>
+&nbsp;&nbsp;<span class="keyword">end</span></code></body></html>
