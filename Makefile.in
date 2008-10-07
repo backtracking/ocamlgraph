@@ -94,6 +94,7 @@ graph.cmxa: graph.cmx
 	$(OCAMLOPT) $(INCLUDES) -a -o $@ $^
 
 graph.cmi: graph.cmo
+graph.o: graph.cmx
 
 graph.cmo: $(CMI) $(CMO)
 	$(OCAMLC) $(INCLUDES) -pack -o $@ $^
