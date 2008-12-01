@@ -146,7 +146,12 @@ AC_CHECK_PROG(LABLGTK2,lablgtk2,yes,no)
 if test "$LABLGTK2" = yes ; then
    if test -d "$OCAMLLIB/lablgtk2" ; then
       INCLUDEGTK2="-I +lablgtk2"
-      AC_CHECK_FILE($OCAMLLIB/lablgtk2/lablgnomecanvas.cma,LABLGNOMECANVAS=yes,LABLGNOMECANVAS=no)
+      if test "$OCAMLBEST" = "opt"; then
+         SUFFIX=cmxa;
+      else
+         SUFFIX=cma;
+      fi
+      AC_CHECK_FILE($OCAMLLIB/lablgtk2/lablgnomecanvas.$SUFFIX,LABLGNOMECANVAS=yes,LABLGNOMECANVAS=no)
    else
       LABLGTK2=no
       LABLGNOMECANVAS=no

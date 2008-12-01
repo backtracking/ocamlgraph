@@ -1,3 +1,5 @@
+ o configure: look for lablgnomecanvas.cmxa when compiling in native code
+
 version 1.0, October 14th, 2008
 ------------------------------
  o license: LGPL updated to version 2.1
