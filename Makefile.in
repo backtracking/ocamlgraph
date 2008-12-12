@@ -269,9 +269,14 @@ endif
 
 install-findlib: META
 ifdef OCAMLFIND
+ifeq (@LABLGNOMECANVAS@,yes)
 	$(OCAMLFIND) install ocamlgraph META $(SRCDIR)/*.mli \
 		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA) \
 		$(VIEWER_CMX) $(VIEWER_CMO)
+else
+	$(OCAMLFIND) install ocamlgraph META $(SRCDIR)/*.mli \
+		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA)
+endif
 endif
 
 META: META.in Makefile
