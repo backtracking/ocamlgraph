@@ -1,6 +1,6 @@
  o configure: look for lablgnomecanvas.cmxa when compiling in native code
  o Makefile: fixed make install-findlib when lablgtk and/or
-   lablgnomecanvas not installed
+   lablgnomecanvas not installed (patch by Peter Hawkins)
 
 version 1.0, October 14th, 2008
 ------------------------------
