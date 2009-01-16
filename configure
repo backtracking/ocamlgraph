@@ -1276,7 +1276,7 @@ esac
 
 # OCAMLLIB=`$OCAMLC -v | tail -n 1 | cut -f 4 -d " "`
 # OCAMLLIB=`$OCAMLC -v | tail -n 1 | sed -e 's|[[^:]]*: \(.*\)|\1|' `
-OCAMLLIB=`$OCAMLC -where`
+OCAMLLIB=`$OCAMLC -where | tr -d '\r'`
 echo "ocaml library path is $OCAMLLIB"
 
 # then we look for ocamlopt; if not present, we issue a warning

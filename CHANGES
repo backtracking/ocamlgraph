@@ -1,3 +1,4 @@
+ o configure: fixed bug under Cygwin (patch by Julien Bernet)
  o configure: look for lablgnomecanvas.cmxa when compiling in native code
  o Makefile: fixed make install-findlib when lablgtk and/or
    lablgnomecanvas not installed (patch by Peter Hawkins)
