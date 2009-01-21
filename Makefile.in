@@ -143,7 +143,7 @@ VIEWER_DIR=view_graph
 
 viewer: $(VIEWER_DIR)/viewgraph.byte $(VIEWER_DIR)/viewgraph.$(OCAMLBEST)
 
-VIEWER_CMO=viewGraph viewGraph_select
+VIEWER_CMO=viewGraph viewGraph_select viewGraph_utils viewGraph_test
 VIEWER_CMO:=$(patsubst %,$(VIEWER_DIR)/%.cmo, $(VIEWER_CMO))
 VIEWER_CMX=$(VIEWER_CMO:.cmo=.cmx)
 VIEWER_CMI=$(VIEWER_CMO:.cmo=.cmi)
@@ -157,11 +157,11 @@ $(VIEWER_CMX): $(CMXA)
 
 $(VIEWER_DIR)/viewgraph.byte: $(CMA) $(VIEWER_CMO)
 	$(OCAMLC) -g -o $@ $(VIEWER_INCLUDES) \
-		lablgtk.cma lablgnomecanvas.cma $^
+		lablgtk.cma lablgnomecanvas.cma unix.cma $^
 
 $(VIEWER_DIR)/viewgraph.opt: $(CMXA) $(VIEWER_CMX)
 	$(OCAMLOPT) -o $@ $(VIEWER_INCLUDES) \
-		lablgtk.cmxa lablgnomecanvas.cmxa $^
+		lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
 
 # Examples
 ##########
