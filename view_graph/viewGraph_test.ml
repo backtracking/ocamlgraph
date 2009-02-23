@@ -137,29 +137,6 @@ let create_menu2 packing open_cb =
     ()
     *)
 
-let create_scrolled_canvas packing =
-  let frame = GBin.frame ~shadow_type:`IN () in
-  let canvas = 
-    let aa = false (* anti-aliasing *) in
-    GnoCanvas.canvas ~aa ~width:600 ~height:400 ~packing:frame#add () 
-  in
-  let _ = canvas#set_center_scroll_region true in
-         (* if the graph is too big, show its center *)
-  let table = GPack.table ~packing
-                ~rows:2 ~columns:2 ~row_spacings:4 ~col_spacings:4 () in
-  let _ = table#attach ~left:0 ~right:1 ~top:0 ~bottom:1
-            ~expand:`BOTH ~fill:`BOTH ~shrink:`BOTH ~xpadding:0 ~ypadding:0
-            frame#coerce in
-  let w = GRange.scrollbar `HORIZONTAL ~adjustment:canvas#hadjustment ()  in
-  let _ = table#attach ~left:0 ~right:1 ~top:1 ~bottom:2
-            ~expand:`X ~fill:`BOTH ~shrink:`X ~xpadding:0 ~ypadding:0
-            w#coerce  in
-  let w = GRange.scrollbar `VERTICAL ~adjustment:canvas#vadjustment ()  in
-  let _ = table#attach ~left:1 ~right:2 ~top:0 ~bottom:1
-            ~expand:`Y ~fill:`BOTH ~shrink:`Y ~xpadding:0 ~ypadding:0 
-            w#coerce  in
-    canvas
-
 
 let create_gui () =
   let window = GWindow.window ~title:"ViewGraph" 
@@ -174,7 +151,8 @@ let create_gui () =
   let _ = GMisc.label ~text:"\n Open the Help window to know more...\n"
             ~packing:frame#add () in
 
-  let canvas = create_scrolled_canvas (vbox#pack ~expand:true ~fill:true) in
+  let pack = vbox#pack ~expand:true ~fill:true in
+  let canvas = ViewGraph_utils.create_scrolled_canvas pack in
 
   let hbox = GPack.hbox ~spacing:4 ~packing:vbox#pack () in
   let select_init_env = 
@@ -192,6 +170,7 @@ let create_gui () =
     (canvas, select_init_env)
 
 let main () =
+  let _ = GMain.Main.init () in
   let canvas, select_init_env = create_gui () in
   if Array.length Sys.argv = 2 then
     open_file select_init_env Sys.argv.(1);
