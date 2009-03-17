@@ -1,8 +1,6 @@
 $Id: TODO,v 1.14 2004-10-22 14:42:06 signoles Exp $
 
-==========
-COMPATIBLE FEATURES WISH
-==========
+o Better graph viewer and editor
 o Improve the website
 o It should be possible to specify the first vertex to visit in traversal 
   algorithm (suggestion of Fabrice Derepas)
