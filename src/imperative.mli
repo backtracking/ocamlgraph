@@ -47,6 +47,7 @@ module type S = sig
   (** Imperative Unlabeled Graphs. *)
   module Concrete (V: COMPARABLE) : 
     Sig.I with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t
+	  and type E.label = unit
 
   (** Abstract Imperative Unlabeled Graphs. *)
   module Abstract(V: ANY_TYPE) : 
@@ -71,6 +72,7 @@ module Digraph : sig
       constant time). *)
   module ConcreteBidirectional (V: COMPARABLE) : 
     Sig.I with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t 
+          and type E.label = unit
 end
 
 (** Imperative Undirected Graphs. *)

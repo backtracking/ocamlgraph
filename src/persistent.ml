@@ -26,9 +26,11 @@ module type S = sig
   (** Persistent Unlabeled Graphs *)
   module Concrete (V: COMPARABLE) : 
     Sig.P with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t
+	  and type E.label = unit
 
   (** Abstract Persistent Unlabeled Graphs *)
   module Abstract(V: sig type t end) : Sig.P with type V.label = V.t
+					     and type E.label = unit
 
   (** Persistent Labeled Graphs *)
   module ConcreteLabeled (V: COMPARABLE)(E: ORDERED_TYPE_DFT) :

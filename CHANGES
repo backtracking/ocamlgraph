@@ -1,3 +1,5 @@
+
+ o added constraint "type E.label = unit" to unlabeled graph data structure
  o viewGraph: new module viewGraph_utils
  o configure: fixed bug under Cygwin (patch by Julien Bernet)
  o configure: look for lablgnomecanvas.cmxa when compiling in native code
