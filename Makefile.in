@@ -157,11 +157,11 @@ $(VIEWER_CMX): $(CMXA)
 
 $(VIEWER_DIR)/viewgraph.byte: $(CMA) $(VIEWER_CMO)
 	$(OCAMLC) -g -o $@ $(VIEWER_INCLUDES) \
-		lablgtk.cma lablgnomecanvas.cma unix.cma $^
+		lablgtk.cma gtkInit.cmo lablgnomecanvas.cma unix.cma $^
 
 $(VIEWER_DIR)/viewgraph.opt: $(CMXA) $(VIEWER_CMX)
 	$(OCAMLOPT) -o $@ $(VIEWER_INCLUDES) \
-		lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
+		lablgtk.cmxa gtkInit.cmx lablgnomecanvas.cmxa unix.cmxa $^
 
 # Examples
 ##########
