@@ -1,6 +1,7 @@
 
  o added constraint "type E.label = unit" to unlabeled graph data structure
- o viewGraph: new module viewGraph_utils
+ o viewGraph: new module viewGraph_utils; fixed compilation (gtkInit
+   was missing; patch by Mehdi Dogguy)
  o configure: fixed bug under Cygwin (patch by Julien Bernet)
  o configure: look for lablgnomecanvas.cmxa when compiling in native code
  o Makefile: fixed make install-findlib when lablgtk and/or
