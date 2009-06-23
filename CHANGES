@@ -1,4 +1,6 @@
 
+version 1.1, June 23rd, 2009
+----------------------------
  o added constraint "type E.label = unit" to unlabeled graph data structure
  o viewGraph: new module viewGraph_utils; fixed compilation (gtkInit
    was missing; patch by Mehdi Dogguy)
@@ -8,7 +10,7 @@
    lablgnomecanvas not installed (patch by Peter Hawkins)
 
 version 1.0, October 14th, 2008
-------------------------------
+-------------------------------
  o license: LGPL updated to version 2.1
  o ocamlgraph now requires ocaml 3.10 or higher
  o experimental: GTK-based graph viewer based on dot 
