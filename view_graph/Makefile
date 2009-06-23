@@ -2,12 +2,12 @@ OCAMLC=ocamlc.opt -dtypes
 OCAMLOPT=ocamlopt.opt
 OCAMLDOC=ocamldoc.opt
 
-GRAPH_DIR=../../../ocamlgraph
+GRAPH_DIR=..
 GRAPH_LIB=graph.cmo
 
 INCLUDES=-I . -I +lablgtk2 -I $(GRAPH_DIR)
 
-FILES = viewGraph viewGraph_select viewGraph_test
+FILES = viewGraph viewGraph_select viewGraph_utils viewGraph_test
 SRCS = $(wildcard *.ml *.mli)
 CMOS = $(FILES:%=%.cmo)
 CMXS = $(FILES:%=%.cmx)
@@ -16,9 +16,9 @@ EXEC=viewgraph
 
 all : $(EXEC) $(CMXS) doc
 
-$(EXEC) :  $(CMOS)
-	$(OCAMLC) $(INCLUDES) -o $@ unix.cma \
-	  lablgtk.cma gtkInit.cmo lablgnomecanvas.cma $(GRAPH_LIB) \
+$(EXEC) :  $(CMOS) $(GRAPH_DIR)/$(GRAPH_LIB)
+	$(OCAMLC) $(INCLUDES) -o $@ \
+	  unix.cma lablgtk.cma lablgnomecanvas.cma $(GRAPH_LIB) \
 	  $(CMOS)
 
 depend: .depend

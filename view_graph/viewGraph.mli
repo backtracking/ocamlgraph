@@ -57,6 +57,9 @@ module type SigCb = sig
   val leave_node : t_env -> t_node -> unit
 end
 
+(** usefull when we don't want to have callbacks on the nodes *)
+module EmptyCb : SigCb with type t_env=unit
+
 module M (Cb : SigCb) : sig
 
   (** Open the dot file in the canvas.

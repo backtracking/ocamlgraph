@@ -26,7 +26,7 @@ exception DotError of string
 type t_point = float * float
 type t_coord = t_point * t_point
 
-type t_shape = Srect | Sellipse
+type t_shape = Srect | Sellipse (* TODO : add some more ! *)
 
 type t_gtk_obj = GnomeCanvas.re_p GnoCanvas.item
 
@@ -190,6 +190,18 @@ module type SigCb = sig
   val button_three_press_on_node : t_env -> t_node -> unit
   val enter_node : t_env -> t_node -> unit
   val leave_node : t_env -> t_node -> unit
+end
+
+module EmptyCb = struct
+  type t_env = unit
+  let button_one_press_on_graph _env = ()
+  let button_two_press_on_graph _env = ()
+  let button_three_press_on_graph _env = ()
+  let button_one_press_on_node _env _n = ()
+  let button_two_press_on_node _env _n = ()
+  let button_three_press_on_node _env _n = ()
+  let enter_node _env _n = ()
+  let leave_node _env _n = ()
 end
 
 module M (Cb : SigCb) = struct
