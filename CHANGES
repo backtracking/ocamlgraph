@@ -1,4 +1,6 @@
 
+ o added Delaunay.iter_triangles (not of use in Ocamlgraph, actually)
+
 version 1.1, June 23rd, 2009
 ----------------------------
  o added constraint "type E.label = unit" to unlabeled graph data structure
