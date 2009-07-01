@@ -18,7 +18,11 @@
 (* $Id: delaunay.ml,v 1.12 2005-11-02 13:43:35 filliatr Exp $ *)
 
 (** Code follows Don Knuth's algorithm
-    from ``Axioms and hulls'' (LNCS 606, Springer-Verlag, 1992), pp. 73-77 *)
+    from ``Axioms and hulls'' (LNCS 606, Springer-Verlag, 1992), pp. 73-77.
+
+    Some code and comments are taken from the Stanford Graph Base,
+    file [gb_plane].
+*)
 
 open Printf
 
@@ -34,6 +38,8 @@ module type Triangulation = sig
   val triangulate : S.point array -> triangulation
   val iter : (S.point -> S.point -> unit) -> triangulation -> unit
   val fold : (S.point -> S.point -> 'a -> 'a) -> triangulation -> 'a -> 'a
+  val iter_triangles : 
+    (S.point -> S.point -> S.point -> unit) -> triangulation -> unit
 end
 
 module Make (S : CCC) = struct
@@ -42,10 +48,19 @@ module Make (S : CCC) = struct
 
   type point = Point of int | Infinity
 
-  type arc = { mutable vert : point;
-	       mutable next : arc;
-	       mutable inst : node ref;
-	       mate : int }
+  (* Each edge of the current triangulation is represented by two arcs
+     pointing in opposite directions; the two arcs are called mates. Each
+     arc conceptually has a triangle on its left and a mate on its right. *)
+
+  type arc = { 
+    mutable vert : point; 
+      (* v, if this arc goes from u to v *)
+    mutable next : arc; 
+      (* the arc from v that shares a triangle with this one *)
+    mutable inst : node ref;
+      (* instruction to change when the triangle is modified *)
+    mate : int 
+  }
   and node = 
     | Branch of int * int * node ref * node ref
     | Terminal of arc
@@ -238,6 +253,27 @@ module Make (S : CCC) = struct
       match t.arcs.(i).vert, t.arcs.(n - 1 - i).vert with
 	| Point u, Point v -> f points.(u) points.(v)
 	| _ -> ()
+    done
+
+  let iter_triangles f t =
+    let n = Array.length t.arcs in
+    let seen_arc = Array.create n false in
+    let mate i = n - 1 - i in
+    let index a = mate a.mate in
+    for i = 0 to n-1 do
+      if not seen_arc.(i) then begin
+	let a1 = t.arcs.(i) in
+	let a2 = a1.next in
+	let a3 = a2.next in
+	seen_arc.(i) <- true;
+	seen_arc.(index a2) <- true;
+	seen_arc.(index a3) <- true;
+	match a1.vert, a2.vert, a3.vert with
+	  | Point i1, Point i2, Point i3 -> 
+	      f t.points.(i1) t.points.(i2) t.points.(i3)
+	  | _ ->
+	      ()
+      end
     done
 
   let fold f t a =

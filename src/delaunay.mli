@@ -58,6 +58,9 @@ module type Triangulation = sig
 
   val fold : (S.point -> S.point -> 'a -> 'a) -> triangulation -> 'a -> 'a
 
+  val iter_triangles : 
+    (S.point -> S.point -> S.point -> unit) -> triangulation -> unit
+
 end
 
 (** Generic Delaunay triangulation *)
