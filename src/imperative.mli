@@ -68,8 +68,13 @@ end
 module Digraph : sig 
   include S   
 
-  (** Imperative Unlabeled, bidirectional graph (gives predecessors in
-      constant time). *)
+  (** Imperative Unlabeled, bidirectional graph. 
+
+      Bidirectional graphs use more memory space (at worse the double) that
+      standard concrete directional graphs. But accessing predecessors is in
+      O(1) amortized instead of O(max(|V|,|E|)) and removing a vertex is in
+      O(D*ln(D)) instead of O(|V|*ln(D)). D is the maximal degree of the
+      graph. *)
   module ConcreteBidirectional (V: COMPARABLE) : 
     Sig.I with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t 
           and type E.label = unit

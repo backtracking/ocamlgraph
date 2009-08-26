@@ -116,7 +116,10 @@ module type G = sig
 	Unspecified behaviour if [g] has several edges from [v1] to [v2].
 	@raise Not_found if no such edge exists. *)
 
-  (** {2 Successors and predecessors} *)
+  (** {2 Successors and predecessors} 
+
+      You should better use iterators on successors/predecessors (see
+      Section "Vertex iterators"). *)
 
   val succ : t -> vertex -> vertex list
     (** [succ g v] returns the successors of [v] in [g].
@@ -163,10 +166,14 @@ module type G = sig
 
       Each iterator [iterator f v g] iters [f] to the successors/predecessors
       of [v] in the graph [g] and raises [Invalid_argument] if [v] is not in
-      [g]. 
-      
-      it is the same for functions [fold_*] which use an additional
-      accumulator. *)
+      [g]. It is the same for functions [fold_*] which use an additional
+      accumulator. 
+
+      <b>Time complexity for ocamlgraph implementations:</b>
+      operations on successors are in O(1) amortized for imperative graphs and
+      in O(ln(|V|)) for persistent graphs while operations on predecessors are
+      in O(max(|V|,|E|)) for imperative graphs and in O(max(|V|,|E|)*ln|V|) for
+      persistent graphs. *)
 
   (** iter/fold on all successors/predecessors of a vertex. *)
 
@@ -200,7 +207,12 @@ module type P = sig
   val remove_vertex : t -> vertex -> t
     (** [remove g v] removes the vertex [v] from the graph [g] 
 	(and all the edges going from [v] in [g]).
-	Just return [g] if [v] is not in [g]. *)
+	Just return [g] if [v] is not in [g]. 
+
+	<b>Time complexity for ocamlgraph implementations:</b>
+	O(|V|*ln(|V|)) for unlabeled graphs and
+	O(|V|*max(ln(|V|),D)) for labeled graphs. 
+	D is the maximal degree of the graph. *) 
 
   val add_edge : t -> vertex -> vertex -> t
     (** [add_edge g v1 v2] adds an edge from the vertex [v1] to the vertex [v2]
@@ -252,7 +264,11 @@ module type I = sig
   val remove_vertex : t -> vertex -> unit
     (** [remove g v] removes the vertex [v] from the graph [g] 
 	(and all the edges going from [v] in [g]).
-	Do nothing if [v] is not in [g]. *)
+	Do nothing if [v] is not in [g]. 
+
+	<b>Time complexity for ocamlgraph implementations:</b>
+	O(|V|*ln(D)) for unlabeled graphs and O(|V|*D)	for
+	labeled graphs. D is the maximal degree of the graph. *) 
 
   val add_edge : t -> vertex -> vertex -> unit
     (** [add_edge g v1 v2] adds an edge from the vertex [v1] to the vertex [v2]
