@@ -1,0 +1,53 @@
+digraph G {
+	node [label="\N"];
+	graph [bb="0,0,217,409",
+		_draw_="c 5 -white C 5 -white P 4 0 0 0 409 217 409 217 0 ",
+		xdotversion="1.2"];
+	subgraph cluster_0 {
+		graph [style=filled,
+			color=lightgrey,
+			label="process #1",
+			lp="55,353",
+			bb="8,72,101,365",
+			_ldraw_="F 14.000000 11 -Times-Roman c 5 -black T 55 348 0 77 10 -process #1 ",
+			_draw_="S 6 -filled c 9 -lightgrey C 9 -lightgrey P 4 8 72 8 365 101 365 101 72 ",
+			xdotversion=""];
+		node [style=filled,
+			color=white];
+		a0 [pos="65,314", width="0.75", height="0.50", _draw_="S 6 -filled c 5 -white C 5 -white E 65 314 27 18 ", _ldraw_="F 14.000000 11 -Times-Roman c 5 -black T 65 309 0 17 2 -a0 "];
+		a1 [pos="65,242", width="0.75", height="0.50", _draw_="S 6 -filled c 5 -white C 5 -white E 65 242 27 18 ", _ldraw_="F 14.000000 11 -Times-Roman c 5 -black T 65 237 0 17 2 -a1 "];
+		a2 [pos="64,170", width="0.75", height="0.50", _draw_="S 6 -filled c 5 -white C 5 -white E 64 170 27 18 ", _ldraw_="F 14.000000 11 -Times-Roman c 5 -black T 64 165 0 17 2 -a2 "];
+		a3 [pos="65,98", width="0.75", height="0.50", _draw_="S 6 -filled c 5 -white C 5 -white E 65 98 27 18 ", _ldraw_="F 14.000000 11 -Times-Roman c 5 -black T 65 93 0 17 2 -a3 "];
+		a0 -> a1 [pos="e,65,260 65,296 65,288 65,279 65,270", _draw_="c 5 -black B 4 65 296 65 288 65 279 65 270 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 69 270 65 260 62 270 "];
+		a1 -> a2 [pos="e,64,188 65,224 64,216 64,207 64,198", _draw_="c 5 -black B 4 65 224 64 216 64 207 64 198 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 68 198 64 188 61 198 "];
+		a2 -> a3 [pos="e,65,116 64,152 65,144 65,135 65,126", _draw_="c 5 -black B 4 64 152 65 144 65 135 65 126 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 69 126 65 116 62 126 "];
+		a3 -> a0 [pos="e,51,298 51,114 42,124 33,138 28,152 14,197 15,214 29,260 33,271 39,281 45,290", _draw_="c 5 -black B 10 51 114 42 124 33 138 28 152 14 197 15 214 29 260 33 271 39 281 45 290 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 42 292 51 298 48 288 "];
+	}
+	subgraph cluster_1 {
+		graph [color=blue,
+			label="process #2",
+			lp="162,353",
+			bb="116,72,209,365",
+			_ldraw_="F 14.000000 11 -Times-Roman c 5 -black T 162 348 0 77 10 -process #2 ",
+			_draw_="c 4 -blue p 4 116 72 116 365 209 365 209 72 ",
+			xdotversion=""];
+		node [style=filled];
+		b0 [pos="162,314", width="0.75", height="0.50", _draw_="S 6 -filled c 5 -black C 9 -lightgrey E 162 314 27 18 ", _ldraw_="F 14.000000 11 -Times-Roman c 5 -black T 162 309 0 17 2 -b0 "];
+		b1 [pos="168,242", width="0.75", height="0.50", _draw_="S 6 -filled c 5 -black C 9 -lightgrey E 168 242 27 18 ", _ldraw_="F 14.000000 11 -Times-Roman c 5 -black T 168 237 0 17 2 -b1 "];
+		b2 [pos="174,170", width="0.75", height="0.50", _draw_="S 6 -filled c 5 -black C 9 -lightgrey E 174 170 27 18 ", _ldraw_="F 14.000000 11 -Times-Roman c 5 -black T 174 165 0 17 2 -b2 "];
+		b3 [pos="151,98", width="0.75", height="0.50", _draw_="S 6 -filled c 5 -black C 9 -lightgrey E 151 98 27 18 ", _ldraw_="F 14.000000 11 -Times-Roman c 5 -black T 151 93 0 17 2 -b3 "];
+		b0 -> b1 [pos="e,166,260 164,296 165,288 165,279 166,270", _draw_="c 5 -black B 4 164 296 165 288 165 279 166 270 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 170 270 166 260 163 270 "];
+		b1 -> b2 [pos="e,172,188 170,224 171,216 171,207 172,198", _draw_="c 5 -black B 4 170 224 171 216 171 207 172 198 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 176 198 172 188 169 198 "];
+		b2 -> b3 [pos="e,157,116 168,152 166,144 163,135 160,126", _draw_="c 5 -black B 4 168 152 166 144 163 135 160 126 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 163 125 157 116 157 127 "];
+	}
+	start [shape=Mdiamond, pos="113,391", width="0.94", height="0.50", _draw_="c 5 -black p 4 113 409 79 391 113 373 147 391 c 5 -black L 2 90 397 90 385 c 5 -black L 2 102 379 124 379 c 5 -black L 2 136 385\
+ 136 397 c 5 -black L 2 124 403 102 403 ", _ldraw_="F 14.000000 11 -Times-Roman c 5 -black T 113 386 0 33 5 -start "];
+	end [shape=Msquare, pos="108,26", width="0.58", height="0.50", _draw_="c 5 -black p 4 129 44 87 44 87 8 129 8 c 5 -black L 2 99 44 87 32 c 5 -black L 2 87 20 99 8 c 5 -black L 2 117 8 129 20 c 5 -bla\
+ck L 2 129 32 117 44 ", _ldraw_="F 14.000000 11 -Times-Roman c 5 -black T 108 21 0 26 3 -end "];
+	start -> a0 [pos="e,76,331 104,377 98,367 89,352 81,340", _draw_="c 5 -black B 4 104 377 98 367 89 352 81 340 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 84 338 76 331 78 341 "];
+	start -> b0 [pos="e,151,331 122,377 128,367 138,352 146,340", _draw_="c 5 -black B 4 122 377 128 367 138 352 146 340 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 149 341 151 331 143 338 "];
+	a1 -> b3 [pos="e,142,115 76,225 83,215 93,201 100,188 113,167 127,142 137,124", _draw_="c 5 -black B 7 76 225 83 215 93 201 100 188 113 167 127 142 137 124 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 140 125 142 115 134 122 "];
+	b2 -> a3 [pos="e,84,111 155,157 138,146 112,129 92,117", _draw_="c 5 -black B 4 155 157 138 146 112 129 92 117 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 94 114 84 111 90 120 "];
+	a3 -> end [pos="e,97,44 75,81 80,73 87,62 92,53", _draw_="c 5 -black B 4 75 81 80 73 87 62 92 53 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 95 54 97 44 89 51 "];
+	b3 -> end [pos="e,119,44 141,81 136,73 129,62 124,53", _draw_="c 5 -black B 4 141 81 136 73 129 62 124 53 ", _hdraw_="S 5 -solid S 15 -setlinewidth(1) c 5 -black C 5 -black P 3 127 51 119 44 121 54 "];
+}

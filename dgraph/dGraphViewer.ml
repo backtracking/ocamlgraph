@@ -1,0 +1,140 @@
+open Graph
+open DGraphView
+open Printf
+
+let ($) f x = f x
+
+let debug = ref false
+
+type vertex = ConcreteModel.Model.G.V.t
+type edge = ConcreteModel.Model.G.E.t
+type cluster = string
+
+type state = {
+  mutable file : string option;
+  mutable window : GWindow.window option;
+  mutable view : (vertex, edge, cluster) highlight_focus_view option;
+  mutable table : GPack.table option;
+}
+
+let file =
+  if Array.length Sys.argv < 2 then None
+  else Some Sys.argv.(1)
+
+(* Creates a scrolled graphView in a table *)
+let scrolled_view ~packing model =
+  let frame = GBin.frame ~shadow_type:`IN () in
+  let aa = true (* anti-aliasing *) in
+  let view = DGraphView.highlight_focus_view
+    ~aa ~width:1280 ~height:1024 ~packing:frame#add model () in
+
+  ignore $ view#set_center_scroll_region true;
+  let table = GPack.table ~packing
+                ~rows:2 ~columns:2 ~row_spacings:4 ~col_spacings:4 () in
+  ignore $ table#attach ~left:0 ~right:1 ~top:0 ~bottom:1
+           ~expand:`BOTH ~fill:`BOTH ~shrink:`BOTH ~xpadding:0 ~ypadding:0
+           frame#coerce;
+  let w = GRange.scrollbar `HORIZONTAL ~adjustment:view#hadjustment () in
+  ignore $ table#attach ~left:0 ~right:1 ~top:1 ~bottom:2
+            ~expand:`X ~fill:`BOTH ~shrink:`X ~xpadding:0 ~ypadding:0
+            w#coerce;
+  let w = GRange.scrollbar `VERTICAL ~adjustment:view#vadjustment () in
+  ignore $ table#attach ~left:1 ~right:2 ~top:0 ~bottom:1
+            ~expand:`Y ~fill:`BOTH ~shrink:`Y ~xpadding:0 ~ypadding:0 
+            w#coerce;
+
+  view, table
+
+let state = 
+  { file = None;
+    window = None;
+    view = None;
+    table = None }
+
+(* Top menu *)
+
+let menu_desc = "<ui>\
+  <menubar name='MenuBar'>\
+    <menu action='FileMenu'>\
+      <menuitem action='Open'/>\
+      <separator/>\
+      <menuitem action='Quit'/>\
+    </menu>\
+  </menubar>\
+</ui>"
+
+let create_menu () =
+  let ui_m = GAction.ui_manager () in
+  let actions = GAction.action_group ~name:"Actions" () in
+    GAction.add_actions actions [
+      GAction.add_action "FileMenu" ~label:"File" ;
+      GAction.add_action "Open" ~label:"Open" ~accel:""
+                         (* callback connected later *);
+      GAction.add_action "Quit" ~label:"Quit" ~accel:""
+	~callback:(fun _ -> GMain.Main.quit ());
+    ];
+    ui_m#insert_action_group actions 0 ;
+    let _ = ui_m#add_ui_from_string menu_desc in
+
+    ui_m
+
+(* Open a file *)
+
+let update_state ~packing dot_file =
+  begin match state.table with
+    | None -> ()
+    | Some t -> t#destroy ()
+  end;
+  if !debug then printf "Building Model...\n";
+  let model = ConcreteModel.read_dot ~cmd:"dot" ~dot_file in
+  if !debug then printf "Building View...\n";
+  let view, table = scrolled_view ~packing model in
+  state.file <- Some dot_file;
+  state.view <- Some view;
+  state.table <- Some table;
+  begin match state.window with
+    | Some w ->
+	w#show ();
+	ignore $ view#adapt_zoom ()
+    | _ -> ()
+  end
+
+let open_file ~packing () = 
+  match GToolbox.select_file ~title:"Select a dot file" () with
+    | None -> ()
+    | Some file -> update_state ~packing file
+
+(* Main loop *)
+
+let main () =
+  (* GUI *)
+  let window = GWindow.window ~title:"Graph Widget"
+                 ~allow_shrink:true ~allow_grow:true () in
+  state.window <- Some window;
+
+  let vbox = GPack.vbox ~border_width:4 ~spacing:4
+                            ~packing:window#add () in
+
+  (* Menu *)
+  let ui_m = create_menu () in
+  window#add_accel_group ui_m#get_accel_group ;
+  vbox#pack ~expand:false (ui_m#get_widget "/MenuBar") ;
+
+  let packing = vbox#pack ~expand:true ~fill:true in
+
+  let actions = List.hd ui_m#get_action_groups in
+  let open_action = actions#get_action "Open" in 
+  ignore $ open_action#connect#activate ~callback:(open_file ~packing);
+    
+  ignore $ window#connect#destroy ~callback:GMain.Main.quit;
+
+  if !debug then printf "GUI built, time: %f\n" (Sys.time ());
+  
+  begin match file with
+    | Some f -> update_state ~packing f
+    | None -> ()
+  end;
+
+  GMain.Main.main ()
+    
+let _ = Printexc.print main ()

@@ -55,7 +55,7 @@ OFLAGS = $(INCLUDES) @FORPACK@
 NAME=ocamlgraph
 
 ifeq (@LABLGNOMECANVAS@,yes)
-all: byte $(OCAMLBEST) viewer editor
+all: byte $(OCAMLBEST) viewer dgraph editor
 else
 all: byte $(OCAMLBEST)
 endif
@@ -136,7 +136,7 @@ $(ED_DIR)/editor.opt: $(CMXA) $(ED_CMX)
 	$(OCAMLOPT) -o $@ $(ED_INCLUDES) \
 		lablgtk.cmxa lablgnomecanvas.cmxa unix.cmxa $^
 
-# gtk2 graph viewer
+# gtk2 graph viewer (deprecated)
 ###################
 
 VIEWER_DIR=view_graph
@@ -162,6 +162,34 @@ $(VIEWER_DIR)/viewgraph.byte: $(CMA) $(VIEWER_CMO)
 $(VIEWER_DIR)/viewgraph.opt: $(CMXA) $(VIEWER_CMX)
 	$(OCAMLOPT) -o $@ $(VIEWER_INCLUDES) \
 		lablgtk.cmxa gtkInit.cmx lablgnomecanvas.cmxa unix.cmxa $^
+
+# new gtk2 graph viewer: dgraph
+###############################
+
+DGRAPH_DIR=dgraph
+
+dgraph: $(DGRAPH_DIR)/dgraph.byte $(DGRAPH_DIR)/dgraph.$(OCAMLBEST)
+
+DGRAPH_CMO=dGraphModel xDotDraw xDot dGraphViewItem \
+	dGraphView concreteModel dGraphViewer
+DGRAPH_CMO:=$(patsubst %,$(DGRAPH_DIR)/%.cmo, $(DGRAPH_CMO))
+DGRAPH_CMX=$(DGRAPH_CMO:.cmo=.cmx)
+DGRAPH_CMI=$(DGRAPH_CMO:.cmo=.cmi)
+
+DGRAPH_INCLUDES= @INCLUDEGTK2@ -I $(DGRAPH_DIR) $(INCLUDES) -I .
+
+$(DGRAPH_CMI) $(DGRAPH_CMO): BFLAGS+= $(DGRAPH_INCLUDES)
+$(DGRAPH_CMO): $(CMA)
+$(DGRAPH_CMX): OFLAGS+= $(DGRAPH_INCLUDES)
+$(DGRAPH_CMX): $(CMXA)
+
+$(DGRAPH_DIR)/dgraph.byte: $(CMA) $(DGRAPH_CMO)
+	$(OCAMLC) -g -o $@ $(DGRAPH_INCLUDES) \
+		lablgtk.cma gtkInit.cmo lablgnomecanvas.cma $^
+
+$(DGRAPH_DIR)/dgraph.opt: $(CMXA) $(DGRAPH_CMX)
+	$(OCAMLOPT) -o $@ $(DGRAPH_INCLUDES) \
+		lablgtk.cmxa gtkInit.cmx lablgnomecanvas.cmxa $^
 
 # Examples
 ##########
@@ -256,7 +284,8 @@ install-byte:
 ifeq (@LABLGNOMECANVAS@,yes)
 	cp -f $(ED_DIR)/editor.byte $(BINDIR)/graph-editor.byte
 	cp -f $(VIEWER_CMO) "$(DESTDIR)$(OCAMLLIB)"
-	cp -f $(VIEWER_DIR)/viewgraph.byte $(BINDIR)/graph-viewer.byte
+	cp -f $(DGRAPH_CMO) "$(DESTDIR)$(OCAMLLIB)"
+	cp -f $(DGRAPH_DIR)/dgraph.byte $(BINDIR)/graph-viewer.byte
 endif
 
 install-opt: install-byte
@@ -264,7 +293,8 @@ install-opt: install-byte
 ifeq (@LABLGNOMECANVAS@,yes)
 	cp -f $(ED_DIR)/editor.opt $(BINDIR)/graph-editor.opt
 	cp -f $(VIEWER_CMX) "$(DESTDIR)$(OCAMLLIB)"
-	cp -f $(VIEWER_DIR)/viewgraph.opt $(BINDIR)/graph-viewer.opt
+	cp -f $(DGRAPH_CMX) "$(DESTDIR)$(OCAMLLIB)"
+	cp -f $(DGRAPH_DIR)/dgraph.opt $(BINDIR)/graph-viewer.opt
 endif
 
 install-findlib: META
@@ -272,7 +302,7 @@ ifdef OCAMLFIND
 ifeq (@LABLGNOMECANVAS@,yes)
 	$(OCAMLFIND) install ocamlgraph META $(SRCDIR)/*.mli \
 		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA) \
-		$(VIEWER_CMX) $(VIEWER_CMO)
+		$(VIEWER_CMX) $(VIEWER_CMO) $(DGRAPH_CMX) $(DGRAPH_CMO)
 else
 	$(OCAMLFIND) install ocamlgraph META $(SRCDIR)/*.mli \
 		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA)
@@ -442,14 +472,17 @@ configure: configure.in
 
 clean:
 	rm -f *~
-	for d in $(SRCDIR) $(LIBDIR) $(ED_DIR) $(VIEWER_DIR) tests examples; \
+	for d in $(SRCDIR) $(LIBDIR) $(ED_DIR) $(VIEWER_DIR) $(DGRAPH_DIR) \
+		tests examples; \
 	do \
-	  rm -f $$d/*.cm[iox] $$d/*$(OBJEXT) $$d/*~; \
+	  rm -f $$d/*.cm[iox] $$d/*$(OBJEXT) $$d/*~ $$d/*.annot; \
 	done
 	rm -f $(GENERATED) $(SRCDIR)/dot_parser.output
 	rm -f graph.*a graph.cm* graph.o graph$(LIBEXT) 
 	rm -f $(ED_DIR)/editor.byte $(ED_DIR)/editor.opt
 	rm -f $(VIEWER_DIR)/viewgraph.byte $(VIEWER_DIR)/viewgraph.opt
+	rm -f $(DGRAPH_DIR)/dgraph.byte $(DGRAPH_DIR)/dgraph.opt
+	rm -f $(DGRAPH_DIR)/dgraph
 	rm -f *.haux *.aux *.log $(NAME).tex $(NAME).dvi $(DOCFILES)
 	rm -f $(EXAMPLESBIN)
 
@@ -465,10 +498,11 @@ svnclean svn-clean:: dist-clean
 .PHONY: depend
 .depend depend: $(GENERATED)
 	rm -f .depend
-	$(OCAMLDEP) $(INCLUDES) -I $(ED_DIR) -I $(VIEWER_DIR) \
+	$(OCAMLDEP) $(INCLUDES) -I $(ED_DIR) -I $(VIEWER_DIR) -I $(DGRAPH_DIR)\
 		$(LIBDIR)/*.ml $(LIBDIR)/*.mli \
 		$(SRCDIR)/*.ml $(SRCDIR)/*.mli \
 		$(ED_DIR)/*.mli $(ED_DIR)/*.ml \
-		$(VIEWER_DIR)/*.mli $(VIEWER_DIR)/*.ml > .depend
+		$(VIEWER_DIR)/*.mli $(VIEWER_DIR)/*.ml \
+		$(DGRAPH_DIR)/*.mli $(DGRAPH_DIR)/*.ml > .depend
 
 include .depend
