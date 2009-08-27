@@ -361,6 +361,7 @@ FILES = src/*.ml* lib/*.ml* Makefile.in configure configure.in META.in  \
         editor/tests/*.dot editor/tests/*.gml \
 	view_graph/*.ml view_graph/*.mli \
 	view_graph/README view_graph/Makefile \
+	dgraph/*.ml dgraph/*.mli \
 	examples/*.ml tests/*.ml \
 	README FAQ CREDITS INSTALL COPYING LICENSE CHANGES
 
@@ -385,6 +386,7 @@ framac:
 	cp --parents $(FILES) export/$(EXPORTDIR)
 	cd export ; tar cf $(TAR) $(EXPORTDIR) ; gzip -f --best $(TAR)
 	cp export/$(TAR).gz $(FTP)
+	make -C $(FTP) force-ocamlgraph
 
 www/version.prehtml: Makefile.in
 	echo "<#def version>$(VERSION)</#def>" > www/version.prehtml
