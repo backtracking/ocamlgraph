@@ -1,3 +1,7 @@
+======================================================
+ViewGraph is now deprecated. Prefer to use dgraph now.
+======================================================
+
 ViewGraph is a small ocaml library that helps to view a graph from a dot file
 in a Lablgtk canvas, and interact with it. 
 
