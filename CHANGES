@@ -1,4 +1,6 @@
 
+version 1.2, August 31, 2009
+----------------------------
  o experimental: new GTK-based graph viewer called dgraph 
    (viewGraph is now deprecated)
  o added Delaunay.iter_triangles (not of use in Ocamlgraph, actually)

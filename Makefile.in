@@ -102,7 +102,7 @@ graph.cmo: $(CMI) $(CMO)
 graph.cmx: $(CMI) $(CMX)
 	$(OCAMLOPT) $(INCLUDES) -pack -o $@ $^
 
-VERSION=1.1
+VERSION=1.2
 
 src/version.ml: Makefile
 	rm -f $@
