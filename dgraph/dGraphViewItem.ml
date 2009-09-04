@@ -117,18 +117,15 @@ type shape_t =
   | SPolygon of GnoCanvas.polygon
   | SBSpline of GnoCanvas.bpath
 
-let to_p = function
-  | `FILL_COLOR    _ as f -> f
-  | `OUTLINE_COLOR _ as o -> o
-  | `WIDTH_UNITS   _ as w -> w
-  | `FILL_STIPPLE  _ as f -> f
-  | _ -> invalid_arg "to_p"
-
 (* Common properties (used by canvas items ellipse, polygon and bpath) *)
 type common_p = [ `FILL_COLOR of string
                 | `OUTLINE_COLOR of string
 		| `WIDTH_UNITS of float
 		| `FILL_STIPPLE of Gdk.bitmap ]
+
+let to_p = function
+  | #common_p as p -> p
+  | _ -> invalid_arg "to_p"
 
 (* Converts a property list to a common property list *)
 let conv_props = List.map to_p
@@ -155,7 +152,7 @@ class shape shape props = object(self)
   (* Restores the previous properties *)
   method undo () =
     match props_q with
-      | [] -> () | [_] -> ()
+      | [] | [_] -> ()
       | _current::previous::rest ->
 	  props_q <- previous::rest;
 	  self#set_props previous

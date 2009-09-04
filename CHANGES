@@ -1,4 +1,6 @@
 
+ o Makefile: fixed bug of ocamldep under Windows
+
 version 1.2, August 31, 2009
 ----------------------------
  o experimental: new GTK-based graph viewer called dgraph 
