@@ -1,4 +1,6 @@
 
+ o Makefile: fixed bug when the installation directory of binaries does not
+             exist 
  o Makefile: fixed bug of ocamldep under Windows
 
 version 1.2, August 31, 2009

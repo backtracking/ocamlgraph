@@ -16,10 +16,11 @@
 ##########################################################################
 
 # Where to install the binaries
-prefix=@prefix@
+DESTDIR	=
+prefix	=@prefix@
 exec_prefix=@exec_prefix@
 datarootdir=@datarootdir@
-BINDIR=@bindir@
+BINDIR	=$(DESTDIR)@bindir@
 
 # Where to install the man page
 MANDIR=@mandir@
@@ -266,9 +267,8 @@ $(DPD_GRAPH_ML:.ml=.cmx): $(CMXA)
 # installation
 ##############
 
-DESTDIR	=
-
 install: install-$(OCAMLBEST) install-byte
+	mkdir -p $(BINDIR)
 ifeq (@LABLGNOMECANVAS@,yes)
 ifeq ($(OCAMLBEST),byte)
 	cp -f $(BINDIR)/graph-editor.byte $(BINDIR)/graph-editor$(EXE)
@@ -282,6 +282,7 @@ endif
 install-byte: 
 	cp -f graph.cmo graph.cmi $(CMA) "$(DESTDIR)$(OCAMLLIB)"
 ifeq (@LABLGNOMECANVAS@,yes)
+	mkdir -p $(BINDIR)
 	cp -f $(ED_DIR)/editor.byte $(BINDIR)/graph-editor.byte
 	cp -f $(VIEWER_CMO) "$(DESTDIR)$(OCAMLLIB)"
 	cp -f $(DGRAPH_CMO) "$(DESTDIR)$(OCAMLLIB)"
@@ -291,6 +292,7 @@ endif
 install-opt: install-byte
 	cp -f graph$(LIBEXT) graph.cmx $(CMXA) "$(DESTDIR)$(OCAMLLIB)"
 ifeq (@LABLGNOMECANVAS@,yes)
+	mkdir -p $(BINDIR)
 	cp -f $(ED_DIR)/editor.opt $(BINDIR)/graph-editor.opt
 	cp -f $(VIEWER_CMX) "$(DESTDIR)$(OCAMLLIB)"
 	cp -f $(DGRAPH_CMX) "$(DESTDIR)$(OCAMLLIB)"
