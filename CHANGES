@@ -1,4 +1,9 @@
 
+ o ocamlgraph is now installed by default in `ocamlc -where`/ocamlgraph
+ o viewgraph is now packed in a single module Viewgraph (break compatibility
+   with previous version)
+ o dgraph is now packed in a single module Dgraph (break compatibility with
+   previous version)
  o Makefile: fixed bug when the installation directory of binaries does not
              exist 
  o Makefile: fixed bug of ocamldep under Windows
