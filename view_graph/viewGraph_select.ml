@@ -33,7 +33,7 @@ let debug format =
 * When we go to the next one, [n] is removed and appended to [l3] tail.
 * If [l1] is then empty, [l2] becomes the first list, and [b] is changed. *)
 module CircLists = struct
-  type t_elem = ViewGraph.t_node 
+  type t_elem = ViewGraph_core.t_node 
   type t_lists = t_elem list * t_elem list * t_elem list
   type t = bool * t_lists
 
@@ -93,11 +93,11 @@ type t_widgets = {
 type t_state = { 
   w : t_widgets;
   opt : t_options;
-  mutable graph : ViewGraph.t_graph option ;
+  mutable graph : ViewGraph_core.t_graph option ;
   mutable ppu : float ; 
-  mutable selected : ViewGraph.t_node option ;
+  mutable selected : ViewGraph_core.t_node option ;
   mutable neighbours : CircLists.t option;
-  mutable gui_sel : (ViewGraph.t_gtk_obj option) array;
+  mutable gui_sel : (ViewGraph_core.t_gtk_obj option) array;
 }
 
 type t_env = t_state
@@ -110,7 +110,7 @@ let change_zoom state delta =
 let center_selected_node state =
   match state.selected with
     | None -> ()
-    | Some n -> match ViewGraph.get_coord n with
+    | Some n -> match ViewGraph_core.get_coord n with
         | None -> ()
         | Some ((x1, y1), (x2, y2)) -> 
             let canvas = state.w.canvas in
@@ -169,7 +169,7 @@ let move_selection state n_opt1 n_opt2 =
   in
   let n_obj n_opt  = match n_opt with
     | None -> None
-    | Some n ->  ViewGraph.get_obj n 
+    | Some n ->  ViewGraph_core.get_obj n 
   in
   let obj1 = n_obj n_opt1 in
   let obj2 = n_obj n_opt2 in
@@ -183,7 +183,7 @@ let show_selection state =
   let n_opt, txt1, txt2, txt3 = match state.selected with
     | None -> None, "(none)", "", ""
     | Some n -> 
-        let txt1 = ViewGraph.get_id n in
+        let txt1 = ViewGraph_core.get_id n in
         let n_opt, txt2, txt3 = match state.neighbours with 
           | None -> None, "", ""
           | Some info ->
@@ -191,7 +191,7 @@ let show_selection state =
                 | None -> None, " --- ", "(none)"
                 | Some (pred_first, n) ->
                     let txt2 = if pred_first then "  <--  " else "  -->  " in
-                      Some n, txt2, ViewGraph.get_id n
+                      Some n, txt2, ViewGraph_core.get_id n
         in n_opt, txt1, txt2, txt3
   in
     state.w.sel_1_txt#set_text txt1;
@@ -214,7 +214,7 @@ let select_neighbour state =
           let new_info = 
             match state.neighbours with 
               | None -> 
-                  let neighbours = ViewGraph.get_neighbours graph n in
+                  let neighbours = ViewGraph_core.get_neighbours graph n in
                     CircLists.mk neighbours
               | Some info -> CircLists.go_next info
           in
@@ -235,7 +235,7 @@ let goto_neighbour state =
                         assert false
                     | Some old_n ->
                         state.selected <- Some n;
-                        let neighbours = ViewGraph.get_neighbours graph n in
+                        let neighbours = ViewGraph_core.get_neighbours graph n in
                         let neighbours = CircLists.mk neighbours in
                         let neighbours = CircLists.goto_n neighbours old_n in
                           state.neighbours <- Some neighbours;
@@ -249,7 +249,7 @@ let clear_state state =
   state.gui_sel <- [| None; None |];
   show_selection state
 
-module SelectCb (UserCb : ViewGraph.SigCb) = struct
+module SelectCb (UserCb : ViewGraph_core.SigCb) = struct
   type t_env = UserCb.t_env * t_state
 
   let button_one_press_on_graph (u_env, state) = 
@@ -277,21 +277,21 @@ module SelectCb (UserCb : ViewGraph.SigCb) = struct
     UserCb.button_three_press_on_node (u_env) n
 
   let enter_node (u_env, state) n =
-    begin match ViewGraph.get_obj n with None -> assert false
+    begin match ViewGraph_core.get_obj n with None -> assert false
       | Some n_item -> n_item#set [`OUTLINE_COLOR "red"]
     end;
     UserCb.enter_node (u_env) n
 
   let leave_node (u_env, state) n =
-    begin match ViewGraph.get_obj n with None -> assert false
+    begin match ViewGraph_core.get_obj n with None -> assert false
       | Some n_item -> n_item#set [`NO_OUTLINE_COLOR]
     end;
     UserCb.leave_node (u_env) n
 end
 
-module VG (UserCb : ViewGraph.SigCb) = struct
+module VG (UserCb : ViewGraph_core.SigCb) = struct
   module Cb = SelectCb (UserCb)
-  module V = ViewGraph.M (Cb)
+  module V = ViewGraph_core.M (Cb)
 
   let open_dot_file u_env state ?(dot_cmd="dot") file =
     let canvas = state.w.canvas in

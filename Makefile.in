@@ -144,7 +144,7 @@ VIEWER_DIR=view_graph
 
 viewer: $(VIEWER_DIR)/viewgraph.byte $(VIEWER_DIR)/viewgraph.$(OCAMLBEST)
 
-VIEWER_CMO=viewGraph viewGraph_select viewGraph_utils viewGraph_test
+VIEWER_CMO=viewGraph_core viewGraph_select viewGraph_utils viewGraph_test
 VIEWER_CMO:=$(patsubst %,$(VIEWER_DIR)/%.cmo, $(VIEWER_CMO))
 VIEWER_CMX=$(VIEWER_CMO:.cmo=.cmx)
 VIEWER_CMI=$(VIEWER_CMO:.cmo=.cmi)

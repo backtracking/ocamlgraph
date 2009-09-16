@@ -40,9 +40,9 @@ val default_options : t_options
 val init : t_options -> GnoCanvas.canvas -> (GObj.widget -> unit) -> t_env
 
 (** functor to instanciate with your callbacks *)
-module VG (UserCb : ViewGraph.SigCb) : sig
+module VG (UserCb : ViewGraph_core.SigCb) : sig
   val open_dot_file : UserCb.t_env -> t_env -> 
-    ?dot_cmd:string -> string -> ViewGraph.t_graph
+    ?dot_cmd:string -> string -> ViewGraph_core.t_graph
 end
 
 (** Popup a message window with some help. *)
