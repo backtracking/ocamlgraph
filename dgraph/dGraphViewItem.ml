@@ -23,6 +23,7 @@
 (**************************************************************************)
 
 open DGraphModel
+open XDot
 open XDotDraw
 open Printf
 
@@ -86,13 +87,11 @@ let graph_text ?x ?y ?text ?font ?anchor ~size_points ?(props=[]) p =
 
 (** FROM DOT LAYOUT TO VIEW ITEMS *)
 
-(* Common properties
+(* Shape properties
    Used when initializing items
 *)
 let pen_color draw_st = `OUTLINE_COLOR draw_st.XDotDraw.pen_color
 let fill_color draw_st = `FILL_COLOR draw_st.XDotDraw.fill_color
-let fill_stipple () =
-  `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:1 ~height:1 "\000")
 
 (* Flattens an array of pair of coordinates into an array of coordinates *)
 let flatten_points pts =
@@ -103,7 +102,6 @@ let flatten_points pts =
     pts'.(2*i+1) <- y;
   done;
   pts'
-
 
 (* SHAPE CONSTRUCTORS *)
 
@@ -117,32 +115,65 @@ type shape_t =
   | SPolygon of GnoCanvas.polygon
   | SBSpline of GnoCanvas.bpath
 
-(* Common properties (used by canvas items ellipse, polygon and bpath) *)
-type common_p = [ `FILL_COLOR of string
-                | `OUTLINE_COLOR of string
-		| `WIDTH_UNITS of float
-		| `FILL_STIPPLE of Gdk.bitmap ]
+let shape_item = function
+  | SEllipse e -> e#as_item
+  | SPolygon p -> p#as_item
+  | SBSpline b -> b#as_item
+
+(* Shape properties (used by canvas items ellipse, polygon and bpath) *)
+type shape_p = [ `FILL_COLOR of string
+               | `OUTLINE_COLOR of string
+	       | `WIDTH_UNITS of float
+	       | `DASH of float * float array
+	       | `OUTLINE_COLOR of string]
 
 let to_p = function
-  | #common_p as p -> p
+  | #shape_p as p -> p
   | _ -> invalid_arg "to_p"
 
-(* Converts a property list to a common property list *)
+(* Converts a property list to a shape property list *)
 let conv_props = List.map to_p
+
+
+(* Property list completion *)
+(* In the initial property list of a shape, we need all the properties to hold a value,
+   so that we can refer to them when unsetting property changes *)
+
+let rec insert_with cmp x = function
+  | [] -> [x]
+  | h::t when cmp x h = -1 -> x::h::t
+  | h::t when cmp x h = 1  -> h::(insert_with cmp x t)
+  | l -> l
+
+let prop_to_int = function
+  | `FILL_COLOR _ -> 0
+  | `OUTLINE_COLOR _ -> 1
+  | `WIDTH_UNITS _ -> 2
+  | `DASH _ -> 4
+
+let cmp_props p1 p2 = compare (prop_to_int p1) (prop_to_int p2)
+
+let complete_props (props : shape_p list) =
+  let default_props =
+    [`FILL_COLOR "black"; `WIDTH_UNITS 1.; `OUTLINE_COLOR "black";
+     `DASH (0.,[||])] in
+  List.fold_right (insert_with cmp_props) default_props props
 
 (* Shape class (either a rect, an ellipse, a polygon or a path)
    Uses a properties queue to undo changes
 *)
-class shape shape props = object(self)
+class shape shape props =
+object(self) 
+  inherit GnoCanvas.base_item (shape_item shape)
 
-  method private set_props (props : common_p list) =
+  method private set_props (props : shape_p list) =
     match shape with
       | SPolygon p -> ignore $ p#set (conv_props props)
       | SEllipse e -> ignore $ e#set (conv_props props)
       | SBSpline b -> ignore $ b#set (conv_props props)
 
   (* Properties queue *)
-  val mutable props_q = [props]
+  val mutable props_q = [complete_props props]
 
   (* Sets the properties, pushes them on the queue *)
   method set props =
@@ -152,17 +183,10 @@ class shape shape props = object(self)
   (* Restores the previous properties *)
   method undo () =
     match props_q with
-      | [] | [_] -> ()
+      | [] -> () | [_] -> ()
       | _current::previous::rest ->
 	  props_q <- previous::rest;
 	  self#set_props previous
-
-  method connect =
-    match shape with
-    | SPolygon p -> p#connect
-    | SEllipse e -> e#connect
-    | SBSpline b -> b#connect
-
 end
 
 let ellipse draw_st group pos w h =
@@ -175,9 +199,15 @@ let ellipse draw_st group pos w h =
   new shape (SEllipse ellip) (conv_props props)
 
 let polygon draw_st group pts =
-  let props = [pen_color draw_st;
-	       fill_color draw_st;
-	       ] in
+  let base_props = [pen_color draw_st;
+	       fill_color draw_st ] in
+
+  let fold_sty_attr props = function
+    | Dashed -> `DASH (0., [|10.|]) :: props
+    | Dotted -> `DASH (0., [|2.;10.|])  :: props
+    | _ -> props in
+  let props = List.fold_left fold_sty_attr base_props draw_st.style in
+
   let points = flatten_points pts in
   let poly = GnoCanvas.polygon group ~points ~props in
   poly#lower_to_bottom ();
@@ -202,72 +232,81 @@ let pathdef = function
 
 let bspline draw_st group pts =
   let path = pathdef (List.map XDot.conv_coord (Array.to_list pts)) in
-  let base_props = [pen_color draw_st] in
+  let base_props = [pen_color draw_st; fill_color draw_st] in
   
   let fold_sty_attr props = function
-    | Dashed -> (`DASH (10., [|10.|])) :: props
-    | Dotted -> (`DASH (50., [|3.|])) :: props
+    | Dashed -> `DASH (0., [|10.|]) :: props
+    | Dotted -> `DASH (0., [|2.;10.|])  :: props
     | _ -> props in
   let props = List.fold_left fold_sty_attr base_props draw_st.style in
       
   let bpath = GnoCanvas.bpath group ~bpath:path
-    ~props in
+    ~props:(base_props @ props) in
   bpath#lower_to_bottom ();
-  new shape (SBSpline bpath) (conv_props base_props)
+  new shape (SBSpline bpath) (conv_props (base_props @ props))
 
 let text draw_st group pos align label =
   let (x,y) = XDot.conv_coord pos in
   let size_points,font = draw_st.XDotDraw.font in
-  (* let font = match XDotDraw.split '-' font' with *)
-  (*   | font::_ -> String.lowercase font *)
-  (*   | _ -> "" in *)
+  (*printf "%s:%f\n" font size_points;*)
   let props = [`FILL_COLOR draw_st.XDotDraw.pen_color] in
-  (* printf "Font: %s, size: %d\n" font size'; *)
   let text = graph_text group
     ~x ~y ~text:label ~props ~anchor:`SOUTH
-    ~size_points:10. ~font (*~font ~size_points*) in
+    ~font ~size_points:(size_points -. 1.) in
  (* text#lower_to_bottom (); *)
+(*  text#canvas#misc#modify_font (Pango.Font.from_string font);*)
   text
 
-(* HIGHLIGHT CONFIGURATION *)
+(* View_item properties *)
+(* Tiny module to easily combine view item properties*)
+module VP = struct
 
-type highlight_conf = {
-  (* highlight *)
-  hl_shp : common_p list;
-  hl_txt : GnomeCanvas.text_p list;
-}
+  (* A pair of shape properties and text properties *)
+  type t = shape_p list * GnomeCanvas.text_p list
+  type color = string
 
-let empty_hl_conf =
-  { hl_shp = [];
-    hl_txt = [] }
+  (* Combine properties *)
+  let combine (a,b) (c,d) = (a @ c), (b @ d)
 
-let view_node_hl_conf color =
-  { hl_shp = [`OUTLINE_COLOR color];
-    hl_txt = [`FILL_COLOR color; (*`SIZE_POINTS t#size_points*)];
-  }
+  let empty = [],[]
 
-let view_edge_hl_conf color =
-  { hl_shp = [`OUTLINE_COLOR color; `FILL_COLOR color];
-    hl_txt = [`FILL_COLOR color];
-  }
+  let shp_color c = [`OUTLINE_COLOR c], []
+  let shp_fill_color c = [`OUTLINE_COLOR c; `FILL_COLOR c], []
+  let txt_color c = [], [`FILL_COLOR c]
+
+  let shp_width w = [`WIDTH_UNITS w], []
+  let txt_weight w = [], [`WEIGHT w]
+end
+
+let (++) = VP.combine
+
+(* Default highlight view item properties *)
+let default_node_hl_vip =
+  (*VP.shp_color "red" ++ VP.txt_color "red" ++*)
+  VP.shp_width 2.    ++ VP.txt_weight 800
+let default_edge_hl_vip =
+  (*VP.shp_color "red" ++ VP.shp_fill_color "red" ++ VP.txt_color "red" *)
+  VP.shp_width 2. ++ VP.txt_weight 800
 
 class type common_view = object
   inherit GnoCanvas.canvas
   method zoom_factor : float
+  method adapt_zoom : unit -> unit
 end
 
 (* ITEMS *)
 
 (* DGraph item
-   Can be either a node or an edge
-   Contains shapes and texts.
-   Can be : highlighted and/or selected, dragged and dropped
+   Node and edge derive from this class
+   Contains shapes and texts
+   Can be : highlighted and/or selected
 
    ~pos : center of the container
    ~ops_list : list of list of operations
-   ~hl_conf : highlight configuration (see in DGraphViewItem)
+   ~hl_vip : highlight properties, set when method highlight is called
 *)
-class view_item ~(view : common_view) ~pos ~ops_list ~hl_conf =
+class view_item ~(view : common_view) ~pos ~ops_list ~hl_vip =
+  let shp_props, txt_props = hl_vip in
   object(self)
     inherit GnoCanvas.group view#root#as_group
 
@@ -278,6 +317,7 @@ class view_item ~(view : common_view) ~pos ~ops_list ~hl_conf =
     val mutable callbacks = []
 
     val drag = false
+    val mutable showed = true
 
     method texts : graph_text list = texts
     method shapes : shape list = shapes
@@ -287,8 +327,8 @@ class view_item ~(view : common_view) ~pos ~ops_list ~hl_conf =
 
     method highlight () =
       if not highlighted then begin
-	List.iter (fun s -> s#set hl_conf.hl_shp) self#shapes;
-	List.iter (fun t -> t#set hl_conf.hl_txt) self#texts;
+	List.iter (fun s -> s#set shp_props) self#shapes;
+	List.iter (fun t -> t#set txt_props) self#texts;
 	highlighted <- true
       end
 
@@ -314,6 +354,16 @@ class view_item ~(view : common_view) ~pos ~ops_list ~hl_conf =
       List.iter (fun s -> s#undo ()) self#shapes;
       List.iter (fun t -> t#undo ()) self#texts;
       selected <- false
+
+    method hide () =
+      showed <- false;
+      self#iter_shapes (fun s -> s#hide ());
+      self#iter_texts (fun t -> t#hide ())
+
+    method show () =
+      showed <- true;
+      self#iter_shapes (fun s -> s#show ());
+      self#iter_texts (fun t -> t#show ())
 	
     method center () =
       let (x,y) = pos in
@@ -324,28 +374,8 @@ class view_item ~(view : common_view) ~pos ~ops_list ~hl_conf =
       let sx, sy = view#w2c ~wx:sx ~wy:sy in
       ignore $ view#scroll_to ~x:sx ~y:sy
 
-    method move_to x y = self#set [`X x; `Y y]
-
-    (* val mutable dragging = false *)
-
-    (* method drag_ev = function *)
-    (*   | `BUTTON_PRESS _ -> *)
-    (* 	  printf "Button press on item\n"; *)
-    (* 	  dragging <- true; *)
-    (* 	  true *)
-    (*   | `MOTION_NOTIFY m -> *)
-    (* 	  if dragging then begin *)
-    (* 	    let x,y = GdkEvent.Motion.x m, GdkEvent.Motion.y m in *)
-    (* 	    let x', y' = canvas#window_to_world ~winx:x ~winy:y in *)
-    (* 	    let x'', y'' = canvas#w2c_d ~wx:x' ~wy:y' in *)
-    (* 	    self#move_to x'' y'' *)
-    (* 	  end; *)
-    (* 	  true *)
-    (*   | `BUTTON_RELEASE _ -> *)
-    (* 	  printf "Button release on item\n"; *)
-    (* 	  dragging <- false; *)
-    (* 	  true *)
-    (*   | _ -> false *)
+    method is_showed = showed
+    method is_hidden = not showed
 
     (* Reads a list of list of operations
        Updates the shapes and texts lists
@@ -361,6 +391,10 @@ class view_item ~(view : common_view) ~pos ~ops_list ~hl_conf =
 	| XDotDraw.Bspline pts | XDotDraw.Filled_bspline pts ->
 	    shapes <- bspline draw_st self pts :: shapes
 	| XDotDraw.Text (pos, align, _, label) ->
+	    let t = text draw_st self pos align label in
+	    texts <- t :: texts
+
+	    (* Here I tried to delay the allocation of the text, but this only made things slower*)
 	    (*let new_text =
 	      let draw_st' = XDotDraw.copy_draw_st draw_st in
 	      (fun () ->
@@ -369,8 +403,7 @@ class view_item ~(view : common_view) ~pos ~ops_list ~hl_conf =
 	      false) in
  	      ignore $
 	      Glib.Idle.add ~prio:(Glib.int_of_priority `LOW) new_text;*)
-	    let t = text draw_st self pos align label in
-	    texts <- t :: texts
+
 	| _ -> () in
       List.iter (draw_with read_op) operations_list
 
@@ -382,44 +415,45 @@ class view_item ~(view : common_view) ~pos ~ops_list ~hl_conf =
 (* VIEW_NODE *)
 
 (* Inherits view item class *)
-class ['vertex] view_node ~(view:common_view) ~vertex ~layout ~hl_conf =
+class ['vertex] view_node ~(view:common_view) ~vertex ~layout ~hl_vip =
   let pos = layout.n_pos in
   let ops_list = [layout.n_ldraw; layout.n_draw] in
 object(self)
-  inherit view_item ~view ~pos ~ops_list ~hl_conf
+  inherit view_item ~view ~pos ~ops_list ~hl_vip
   method vertex : 'vertex = vertex
 end
 
-let view_node ?(hl_conf = view_node_hl_conf "red")
+let view_node ?(hl_vip = default_node_hl_vip)
               ~view ~vertex ~layout () =
-  new view_node ~view ~vertex ~layout ~hl_conf
+  new view_node ~view ~vertex ~layout ~hl_vip
 
 (* VIEW_EDGE *)
 
 (* Inherits view item class *)
-class ['edge] view_edge ~(view : common_view) ~edge ~layout ~hl_conf =
+class ['edge] view_edge ~(view : common_view) ~edge ~layout ~hl_vip =
   let pos = 0.,0. in
   let ops_list =
     [ layout.e_draw; layout.e_ldraw;
       layout.e_tldraw; layout.e_hldraw;
       layout.e_tdraw; layout.e_hdraw    ] in
 object(self)
-  inherit view_item ~view ~pos ~ops_list ~hl_conf
+  inherit view_item ~view ~pos ~ops_list ~hl_vip
   
   method edge : 'edge = edge
 end
 
-let view_edge ?(hl_conf = view_edge_hl_conf "red")
+let view_edge ?(hl_vip = default_edge_hl_vip)
               ~view ~edge ~layout () =
-  new view_edge ~view ~edge ~layout ~hl_conf
+  new view_edge ~view ~edge ~layout ~hl_vip
 
 (* VIEW_CLUSTER *)
+(* Inherits view item class *)
 class ['cluster] view_cluster ~(view : common_view) ~cluster ~layout =
   let pos = layout.c_pos in
   let ops_list = [layout.c_ldraw; layout.c_draw] in
-  let hl_conf = empty_hl_conf in
+  let hl_vip = VP.empty in
 object(self)
-  inherit view_item ~view ~pos ~ops_list ~hl_conf
+  inherit view_item ~view ~pos ~ops_list ~hl_vip
 
   method cluster : 'cluster = cluster
 end

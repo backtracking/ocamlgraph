@@ -24,103 +24,60 @@
 
 (** Abstract graph model *)
 
-(** Simple layout types *)
-
-(** 2D coordinates *)
-type pos = float * float      
-
-(** upper-left and bottom-right corners *)
-type bounding_box = pos * pos (* bounding box   *)
-
-(**
-   Layout informations are parsed from xdot files
-   (dot files with graphviz layout).
-
-   Each node or edge layout thus contains several lists of
-   drawing operations.
-
-   See http://www.graphviz.org/doc/info/output.html#d:xdot 
-   to understand the details of the layout informations.
-
-*)
-
-(** Each node has at least a position and a bounding box. *)
-type node_layout = {
-  n_pos : pos;                        (** Center position *)
-  n_bbox   : bounding_box;            (** Bounding box *)
-  n_draw   : XDotDraw.operation list; (** Shape drawing *)
-  n_ldraw  : XDotDraw.operation list; (** Label drawing *)
-}
-
-
-type cluster_layout = {
-  c_pos : pos;                        
-  c_bbox   : bounding_box;            
-  c_draw   : XDotDraw.operation list;
-  c_ldraw  : XDotDraw.operation list;
-}
-
-type edge_layout = {
-  e_draw   : XDotDraw.operation list; (** Shapes and curves *)
-  e_ldraw  : XDotDraw.operation list; (** Label drawing *)
-  e_hdraw  : XDotDraw.operation list; (** Head arrowhead drawing *)
-  e_tdraw  : XDotDraw.operation list; (** Tail arrowhead drawing *)
-  e_hldraw : XDotDraw.operation list; (** Head label drawing *)
-  e_tldraw : XDotDraw.operation list; (** Tail label drawing *)
-}
-
-(** Creates a node layout *)
-val mk_node_layout :
-  pos:pos ->
-  bbox:bounding_box ->
-  draw:XDotDraw.operation list ->
-  ldraw:XDotDraw.operation list ->
-  node_layout
-
-(** Creates a cluster layout *)
-val mk_cluster_layout :
-  pos:pos ->
-  bbox:bounding_box ->
-  draw:XDotDraw.operation list ->
-  ldraw:XDotDraw.operation list ->
-  cluster_layout
-
-(** Creates an edge layout *)
-val mk_edge_layout :
-  draw:XDotDraw.operation list ->
-  ldraw:XDotDraw.operation list ->
-  hdraw:XDotDraw.operation list ->
-  tdraw:XDotDraw.operation list ->
-  hldraw:XDotDraw.operation list ->
-  tldraw:XDotDraw.operation list ->
-  edge_layout
+open XDot
+open Graph
 
 (** Immutable graph model.
-    Graph size, layout accessors, iterators and
+    Layout accessors, iterators and
     membership functions.
 *)
-class virtual ['vertex, 'edge, 'cluster] model :
-  object
-    method virtual bounding_box : bounding_box
+class type ['vertex, 'edge, 'cluster] abstract_model = object
+  method iter_edges : ('vertex -> 'vertex -> unit) -> unit
+  method iter_edges_e : ('edge -> unit) -> unit
+  method iter_pred : ('vertex -> unit) -> 'vertex -> unit
+  method iter_pred_e : ('edge -> unit) -> 'vertex -> unit
+  method iter_succ : ('vertex -> unit) -> 'vertex -> unit
+  method iter_succ_e : ('edge -> unit) -> 'vertex -> unit
+  method iter_vertex : ('vertex -> unit) -> unit
+  method iter_clusters : ('cluster -> unit) -> unit
 
-    (** Layout accessors *)
-    method virtual get_edge_layout : 'edge -> edge_layout
-    method virtual get_vertex_layout : 'vertex -> node_layout
-    method virtual get_cluster_layout : 'cluster -> cluster_layout
+  (** Membership functions *)
+  method find_edge : 'vertex -> 'vertex -> 'edge
+  method mem_edge : 'vertex -> 'vertex -> bool
+  method mem_edge_e : 'edge -> bool
+  method mem_vertex : 'vertex -> bool
+  method src : 'edge -> 'vertex
+  method dst : 'edge -> 'vertex
 
-    (** Various iterators *)
-    method virtual iter_edges : ('vertex -> 'vertex -> unit) -> unit
-    method virtual iter_edges_e : ('edge -> unit) -> unit
-    method virtual iter_pred : ('vertex -> unit) -> 'vertex -> unit
-    method virtual iter_pred_e : ('edge -> unit) -> 'vertex -> unit
-    method virtual iter_succ : ('vertex -> unit) -> 'vertex -> unit
-    method virtual iter_succ_e : ('edge -> unit) -> 'vertex -> unit
-    method virtual iter_vertex : ('vertex -> unit) -> unit
-    method virtual iter_clusters : ('cluster -> unit) -> unit
+  (** Dot layout *)
+  method bounding_box : bounding_box
+  method get_edge_layout : 'edge -> edge_layout
+  method get_vertex_layout : 'vertex -> node_layout
+  method get_cluster_layout : 'cluster -> cluster_layout
+end
 
-    (** Membership functions *)
-    method virtual find_edge : 'vertex -> 'vertex -> 'edge
-    method virtual mem_edge : 'vertex -> 'vertex -> bool
-    method virtual mem_edge_e : 'edge -> bool
-    method virtual mem_vertex : 'vertex -> bool
-  end
+(** This functor creates a model from a graph *)
+module Make :
+  functor (G : Graph.Graphviz.GraphWithDotAttrs) ->
+sig
+  type cluster = string
+
+  class model :
+    (G.vertex, G.edge, cluster) XDot.graph_layout -> G.t -> [G.vertex, G.edge, cluster] abstract_model
+
+      (** Creates a model using graphviz.
+	  [tmp_name] is the name of the temporary dot files *)
+  val from_graph : ?cmd:string -> ?tmp_name:string -> G.t -> model
+end
+
+
+module Vertex : Sig.ANY_TYPE with type t = XDot.node_layout
+module Edge : Sig.ORDERED_TYPE_DFT with type t = XDot.edge_layout
+module DotG : Sig.G with type t = Graph.Imperative.Digraph.AbstractLabeled(Vertex)(Edge).t
+type cluster = string
+
+(** Creates a model from a dot file *)
+val read_dot : ?cmd:string -> dot_file:string -> (DotG.vertex, DotG.edge, cluster) abstract_model
+
+(** Creates a model from an xdot file (the layout is not recomputed)*)
+val read_xdot : xdot_file:string -> (DotG.vertex, DotG.edge, cluster) abstract_model

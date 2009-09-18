@@ -22,72 +22,61 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(** Parses xdot drawing operations *)
+open Graph
+open DGraphView
+open Printf
 
-(** See {{:http://www.graphviz.org/doc/info/output.html#d:xdot}dot documentation} to understand the drawing operations *)
+let ($) f x = f x
 
-(** {2 Types } *)
+let element = function
+  | [] -> invalid_arg "empty list in element"
+  | l -> 
+      Random.self_init ();
+      List.nth l (Random.int (List.length l))
 
-(** Dot layout coordinates *)
-type pos = float * float
+let black   = 0x000000
+and white   = 0xFFFFFF
+and red     = 0xFF0000
+and green   = 0x00FF00
+and blue    = 0x0000FF
+and yellow  = 0xFFFF00
+and cyan    = 0x00FFFF
+and magenta = 0xFF00FF  
 
-(** Dimensions *)
-type width = float
-type height = float
-type size = int
+module Vertex = struct
+  type t = int
+end
 
-(** Text alignment *)
-type align = Left | Center | Right
+module Edge = struct
+  type t = int
+  let compare = compare
+  let default = 0
+end
 
-(** Style attributes *)
-type style_attr =
-  | Filled
-  | Invisible
-  | Diagonals
-  | Rounded
-  | Dashed
-  | Dotted
-  | Solid
-  | Bold
-  | StyleString of string
+module G = Imperative.Digraph.AbstractLabeled(Vertex)(Edge)
+module R = Rand.I(G)
 
-(** Drawing operations *)
-type operation =
-  | Filled_ellipse of pos * width * height
-  | Unfilled_ellipse of pos * width * height
-  | Filled_polygon of pos array
-  | Unfilled_polygon of pos array
-  | Polyline of pos array
-  | Bspline of pos array
-  | Filled_bspline of pos array
-  | Text of pos * align * width * string
-  | Fill_color of string
-  | Pen_color of string
-  | Font of float * string
-  | Style of style_attr list
 
-(** {2 Parsing and drawing state } *)
+module GraphAttrs = struct
+  include G
+  let graph_attributes _ = []
+  let default_vertex_attributes _ = []
+  let vertex_name v = string_of_int (G.V.label v)
+  let vertex_attributes _ =
+    let shape = element [`Ellipse; `Box; `Circle; `Doublecircle; `Diamond] in
+    let color = element [black; white; red; green; blue; yellow; cyan; magenta] in
+    [`Shape shape; `Color color]
+  let default_edge_attributes _ = []
+  let edge_attributes _ = []
+  let get_subgraph _ = None
+end
 
-(** Parses an xdot drawing attribute *)
+module Model = DGraphModel.Make(GraphAttrs)
 
-val parse : string -> operation list
-
-(** Some drawing operations modify the following drawing state
-    (pen_color, font and style).
-*)
-
-type draw_state = private {
-  mutable fill_color : string;
-  mutable pen_color : string;
-  mutable font : float * string;
-  mutable style : style_attr list;
-}
-
-(** Iterates on the drawing operations
-    and updates the implicit drawing state *)
-val draw_with : (draw_state -> operation -> unit) -> operation list -> unit
-
-(** {3 Miscellaneous} *)
-
-(** Reads the color string and converts to rgb if in an another format *)
-val normalize_color : string -> string
+let create () =
+  (* State *)
+  Random.self_init ();
+  let v = 100 in
+  let e = Random.int (v*2) in
+  let g = R.graph ~loops:true ~v ~e () in
+  Model.from_graph g

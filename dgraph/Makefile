@@ -32,7 +32,7 @@ OCAMLFLAGS=-dtypes
 OCAMLBLDFLAGS = lablgtk.cma  gtkInit.cmo lablgnomecanvas.cma
 OCAMLNLDFLAGS = lablgtk.cmxa gtkInit.cmx lablgnomecanvas.cmxa
 
-SOURCES = dGraphModel.mli dGraphModel.ml xDotDraw.mli xDotDraw.ml xDot.mli xDot.ml dGraphViewItem.mli dGraphViewItem.ml dGraphView.mli dGraphView.ml concreteModel.mli concreteModel.ml dGraphViewer.ml
+SOURCES = xDotDraw.mli xDotDraw.ml xDot.mli xDot.ml dGraphModel.mli dGraphModel.ml dGraphViewItem.mli dGraphViewItem.ml dGraphView.mli dGraphView.ml dGraphRandModel.ml dGraphViewer.ml
 RESULT = dgraph
 THREADS = yes
 

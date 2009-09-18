@@ -22,72 +22,9 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(** Parses xdot drawing operations *)
+open Graph
+open XDot
+open Printf
 
-(** See {{:http://www.graphviz.org/doc/info/output.html#d:xdot}dot documentation} to understand the drawing operations *)
+exception DotError of string
 
-(** {2 Types } *)
-
-(** Dot layout coordinates *)
-type pos = float * float
-
-(** Dimensions *)
-type width = float
-type height = float
-type size = int
-
-(** Text alignment *)
-type align = Left | Center | Right
-
-(** Style attributes *)
-type style_attr =
-  | Filled
-  | Invisible
-  | Diagonals
-  | Rounded
-  | Dashed
-  | Dotted
-  | Solid
-  | Bold
-  | StyleString of string
-
-(** Drawing operations *)
-type operation =
-  | Filled_ellipse of pos * width * height
-  | Unfilled_ellipse of pos * width * height
-  | Filled_polygon of pos array
-  | Unfilled_polygon of pos array
-  | Polyline of pos array
-  | Bspline of pos array
-  | Filled_bspline of pos array
-  | Text of pos * align * width * string
-  | Fill_color of string
-  | Pen_color of string
-  | Font of float * string
-  | Style of style_attr list
-
-(** {2 Parsing and drawing state } *)
-
-(** Parses an xdot drawing attribute *)
-
-val parse : string -> operation list
-
-(** Some drawing operations modify the following drawing state
-    (pen_color, font and style).
-*)
-
-type draw_state = private {
-  mutable fill_color : string;
-  mutable pen_color : string;
-  mutable font : float * string;
-  mutable style : style_attr list;
-}
-
-(** Iterates on the drawing operations
-    and updates the implicit drawing state *)
-val draw_with : (draw_state -> operation -> unit) -> operation list -> unit
-
-(** {3 Miscellaneous} *)
-
-(** Reads the color string and converts to rgb if in an another format *)
-val normalize_color : string -> string

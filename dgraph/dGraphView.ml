@@ -32,7 +32,7 @@ let ($) f x = f x
 (* Widget derived from the Gnome Canvas
    Supports zooming and scrolling
 *)
-class ['v, 'e, 'c] view obj (model : ('v, 'e, 'c) DGraphModel.model) =
+class ['v, 'e, 'c] view obj (model : ('v, 'e, 'c) DGraphModel.abstract_model) =
   let ((x1,y2),(x2,y1)) = model#bounding_box in
 object(self)
   inherit GnoCanvas.canvas obj
@@ -47,16 +47,20 @@ object(self)
   (* Canvas items creation *)
     
   method private add_vertex vertex =
-    let layout = model#get_vertex_layout vertex in
-    let item = DGraphViewItem.view_node ~view:(self:>common_view)
-      ~vertex ~layout () in
-    Hashtbl.add node_hash vertex item
+    try
+      let layout = model#get_vertex_layout vertex in
+      let item = DGraphViewItem.view_node ~view:(self:>common_view)
+	~vertex ~layout () in
+      Hashtbl.add node_hash vertex item
+    with Not_found -> ()
 
   method private add_edge edge =
-    let layout = model#get_edge_layout edge in
-    let item = DGraphViewItem.view_edge ~view:(self:>common_view)
-      ~edge ~layout () in
-    Hashtbl.add edge_hash edge item
+    try
+      let layout = model#get_edge_layout edge in
+      let item = DGraphViewItem.view_edge ~view:(self:>common_view)
+	~edge ~layout () in
+      Hashtbl.add edge_hash edge item
+    with Not_found -> ()
 
   method private add_cluster cluster =
     let layout = model#get_cluster_layout cluster in
@@ -71,8 +75,12 @@ object(self)
 
   (* Iterate on nodes and edges *)
   method iter_nodes f = Hashtbl.iter (fun _ v -> f v) node_hash
-  method iter_edges f = Hashtbl.iter (fun _ e -> f e) edge_hash
+  method iter_edges_e f = Hashtbl.iter (fun _ e -> f e) edge_hash
   method iter_clusters f = Hashtbl.iter (fun _ c -> f c) cluster_hash
+
+  method iter_edges f =
+    model#iter_edges
+      (fun v1 v2 -> f (self#get_node v1) (self#get_node v2))
 
   (* Iterate on successors of a node *)
   method iter_succ f (node : 'v DGraphViewItem.view_node) =
@@ -88,13 +96,19 @@ object(self)
     let f' e = f (self#get_edge e) in
     model#iter_succ_e f' node#vertex
 
+  method iter_pred_e f (node : 'v view_node) =
+    let f' e = f (self#get_edge e) in
+    model#iter_pred_e f' node#vertex
+
   (* Membership functions *)
   method mem_edge (n1:'v DGraphViewItem.view_node)
                   (n2:'v DGraphViewItem.view_node) =
     model#mem_edge n1#vertex n2#vertex
   method find_edge (n1:'v DGraphViewItem.view_node)
                    (n2:'v DGraphViewItem.view_node) =
-    model#find_edge n1#vertex n2#vertex
+    self#get_edge (model#find_edge n1#vertex n2#vertex)
+  method src (e : 'e DGraphViewItem.view_edge) = self#get_node (model#src e#edge)
+  method dst (e : 'e DGraphViewItem.view_edge) = self#get_node (model#dst e#edge)
 
   (* Zoom factor *)
   val mutable zoom_f = 1.
@@ -110,7 +124,7 @@ object(self)
       let new_size = t#init_size *. zoom_f in
       t#resize new_size in
     self#iter_nodes (fun n -> List.iter zoom_text n#texts);
-    self#iter_edges (fun e -> List.iter zoom_text e#texts);
+    self#iter_edges_e (fun e -> List.iter zoom_text e#texts);
     self#iter_clusters (fun c -> List.iter zoom_text c#texts)
 
   (* Zoom to a particular factor *)
@@ -153,7 +167,9 @@ object(self)
       | _ -> false
 
   initializer
-    (* Create and add items from the model vertices and edges *)
+    printf "building view\n";
+    
+    (* Create and add items from the model vertices, edges and clusters *)
     model#iter_vertex self#add_vertex;
     model#iter_edges_e self#add_edge;
     model#iter_clusters self#add_cluster;
@@ -163,12 +179,15 @@ object(self)
     let (x1',y1') = self#w2c ~wx:x1 ~wy:y1 in
     ignore $ self#scroll_to ~x:x1' ~y:y1';
 
-    (* Zoom events *)
+    (* Attach zoom events *)
     ignore $ self#event#connect#key_press self#zoom_keys_ev;
     ignore $ self#event#connect#scroll self#zoom_mouse_ev;
-    
+
+    (* Set background color *)
+    (*self#misc#modify_bg [`NORMAL, `NAME model#background_color];*)
 end
 
+(* Constructor copied from gnoCanvas.ml *)
 let view ?(aa=false) model =
   GContainer.pack_container [] ~create:(fun pl ->
     let w =
@@ -207,14 +226,6 @@ object(self)
     | `TWO_BUTTON_PRESS _ -> node#center (); true
     | _ -> false
 
-  (* method private search_node_ev t = *)
-  (*   if List.mem `CONTROL (GdkEvent.Key.state t) *)
-  (*     && GdkEvent.Key.keyval t = 102 then begin *)
-  (* 	printf "searching\n"; *)
-  (* 	true *)
-  (*     end *)
-  (*   else false *)
-
   initializer
     (* Connect highligh events on node shapes *)
     let connect_node n =
@@ -228,12 +239,104 @@ object(self)
       n#iter_texts  (fun t -> ignore $ t#connect#event ~callback:center) in
 
     self#iter_nodes connect_node;
-
-    (* ignore $ self#event#connect#key_press ~callback:(self#search_node_ev); *)
-
 end
 
 let highlight_focus_view ?(aa=false) model =
+  GContainer.pack_container [] ~create:(fun pl ->
+    let w =
+      if aa then GnomeCanvas.Canvas.new_canvas_aa ()
+      else GnomeCanvas.Canvas.new_canvas () in
+    Gobject.set_params w pl;
+    new highlight_focus_view w model)
+
+(* LABELED VIEW *)
+(* View augmented with a label showing the dot name of the node under the pointer *)
+class ['v,'e,'c] labeled_view obj model (label:GMisc.label) =
+object(self)
+  inherit ['v,'e,'c] highlight_focus_view obj model as view
+
+  (* EVENTS *)
+  method private show_node_name node = function
+    | `ENTER_NOTIFY _ ->
+       let layout = model#get_vertex_layout node#vertex in
+       let name = layout.XDot.n_name in
+       label#set_text name;
+       false
+    | `LEAVE_NOTIFY _ ->
+	label#set_text "";
+	false
+    | _ -> false
+
+  initializer
+  let connect_node n =
+    let callback = self#show_node_name n in
+    n#iter_shapes (fun s -> ignore $ s#connect#event ~callback);
+    n#iter_texts  (fun t -> ignore $ t#connect#event ~callback) in
+  self#iter_nodes connect_node
+end
+
+let labeled_view ?(aa=false) model label =
+  GContainer.pack_container [] ~create:(fun pl ->
+    let w =
+      if aa then GnomeCanvas.Canvas.new_canvas_aa ()
+      else GnomeCanvas.Canvas.new_canvas () in
+    Gobject.set_params w pl;
+    new labeled_view w model label)
+
+(* VIEW CLASS AUGMENTED WIDTH DRAGGING *)
+(* Not really working, not exported *)
+class ['v, 'e, 'c] drag_view obj model =
+object(self)
+  inherit ['v, 'e, 'c] highlight_focus_view obj model
+    
+  val mutable drag = false
+  val mutable prev_pos = (0.,0.)
+
+  (* EVENTS *)
+    
+  method private drag_start button =
+    if not drag then begin
+      drag <- true;
+      let wx,wy = GdkEvent.Button.x button, GdkEvent.Button.y button in
+      let x,y = self#w2c_d ~wx ~wy in
+      prev_pos <- x, y
+    end;
+    false
+
+  method private drag_end _button =
+    if drag then begin
+      drag <- false;  
+    end;
+    false
+
+  method private drag_move motion =
+    let wx',wy' = GdkEvent.Motion.x motion, GdkEvent.Motion.y motion in
+    let x',y' = self#w2c_d ~wx:wx' ~wy:wy' in
+
+    if drag then begin
+      let x,y = prev_pos in
+      let dx, dy = (x'-.x) , (y'-.y)  in
+	      
+      let offx, offy = self#hadjustment#value, self#vadjustment#value in
+      let f = self#zoom_factor in
+      let dx_scroll = dx /. f in
+      let dy_scroll = dy /. f in
+      
+      self#hadjustment#set_value (offx -. dx_scroll);
+      self#vadjustment#set_value (offy -. dy_scroll);
+    end;
+
+    prev_pos <- (x',y');
+    false
+
+  initializer
+    (* Attach drag events *)
+    ignore $ self#event#connect#button_press self#drag_start;
+    ignore $ self#event#connect#button_release self#drag_end;
+    ignore $ self#event#connect#motion_notify self#drag_move
+end
+
+let drag_view ?(aa=false) model =
   GContainer.pack_container [] ~create:(fun pl ->
     let w =
       if aa then GnomeCanvas.Canvas.new_canvas_aa ()

@@ -24,7 +24,7 @@
 
 (* This module parses _draw_ attributes in XDot *)
 
-type pos = int * int
+type pos = float * float
 type width = float
 type height = float
 type size = int
@@ -84,6 +84,30 @@ let split c s =
         in (String.sub s n (p-n)) :: (split_from (p+1)) 
     with Not_found -> [ suffix s n ] 
   in if s="" then [] else split_from 0 ;;
+
+(* HSV TO RGB CONVERSION *)
+
+(* If color string in hsv format, convert to hex *)
+let normalize_color s =
+  try
+    let h,s,v = Scanf.sscanf s "%f %f %f"(fun a b c -> (a,b,c)) in
+    let h' = 360. *. h /. 60. in
+    let hi = truncate h' mod 6 in
+    let f = h' -. floor h' in
+    let p = v *. (1. -. s) in
+    let q = v *. (1. -. f*.s) in
+    let t = v *. (1. -. (1. -. f) *. s) in
+    let r,g,b = match hi with
+      | 0 -> v,t,p
+      | 1 -> q,v,p
+      | 2 -> p,v,t
+      | 3 -> p,q,v
+      | 4 -> t,p,v
+      | 5 -> v,p,q
+      | _ -> 1.,1.,1. in
+    let to_hex x = Printf.sprintf "%02X" (truncate (x *. 255.)) in
+    "#" ^ to_hex r ^ to_hex g ^ to_hex b
+  with Scanf.Scan_failure _ -> s
 
 (* PARSE STATE *)
 
@@ -192,8 +216,8 @@ let rec get_float state =
 
 let rec get_pos state =
   try
-    let x0 = get_int state in
-    let y0 = get_int state in
+    let x0 = get_float state in
+    let y0 = get_float state in
     (x0, y0)
   with ParseError _ -> raise (ParseError "Cannot parse point in position")
 
@@ -258,10 +282,10 @@ let parse_text state =
   Text (pos, anchor, width, str)
 
 let parse_fill_color state =
-  Fill_color (parse_bytes state)
+  Fill_color (normalize_color (parse_bytes state))
 
 let parse_pen_color state =
-  Pen_color (parse_bytes state)
+  Pen_color (normalize_color (parse_bytes state))
 
 let parse_font state =
   let size = get_float state in
@@ -309,8 +333,8 @@ let parse_with_state state =
   try List.rev (loop ())
   with NoOperationId -> List.rev state.operations
 
-(* Sometimes xdot file have annoying useless blackslashes in long
-   drawing operation strings that break the parsing *)
+(* Long drawing operation strings sometimes contain useless backslashes
+   We get rid of them to avoid problems with the parser *)
 let remove_backslashes s =
   let buf = Buffer.create 30 in
   let rec loop i =
@@ -331,7 +355,7 @@ let parse s =
 let draw_with (f : draw_state -> operation -> unit) operations =
   let st = default_draw_state () in
   let draw_op = function
-    (* The 3 following instructions modify the drawing state *)
+    (* The 4 following instructions modify the drawing state *)
     | Fill_color c as op ->
 	set_fill_color st c;
 	f st op
@@ -340,6 +364,9 @@ let draw_with (f : draw_state -> operation -> unit) operations =
 	f st op
     | Font (sty,font) as op ->
 	set_font st (sty,font);
+	f st op
+    | Style stys as op ->
+	set_style st stys;
 	f st op
     (* No state effects on the other operations *)
     | op -> f st op

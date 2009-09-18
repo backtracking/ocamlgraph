@@ -35,12 +35,12 @@ open GnoCanvas
 
 class ['vertex, 'edge, 'cluster] view :
   GnomeCanvas.canvas Gtk.obj ->
-  ('vertex, 'edge, 'cluster) model ->
+  ('vertex, 'edge, 'cluster) DGraphModel.abstract_model ->
   object
     inherit canvas
       
     (** Model from DGraphModel *)
-    method model : ('vertex, 'edge, 'cluster) model
+    method model : ('vertex, 'edge, 'cluster) DGraphModel.abstract_model
       
     (** Getters *)
     method get_node : 'vertex -> 'vertex view_node
@@ -49,16 +49,20 @@ class ['vertex, 'edge, 'cluster] view :
 
     (** Iterators *)
     method iter_nodes :  ('vertex view_node -> unit) -> unit
-    method iter_edges :  ('edge view_edge -> unit) -> unit
+    method iter_edges : ('vertex view_node -> 'vertex view_node -> unit) -> unit
+    method iter_edges_e :  ('edge view_edge -> unit) -> unit
     method iter_clusters : ('cluster view_cluster -> unit) -> unit
 
     method iter_succ :   ('vertex view_node -> unit) -> 'vertex view_node -> unit
     method iter_pred :   ('vertex view_node -> unit) -> 'vertex view_node -> unit
     method iter_succ_e : ('edge view_edge -> unit) -> 'vertex view_node -> unit
+    method iter_pred_e : ('edge view_edge -> unit) -> 'vertex view_node -> unit
 
     (** Membership functions *)
     method mem_edge : 'vertex view_node -> 'vertex view_node -> bool
-    method find_edge : 'vertex view_node -> 'vertex view_node -> 'edge
+    method find_edge : 'vertex view_node -> 'vertex view_node -> 'edge view_edge
+    method src : 'edge view_edge -> 'vertex view_node
+    method dst : 'edge view_edge -> 'vertex view_node
 
     method zoom_factor : float
     method zoom_to : float -> unit
@@ -69,7 +73,7 @@ class ['vertex, 'edge, 'cluster] view :
 
 val view :
   ?aa:bool -> (** Anti aliasing *)
-  ('vertex, 'edge, 'cluster) DGraphModel.model ->
+  ('vertex, 'edge, 'cluster) DGraphModel.abstract_model ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->
@@ -82,16 +86,49 @@ val view :
 *)
 class ['vertex, 'edge, 'cluster] highlight_focus_view :
   GnomeCanvas.canvas Gtk.obj ->
-  ('vertex, 'edge, 'cluster) model ->
+  ('vertex, 'edge, 'cluster) DGraphModel.abstract_model ->
   ['vertex, 'edge, 'cluster] view
-
 
 val highlight_focus_view :
   ?aa:bool -> (** Anti aliasing *)
-  ('vertex, 'edge, 'cluster) DGraphModel.model ->
+  ('vertex, 'edge, 'cluster) DGraphModel.abstract_model ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->
   ?packing:(GObj.widget -> unit) ->
   ?show:bool -> unit
   -> ('vertex, 'edge, 'cluster) highlight_focus_view
+
+(** Same widget augmented with a label displaying the current node *)
+class ['vertex, 'edge, 'cluster] labeled_view :
+  GnomeCanvas.canvas Gtk.obj ->
+  ('vertex, 'edge, 'cluster) DGraphModel.abstract_model -> GMisc.label ->
+  ['vertex, 'edge, 'cluster] view
+
+val labeled_view :
+  ?aa:bool -> (** Anti aliasing *)
+  ('vertex, 'edge, 'cluster) DGraphModel.abstract_model -> GMisc.label ->
+  ?border_width:int ->
+  ?width:int ->
+  ?height:int ->
+  ?packing:(GObj.widget -> unit) ->
+  ?show:bool -> unit
+  -> ('vertex, 'edge, 'cluster) highlight_focus_view
+
+(* Same widget augmented with highlighting, focus
+    and the ability to drag the canvas (click'n hold)
+*)
+(* class ['vertex, 'edge, 'cluster] drag_view : *)
+(*   GnomeCanvas.canvas Gtk.obj -> *)
+(*   ('vertex, 'edge, 'cluster) DGraphModel.abstract_model -> *)
+(*   ['vertex, 'edge, 'cluster] view *)
+
+(* val drag_view : *)
+(*   ?aa:bool -> (\** Anti aliasing *\) *)
+(*   ('vertex, 'edge, 'cluster) DGraphModel.abstract_model -> *)
+(*   ?border_width:int -> *)
+(*   ?width:int -> *)
+(*   ?height:int -> *)
+(*   ?packing:(GObj.widget -> unit) -> *)
+(*   ?show:bool -> unit *)
+(*   -> ('vertex, 'edge, 'cluster) highlight_focus_view *)

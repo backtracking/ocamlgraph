@@ -22,102 +22,182 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* Layout types *)
-type pos = float * float      (* coordinates *)
-type bounding_box = pos * pos (* bounding box   *)
-
-type node_layout = {
-  n_pos : pos;                        
-  n_bbox   : bounding_box;            
-  n_draw   : XDotDraw.operation list;
-  n_ldraw  : XDotDraw.operation list;
-}
-
-type cluster_layout = {
-  c_pos : pos;                        
-  c_bbox   : bounding_box;            
-  c_draw   : XDotDraw.operation list;
-  c_ldraw  : XDotDraw.operation list;
-}
-
-type edge_layout = {
-  e_draw   : XDotDraw.operation list;
-  e_ldraw  : XDotDraw.operation list;
-  e_hdraw  : XDotDraw.operation list;
-  e_tdraw  : XDotDraw.operation list;
-  e_hldraw : XDotDraw.operation list;
-  e_tldraw : XDotDraw.operation list;
-}
-
-let mk_node_layout ~pos ~bbox ~draw ~ldraw =
-  { n_pos   = pos;
-    n_bbox  = bbox;
-    n_draw  = draw;
-    n_ldraw = ldraw }
-
-let mk_cluster_layout ~pos ~bbox ~draw ~ldraw =
-  { c_pos   = pos;
-    c_bbox  = bbox;
-    c_draw  = draw;
-    c_ldraw = ldraw }
-
-let mk_edge_layout ~draw ~ldraw ~hdraw ~tdraw ~hldraw ~tldraw =
-  { e_draw   = draw;
-    e_ldraw  = ldraw;
-    e_hdraw  = hdraw;
-    e_tdraw  = tdraw;
-    e_hldraw = hldraw;
-    e_tldraw = tldraw;
-  }
-
 (* This graph model is for now immutable, no adding or removing nodes. *)
 
-class virtual ['vertex, 'edge, 'cluster] model = object(self)
+open Graph
+open XDot
+open Printf
 
-  (* Graph interface *)
- 
-  (* Iterators *)
-  method virtual iter_edges : ('vertex -> 'vertex -> unit) -> unit
-  method virtual iter_edges_e : ('edge -> unit) -> unit
-  method virtual iter_pred : ('vertex -> unit) -> 'vertex -> unit
-  method virtual iter_pred_e : ('edge -> unit) -> 'vertex -> unit
-  method virtual iter_succ : ('vertex -> unit) -> 'vertex -> unit
-  method virtual iter_succ_e : ('edge -> unit) -> 'vertex -> unit
-  method virtual iter_vertex : ('vertex -> unit) -> unit
-  method virtual iter_clusters : ('cluster -> unit) -> unit
+exception DotError of string
 
-  (* Membership functions *)
-  method virtual find_edge : 'vertex -> 'vertex -> 'edge
-  method virtual mem_edge : 'vertex -> 'vertex -> bool
-  method virtual mem_edge_e : 'edge -> bool
-  method virtual mem_vertex : 'vertex -> bool
+(* ABSTRACT CLASS *)
 
-  (* method virtual remove_edge : 'vertex -> 'vertex -> unit *)
-  (* method virtual remove_vertex : 'vertex -> unit *)
+class type ['vertex, 'edge, 'cluster] abstract_model = object
+  method iter_edges : ('vertex -> 'vertex -> unit) -> unit
+  method iter_edges_e : ('edge -> unit) -> unit
+  method iter_pred : ('vertex -> unit) -> 'vertex -> unit
+  method iter_pred_e : ('edge -> unit) -> 'vertex -> unit
+  method iter_succ : ('vertex -> unit) -> 'vertex -> unit
+  method iter_succ_e : ('edge -> unit) -> 'vertex -> unit
+  method iter_vertex : ('vertex -> unit) -> unit
+  method iter_clusters : ('cluster -> unit) -> unit
 
-  (* Dot layout interface *)
+  (** Membership functions *)
+  method find_edge : 'vertex -> 'vertex -> 'edge
+  method mem_edge : 'vertex -> 'vertex -> bool
+  method mem_edge_e : 'edge -> bool
+  method mem_vertex : 'vertex -> bool
+  method src : 'edge -> 'vertex
+  method dst : 'edge -> 'vertex
 
-  method virtual bounding_box : ((float * float) * (float * float))
-
-  method virtual get_vertex_layout : 'vertex -> node_layout
-  (*method virtual set_vertex_layout : 'vertex -> node_layout -> unit*)
-
-  method virtual get_edge_layout : 'edge -> edge_layout
-  (*method virtual set_edge_layout : 'edge -> edge_layout -> unit*)
-
-  method virtual get_cluster_layout : 'cluster -> cluster_layout
-
-  (* Dot creation *)
-  (* Attrs format : [_=_,_=_,...] *)
-
-  (* method default_vertex_attrs : string *)
-  (* method get_vertex_attrs : 'vertex -> string *)
-
-  (* method default_edge_attrs : string *)
-  (* method get_vertex_attrs : 'edge -> string *)
-
-  (* (\* We need labels to create and read dot and xdot files *\) *)
-  (* method virtual label : 'vertex -> string *)
-  (* method virtual from_label : string -> 'vertex *)
-
+  (** Dot layout *)
+  method bounding_box : bounding_box
+  method get_edge_layout : 'edge -> edge_layout
+  method get_vertex_layout : 'vertex -> node_layout
+  method get_cluster_layout : 'cluster -> cluster_layout
 end
+
+(* BUILDING A MODEL WITH AN OCAML GRAPH *)
+
+module Make
+  (G : Graphviz.GraphWithDotAttrs) =
+struct
+  type cluster = string
+      
+  class model layout g : [G.vertex, G.edge, cluster] abstract_model =
+  object
+    (* Iterators *)
+    method iter_edges f = G.iter_edges f g
+    method iter_edges_e f = G.iter_edges_e f g
+    method iter_pred f v = G.iter_pred f g v
+    method iter_pred_e f v = G.iter_pred_e f g v
+    method iter_succ f = G.iter_succ f g
+    method iter_succ_e f = G.iter_succ_e f g
+    method iter_vertex f = G.iter_vertex f g
+    method iter_clusters f = Hashtbl.iter (fun k v -> f k) layout.XDot.cluster_layouts
+
+    (* Membership functions *)
+    method find_edge = G.find_edge g
+    method mem_edge = G.mem_edge g
+    method mem_edge_e = G.mem_edge_e g
+    method mem_vertex = G.mem_vertex g
+    method src = G.E.src
+    method dst = G.E.dst
+      
+    (* Layout *)
+    method bounding_box = layout.XDot.bbox
+    method get_vertex_layout v = (*Hashtbl.find layout.XDot.vertex_layouts*)
+      try Hashtbl.find layout.XDot.vertex_layouts v
+      with Not_found -> failwith ("Could not find layout of vertex named " ^ G.vertex_name v)
+    method get_edge_layout = Hashtbl.find layout.XDot.edge_layouts
+    method get_cluster_layout (c:string) = Hashtbl.find layout.XDot.cluster_layouts c
+  end
+    
+  let from_graph ?(cmd="dot") ?(tmp_name = "tmp") g =
+    (* Output dot file *)
+    let dot_file  = tmp_name ^ ".dot" in
+    let module DumpDot = Graphviz.Dot(G) in
+    let out = open_out dot_file in
+    DumpDot.output_graph out g;
+    close_out out;
+    
+    (* Get layout from dot file *)
+    let module X = XDot.Make(G) in
+    let layout = X.layout_of_dot ~cmd ~dot_file g in
+    let model = new model layout g in
+
+    Sys.remove dot_file;
+    model
+end
+
+(* BUILDING A MODEL WITH A DOT FILE *)
+
+(* Here we build a model from a graph where vertices and edges
+   are labeled with xdot layouts *)
+
+module Vertex = struct
+  type t = XDot.node_layout
+end
+
+module Edge = struct
+  type t = XDot.edge_layout
+  let default = XDot.mk_edge_layout
+    ~draw:[] ~ldraw:[] ~hdraw:[] ~tdraw:[] ~hldraw:[] ~tldraw:[]
+  let compare = compare
+end
+
+module DotG = Imperative.Digraph.AbstractLabeled(Vertex)(Edge)
+module DotB = Builder.I(DotG)
+
+type cluster = string
+
+module DotParser =
+  Dot.Parse
+    (DotB)
+    (struct 
+       (* Read the attributes of a node *)
+       let node = XDot.read_node_layout
+
+       (* Read edge attributes *)
+       let edge = XDot.read_edge_layout
+
+     end)
+
+module DotModel = struct
+  type cluster = string
+  type clusters_hash = (cluster, Graph.Dot_ast.attr list) Hashtbl.t
+  class model g clusters_hash bounding_box : [DotG.vertex, DotG.edge, cluster] abstract_model =
+  object
+    (* Iterators *)
+    method iter_edges f = DotG.iter_edges f g
+    method iter_edges_e f = DotG.iter_edges_e f g
+    method iter_pred f v = DotG.iter_pred f g v
+    method iter_pred_e f v = DotG.iter_pred_e f g v
+    method iter_succ f = DotG.iter_succ f g
+    method iter_succ_e f = DotG.iter_succ_e f g 
+    method iter_vertex f = DotG.iter_vertex f g
+    method iter_clusters f = Hashtbl.iter (fun k _ -> f k) clusters_hash
+
+    (* Membership functions *)
+    method find_edge = DotG.find_edge g
+    method mem_edge = DotG.mem_edge g
+    method mem_edge_e = DotG.mem_edge_e g
+    method mem_vertex = DotG.mem_vertex g
+    method src = DotG.E.src
+    method dst = DotG.E.dst
+
+    (* Layout *)
+    method bounding_box = bounding_box
+    method get_vertex_layout = DotG.V.label
+    method get_edge_layout = DotG.E.label
+    method get_cluster_layout c =
+      let attrs = Hashtbl.find clusters_hash c in
+      XDot.read_cluster_layout attrs
+  end
+
+  let model = new model
+end
+
+(* Runs graphviz, parses the graph and instantiates the model *)
+let read_dot ?(cmd="dot") ~dot_file =
+  let basename = try Filename.chop_extension dot_file 
+                 with Invalid_argument _ -> dot_file in
+  let xdot_file = basename ^ ".xdot" in
+  let dot_cmd = Printf.sprintf "%s -Txdot %s > %s" cmd dot_file xdot_file in
+
+  (* Run graphviz *)
+  match Sys.command dot_cmd with
+    | 0 -> begin
+	let graph, bb, clusters_hash =
+	  DotParser.parse_bounding_box_and_clusters xdot_file in
+	DotModel.model graph clusters_hash (XDot.read_bounding_box bb)
+      end
+    | _ -> raise (DotError "Error during dot execution")
+
+(* Does not run graphviz
+   Parses a graph from an xdot file and instantiates the model
+*)
+let read_xdot ~xdot_file =
+  let graph, bb, clusters_hash =
+    DotParser.parse_bounding_box_and_clusters xdot_file in
+  DotModel.model graph clusters_hash (XDot.read_bounding_box bb)

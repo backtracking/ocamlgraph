@@ -23,6 +23,7 @@
 (**************************************************************************)
 
 open Graph
+open DGraphModel
 open DGraphView
 open Printf
 
@@ -30,28 +31,17 @@ let ($) f x = f x
 
 let debug = ref false
 
-type vertex = ConcreteModel.Model.G.V.t
-type edge = ConcreteModel.Model.G.E.t
-type cluster = string
-
 type state = {
   mutable file : string option;
-  mutable window : GWindow.window option;
-  mutable view : (vertex, edge, cluster) highlight_focus_view option;
+  mutable random : bool;
+  mutable window : GWindow.window;
+  mutable view : DGraphViewItem.common_view option;
   mutable table : GPack.table option;
+  mutable status : GMisc.label;
 }
 
-let file =
-  if Array.length Sys.argv < 2 then None
-  else Some Sys.argv.(1)
-
 (* Creates a scrolled graphView in a table *)
-let scrolled_view ~packing model =
-  let frame = GBin.frame ~shadow_type:`IN () in
-  let aa = true (* anti-aliasing *) in
-  let view = DGraphView.highlight_focus_view
-    ~aa ~width:1280 ~height:1024 ~packing:frame#add model () in
-
+let scrolled_view ~packing view frame =
   ignore $ view#set_center_scroll_region true;
   let table = GPack.table ~packing
                 ~rows:2 ~columns:2 ~row_spacings:4 ~col_spacings:4 () in
@@ -66,14 +56,27 @@ let scrolled_view ~packing model =
   ignore $ table#attach ~left:1 ~right:2 ~top:0 ~bottom:1
             ~expand:`Y ~fill:`BOTH ~shrink:`Y ~xpadding:0 ~ypadding:0 
             w#coerce;
+  table
 
-  view, table
-
-let state = 
-  { file = None;
-    window = None;
-    view = None;
-    table = None }
+let init_state () = 
+   let window = GWindow.window ~title:"Graph Widget"
+                 ~allow_shrink:true ~allow_grow:true () in
+   let status = GMisc.label ~markup:"" () in
+   status#set_use_markup true;
+   let random = ref false in
+   let file = ref None in
+   for i=1 to Array.length Sys.argv - 1 do
+     if Sys.argv.(i) = "--random" then
+       random := true
+     else
+       file := Some Sys.argv.(i)
+   done;
+   { file = !file;
+     random = !random;
+     window = window;
+     view = None;
+     table = None;
+     status = status }
 
 (* Top menu *)
 
@@ -81,84 +84,109 @@ let menu_desc = "<ui>\
   <menubar name='MenuBar'>\
     <menu action='FileMenu'>\
       <menuitem action='Open'/>\
-      <separator/>\
+      <menuitem action='Zoom fit'/>\
       <menuitem action='Quit'/>\
     </menu>\
-  </menubar>\
+  </menubar>
 </ui>"
 
-let create_menu () =
-  let ui_m = GAction.ui_manager () in
-  let actions = GAction.action_group ~name:"Actions" () in
-    GAction.add_actions actions [
-      GAction.add_action "FileMenu" ~label:"File" ;
-      GAction.add_action "Open" ~label:"Open" ~accel:""
-                         (* callback connected later *);
-      GAction.add_action "Quit" ~label:"Quit" ~accel:""
-	~callback:(fun _ -> GMain.Main.quit ());
-    ];
-    ui_m#insert_action_group actions 0 ;
-    let _ = ui_m#add_ui_from_string menu_desc in
-
-    ui_m
-
-(* Open a file *)
-
-let update_state ~packing dot_file =
+let update_state state ~packing =
   begin match state.table with
     | None -> ()
     | Some t -> t#destroy ()
   end;
-  if !debug then printf "Building Model...\n";
-  let model = ConcreteModel.read_dot ~cmd:"dot" ~dot_file in
-  if !debug then printf "Building View...\n";
-  let view, table = scrolled_view ~packing model in
-  state.file <- Some dot_file;
-  state.view <- Some view;
-  state.table <- Some table;
-  begin match state.window with
-    | Some w ->
-	w#show ();
+  match state.file with	
+    | Some file ->
+	if !debug then printf "Building Model...\n";
+	let model = 
+	  if Filename.check_suffix file "xdot" then
+	    DGraphModel.read_xdot ~xdot_file:file
+	  else
+	    DGraphModel.read_dot ~cmd:"dot" ~dot_file:file in
+	if !debug then printf "Building View...\n";
+	let frame = GBin.frame ~shadow_type:`IN () in
+	let aa = true (* anti-aliasing *) in
+	let view = DGraphView.labeled_view ~aa ~width:1280 ~height:1024 ~packing:frame#add
+	  model state.status () in
+	let table = scrolled_view ~packing view frame in
+	state.file <- Some file;
+	state.view <- Some (view :> DGraphViewItem.common_view);
+	state.table <- Some table;
+	state.window#show ();
+	view#misc#show ();
 	ignore $ view#adapt_zoom ()
-    | _ -> ()
-  end
-
-let open_file ~packing () = 
-  match GToolbox.select_file ~title:"Select a dot file" () with
+    | None when state.random ->
+	let model = DGraphRandModel.create () in	
+	let frame = GBin.frame ~shadow_type:`IN () in
+	let aa = true (* anti-aliasing *) in
+	let view = labeled_view ~aa ~width:1280 ~height:1024 ~packing:frame#add
+	  model state.status () in
+	let table = scrolled_view ~packing view frame in
+	state.view <- Some (view :> DGraphViewItem.common_view);
+	state.table <- Some table;
+	state.window#show ();
+	view#misc#show ();
+	(* ignore $ view#adapt_zoom () *)
     | None -> ()
-    | Some file -> update_state ~packing file
+
+let all_files () =
+  let f = GFile.filter ~name:"All" () in
+  f#add_pattern "*" ;
+  f
+
+let open_file state ~packing () = 
+  let dialog = GWindow.file_chooser_dialog 
+    ~action:`OPEN
+    ~title:"Open File"
+    ~parent:state.window () in
+  dialog#add_button_stock `CANCEL `CANCEL ;
+  dialog#add_select_button_stock `OPEN `OPEN ;
+  dialog#add_filter (all_files ()) ;
+  match dialog#run () with
+    | `OPEN ->
+	state.file <- dialog#filename;
+	dialog#destroy ();
+	update_state state ~packing
+    | `DELETE_EVENT | `CANCEL -> dialog#destroy ()
+
+let create_menu state ~packing =
+  let ui_m = GAction.ui_manager () in
+  let actions = GAction.action_group ~name:"Actions" () in
+    GAction.add_actions actions [
+      GAction.add_action "FileMenu" ~label:"File" ;
+      GAction.add_action "Open" ~label:"Open" ~accel:"<Control>o" ~stock:`OPEN
+        ~callback:(fun _ -> open_file state ~packing ());
+      GAction.add_action "Zoom fit" ~label:"Zoom fit" ~accel:"<Control>t" ~stock:`ZOOM_FIT
+	~callback:(fun _ -> match state.view with Some v -> v#adapt_zoom() | None -> ());
+      GAction.add_action "Quit" ~label:"Quit" ~accel:"<Control>q" ~stock:`QUIT
+	~callback:(fun _ -> GMain.Main.quit ());
+    ];
+    ui_m#insert_action_group actions 0 ;
+    ignore $ ui_m#add_ui_from_string menu_desc;
+    ui_m
 
 (* Main loop *)
 
 let main () =
   (* GUI *)
-  let window = GWindow.window ~title:"Graph Widget"
-                 ~allow_shrink:true ~allow_grow:true () in
-  state.window <- Some window;
-
+  let state = init_state () in
+  
   let vbox = GPack.vbox ~border_width:4 ~spacing:4
-                            ~packing:window#add () in
-
-  (* Menu *)
-  let ui_m = create_menu () in
-  window#add_accel_group ui_m#get_accel_group ;
-  vbox#pack ~expand:false (ui_m#get_widget "/MenuBar") ;
-
+                            ~packing:state.window#add () in
   let packing = vbox#pack ~expand:true ~fill:true in
 
-  let actions = List.hd ui_m#get_action_groups in
-  let open_action = actions#get_action "Open" in 
-  ignore $ open_action#connect#activate ~callback:(open_file ~packing);
+  (* Menu *)
+  let ui_m = create_menu state ~packing in
+  state.window#add_accel_group ui_m#get_accel_group ;
+  vbox#pack ~expand:false (ui_m#get_widget "/MenuBar");
+  vbox#pack (state.status :> GObj.widget);
     
-  ignore $ window#connect#destroy ~callback:GMain.Main.quit;
+  ignore $ state.window#connect#destroy ~callback:GMain.Main.quit;
 
   if !debug then printf "GUI built, time: %f\n" (Sys.time ());
-  
-  begin match file with
-    | Some f -> update_state ~packing f
-    | None -> ()
-  end;
+  update_state state ~packing;
 
+  state.window#show ();
   GMain.Main.main ()
     
 let _ = Printexc.print main ()
