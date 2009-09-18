@@ -27,10 +27,11 @@
 open XDot
 open Graph
 
+exception DotError of string
+
 (** Immutable graph model.
     Layout accessors, iterators and
-    membership functions.
-*)
+    membership functions. *)
 class type ['vertex, 'edge, 'cluster] abstract_model = object
   method iter_edges : ('vertex -> 'vertex -> unit) -> unit
   method iter_edges_e : ('edge -> unit) -> unit
