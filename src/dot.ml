@@ -21,6 +21,22 @@
 
 open Dot_ast
 
+let parse_dot_ast_from_chan c =
+  let lb = Lexing.from_channel c in
+  let dot = 
+    try
+      Dot_parser.file Dot_lexer.token lb 
+    with Parsing.Parse_error ->
+      let n = Lexing.lexeme_start lb in
+      failwith (Printf.sprintf "Dot.parse: parse error character %d" n)
+  in
+  close_in c;
+  dot
+    
+let parse_dot_ast f =
+  let c = open_in f in
+  parse_dot_ast_from_chan c
+
 type clusters_hash = (string, attr list) Hashtbl.t
 
 let get_string = function
@@ -29,9 +45,9 @@ let get_string = function
   | Number s -> s
   | Html s -> s
 
-module Parse
+module Parse 
   (B : Builder.S)
-  (L : sig
+  (L : sig 
      val node : node_id -> attr list -> B.G.V.label
        (** how to build the node label out of the set of attributes *)
      val edge : attr list -> B.G.E.label 
@@ -48,7 +64,7 @@ struct
     let list a = M.fold (fun x v l -> (x,v) :: l) a []
   end
 
-  let create_graph_and_clusters dot =
+    let create_graph_and_clusters dot =
     (* pass 1*)
 
     (* collect node attributes *)
@@ -188,7 +204,7 @@ struct
     let dot = parse_dot_from_chan c in
     create_graph_and_clusters dot, get_graph_bb dot.stmts
 
-  let parse_bounding_box_clusters f =
+  let parse_bounding_box_and_clusters f =
     let dot = parse_dot f in
     let graph, clusters = create_graph_and_clusters dot in
     match get_graph_bb dot.stmts with

@@ -685,6 +685,28 @@ module DotAttributes = struct
 
 end
 
+(** Graph modules with dot attributes *)
+module type GraphWithDotAttrs = sig
+  include Sig.G
+
+ (** Graph, vertex and edge attributes. *)
+  val graph_attributes: t -> DotAttributes.graph list
+
+  (** Vertex attributes *)
+  val default_vertex_attributes: t -> DotAttributes.vertex list
+  val vertex_name : V.t -> string
+  val vertex_attributes: V.t -> DotAttributes.vertex list
+
+  (** Edge attributes *)
+  val default_edge_attributes: t -> DotAttributes.edge list
+  val edge_attributes: E.t -> DotAttributes.edge list
+
+  val get_subgraph : V.t -> DotAttributes.subgraph option
+    (** The box (if exists) which the vertex belongs to. Boxes with same
+	   names are not distinguished and so they should have the same
+	   attributes. *)
+end
+
 module Dot = 
   MakeEngine (struct
 		module Attributes = DotAttributes

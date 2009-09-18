@@ -1,9 +1,11 @@
 
+ o Graphviz: new signature GraphWithDotAttrs
+ o Improvements of Dgraph
  o Configure: better test for detecting lablgtk
- o ocamlgraph is now installed by default in `ocamlc -where`/ocamlgraph
- o viewgraph is now packed in a single module Viewgraph (break compatibility
+ o OcamlGraph is now installed by default in `ocamlc -where`/ocamlgraph
+ o Viewgraph is now packed in a single module Viewgraph (break compatibility
    with previous version)
- o dgraph is now packed in a single module Dgraph (break compatibility with
+ o Dgraph is now packed in a single module Dgraph (break compatibility with
    previous version)
  o Makefile: fixed bug when the installation directory of binaries does not
              exist 
@@ -11,7 +13,7 @@
 
 version 1.2, August 31, 2009
 ----------------------------
- o experimental: new GTK-based graph viewer called dgraph 
+ o experimental: new GTK-based graph viewer called Dgraph 
    (viewGraph is now deprecated)
  o added Delaunay.iter_triangles (not of use in Ocamlgraph, actually)
 

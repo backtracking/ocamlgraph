@@ -181,8 +181,8 @@ DGRAPH_DIR=dgraph
 
 dgraph: $(DGRAPH_DIR)/dgraph.byte $(DGRAPH_DIR)/dgraph.$(OCAMLBEST)
 
-DGRAPH_CMO=dGraphModel xDotDraw xDot dGraphViewItem \
-	dGraphView concreteModel dGraphViewer
+DGRAPH_CMO=xDotDraw xDot dGraphModel dGraphViewItem \
+	dGraphView dGraphRandModel dGraphViewer
 DGRAPH_CMO:=$(patsubst %,$(DGRAPH_DIR)/%.cmo, $(DGRAPH_CMO))
 DGRAPH_CMX=$(DGRAPH_CMO:.cmo=.cmx)
 DGRAPH_CMI=$(DGRAPH_CMO:.cmo=.cmi)
