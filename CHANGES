@@ -1,4 +1,5 @@
 
+ o Configure: better test for detecting lablgtk
  o ocamlgraph is now installed by default in `ocamlc -where`/ocamlgraph
  o viewgraph is now packed in a single module Viewgraph (break compatibility
    with previous version)
