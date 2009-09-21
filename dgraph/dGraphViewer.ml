@@ -28,7 +28,7 @@ open Printf
 
 let ($) f x = f x
 
-let debug = ref false
+let debug = false
 
 type state = {
   mutable file : string option;
@@ -96,13 +96,13 @@ let update_state state ~packing =
   end;
   match state.file with	
     | Some file ->
-	if !debug then printf "Building Model...\n";
+	if debug then printf "Building Model...\n";
 	let model = 
 	  if Filename.check_suffix file "xdot" then
 	    DGraphModel.read_xdot ~xdot_file:file
 	  else
 	    DGraphModel.read_dot ~cmd:"dot" ~dot_file:file in
-	if !debug then printf "Building View...\n";
+	if debug then printf "Building View...\n";
 	let frame = GBin.frame ~shadow_type:`IN () in
 	let aa = true (* anti-aliasing *) in
 	let view = 
@@ -187,7 +187,7 @@ let main () =
   vbox#pack ~expand:false (ui_m#get_widget "/MenuBar");
   vbox#pack (state.status :> GObj.widget);
   ignore $ state.window#connect#destroy ~callback:GMain.Main.quit;
-  if !debug then printf "GUI built, time: %f\n" (Sys.time ());
+  if debug then printf "GUI built, time: %f\n" (Sys.time ());
   update_state state ~packing;
   state.window#show ();
   GMain.Main.main ()

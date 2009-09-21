@@ -354,45 +354,44 @@ struct
     let find_vertex (id,_) =
       let name = get_dot_string id in
       try Hashtbl.find name_to_vertex name
-      with Not_found -> failwith ("Could not find vertex named " ^ name) in
+      with Not_found -> failwith ("Could not find vertex named " ^ name) 
+    in
 
     let find_edge v v' comment =
       try Hashtbl.find vertices_comment_to_edge (v,v',comment)
       with Not_found ->
-	Printf.printf "Did not find edge from %s to %s with comment %s\n"
-	  (G.vertex_name v) (G.vertex_name v') (match comment with Some c -> c | None -> "none");
-	raise Not_found in
+(*	Printf.printf "Did not find edge from %s to %s with comment %s\n"
+	  (G.vertex_name v) (G.vertex_name v') 
+	  (match comment with Some c -> c | None -> "none");*)
+	raise Not_found 
+    in
     
     let rec collect_layouts cluster stmt =
       try
 	match stmt with 
-	  | Node_stmt (node_id, al) ->
-		let v = find_vertex node_id in
-		(* let id,_ = node_id in *)
-		(* Printf.printf "Found layout of node named \"%s\"\n%!" (get_dot_string id); *)
-		Hashtbl.add vertex_layouts v (read_node_layout node_id al)
-	  | Edge_stmt (NodeId id, [NodeId id'], al) ->
-		let v  = find_vertex id  in
-		let v' = find_vertex id' in
-		let comment = get_dot_comment al in
-		let e = find_edge v v' comment in
-		Hashtbl.add edge_layouts e (read_edge_layout al)
-          | Subgraph (SubgraphDef (Some id, stmts)) ->
-	      let cluster = get_dot_string id in
-	      List.iter (collect_layouts (Some cluster)) stmts
-          (* Anonymous subgraph *)
-	  | Subgraph (SubgraphDef (_, stmts)) ->
-	      List.iter (collect_layouts cluster) stmts
-	  | Attr_graph al ->
-	      begin match cluster with
-		| Some c -> Hashtbl.add cluster_layouts c (read_cluster_layout al)
-		| None -> ()
-	      end
-	  |  _ -> ()
-      with Not_found -> () in
-
+	| Node_stmt (node_id, al) ->
+	    let v = find_vertex node_id in
+	    Hashtbl.add vertex_layouts v (read_node_layout node_id al)
+	| Edge_stmt (NodeId id, [NodeId id'], al) ->
+	    let v  = find_vertex id  in
+	    let v' = find_vertex id' in
+	    let comment = get_dot_comment al in
+	    let e = find_edge v v' comment in
+	    Hashtbl.add edge_layouts e (read_edge_layout al)
+        | Subgraph (SubgraphDef (Some id, stmts)) ->
+	    let cluster = get_dot_string id in
+	    List.iter (collect_layouts (Some cluster)) stmts
+              (* Anonymous subgraph *)
+	| Subgraph (SubgraphDef (_, stmts)) ->
+	    List.iter (collect_layouts cluster) stmts
+	| Attr_graph al ->
+	    (match cluster with
+	     | Some c -> Hashtbl.add cluster_layouts c (read_cluster_layout al)
+	     | None -> ())
+	|  _ -> ()
+      with Not_found -> () 
+    in
     List.iter (collect_layouts None) stmts;
-    Printf.printf "Layout done\n";
     vertex_layouts, edge_layouts, cluster_layouts
 
  let parse g dot_ast =

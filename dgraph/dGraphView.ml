@@ -167,8 +167,6 @@ object(self)
       | _ -> false
 
   initializer
-    printf "building view\n";
-    
     (* Create and add items from the model vertices, edges and clusters *)
     model#iter_vertex self#add_vertex;
     model#iter_edges_e self#add_edge;
