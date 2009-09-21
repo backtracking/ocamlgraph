@@ -411,20 +411,20 @@ struct
    parse g dot_ast
 
  let layout_of_dot ?(cmd="dot") ~dot_file g =
-   let base_name = try Filename.chop_extension dot_file 
-                   with Invalid_argument _ -> dot_file in
-   let xdot_file = base_name ^ ".xdot" in
-
+   let base_name = 
+     try Filename.chop_extension dot_file 
+     with Invalid_argument _ -> dot_file 
+   in
+   let xdot_file = Filename.temp_file base_name ".xdot" in
    (* Run graphviz to get xdot file *)
    let dot_cmd = sprintf "%s -Txdot %s > %s" cmd dot_file xdot_file in
-
-   let graph_layout = match Sys.command dot_cmd with
-     | 0 -> layout_of_xdot ~xdot_file g
-     | _ ->
-	 Sys.remove xdot_file;
-	 raise (DotError "Error during dot execution") in
-
-   Sys.remove xdot_file;
-   graph_layout
+   match Sys.command dot_cmd with
+   | 0 -> 
+       let l = layout_of_xdot ~xdot_file g in
+       Sys.remove xdot_file;
+       l
+   | _ ->
+       Sys.remove xdot_file;
+       raise (DotError "Error during dot execution") 
 
 end
