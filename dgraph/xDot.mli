@@ -112,19 +112,22 @@ val mk_edge_layout :
 exception ParseError of string
 
 (** Instantiates a module which creates graph layouts from xdot files *)
-module Make :
-  functor (G : Graph.Graphviz.GraphWithDotAttrs) ->
-sig
+module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
+
+  open G
+
   exception DotError of string
 
   (** Extracts a layout of an xdot file *)
   val layout_of_xdot :
     xdot_file:string -> G.t -> (G.vertex, G.edge, string) graph_layout
 
-  (** Using the dot file and graphviz, creates an xdot and extracts its layout *)
+  (** Using the dot file and graphviz, 
+      create an xdot and extracts its layout. *) 
   val layout_of_dot :
     ?cmd:string ->
     dot_file:string -> G.t -> (G.vertex, G.edge, string) graph_layout
+
 end
 
 (** Converts and reads various layout informations *)

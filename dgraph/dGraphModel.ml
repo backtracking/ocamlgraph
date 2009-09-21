@@ -59,13 +59,12 @@ end
 
 (* BUILDING A MODEL WITH AN OCAML GRAPH *)
 
-module Make
-  (G : Graphviz.GraphWithDotAttrs) =
-struct
+module Make(G : Graphviz.GraphWithDotAttrs) = struct
+
   type cluster = string
       
-  class model layout g : [G.vertex, G.edge, cluster] abstract_model =
-  object
+  class model layout g : [G.vertex, G.edge, cluster] abstract_model = object
+
     (* Iterators *)
     method iter_edges f = G.iter_edges f g
     method iter_edges_e f = G.iter_edges_e f g
@@ -74,7 +73,8 @@ struct
     method iter_succ f = G.iter_succ f g
     method iter_succ_e f = G.iter_succ_e f g
     method iter_vertex f = G.iter_vertex f g
-    method iter_clusters f = Hashtbl.iter (fun k v -> f k) layout.XDot.cluster_layouts
+    method iter_clusters f = 
+      Hashtbl.iter (fun k v -> f k) layout.XDot.cluster_layouts
 
     (* Membership functions *)
     method find_edge = G.find_edge g
@@ -88,26 +88,26 @@ struct
     method bounding_box = layout.XDot.bbox
     method get_vertex_layout v = (*Hashtbl.find layout.XDot.vertex_layouts*)
       try Hashtbl.find layout.XDot.vertex_layouts v
-      with Not_found -> failwith ("Could not find layout of vertex named " ^ G.vertex_name v)
+      with Not_found -> 
+	failwith ("Could not find layout of vertex named " ^ G.vertex_name v)
     method get_edge_layout = Hashtbl.find layout.XDot.edge_layouts
-    method get_cluster_layout (c:string) = Hashtbl.find layout.XDot.cluster_layouts c
+    method get_cluster_layout = Hashtbl.find layout.XDot.cluster_layouts
+
   end
     
   let from_graph ?(cmd="dot") ?(tmp_name = "tmp") g =
     (* Output dot file *)
-    let dot_file  = tmp_name ^ ".dot" in
     let module DumpDot = Graphviz.Dot(G) in
-    let out = open_out dot_file in
+    let dot_file, out = Filename.open_temp_file tmp_name ".dot" in
     DumpDot.output_graph out g;
-    close_out out;
-    
+    close_out out;    
     (* Get layout from dot file *)
     let module X = XDot.Make(G) in
     let layout = X.layout_of_dot ~cmd ~dot_file g in
     let model = new model layout g in
-
     Sys.remove dot_file;
     model
+
 end
 
 (* BUILDING A MODEL WITH A DOT FILE *)
@@ -130,6 +130,7 @@ module DotG = Imperative.Digraph.AbstractLabeled(Vertex)(Edge)
 module DotB = Builder.I(DotG)
 
 type cluster = string
+type dotg_model = (DotG.vertex, DotG.edge, cluster) abstract_model
 
 module DotParser =
   Dot.Parse
@@ -146,7 +147,9 @@ module DotParser =
 module DotModel = struct
   type cluster = string
   type clusters_hash = (cluster, Graph.Dot_ast.attr list) Hashtbl.t
-  class model g clusters_hash bounding_box : [DotG.vertex, DotG.edge, cluster] abstract_model =
+  class model g clusters_hash bounding_box 
+    : [DotG.vertex, DotG.edge, cluster] abstract_model 
+    =
   object
     (* Iterators *)
     method iter_edges f = DotG.iter_edges f g

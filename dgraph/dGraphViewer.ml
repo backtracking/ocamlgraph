@@ -23,8 +23,7 @@
 (**************************************************************************)
 
 open Graph
-open DGraphModel
-open DGraphView
+open Dgraph
 open Printf
 
 let ($) f x = f x
@@ -106,8 +105,11 @@ let update_state state ~packing =
 	if !debug then printf "Building View...\n";
 	let frame = GBin.frame ~shadow_type:`IN () in
 	let aa = true (* anti-aliasing *) in
-	let view = DGraphView.labeled_view ~aa ~width:1280 ~height:1024 ~packing:frame#add
-	  model state.status () in
+	let view = 
+	  DGraphView.labeled_view
+	    ~aa ~width:1280 ~height:1024 ~packing:frame#add
+	    model state.status () 
+	in
 	let table = scrolled_view ~packing view frame in
 	state.file <- Some file;
 	state.view <- Some (view :> DGraphViewItem.common_view);
@@ -119,8 +121,11 @@ let update_state state ~packing =
 	let model = DGraphRandModel.create () in	
 	let frame = GBin.frame ~shadow_type:`IN () in
 	let aa = true (* anti-aliasing *) in
-	let view = labeled_view ~aa ~width:1280 ~height:1024 ~packing:frame#add
-	  model state.status () in
+	let view = 
+	  DGraphView.labeled_view
+	    ~aa ~width:1280 ~height:1024 ~packing:frame#add
+	    model state.status () 
+	in
 	let table = scrolled_view ~packing view frame in
 	state.view <- Some (view :> DGraphViewItem.common_view);
 	state.table <- Some table;
@@ -143,50 +148,49 @@ let open_file state ~packing () =
   dialog#add_select_button_stock `OPEN `OPEN ;
   dialog#add_filter (all_files ()) ;
   match dialog#run () with
-    | `OPEN ->
-	state.file <- dialog#filename;
-	dialog#destroy ();
-	update_state state ~packing
-    | `DELETE_EVENT | `CANCEL -> dialog#destroy ()
+  | `OPEN ->
+      state.file <- dialog#filename;
+      dialog#destroy ();
+      update_state state ~packing
+  | `DELETE_EVENT | `CANCEL -> dialog#destroy ()
 
 let create_menu state ~packing =
   let ui_m = GAction.ui_manager () in
   let actions = GAction.action_group ~name:"Actions" () in
-    GAction.add_actions actions [
-      GAction.add_action "FileMenu" ~label:"File" ;
-      GAction.add_action "Open" ~label:"Open" ~accel:"<Control>o" ~stock:`OPEN
-        ~callback:(fun _ -> open_file state ~packing ());
-      GAction.add_action "Zoom fit" ~label:"Zoom fit" ~accel:"<Control>t" ~stock:`ZOOM_FIT
-	~callback:(fun _ -> match state.view with Some v -> v#adapt_zoom() | None -> ());
-      GAction.add_action "Quit" ~label:"Quit" ~accel:"<Control>q" ~stock:`QUIT
-	~callback:(fun _ -> GMain.Main.quit ());
-    ];
-    ui_m#insert_action_group actions 0 ;
-    ignore $ ui_m#add_ui_from_string menu_desc;
-    ui_m
+  GAction.add_actions actions [
+    GAction.add_action "FileMenu" ~label:"File" ;
+    GAction.add_action "Open" ~label:"Open" ~accel:"<Control>o" ~stock:`OPEN
+      ~callback:(fun _ -> open_file state ~packing ());
+    GAction.add_action
+      "Zoom fit" ~label:"Zoom fit" ~accel:"<Control>t" ~stock:`ZOOM_FIT
+      ~callback:
+      (fun _ -> match state.view with Some v -> v#adapt_zoom() | None -> ());
+    GAction.add_action "Quit" ~label:"Quit" ~accel:"<Control>q" ~stock:`QUIT
+      ~callback:(fun _ -> GMain.Main.quit ());
+  ];
+  ui_m#insert_action_group actions 0 ;
+  ignore $ ui_m#add_ui_from_string menu_desc;
+  ui_m
 
 (* Main loop *)
 
 let main () =
   (* GUI *)
   let state = init_state () in
-  
-  let vbox = GPack.vbox ~border_width:4 ~spacing:4
-                            ~packing:state.window#add () in
+  let vbox = 
+    GPack.vbox ~border_width:4 ~spacing:4 ~packing:state.window#add () 
+  in
   let packing = vbox#pack ~expand:true ~fill:true in
-
   (* Menu *)
   let ui_m = create_menu state ~packing in
   state.window#add_accel_group ui_m#get_accel_group ;
   vbox#pack ~expand:false (ui_m#get_widget "/MenuBar");
   vbox#pack (state.status :> GObj.widget);
-    
   ignore $ state.window#connect#destroy ~callback:GMain.Main.quit;
-
   if !debug then printf "GUI built, time: %f\n" (Sys.time ());
   update_state state ~packing;
-
   state.window#show ();
   GMain.Main.main ()
     
-let _ = Printexc.print main ()
+(* [JS 2009/09/21] Printexc.print prevents to use ocaml < 3.11 *)
+let _ = (*Printexc.print*) main ()

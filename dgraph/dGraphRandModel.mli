@@ -22,60 +22,11 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open Graph
-open DGraphView
-open Printf
+module G: Graph.Sig.G
 
-let ($) f x = f x
+module GraphAttrs: 
+  Graph.Graphviz.GraphWithDotAttrs with type t = G.t
+				   and type V.t = G.V.t
+				   and type E.t = G.E.t
 
-let element = function
-  | [] -> invalid_arg "empty list in element"
-  | l -> 
-      Random.self_init ();
-      List.nth l (Random.int (List.length l))
-
-let black   = 0x000000
-and white   = 0xFFFFFF
-and red     = 0xFF0000
-and green   = 0x00FF00
-and blue    = 0x0000FF
-and yellow  = 0xFFFF00
-and cyan    = 0x00FFFF
-and magenta = 0xFF00FF  
-
-module Vertex = struct
-  type t = int
-end
-
-module Edge = struct
-  type t = int
-  let compare = compare
-  let default = 0
-end
-
-module G = Imperative.Digraph.AbstractLabeled(Vertex)(Edge)
-module R = Rand.I(G)
-
-module GraphAttrs = struct
-  include G
-  let graph_attributes _ = []
-  let default_vertex_attributes _ = []
-  let vertex_name v = string_of_int (G.V.label v)
-  let vertex_attributes _ =
-    let shape = element [`Ellipse; `Box; `Circle; `Doublecircle; `Diamond] in
-    let color = element [black; white; red; green; blue; yellow; cyan; magenta] in
-    [`Shape shape; `Color color]
-  let default_edge_attributes _ = []
-  let edge_attributes _ = []
-  let get_subgraph _ = None
-end
-
-module Model = DGraphModel.Make(GraphAttrs)
-
-let create () =
-  (* State *)
-  Random.self_init ();
-  let v = 100 in
-  let e = Random.int (v*2) in
-  let g = R.graph ~loops:true ~v ~e () in
-  Model.from_graph g
+val create: unit -> DGraphModel.Make(GraphAttrs).model

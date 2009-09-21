@@ -279,11 +279,13 @@ let read_bounding_box str =
   let x2,y2 = conv_coord (x2,y2) in
   ((x1,y1), (x2,y2))
 
-module Make(G : sig
-	      include Graph.Sig.G
-	      val vertex_name : V.t -> string
-	      val edge_attributes: E.t -> Graph.Graphviz.DotAttributes.edge list
-	    end) = struct
+module Make
+  (G : sig
+     include Graph.Sig.G
+     val vertex_name : V.t -> string
+     val edge_attributes: E.t -> Graph.Graphviz.DotAttributes.edge list
+   end) = 
+struct
 
   let get_edge_comment e =
     let al = G.edge_attributes e in

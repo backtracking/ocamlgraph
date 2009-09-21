@@ -58,27 +58,32 @@ class type ['vertex, 'edge, 'cluster] abstract_model = object
 end
 
 (** This functor creates a model from a graph *)
-module Make :
-  functor (G : Graph.Graphviz.GraphWithDotAttrs) ->
-sig
+module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
+
+  open G
+
   type cluster = string
 
   class model :
-    (G.vertex, G.edge, cluster) XDot.graph_layout -> G.t -> [G.vertex, G.edge, cluster] abstract_model
+    (G.vertex, G.edge, cluster) XDot.graph_layout -> G.t -> 
+    [G.vertex, G.edge, cluster] abstract_model
 
       (** Creates a model using graphviz.
 	  [tmp_name] is the name of the temporary dot files *)
   val from_graph : ?cmd:string -> ?tmp_name:string -> G.t -> model
+
 end
 
 
 module Vertex : Sig.ANY_TYPE with type t = XDot.node_layout
 module Edge : Sig.ORDERED_TYPE_DFT with type t = XDot.edge_layout
-module DotG : Sig.G with type t = Graph.Imperative.Digraph.AbstractLabeled(Vertex)(Edge).t
+module DotG : 
+  Sig.G with type t = Graph.Imperative.Digraph.AbstractLabeled(Vertex)(Edge).t
 type cluster = string
+type dotg_model = (DotG.vertex, DotG.edge, cluster) abstract_model
 
 (** Creates a model from a dot file *)
-val read_dot : ?cmd:string -> dot_file:string -> (DotG.vertex, DotG.edge, cluster) abstract_model
+val read_dot : ?cmd:string -> dot_file:string -> dotg_model
 
 (** Creates a model from an xdot file (the layout is not recomputed)*)
-val read_xdot : xdot_file:string -> (DotG.vertex, DotG.edge, cluster) abstract_model
+val read_xdot : xdot_file:string -> dotg_model

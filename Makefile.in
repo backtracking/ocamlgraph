@@ -47,7 +47,7 @@ SRCDIR	= src
 LIBDIR	= lib
 
 INCLUDES= -I $(SRCDIR) -I $(LIBDIR)
-BFLAGS = $(INCLUDES) -g
+BFLAGS = $(INCLUDES) -g -dtypes
 OFLAGS = $(INCLUDES) @FORPACK@
 
 # main target
@@ -152,8 +152,8 @@ VIEWER_MLI=$(VIEWER_CMI:.cmi=.mli)
 
 VIEWER_INCLUDES= @INCLUDEGTK2@ -I $(VIEWER_DIR) $(INCLUDES) -I .
 
-$(VIEWER_CMI) $(VIEWER_CMO): BFLAGS= $(VIEWER_INCLUDES)
-$(VIEWER_CMX): OFLAGS= $(VIEWER_INCLUDES) -for-pack Viewgraph
+$(VIEWER_CMI) $(VIEWER_CMO): BFLAGS+= $(VIEWER_INCLUDES)
+$(VIEWER_CMX): OFLAGS+= $(VIEWER_INCLUDES) -for-pack Viewgraph
 $(VIEWER_CMI) $(VIEWER_CMO) $(VIEWER_CMX): graph.cmi
 
 VIEWER_CMOLIB	= $(VIEWER_DIR)/viewgraph.cmo
@@ -189,8 +189,8 @@ DGRAPH_CMI=$(DGRAPH_CMO:.cmo=.cmi)
 
 DGRAPH_INCLUDES= @INCLUDEGTK2@ -I $(DGRAPH_DIR) $(INCLUDES) -I .
 
-$(DGRAPH_CMI) $(DGRAPH_CMO): BFLAGS= $(DGRAPH_INCLUDES)
-$(DGRAPH_CMX): OFLAGS= $(DGRAPH_INCLUDES) -for-pack Dgraph
+$(DGRAPH_CMI) $(DGRAPH_CMO): BFLAGS+= $(DGRAPH_INCLUDES)
+$(DGRAPH_CMX): OFLAGS+= $(DGRAPH_INCLUDES) -for-pack Dgraph
 
 $(DGRAPH_CMI) $(DGRAPH_CMO) $(DGRAPH_CMX): graph.cmi
 
@@ -204,11 +204,11 @@ $(DGRAPH_CMOLIB): $(filter-out $(DGRAPH_DIR)/dGraphViewer.cmo, $(DGRAPH_CMO))
 $(DGRAPH_CMXLIB): $(filter-out $(DGRAPH_DIR)/dGraphViewer.cmx, $(DGRAPH_CMX))
 	ocamlopt -o $@ $(DGRAPH_INCLUDES) -pack $^
 
-$(DGRAPH_DIR)/dgraph.byte: $(CMA) $(DGRAPH_CMOLIB)
+$(DGRAPH_DIR)/dgraph.byte: $(CMA) $(DGRAPH_CMOLIB) dgraph/dGraphViewer.cmo
 	$(OCAMLC) -g -o $@ $(DGRAPH_INCLUDES) \
 		lablgtk.cma gtkInit.cmo lablgnomecanvas.cma $^
 
-$(DGRAPH_DIR)/dgraph.opt: $(CMXA) $(DGRAPH_CMXLIB)
+$(DGRAPH_DIR)/dgraph.opt: $(CMXA) $(DGRAPH_CMXLIB) dgraph/dGraphViewer.cmx
 	$(OCAMLOPT) -o $@ $(DGRAPH_INCLUDES) \
 		lablgtk.cmxa gtkInit.cmx lablgnomecanvas.cmxa $^
 
