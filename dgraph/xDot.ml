@@ -411,7 +411,7 @@ struct
 
  let layout_of_dot ?(cmd="dot") ~dot_file g =
    let base_name = 
-     try Filename.chop_extension dot_file 
+     try Filename.basename (Filename.chop_extension dot_file)
      with Invalid_argument _ -> dot_file 
    in
    let xdot_file = Filename.temp_file base_name ".xdot" in

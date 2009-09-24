@@ -95,7 +95,7 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
 
   end
     
-  let from_graph ?(cmd="dot") ?(tmp_name = "tmp") g =
+  let from_graph ?(cmd="dot") ?(tmp_name = "dgraph") g =
     (* Output dot file *)
     let module DumpDot = Graphviz.Dot(G) in
     let dot_file, out = Filename.open_temp_file tmp_name ".dot" in
