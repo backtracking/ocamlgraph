@@ -1,4 +1,5 @@
 
+ o Oper: fixed bug in mirror (isolated vertices were lost)
  o Graphviz: new signature GraphWithDotAttrs
  o Improvements of Dgraph
  o Configure: better test for detecting lablgtk

@@ -47,21 +47,37 @@ module Generic = struct
     (G : Sig.I with type V.label = int)
     (V : sig val v: int val e: int end) = 
   struct
+
+    module O = Oper.I(G)
+    let test_mirror g =
+      if G.is_directed then begin (* TODO: remove *)
+	let g' = O.mirror g in
+	assert (G.nb_vertex g = G.nb_vertex g');
+	G.iter_edges (fun v1 v2 -> assert (G.mem_edge g' v2 v1)) g;
+	G.iter_edges (fun v1 v2 -> assert (G.mem_edge g v2 v1)) g';
+	()
+      end
+
     let g = G.create ()
     let () =
       let v1 = G.V.create 1 in
       let v2 = G.V.create 2 in
       let v3 = G.V.create 3 in
+      test_mirror g;
       G.add_edge g v1 v2;
       G.add_edge g v1 v3;
       G.add_edge g v2 v1;
       G.add_edge g v2 v2;
       G.add_edge g v2 v2;
+      test_mirror g;
       assert (G.nb_vertex g = V.v && G.nb_edges g = V.e);
       G.remove_vertex g v1;
       assert (G.nb_vertex g = 2 && G.nb_edges g = 1);
       G.remove_vertex g v2;
-      assert (G.nb_vertex g = 1 && G.nb_edges g = 0)
+      assert (G.nb_vertex g = 1 && G.nb_edges g = 0);
+      test_mirror g;
+      ()
+
   end
 
   let () =
@@ -104,21 +120,31 @@ module Generic = struct
     (G : Sig.P with type V.label = int)
     (V : sig val v: int val e: int end) = 
   struct
+
+    module O = Oper.P(G)
+    let test_mirror g =
+      let g' = O.mirror g in
+      assert (G.nb_vertex g = G.nb_vertex g')
+
     let () =
       let g = G.empty in
       let v1 = G.V.create 1 in
       let v2 = G.V.create 2 in
       let v3 = G.V.create 3 in
+      test_mirror g;
       let g = G.add_edge g v1 v2 in
       let g = G.add_edge g v1 v3 in
       let g = G.add_edge g v2 v1 in
       let g = G.add_edge g v2 v2 in
       let g = G.add_edge g v2 v2 in
+      test_mirror g;
       assert (G.nb_vertex g = V.v && G.nb_edges g = V.e);
       let g = G.remove_vertex g v1 in
       assert (G.nb_vertex g = 2 && G.nb_edges g = 1);
       let g = G.remove_vertex g v2 in
-      assert (G.nb_vertex g = 1 && G.nb_edges g = 0)
+      assert (G.nb_vertex g = 1 && G.nb_edges g = 0);
+      test_mirror g
+
   end
 
   let () =
