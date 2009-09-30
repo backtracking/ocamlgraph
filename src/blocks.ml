@@ -338,8 +338,8 @@ struct
   let succ_e g v = fold_succ_e (fun e l -> e :: l) g v []
 
   let map_vertex f = 
-    HM.map (fun v s -> 
-	      f v, S.fold (fun (v, l) s -> S.add (f v, l) s) s S.empty)
+    HM.map
+      (fun v s -> f v, S.fold (fun (v, l) s -> S.add (f v, l) s) s S.empty)
 
   module I = struct
     type t = S.t HM.t
@@ -381,7 +381,6 @@ module Make_Abstract
      val unsafe_remove_edge: t -> vertex -> vertex -> t
      val unsafe_remove_edge_e: t -> edge -> t
      val create: ?size:int -> unit -> t
-     val copy: t -> t
    end) = 
 struct
 
@@ -450,14 +449,15 @@ struct
 
   (* reimplementation *)
 
-  let copy g =      
+  let copy g =
     let h = HM.create () in
     let vertex v = 
       try
 	HM.find v h
       with Not_found ->
 	let v' = V.create (V.label v) in
-	ignore (HM.add v v' h);
+	let h' = HM.add v v' h in
+	assert (h == h');
 	v'
     in
     map_vertex vertex g
@@ -491,7 +491,7 @@ module BidirectionalMinimal(S:Set.S)(HM:HM with type key = S.elt) = struct
   let unsafe_add_edge g v1 v2 = 
     let (in_set,out_set) = HM.find v1 g
     in 
-      ignore ( HM.add v1 (in_set,S.add v2 out_set) g ) ;
+      ignore (HM.add v1 (in_set,S.add v2 out_set) g);
       let (in_set,out_set) = HM.find v2 g
       in
 	HM.add v2 (S.add v1 in_set,out_set) g

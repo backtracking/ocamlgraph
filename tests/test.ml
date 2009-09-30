@@ -34,10 +34,11 @@ let () =
   G.add_edge g v1 v2;
   assert (G.mem_edge g v1 v2);
   assert (G.mem_edge g v2 v1);
-  let g' = G.copy g in
-  assert (G.mem_edge g' v1 v2);
+  let _g' = G.copy g in
+(*  assert (G.mem_edge g' v1 v2);*)
+  (* the assertion is false since the copy of g also copy the abstract vertex:
+     v1 and v2 do not belong to g' but a copy of v1 and a copy of v2 do. *)
   ()
-
 (*
 module Int = struct 
   type t = int 
@@ -283,6 +284,4 @@ let g = G.add_edge g v8 v1
 module Toposort = Topological.Make(G)
 
 let _ = Toposort.iter (fun v-> Printf.printf "%d " v) g
-
 *)
-
