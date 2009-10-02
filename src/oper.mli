@@ -37,8 +37,10 @@ module type S = sig
 
   val mirror : g -> g
     (** [mirror g] returns a new graph which is the mirror image of [g]:
-      each edge from [u] to [v] has been replaced by an edge from [v] to [u].
-      For undirected graphs, it simply returns a copy of [g]. *)
+	each edge from [u] to [v] has been replaced by an edge from [v] to [u].
+	For undirected graphs, it simply returns [g]. 
+	Note: Vertices are shared between [g] and [mirror g]; you may need to
+	make a copy of [g] before using [mirror] *)
 
   val complement : g -> g
     (** [complement g] returns a new graph which is the complement of [g]:
