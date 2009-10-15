@@ -438,12 +438,10 @@ class ['edge] view_edge ~(view : common_view) ~edge ~layout ~hl_vip =
       layout.e_tdraw; layout.e_hdraw    ] in
 object(self)
   inherit view_item ~view ~pos ~ops_list ~hl_vip
-  
   method edge : 'edge = edge
 end
 
-let view_edge ?(hl_vip = default_edge_hl_vip)
-              ~view ~edge ~layout () =
+let view_edge ?(hl_vip = default_edge_hl_vip) ~view ~edge ~layout () =
   new view_edge ~view ~edge ~layout ~hl_vip
 
 (* VIEW_CLUSTER *)
@@ -454,7 +452,6 @@ class ['cluster] view_cluster ~(view : common_view) ~cluster ~layout =
   let hl_vip = VP.empty in
 object(self)
   inherit view_item ~view ~pos ~ops_list ~hl_vip
-
   method cluster : 'cluster = cluster
 end
 

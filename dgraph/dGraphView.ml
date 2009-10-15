@@ -67,11 +67,14 @@ object(self)
     let item = DGraphViewItem.view_cluster ~view:(self :> common_view)
       ~cluster ~layout () in
     Hashtbl.add cluster_hash cluster item
- 
+      
   (* From model to view items *)
-  method get_node = Hashtbl.find node_hash
-  method get_edge = Hashtbl.find edge_hash
-  method get_cluster = Hashtbl.find cluster_hash
+  method get_node n = 
+    try Hashtbl.find node_hash n with Not_found -> assert false
+  method get_edge e = try 
+    Hashtbl.find edge_hash e with Not_found -> assert false
+  method get_cluster c = 
+    try Hashtbl.find cluster_hash c with Not_found -> assert false
 
   (* Iterate on nodes and edges *)
   method iter_nodes f = Hashtbl.iter (fun _ v -> f v) node_hash
@@ -102,13 +105,15 @@ object(self)
 
   (* Membership functions *)
   method mem_edge (n1:'v DGraphViewItem.view_node)
-                  (n2:'v DGraphViewItem.view_node) =
+    (n2:'v DGraphViewItem.view_node) =
     model#mem_edge n1#vertex n2#vertex
   method find_edge (n1:'v DGraphViewItem.view_node)
-                   (n2:'v DGraphViewItem.view_node) =
+    (n2:'v DGraphViewItem.view_node) =
     self#get_edge (model#find_edge n1#vertex n2#vertex)
-  method src (e : 'e DGraphViewItem.view_edge) = self#get_node (model#src e#edge)
-  method dst (e : 'e DGraphViewItem.view_edge) = self#get_node (model#dst e#edge)
+  method src (e: 'e DGraphViewItem.view_edge) = 
+    self#get_node (model#src e#edge)
+  method dst (e: 'e DGraphViewItem.view_edge) = 
+    self#get_node (model#dst e#edge)
 
   (* Zoom factor *)
   val mutable zoom_f = 1.
@@ -155,16 +160,16 @@ object(self)
   (* Zoom with the keys *)
   method private zoom_keys_ev ev =
     match GdkEvent.Key.keyval ev with
-      | k when k = GdkKeysyms._KP_Subtract -> self#zoom_out (); true
-      | k when k = GdkKeysyms._KP_Add   -> self#zoom_in ();  true
-      | _ -> false
+    | k when k = GdkKeysyms._KP_Subtract -> self#zoom_out (); true
+    | k when k = GdkKeysyms._KP_Add   -> self#zoom_in ();  true
+    | _ -> false
 
   (* Zoom with the mouse *)
   method private zoom_mouse_ev ev =
     match GdkEvent.Scroll.direction ev with
-      | `UP ->   self#zoom_in ();  true
-      | `DOWN -> self#zoom_out (); true
-      | _ -> false
+    | `UP ->   self#zoom_in ();  true
+    | `DOWN -> self#zoom_out (); true
+    | _ -> false
 
   initializer
     (* Create and add items from the model vertices, edges and clusters *)
@@ -181,8 +186,8 @@ object(self)
     ignore $ self#event#connect#key_press self#zoom_keys_ev;
     ignore $ self#event#connect#scroll self#zoom_mouse_ev;
 
-    (* Set background color *)
-    (*self#misc#modify_bg [`NORMAL, `NAME model#background_color];*)
+(* Set background color *)
+(*self#misc#modify_bg [`NORMAL, `NAME model#background_color];*)
 end
 
 (* Constructor copied from gnoCanvas.ml *)
@@ -200,43 +205,27 @@ class ['v, 'e, 'c] highlight_focus_view obj model =
 object(self)
   inherit ['v, 'e, 'c] view obj model as view
 
-  (* EVENTS *)
-    
-  (* Highlighting *)
-  method private highlight_node_ev node = function
-    | `MOTION_NOTIFY _ ->
-	node#highlight ();
-	(* Highlight successors *)
-	view#iter_succ_e
-	  (fun e -> e#highlight ())
-	  node;
-	false
-    | `LEAVE_NOTIFY _ ->
-	node#dehighlight ();
-	(* De-highlight successors *)
-	view#iter_succ_e
-	  (fun e -> e#dehighlight ())
-	  node;
-	false
-    | _ -> false
-
-  method private center_node_ev node = function
-    | `TWO_BUTTON_PRESS _ -> node#center (); true
-    | _ -> false
-
   initializer
-    (* Connect highligh events on node shapes *)
-    let connect_node n =
-      let highlight = self#highlight_node_ev n in
-      let center = self#center_node_ev n in
+  let connect node =
+    let callback = function
+      | `MOTION_NOTIFY _ ->
+	  node#highlight ();
+	  (* Highlight successors *)
+	  self#iter_succ_e (fun e -> e#highlight ()) node;
+	  false
+      | `LEAVE_NOTIFY _ ->
+	  node#dehighlight ();
+	  (* De-highlight successors *)
+	  view#iter_succ_e (fun e -> e#dehighlight ()) node;
+	  false
+      | `TWO_BUTTON_PRESS _ -> (*node#center (); *)true
+      | _ -> false
+    in
+    node#iter_shapes (fun s -> ignore $ s#connect#event ~callback);
+    node#iter_texts  (fun t -> ignore $ t#connect#event ~callback);
+  in
+  self#iter_nodes connect
 
-      n#iter_shapes (fun s -> ignore $ s#connect#event ~callback:highlight);
-      n#iter_texts  (fun t -> ignore $ t#connect#event ~callback:highlight);
-
-      n#iter_shapes (fun s -> ignore $ s#connect#event ~callback:center);
-      n#iter_texts  (fun t -> ignore $ t#connect#event ~callback:center) in
-
-    self#iter_nodes connect_node;
 end
 
 let highlight_focus_view ?(aa=false) model =

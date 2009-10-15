@@ -77,7 +77,7 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
       Hashtbl.iter (fun k v -> f k) layout.XDot.cluster_layouts
 
     (* Membership functions *)
-    method find_edge = G.find_edge g
+    method find_edge = try G.find_edge g with Not_found -> assert false
     method mem_edge = G.mem_edge g
     method mem_edge_e = G.mem_edge_e g
     method mem_vertex = G.mem_vertex g
@@ -86,12 +86,19 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
       
     (* Layout *)
     method bounding_box = layout.XDot.bbox
+
     method get_vertex_layout v = (*Hashtbl.find layout.XDot.vertex_layouts*)
       try Hashtbl.find layout.XDot.vertex_layouts v
       with Not_found -> 
 	failwith ("Could not find layout of vertex named " ^ G.vertex_name v)
-    method get_edge_layout = Hashtbl.find layout.XDot.edge_layouts
-    method get_cluster_layout = Hashtbl.find layout.XDot.cluster_layouts
+
+    method get_edge_layout e = 
+      try Hashtbl.find layout.XDot.edge_layouts e 
+      with Not_found -> assert false
+
+    method get_cluster_layout c = 
+      try Hashtbl.find layout.XDot.cluster_layouts c
+      with Not_found -> assert false
 
   end
     
@@ -162,7 +169,7 @@ module DotModel = struct
     method iter_clusters f = Hashtbl.iter (fun k _ -> f k) clusters_hash
 
     (* Membership functions *)
-    method find_edge = DotG.find_edge g
+    method find_edge = try DotG.find_edge g with Not_found -> assert false
     method mem_edge = DotG.mem_edge g
     method mem_edge_e = DotG.mem_edge_e g
     method mem_vertex = DotG.mem_vertex g
@@ -174,7 +181,9 @@ module DotModel = struct
     method get_vertex_layout = DotG.V.label
     method get_edge_layout = DotG.E.label
     method get_cluster_layout c =
-      let attrs = Hashtbl.find clusters_hash c in
+      let attrs = 
+	try Hashtbl.find clusters_hash c with Not_found -> assert false 
+      in
       XDot.read_cluster_layout attrs
   end
 

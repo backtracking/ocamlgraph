@@ -287,22 +287,27 @@ module Make
    end) = 
 struct
 
+  exception Found of string
+
   let get_edge_comment e =
     let al = G.edge_attributes e in
-    let comment = ref None in
-    List.iter
-      (function `Comment c -> comment := Some c
-	 | _ -> ())
-      al;
-    !comment
+    try 
+      List.iter (function `Comment c -> raise (Found c) | _ -> ()) al;
+      None
+    with Found c ->
+      Some c
 
   let get_dot_comment (al : Dot_ast.attr list) =
-    let comment = ref None in
-    List.iter (List.iter
-      (function (Ident "comment", Some c) -> comment := Some (get_dot_string c)
-	 | _ -> ()))
+    try
+      List.iter 
+	(List.iter
+	   (function 
+	    | Ident "comment", Some c -> raise (Found (get_dot_string c))
+	    | _ -> ()))
       al;
-    !comment
+      None
+    with Found c ->
+      Some c
 
   let strip_quotes = function
     | "" -> ""
@@ -313,17 +318,20 @@ struct
 
   (* Parses the graph attribute named id, and converts it with conv *)
   let parse_graph_attr id conv stmts =
-    let attr_op = ref None in
     let read_attr = function
-      | (Ident ident , Some (String attr)) when ident = id -> attr_op := Some attr
-      | _ -> () in
+      | Ident ident , Some (String attr) when ident = id ->
+	  raise (Found attr)
+      | _ -> () 
+    in
     let read_stmt = function
       | Attr_graph attrs -> List.iter (List.iter read_attr) attrs
-      | _ -> () in
-    List.iter read_stmt stmts;
-    match !attr_op with
-      | Some str -> conv str
-      | None -> failwith ("Could not find the graph attribute named " ^ id)
+      | _ -> () 
+    in
+    try
+      List.iter read_stmt stmts;
+      failwith ("Could not find the graph attribute named " ^ id)
+    with Found attr ->
+      conv attr
     
   let parse_bounding_box = parse_graph_attr "bb" read_bounding_box
   (*let parse_bgcolor = parse_graph_attr "bgcolor" XDotDraw.normalize_color*)
@@ -354,7 +362,7 @@ struct
     let find_vertex (id,_) =
       let name = get_dot_string id in
       try Hashtbl.find name_to_vertex name
-      with Not_found -> failwith ("Could not find vertex named " ^ name) 
+      with Not_found -> failwith ("Could not find vertex named " ^ name)
     in
 
     let find_edge v v' comment =
