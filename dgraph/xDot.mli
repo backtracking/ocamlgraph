@@ -114,8 +114,6 @@ exception ParseError of string
 (** Instantiates a module which creates graph layouts from xdot files *)
 module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
 
-  open G
-
   exception DotError of string
 
   (** Extracts a layout of an xdot file *)

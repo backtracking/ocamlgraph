@@ -354,7 +354,8 @@ struct
       (fun e ->
 	 let comment = match get_edge_comment e with
 	   | Some c -> Some (strip_quotes c)
-	   | None -> None in
+	   | None -> None 
+	 in
 	 let src, dst = G.E.src e, G.E.dst e in
 	 Hashtbl.add vertices_comment_to_edge (src,dst,comment) e)
       g;
@@ -397,7 +398,8 @@ struct
 	     | Some c -> Hashtbl.add cluster_layouts c (read_cluster_layout al)
 	     | None -> ())
 	|  _ -> ()
-      with Not_found -> () 
+      with Not_found -> 
+	() 
     in
     List.iter (collect_layouts None) stmts;
     vertex_layouts, edge_layouts, cluster_layouts

@@ -1,4 +1,6 @@
 
+o dgraph displays graphs faster
+
 version 1.3, Octobre 2nd, 2009
 ------------------------------
  o Oper.mirror: undirected graphs are not copied anymore

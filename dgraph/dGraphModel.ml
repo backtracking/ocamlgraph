@@ -87,10 +87,9 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
     (* Layout *)
     method bounding_box = layout.XDot.bbox
 
-    method get_vertex_layout v = (*Hashtbl.find layout.XDot.vertex_layouts*)
+    method get_vertex_layout v =
       try Hashtbl.find layout.XDot.vertex_layouts v
-      with Not_found -> 
-	failwith ("Could not find layout of vertex named " ^ G.vertex_name v)
+      with Not_found -> assert false
 
     method get_edge_layout e = 
       try Hashtbl.find layout.XDot.edge_layouts e 

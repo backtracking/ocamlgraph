@@ -107,6 +107,9 @@ let update_state state ~packing =
 	let aa = true (* anti-aliasing *) in
 	let view = 
 	  DGraphView.labeled_view
+	    ~cache_node:(fun _ -> false)
+	    ~cache_edge:(fun _ -> false)
+	    ~cache_cluster:(fun _ -> false)
 	    ~aa ~width:1280 ~height:1024 ~packing:frame#add
 	    model state.status () 
 	in
@@ -123,6 +126,9 @@ let update_state state ~packing =
 	let aa = true (* anti-aliasing *) in
 	let view = 
 	  DGraphView.labeled_view
+	    ~cache_node:(fun _ -> false)
+	    ~cache_edge:(fun _ -> false)
+	    ~cache_cluster:(fun _ -> false)
 	    ~aa ~width:1280 ~height:1024 ~packing:frame#add
 	    model state.status () 
 	in

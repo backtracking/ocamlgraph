@@ -32,56 +32,40 @@ type shape_p = [ `FILL_COLOR of string
 	       | `WIDTH_UNITS of float
 	       | `DASH of float * float array ]
 
+class type textshape = object
+  method highlight: unit -> unit
+  method dehighlight: unit -> unit
+  method hide: unit -> unit
+  method show: unit -> unit
+  method lower_to_bottom: unit -> unit
+  method connect: 
+    < event : callback:(GnoCanvas.item_event -> bool) -> GtkSignal.id;
+    after : GnoCanvas.item_signals;
+    destroy : callback:(unit -> unit) -> GtkSignal.id; >
+end
+
 class type shape = object
   inherit GnoCanvas.base_item
+  inherit textshape
   val obj : GnomeCanvas.item Gtk.obj
-  (** Sets properties *)
-  method set : shape_p list -> unit
-  (** Undoes the last call to "set" *)
-  method undo : unit -> unit
+  method set: shape_p list -> unit
 end
 
 (* Text *)
 
-(** Derived text class
-   Uses a properties queue to undo changes
-   (when dehighlighting for instance).
-*)
-
+(** Derived text class. *)
 class graph_text :
   GnomeCanvas.text Gtk.obj ->
   size_points:float ->
   props:GnomeCanvas.text_p list ->
 object
   inherit text
-  (** Undoes the last call to "set" *)
-  method undo : unit -> unit
-  (** Resizes the text *)
-  method resize : float -> unit
-  (** Initial size in points *)
-  method init_size : float
+  inherit textshape
+  method init_size: float
+    (** Initial size in points *)
 end
 
 (* View items *)
-
-(** Tiny module to easily create and combine view_item properties *)
-module VP : sig
-  
-  (** A pair of shape properties and text properties*)
-  type t = shape_p list * GnomeCanvas.text_p list
-
-  (** Monoid interface *)
-  val empty : t
-  val combine : t -> t -> t
-
-  (** Simple properties *)
-  type color = string
-  val shp_color : color -> t
-  val shp_fill_color : color -> t
-  val txt_color : color -> t
-  val shp_width : float -> t
-  val txt_weight : int -> t
-end
 
 class type common_view = object
   inherit canvas
@@ -92,74 +76,46 @@ end
 (** ViewItem class
     Group of shapes and texts
 *)
-class view_item :
+class ['a ] view_item :
+  cache:bool ->
   view:common_view ->
   pos:float * float ->
   ops_list:XDotDraw.operation list list ->
-  (** Highlight view item properties *)
-  hl_vip:VP.t ->
+  item:'a ->
 object
   inherit group
-
-  method shapes : shape list
-  method texts : graph_text list
-
-  method iter_shapes : (shape -> unit) -> unit
-  method iter_texts : (graph_text -> unit) -> unit
-
+  method item: 'a
+  method zoom_text: float -> unit
   method highlight : unit -> unit
   method dehighlight : unit -> unit
-  method select : unit -> unit
-  method deselect : unit -> unit
-
   method show : unit -> unit
   method hide : unit -> unit
-  method is_showed : bool
-  method is_hidden : bool
-
   method center : unit -> unit
-  (* method connect : *)
-  (*   < event : callback:(GnoCanvas.item_event -> bool) -> GtkSignal.id list > *)
+  method connect_event: callback:(GnoCanvas.item_event -> bool) -> unit
+  method compute: unit -> unit (** apply all cached operations *)
+  method lower_to_bottom: unit -> unit
 end
 
-
-class type ['vertex] view_node =
-  object
-    inherit view_item
-    method vertex : 'vertex
-  end
-
-class type ['edge] view_edge =
-  object
-    inherit view_item
-    method edge : 'edge
-  end
-
-class type ['cluster] view_cluster =
-  object
-    inherit view_item
-    method cluster : 'cluster
-  end
-
-val view_node :
-  ?hl_vip:VP.t ->
+val view_node:
+  cache:bool ->
   view:common_view ->
   vertex:'vertex ->
   layout:XDot.node_layout ->
   unit ->
-  'vertex view_node
+  'vertex view_item
 
-val view_edge :
-  ?hl_vip:VP.t ->
+val view_edge:
+  cache:bool ->
   view:common_view ->
   edge:'edge ->
   layout:XDot.edge_layout ->
   unit ->
-  'edge view_edge
+  'edge view_item
 
-val view_cluster :
+val view_cluster:
+  cache:bool ->
   view:common_view ->
   cluster:'cluster ->
   layout:XDot.cluster_layout ->
   unit ->
-  'cluster view_cluster
+  'cluster view_item
