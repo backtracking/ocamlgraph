@@ -357,7 +357,12 @@ object (self)
       self#read_operations ()
     end
 
-  initializer if not cache then self#read_operations ()
+  initializer 
+    if cache then 
+      let prio = Glib.int_of_priority `LOW in
+      ignore (Glib.Idle.add ~prio (fun () -> self#compute (); false))
+    else 
+      self#read_operations ()
 
 end  
 
