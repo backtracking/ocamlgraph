@@ -1,4 +1,6 @@
 
+o new implementation Imperative.Digraph.ConcreteBidirectionalLabeled
+  (contribution of Jaap Boender)
 o dgraph displays graphs faster
 
 version 1.3, Octobre 2nd, 2009

@@ -468,7 +468,7 @@ end
     predecessors.  Crucial for algorithms that do a lot of backwards
     traversal. *)
 
-module BidirectionalMinimal(S:Set.S)(HM:HM with type key = S.elt) = struct
+module BidirectionalMinimal(S:Set.S)(HM:HM) = struct
 
   type vertex = HM.key
 
@@ -488,13 +488,6 @@ module BidirectionalMinimal(S:Set.S)(HM:HM with type key = S.elt) = struct
   let mem_vertex g v = HM.mem v g
 
   let unsafe_add_vertex g v = HM.add v (S.empty,S.empty) g
-  let unsafe_add_edge g v1 v2 = 
-    let (in_set,out_set) = HM.find v1 g
-    in 
-      ignore (HM.add v1 (in_set,S.add v2 out_set) g);
-      let (in_set,out_set) = HM.find v2 g
-      in
-	HM.add v2 (S.add v1 in_set,out_set) g
 
   let iter_vertex f = HM.iter (fun v _ -> f v)
   let fold_vertex f = HM.fold (fun v _ -> f v)
@@ -591,6 +584,143 @@ module BidirectionalUnlabeled(V:COMPARABLE)(HM:HM with type key = V.t) = struct
 
 end
 
+module BidirectionalLabeled(V:COMPARABLE)(E:ORDERED_TYPE)(HM:HM with type key = V.t) = struct
+
+  module VE = OTProduct(V)(E)
+  module S = Set.Make(VE)
+
+  module E = struct
+    type vertex = V.t
+    type label = E.t
+    type t = vertex * label * vertex
+    let src (v, _, _) = v
+    let dst (_, _, v) = v
+    let label (_, l, _) = l
+    let create v1 l v2 = v1, l, v2
+    module C = OTProduct(V)(VE)
+    let compare (x1, x2, x3) (y1, y2, y3) =
+      C.compare (x1, (x3, x2)) (y1, (y3, y2))
+  end
+  type edge = E.t
+
+  let mem_edge g v1 v2 =
+    try
+      S.exists (fun (v2', _) -> V.equal v2 v2') (snd (HM.find v1 g))
+    with Not_found ->
+      false
+
+  let mem_edge_e g (v1, l, v2) =
+    try
+      let ve = v2, l in
+      S.exists (fun ve' -> VE.compare ve ve' == 0) (snd (HM.find v1 g))
+    with Not_found ->
+      false
+
+  exception Found of edge
+  let find_edge g v1 v2 =
+    try
+      S.iter 
+  (fun (v2', l) -> if V.equal v2 v2' then raise (Found (v1, l, v2')))
+  (snd (HM.find v1 g));
+      raise Not_found
+    with Found e ->
+      e
+
+  let unsafe_remove_edge g v1 v2 =
+    let (in_set,out_set) = HM.find v1 g in
+    ignore (HM.add v1 (in_set,
+      S.filter (fun (v2', _) -> not (V.equal v2 v2')) out_set) g);
+    let (in_set,out_set) = HM.find v2 g in
+    ignore (HM.add v2 (
+      S.filter (fun (v1',_) -> not (V.equal v1 v1')) in_set, out_set) g) 
+
+  let unsafe_remove_edge_e g (v1, l, v2) =
+    let (in_set,out_set) = HM.find v1 g in
+    ignore (HM.add v1 (in_set, (S.remove (v2, l) out_set)) g);
+    let (in_set,out_set) = HM.find v2 g in
+    ignore (HM.add v2 ((S.remove (v1, l) in_set), out_set) g)
+
+  let remove_edge g v1 v2 =
+    if not (HM.mem v2 g) then invalid_arg "[ocamlgraph] remove_edge";
+    let (in_set,out_set) = HM.find_and_raise v1 g "[ocamlgraph] remove_edge" in
+    ignore (HM.add v1 (in_set,
+      S.filter (fun (v2', _) -> not (V.equal v2 v2')) out_set) g);
+    let (in_set,out_set) = HM.find_and_raise v2 g "[ocamlgraph] remove_edge" in
+    ignore (HM.add v2 (
+      S.filter (fun (v1',_) -> not (V.equal v1 v1')) in_set, out_set) g)
+
+  let remove_edge_e g (v1, l, v2) =
+   if not (HM.mem v2 g) then invalid_arg "[ocamlgraph] remove_edge_e";
+   let (in_set,out_set) = HM.find_and_raise v1 g "[ocamlgraph] remove_edge_e" in
+   ignore (HM.add v1 (in_set, (S.remove (v2, l) out_set)) g);
+   let (in_set,out_set) = HM.find_and_raise v2 g "[ocamlgraph] remove_edge_e" in 
+   ignore (HM.add v2 ((S.remove (v1, l) in_set), out_set) g)
+
+  let iter_succ f g v =
+    S.iter (fun (w, _) -> f w)
+      (snd (HM.find_and_raise v g "[ocamlgraph] iter_succ"))
+  let fold_succ f g v =
+    S.fold (fun (w, _) -> f w)
+      (snd (HM.find_and_raise v g "[ocamlgraph] fold_succ"))
+
+  let iter_succ_e f g v =
+    S.iter (fun (w, l) -> f (v, l, w))
+    (snd (HM.find_and_raise v g "[ocamlgraph] iter_succ_e"))
+
+  let fold_succ_e f g v =
+    S.fold (fun (w, l) -> f (v, l, w))
+    (snd (HM.find_and_raise v g "[ocamlgraph] fold_succ_e"))
+      
+  let succ g v = fold_succ (fun w l -> w :: l) g v []
+  let succ_e g v = fold_succ_e (fun e l -> e :: l) g v []
+
+  let map_vertex f =
+    HM.map (fun v (s1,s2) ->
+      f v,
+      (S.fold (fun (v, l) s -> S.add (f v, l) s) s1 S.empty,
+    S.fold (fun (v, l) s -> S.add (f v, l) s) s2 S.empty)
+     )
+  
+  module I = struct
+    type t = (S.t * S.t) HM.t
+    module PV = V
+    module PE = E
+    let iter_edges f = HM.iter (fun v (_,outset) ->
+      S.iter (fun (w, _) -> f v w) outset)
+    let fold_edges f = HM.fold (fun v (_,outset) ->
+      S.fold (fun (w, _) -> f v w) outset)
+    let iter_edges_e f = HM.iter (fun v (_,outset) ->
+      S.iter (fun (w, l) -> f (v, l, w)) outset)
+    let fold_edges_e f = HM.fold (fun v (_,outset) ->
+      S.fold (fun (w, l) -> f (v, l, w)) outset)
+  end
+  include I
+
+  let iter_pred f g v =
+    S.iter (fun (w, _) -> f w)
+      (fst (HM.find_and_raise v g "[ocamlgraph] iter_pred"))
+  let fold_pred f g v =
+    S.fold (fun (w, _) -> f w)
+      (fst (HM.find_and_raise v g "[ocamlgraph] fold_pred"))
+
+  let in_degree g v =
+    S.cardinal
+      (fst (try HM.find v g
+      with Not_found -> invalid_arg "[ocamlgraph] in_degree"))
+
+  let iter_pred_e f g v =
+    S.iter (fun (w, l) -> f (w, l, v))
+    (fst (HM.find_and_raise v g "[ocamlgraph] iter_pred_e"))
+
+  let fold_pred_e f g v =
+    S.fold (fun (w, l) -> f (w, l, v))
+    (fst (HM.find_and_raise v g "[ocamlgraph] fold_pred_e"))
+      
+  let pred g v = fold_pred (fun w l -> w :: l) g v []
+  let pred_e g v = fold_pred_e (fun e l -> e :: l) g v []
+
+end
+
 (** Build persistent (resp. imperative) graphs from a persistent (resp. 
     imperative) association table *)
 module Make(F : TBL_BUILDER) = struct
@@ -614,6 +744,14 @@ module Make(F : TBL_BUILDER) = struct
       include ConcreteVertex(F)(V)
       include BidirectionalUnlabeled(V)(HM)
       include BidirectionalMinimal(S)(HM)
+  
+      let unsafe_add_edge g v1 v2 = 
+        let (in_set,out_set) = HM.find v1 g
+        in 
+          ignore ( HM.add v1 (in_set,S.add v2 out_set) g ) ;
+          let (in_set,out_set) = HM.find v2 g
+          in
+	    HM.add v2 (S.add v1 in_set,out_set) g
     end
 
     module ConcreteLabeled(V: COMPARABLE)(Edge: ORDERED_TYPE_DFT) = struct
@@ -628,6 +766,23 @@ module Make(F : TBL_BUILDER) = struct
 
       let add_edge g v1 v2 = add_edge_e g (v1, Edge.default, v2)
 
+    end
+
+    module ConcreteBidirectionalLabeled(V: COMPARABLE)(Edge: ORDERED_TYPE_DFT) = struct
+      include ConcreteVertex(F)(V)
+      include BidirectionalLabeled(V)(Edge)(HM)
+      include BidirectionalMinimal(S)(HM)
+
+      let unsafe_add_edge_e g (v1, l, v2) =
+        let (in_set,out_set) = HM.find v1 g
+        in
+          ignore (HM.add v1 (in_set,S.add (v2,l) out_set) g);
+          let (in_set,out_set) = HM.find v2 g
+          in
+      HM.add v2 (S.add (v1,l) in_set,out_set) g
+
+      let unsafe_add_edge g v1 v2 =
+        unsafe_add_edge_e g (v1, Edge.default, v2)
     end
 
     module Abstract(V: VERTEX) = struct

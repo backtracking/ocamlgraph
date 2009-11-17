@@ -362,7 +362,6 @@ doc: $(DOC_CMO)
 	mkdir -p doc
 	rm -f doc/*
 	$(OCAMLDOC) -d doc -html $(INCLUDES) $(DOC_SRC)
-	$(MAKE) -C $(VIEWER_DIR) doc
 
 # literate programming
 $(NAME).tex: $(DOC_SRC)

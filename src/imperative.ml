@@ -135,6 +135,29 @@ module Digraph = struct
       end
   end
 
+  module ConcreteBidirectionalLabeled(V:COMPARABLE)(E:ORDERED_TYPE_DFT) = struct
+    include I.Digraph.ConcreteBidirectionalLabeled(V)(E)
+    let add_vertex g v =
+      if not (HM.mem v g) then ignore (unsafe_add_vertex g v)
+
+    let add_edge g v1 v2 =
+      add_vertex g v1;
+      add_vertex g v2;
+      ignore (unsafe_add_edge g v1 v2)
+
+    let add_edge_e g (v1, l, v2) =
+      add_vertex g v1;
+      add_vertex g v2;
+      ignore (unsafe_add_edge_e g (v1, l, v2))
+
+    let remove_vertex g v =
+      if HM.mem v g then begin
+        iter_pred_e (fun e -> ignore (remove_edge_e g e)) g v;
+        iter_succ_e (fun e -> ignore (remove_edge_e g e)) g v;
+        ignore (HM.remove v g)
+      end
+  end
+
   module Abstract(V: sig type t end) = struct
     
     include I.Digraph.Abstract(AbstractVertex(V))
