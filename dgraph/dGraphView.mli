@@ -22,21 +22,24 @@
 (*                                                                        *)
 (**************************************************************************)
 
+(** View classes *)
+
 open DGraphModel
 open DGraphViewItem
-
 open GnoCanvas
 
-(** View class *)
+(** Simple widget derived from the Gnome Canvas
+    Supports zooming and scrolling.
 
-(**
-   Simple widget derived from the Gnome Canvas
-   Supports zooming and scrolling *)
-
+    Each optional function [cache_node], [cache_edge] and [cache_cluster] may
+    be used to indicate whether an element must be displayed immediatly (if the
+    function returns [false]) or only cached and displayed latter (if the
+    function returns [true]). By default, each function always returns
+    [false]. It may be set for improving efficiency. *)
 class ['vertex, 'edge, 'cluster] view:
-  cache_node:('vertex -> bool) ->
-  cache_edge:('edge -> bool) ->
-  cache_cluster:('cluster -> bool) ->
+  ?cache_node:('vertex -> bool) ->
+  ?cache_edge:('edge -> bool) ->
+  ?cache_cluster:('cluster -> bool) ->
   GnomeCanvas.canvas Gtk.obj ->
   ('vertex, 'edge, 'cluster) DGraphModel.abstract_model ->
 object
@@ -75,64 +78,67 @@ object
 end
 
 val view :
-  ?aa:bool -> (** Anti aliasing *)
+  ?aa:bool (** Anti-aliasing *) ->
   ('vertex, 'edge, 'cluster) DGraphModel.abstract_model ->
-  cache_node:('vertex -> bool) ->
-  cache_edge:('edge -> bool) ->
-  cache_cluster:('cluster -> bool) ->
+  ?cache_node:('vertex -> bool) ->
+  ?cache_edge:('edge -> bool) ->
+  ?cache_cluster:('cluster -> bool) ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->
   ?packing:(GObj.widget -> unit) ->
-  ?show:bool -> unit
-  -> ('vertex, 'edge, 'cluster) view
+  ?show:bool -> 
+  unit -> 
+  ('vertex, 'edge, 'cluster) view
 
 (** Same widget augmented with highlighting and focus
-    Hover to highlight, double click to focus
-*)
+    Hover to highlight, double click to focus. *)
 class ['vertex, 'edge, 'cluster] highlight_focus_view :
-  cache_node:('vertex -> bool) ->
-  cache_edge:('edge -> bool) ->
-  cache_cluster:('cluster -> bool) ->
+  ?cache_node:('vertex -> bool) ->
+  ?cache_edge:('edge -> bool) ->
+  ?cache_cluster:('cluster -> bool) ->
   GnomeCanvas.canvas Gtk.obj ->
   ('vertex, 'edge, 'cluster) DGraphModel.abstract_model ->
   ['vertex, 'edge, 'cluster] view
 
 val highlight_focus_view :
-  ?aa:bool -> (** Anti aliasing *)
+  ?aa:bool (** Anti-aliasing *) ->
   ('vertex, 'edge, 'cluster) DGraphModel.abstract_model ->
-  cache_node:('vertex -> bool) ->
-  cache_edge:('edge -> bool) ->
-  cache_cluster:('cluster -> bool) ->
+  ?cache_node:('vertex -> bool) ->
+  ?cache_edge:('edge -> bool) ->
+  ?cache_cluster:('cluster -> bool) ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->
   ?packing:(GObj.widget -> unit) ->
-  ?show:bool -> unit
-  -> ('vertex, 'edge, 'cluster) highlight_focus_view
+  ?show:bool -> 
+  unit -> 
+  ('vertex, 'edge, 'cluster) highlight_focus_view
 
 (** Same widget augmented with a label displaying the current node *)
 class ['vertex, 'edge, 'cluster] labeled_view :
-  cache_node:('vertex -> bool) ->
-  cache_edge:('edge -> bool) ->
-  cache_cluster:('cluster -> bool) ->
+  ?cache_node:('vertex -> bool) ->
+  ?cache_edge:('edge -> bool) ->
+  ?cache_cluster:('cluster -> bool) ->
   GnomeCanvas.canvas Gtk.obj ->
-  ('vertex, 'edge, 'cluster) DGraphModel.abstract_model -> GMisc.label ->
+  ('vertex, 'edge, 'cluster) DGraphModel.abstract_model -> 
+  GMisc.label ->
   ['vertex, 'edge, 'cluster] view
 
 val labeled_view :
-  ?aa:bool -> (** Anti aliasing *)
+  ?aa:bool (** Anti-aliasing *) ->
   ('vertex, 'edge, 'cluster) DGraphModel.abstract_model -> 
   GMisc.label ->
-  cache_node:('vertex -> bool) ->
-  cache_edge:('edge -> bool) ->
-  cache_cluster:('cluster -> bool) ->
+  ?cache_node:('vertex -> bool) ->
+  ?cache_edge:('edge -> bool) ->
+  ?cache_cluster:('cluster -> bool) ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->
   ?packing:(GObj.widget -> unit) ->
-  ?show:bool -> unit
-  -> ('vertex, 'edge, 'cluster) highlight_focus_view
+  ?show:bool -> 
+  unit -> 
+  ('vertex, 'edge, 'cluster) highlight_focus_view
 
 (* Same widget augmented with highlighting, focus
     and the ability to drag the canvas (click'n hold)

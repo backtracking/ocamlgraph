@@ -99,17 +99,14 @@ let update_state state ~packing =
 	if debug then printf "Building Model...\n";
 	let model = 
 	  if Filename.check_suffix file "xdot" then
-	    DGraphModel.read_xdot ~xdot_file:file
+	    DGraphModel.read_xdot file
 	  else
-	    DGraphModel.read_dot ~cmd:"dot" ~dot_file:file in
+	    DGraphModel.read_dot ~cmd:"dot" file in
 	if debug then printf "Building View...\n";
 	let frame = GBin.frame ~shadow_type:`IN () in
 	let aa = true (* anti-aliasing *) in
 	let view = 
 	  DGraphView.labeled_view
-	    ~cache_node:(fun _ -> false)
-	    ~cache_edge:(fun _ -> false)
-	    ~cache_cluster:(fun _ -> false)
 	    ~aa ~width:1280 ~height:1024 ~packing:frame#add
 	    model state.status () 
 	in
@@ -126,9 +123,6 @@ let update_state state ~packing =
 	let aa = true (* anti-aliasing *) in
 	let view = 
 	  DGraphView.labeled_view
-	    ~cache_node:(fun _ -> false)
-	    ~cache_edge:(fun _ -> false)
-	    ~cache_cluster:(fun _ -> false)
 	    ~aa ~width:1280 ~height:1024 ~packing:frame#add
 	    model state.status () 
 	in

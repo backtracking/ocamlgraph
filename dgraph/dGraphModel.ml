@@ -190,7 +190,7 @@ module DotModel = struct
 end
 
 (* Runs graphviz, parses the graph and instantiates the model *)
-let read_dot ?(cmd="dot") ~dot_file =
+let read_dot ?(cmd="dot") dot_file =
   let basename = try Filename.chop_extension dot_file 
                  with Invalid_argument _ -> dot_file in
   let xdot_file = basename ^ ".xdot" in
@@ -205,10 +205,9 @@ let read_dot ?(cmd="dot") ~dot_file =
       end
     | _ -> raise (DotError "Error during dot execution")
 
-(* Does not run graphviz
-   Parses a graph from an xdot file and instantiates the model
-*)
-let read_xdot ~xdot_file =
+(* Does not run graphviz.
+   Parses a graph from an xdot file and instantiates the model. *)
+let read_xdot xdot_file =
   let graph, bb, clusters_hash =
     DotParser.parse_bounding_box_and_clusters xdot_file in
   DotModel.model graph clusters_hash (XDot.read_bounding_box bb)

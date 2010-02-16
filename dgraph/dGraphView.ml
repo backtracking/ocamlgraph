@@ -29,10 +29,12 @@ let ($) f x = f x
 
 (* SIMPLE VIEW CLASS *)
 
+let do_nothing _ = false
+
 (* Widget derived from Gnome Canvas.
    Supports zooming and scrolling *)
 class ['v, 'e, 'c] view
-  ~cache_node ~cache_edge ~cache_cluster 
+  ?(cache_node=do_nothing) ?(cache_edge=do_nothing) ?(cache_cluster=do_nothing)
   obj (model : ('v, 'e, 'c) DGraphModel.abstract_model) 
   =
   let ((x1,y2),(x2,y1)) = model#bounding_box in
@@ -199,7 +201,7 @@ object(self)
 end
 
 (* Constructor copied from gnoCanvas.ml *)
-let view ?(aa=false) model ~cache_node ~cache_edge ~cache_cluster =
+let view ?(aa=false) model ?cache_node ?cache_edge ?cache_cluster =
   GContainer.pack_container [] 
     ~create:(fun pl ->
 	       let w =
@@ -207,15 +209,15 @@ let view ?(aa=false) model ~cache_node ~cache_edge ~cache_cluster =
 		 else GnomeCanvas.Canvas.new_canvas () 
 	       in
 	       Gobject.set_params w pl;
-	       new view ~cache_node ~cache_edge ~cache_cluster w model)
+	       new view ?cache_node ?cache_edge ?cache_cluster w model)
 
 (* VIEW CLASS AUGMENTED WITH HIGHLIGHTING AND FOCUS *)
 
 class ['v, 'e, 'c] highlight_focus_view
-  ~cache_node ~cache_edge ~cache_cluster obj model = 
+  ?cache_node ?cache_edge ?cache_cluster obj model = 
 object (self)
 
-  inherit ['v, 'e, 'c] view ~cache_node ~cache_edge ~cache_cluster obj model
+  inherit ['v, 'e, 'c] view ?cache_node ?cache_edge ?cache_cluster obj model
     as view
 
   initializer
@@ -241,24 +243,24 @@ object (self)
 end
 
 let highlight_focus_view
-    ?(aa=false) model ~cache_node ~cache_edge ~cache_cluster =
+    ?(aa=false) model ?cache_node ?cache_edge ?cache_cluster =
   let create pl =
     let w =
       if aa then GnomeCanvas.Canvas.new_canvas_aa ()
       else GnomeCanvas.Canvas.new_canvas () 
     in
     Gobject.set_params w pl;
-    new highlight_focus_view ~cache_node ~cache_edge ~cache_cluster w model
+    new highlight_focus_view ?cache_node ?cache_edge ?cache_cluster w model
   in
   GContainer.pack_container [] ~create
 
 (* LABELED VIEW *)
 (* View augmented with a label showing the dot name of the node under the pointer *)
 class ['v,'e,'c] labeled_view 
-  ~cache_node ~cache_edge ~cache_cluster obj model (label:GMisc.label) =
+  ?cache_node ?cache_edge ?cache_cluster obj model (label:GMisc.label) =
 object(self)
   inherit ['v,'e,'c] 
-    highlight_focus_view ~cache_node ~cache_edge ~cache_cluster obj model 
+    highlight_focus_view ?cache_node ?cache_edge ?cache_cluster obj model 
     as view
 
   (* EVENTS *)
@@ -282,13 +284,13 @@ object(self)
 end
 
 let labeled_view
-    ?(aa=false) model label ~cache_node ~cache_edge ~cache_cluster =
+    ?(aa=false) model label ?cache_node ?cache_edge ?cache_cluster =
   GContainer.pack_container [] ~create:(fun pl ->
     let w =
       if aa then GnomeCanvas.Canvas.new_canvas_aa ()
       else GnomeCanvas.Canvas.new_canvas () in
     Gobject.set_params w pl;
-    new labeled_view ~cache_node ~cache_edge ~cache_cluster w model label)
+    new labeled_view ?cache_node ?cache_edge ?cache_cluster w model label)
 (*
 (* VIEW CLASS AUGMENTED WIDTH DRAGGING *)
 (* Not really working, not exported *)

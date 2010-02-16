@@ -1,7 +1,9 @@
 
-o new implementation Imperative.Digraph.ConcreteBidirectionalLabeled
-  (contribution of Jaap Boender)
-o dgraph displays graphs faster
+ o new implementation Imperative.Digraph.ConcreteBidirectionalLabeled
+   (contribution of Jaap Boender)
+ o Dgraph displays graphs faster
+ o slight change of the types of Dgraph.DGraphModel.read_dot and
+   Dgraph.DGraphModel.read_xdot.
 
 version 1.3, Octobre 2nd, 2009
 ------------------------------

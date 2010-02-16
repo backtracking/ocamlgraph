@@ -82,8 +82,9 @@ module DotG :
 type cluster = string
 type dotg_model = (DotG.vertex, DotG.edge, cluster) abstract_model
 
-(** Creates a model from a dot file *)
-val read_dot : ?cmd:string -> dot_file:string -> dotg_model
+(** Creates a model from a dot file. *)
+val read_dot : ?cmd:string -> string -> dotg_model
 
-(** Creates a model from an xdot file (the layout is not recomputed)*)
-val read_xdot : xdot_file:string -> dotg_model
+(** Creates a model from an xdot file (the layout is not recomputed, thus
+    efficiency is better than [read_dot]). *)
+val read_xdot : string -> dotg_model
