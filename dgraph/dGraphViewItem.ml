@@ -50,7 +50,9 @@ object (self)
     let color = ref red_color in
     let rec hi_props = function
       | [] -> []
-      | `SIZE_POINTS p :: l -> `SIZE_POINTS (max 6. (p *. 1.5)) :: hi_props l
+      | `SIZE_POINTS p :: l -> 
+	  let s = if p >= 12. then p else max 6. (p *. 1.5) in
+	  `SIZE_POINTS s :: hi_props l
       | `WEIGHT d :: l -> 
 	  `WEIGHT (max 600 (int_of_float (float d *. 1.5))) :: hi_props l
       | `FILL_COLOR c :: l -> 
@@ -58,7 +60,7 @@ object (self)
 	  hi_props l
       | p :: l -> p :: hi_props l
     in
-    (* as inserted in head, `WEIGHT 800 will not apply if there is already a 
+    (* as inserted in head, `WEIGHT 600 will not apply if there is already a 
        specified weight *)
     text#set (`FILL_COLOR !color :: `WEIGHT 600 :: hi_props props)
 
@@ -252,8 +254,9 @@ let bspline draw_st group pts =
   new shape (SBSpline bpath) props
 
 let text draw_st group pos align label =
-  let (x,y) = XDot.conv_coord pos in
   let size_points, font = draw_st.XDotDraw.font in
+  let x, y = XDot.conv_coord pos in
+  let y = y +. size_points /. 2. in
   let props = [ `FILL_COLOR draw_st.XDotDraw.pen_color ] in
   graph_text 
     group
