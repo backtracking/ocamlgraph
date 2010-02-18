@@ -23,11 +23,12 @@
 (**************************************************************************)
 
 open DGraphViewItem
-open Printf
 
 let ($) f x = f x
 
-(* SIMPLE VIEW CLASS *)
+(* ************************************************************************* *)
+(** View from a model *)
+(* ************************************************************************* *)
 
 let do_nothing _ = false
 
@@ -37,8 +38,9 @@ class ['v, 'e, 'c] view
   ?(cache_node=do_nothing) ?(cache_edge=do_nothing) ?(cache_cluster=do_nothing)
   obj (model : ('v, 'e, 'c) DGraphModel.abstract_model) 
   =
-  let ((x1,y2),(x2,y1)) = model#bounding_box in
+  let (x1, y2), (x2, y1) = model#bounding_box in
 object(self)
+
   inherit GnoCanvas.canvas obj
 
   method model = model
@@ -54,7 +56,7 @@ object(self)
     try
       let layout = model#get_vertex_layout vertex in
       let item = 
-	DGraphViewItem.view_node 
+	view_node 
 	  ~cache:(cache_node vertex)
 	  ~view:(self :> common_view) ~vertex ~layout () 
       in
@@ -66,7 +68,7 @@ object(self)
     try
       let layout = model#get_edge_layout edge in
       let item = 
-	DGraphViewItem.view_edge 
+	view_edge 
 	  ~cache:(cache_edge edge)
 	  ~view:(self:>common_view) ~edge ~layout () 
       in
@@ -77,7 +79,7 @@ object(self)
   method private add_cluster cluster =
     let layout = model#get_cluster_layout cluster in
     let item = 
-      DGraphViewItem.view_cluster 
+      view_cluster 
 	~cache:(cache_cluster cluster)
 	~view:(self :> common_view) ~cluster ~layout () 
     in
@@ -162,9 +164,9 @@ object(self)
     let (x2',y2') = self#w2c ~wx:x2 ~wy:y2 in
     let w = self#hadjustment#page_size in 
     let h = self#vadjustment#page_size in 
-    let w_zoom = w /. float (x2' - x1') in
-    let h_zoom = h /. float (y2' - y1') in
-    self#zoom_to (min w_zoom h_zoom);
+    let w_zoom = 0.99 *. w /. float (x2' - x1') in
+    let h_zoom = 0.99 *. h /. float (y2' - y1') in
+    self#zoom_to (min 1. (min w_zoom h_zoom));
     ignore $ self#scroll_to ~x:x1' ~y:y1';
 
   (* EVENTS *)
@@ -173,27 +175,46 @@ object(self)
   method private zoom_keys_ev ev =
     match GdkEvent.Key.keyval ev with
     | k when k = GdkKeysyms._KP_Subtract -> self#zoom_out (); true
-    | k when k = GdkKeysyms._KP_Add -> self#zoom_in ();  true
+    | k when k = GdkKeysyms._KP_Add -> self#zoom_in (); true
     | _ -> false
 
   (* Zoom with the mouse *)
   method private zoom_mouse_ev ev =
     match GdkEvent.Scroll.direction ev with
-    | `UP -> self#zoom_in ();  true
+    | `UP -> self#zoom_in (); true
     | `DOWN -> self#zoom_out (); true
     | _ -> false
+
+  method private highlight node =
+    node#highlight ();
+    (* Highlight successors *)
+    self#iter_succ_e (fun e -> e#highlight ()) node;
+
+  method private dehighlight node =
+    node#dehighlight ();
+    (* De-highlight successors *)
+    self#iter_succ_e (fun e -> e#dehighlight ()) node;
+
+  method connect_highlighting_event () =
+    let connect node =
+      let callback = function
+	| `MOTION_NOTIFY _ -> self#highlight node; false
+	| `LEAVE_NOTIFY _ -> self#dehighlight node; false
+	| _ -> false
+      in
+      node#connect_event ~callback
+    in
+    self#iter_nodes connect
 
   initializer
     (* Create and add items from the model vertices, edges and clusters *)
     model#iter_clusters self#add_cluster;
     model#iter_vertex self#add_vertex;
     model#iter_edges_e self#add_edge;
-
     (* Set up scroll region *)
     ignore $ self#set_scroll_region ~x1 ~y1 ~x2 ~y2;
-    let (x1',y1') = self#w2c ~wx:x1 ~wy:y1 in
+    let x1', y1' = self#w2c ~wx:x1 ~wy:y1 in
     ignore $ self#scroll_to ~x:x1' ~y:y1';
-
     (* Attach zoom events *)
     ignore $ self#event#connect#key_press self#zoom_keys_ev;
     ignore $ self#event#connect#scroll self#zoom_mouse_ev;
@@ -201,7 +222,10 @@ object(self)
 end
 
 (* Constructor copied from gnoCanvas.ml *)
-let view ?(aa=false) model ?cache_node ?cache_edge ?cache_cluster =
+let view
+    ?(aa=false) ?cache_node ?cache_edge ?cache_cluster 
+    ?border_width ?width ?height ?packing ?show
+    model =
   GContainer.pack_container [] 
     ~create:(fun pl ->
 	       let w =
@@ -210,87 +234,9 @@ let view ?(aa=false) model ?cache_node ?cache_edge ?cache_cluster =
 	       in
 	       Gobject.set_params w pl;
 	       new view ?cache_node ?cache_edge ?cache_cluster w model)
+    ?border_width ?width ?height ?packing ?show
+    ()
 
-(* VIEW CLASS AUGMENTED WITH HIGHLIGHTING AND FOCUS *)
-
-class ['v, 'e, 'c] highlight_focus_view
-  ?cache_node ?cache_edge ?cache_cluster obj model = 
-object (self)
-
-  inherit ['v, 'e, 'c] view ?cache_node ?cache_edge ?cache_cluster obj model
-    as view
-
-  initializer
-  let connect node =
-    let callback = function
-      | `MOTION_NOTIFY _ ->
-	  node#highlight ();
-	  (* Highlight successors *)
-	  self#iter_succ_e (fun e -> e#highlight ()) node;
-	  false
-      | `LEAVE_NOTIFY _ ->
-	  node#dehighlight ();
-	  (* De-highlight successors *)
-	  view#iter_succ_e (fun e -> e#dehighlight ()) node;
-	  false
-      | `TWO_BUTTON_PRESS _ -> (*node#center (); *)true
-      | _ -> false
-    in
-    node#connect_event ~callback
-  in
-  self#iter_nodes connect
-
-end
-
-let highlight_focus_view
-    ?(aa=false) model ?cache_node ?cache_edge ?cache_cluster =
-  let create pl =
-    let w =
-      if aa then GnomeCanvas.Canvas.new_canvas_aa ()
-      else GnomeCanvas.Canvas.new_canvas () 
-    in
-    Gobject.set_params w pl;
-    new highlight_focus_view ?cache_node ?cache_edge ?cache_cluster w model
-  in
-  GContainer.pack_container [] ~create
-
-(* LABELED VIEW *)
-(* View augmented with a label showing the dot name of the node under the pointer *)
-class ['v,'e,'c] labeled_view 
-  ?cache_node ?cache_edge ?cache_cluster obj model (label:GMisc.label) =
-object(self)
-  inherit ['v,'e,'c] 
-    highlight_focus_view ?cache_node ?cache_edge ?cache_cluster obj model 
-    as view
-
-  (* EVENTS *)
-  method private show_node_name node = function
-    | `ENTER_NOTIFY _ ->
-       let layout = model#get_vertex_layout node#item in
-       let name = layout.XDot.n_name in
-       label#set_text name;
-       false
-    | `LEAVE_NOTIFY _ ->
-	label#set_text "";
-	false
-    | _ -> false
-
-  initializer
-  let connect_node n = 
-    let callback = self#show_node_name n in
-    n#connect_event ~callback
-  in
-  self#iter_nodes connect_node
-end
-
-let labeled_view
-    ?(aa=false) model label ?cache_node ?cache_edge ?cache_cluster =
-  GContainer.pack_container [] ~create:(fun pl ->
-    let w =
-      if aa then GnomeCanvas.Canvas.new_canvas_aa ()
-      else GnomeCanvas.Canvas.new_canvas () in
-    Gobject.set_params w pl;
-    new labeled_view ?cache_node ?cache_edge ?cache_cluster w model label)
 (*
 (* VIEW CLASS AUGMENTED WIDTH DRAGGING *)
 (* Not really working, not exported *)

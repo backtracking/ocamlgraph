@@ -29,32 +29,55 @@ open Printf
 
 let ($) f x = f x
 
+let red_color = "#FF0000"
+let green_color = "#00FF00"
+
 (* Derived text class. *)
 class graph_text txt_obj ~size_points ~(props:GnomeCanvas.text_p list) = 
   let props = `SIZE_POINTS size_points :: props in
 object (self)
   inherit GnoCanvas.text txt_obj as text
+
   val mutable props = props
+
   method set p = 
     props <- p; 
     text#set p
+
   method init_size = size_points
+
   method highlight () = 
+    let color = ref red_color in
     let rec hi_props = function
       | [] -> []
-      | `SIZE_POINTS p :: l -> `SIZE_POINTS (max 8. (p *. 1.5)) :: hi_props l
-      | `WEIGHT d :: l -> `WEIGHT (max 800 (d * 2)) :: hi_props l
-      | `FILL_COLOR _ :: l -> l
+      | `SIZE_POINTS p :: l -> `SIZE_POINTS (max 6. (p *. 1.5)) :: hi_props l
+      | `WEIGHT d :: l -> 
+	  `WEIGHT (max 600 (int_of_float (float d *. 1.5))) :: hi_props l
+      | `FILL_COLOR c :: l -> 
+	  if c = red_color then color := green_color;
+	  hi_props l
       | p :: l -> p :: hi_props l
     in
     (* as inserted in head, `WEIGHT 800 will not apply if there is already a 
        specified weight *)
-    text#set (`FILL_COLOR "red" :: `WEIGHT 800 :: hi_props props)
+    text#set (`FILL_COLOR !color :: `WEIGHT 600 :: hi_props props)
+
   method dehighlight () = 
     (* as inserted in head, `WEIGHT 400 will not apply if there is already a 
        specified weight *)
     text#set (`WEIGHT 400 :: `FILL_COLOR "black" :: props)
+
+  method resize f =
+    let rec change = function
+      | [] -> []
+      | `SIZE_POINTS _ :: l -> `SIZE_POINTS f :: change l
+      | `FONT _ :: l -> change l
+      | p :: l -> p :: change l
+    in
+    self#set (change props)
+
   initializer text#set props
+
 end
 
 (* Constructor copied and adapted from gnoCanvas.ml *)
@@ -152,19 +175,26 @@ class shape shape init_props = object (self)
     self#set_props p
 
   method highlight () = 
+    let color = ref red_color in
     let rec hi_props = function
       | [] -> []
       | `WIDTH_UNITS u :: l -> `WIDTH_UNITS (max 3. (u *. 3.)) :: hi_props l
+      | `FILL_COLOR c as a :: l when c = red_color -> 
+	  color := green_color; 
+	  a :: hi_props l
+      | `OUTLINE_COLOR c :: l -> 
+	  if c = red_color then color := green_color;
+	  hi_props l
       | p :: l -> p :: hi_props l
     in
     (* as inserted in head, `WIDTH_UNITS 3. will not apply if there is already
        a specified weight *)
-    self#set_props (`WIDTH_UNITS 3. :: hi_props props)
+    self#set_props (`OUTLINE_COLOR !color :: `WIDTH_UNITS 3. :: hi_props props)
 
   method dehighlight () = 
     (* as inserted in head, `WIDTH_UNITS 1. will not apply if there is already
        a  specified weight *)
-    self#set_props (`WIDTH_UNITS 1. :: props)
+    self#set_props (`WIDTH_UNITS 1. :: `OUTLINE_COLOR "black" :: props)
 
   initializer self#set (complete_props init_props)
 
@@ -223,7 +253,7 @@ let bspline draw_st group pts =
 
 let text draw_st group pos align label =
   let (x,y) = XDot.conv_coord pos in
-  let size_points,font = draw_st.XDotDraw.font in
+  let size_points, font = draw_st.XDotDraw.font in
   let props = [ `FILL_COLOR draw_st.XDotDraw.pen_color ] in
   graph_text 
     group
@@ -282,7 +312,7 @@ object (self)
        | None -> ()
        | Some t ->
 	   let new_size = t#init_size *. zf in
-	   if new_size > 1.0 then t#set [ `SIZE_POINTS new_size ])
+	   t#resize new_size)
       zf
 
   method private iter f = 
@@ -319,7 +349,7 @@ object (self)
   method center () =
     self#cache
       (fun () ->
-	 let (x,y) = pos in
+	 let x, y = pos in
 	 let w = view#hadjustment#page_size /. view#zoom_factor in
 	 let h = view#vadjustment#page_size /. view#zoom_factor in
 	 let sx = x -. (w /. 2.) in
@@ -349,7 +379,7 @@ object (self)
     in
     List.iter (draw_with read_op) ops_list;
     (match text_opt with None -> () | Some t -> t#raise_to_top ());
-    List.iter (fun f -> f ()) (List.rev cached_events)
+    List.fold_right (* preserve order *) (fun f () -> f ()) cached_events ()
 
   method compute () = 
     if not computed then begin

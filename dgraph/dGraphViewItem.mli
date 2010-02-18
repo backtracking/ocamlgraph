@@ -63,6 +63,7 @@ object
   inherit textshape
   method init_size: float
     (** Initial size in points *)
+  method resize: float -> unit
 end
 
 (* View items *)

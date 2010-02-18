@@ -36,7 +36,6 @@ type state = {
   mutable window : GWindow.window;
   mutable view : DGraphViewItem.common_view option;
   mutable table : GPack.table option;
-  mutable status : GMisc.label;
 }
 
 (* Creates a scrolled graphView in a table *)
@@ -74,8 +73,7 @@ let init_state () =
      random = !random;
      window = window;
      view = None;
-     table = None;
-     status = status }
+     table = None }
 
 (* Top menu *)
 
@@ -106,10 +104,11 @@ let update_state state ~packing =
 	let frame = GBin.frame ~shadow_type:`IN () in
 	let aa = true (* anti-aliasing *) in
 	let view = 
-	  DGraphView.labeled_view
+	  DGraphView.view
 	    ~aa ~width:1280 ~height:1024 ~packing:frame#add
-	    model state.status () 
+	    model 
 	in
+	view#connect_highlighting_event ();
 	let table = scrolled_view ~packing view frame in
 	state.file <- Some file;
 	state.view <- Some (view :> DGraphViewItem.common_view);
@@ -122,10 +121,11 @@ let update_state state ~packing =
 	let frame = GBin.frame ~shadow_type:`IN () in
 	let aa = true (* anti-aliasing *) in
 	let view = 
-	  DGraphView.labeled_view
+	  DGraphView.view
 	    ~aa ~width:1280 ~height:1024 ~packing:frame#add
-	    model state.status () 
+	    model 
 	in
+	view#connect_highlighting_event ();
 	let table = scrolled_view ~packing view frame in
 	state.view <- Some (view :> DGraphViewItem.common_view);
 	state.table <- Some table;
@@ -185,7 +185,6 @@ let main () =
   let ui_m = create_menu state ~packing in
   state.window#add_accel_group ui_m#get_accel_group ;
   vbox#pack ~expand:false (ui_m#get_widget "/MenuBar");
-  vbox#pack (state.status :> GObj.widget);
   ignore $ state.window#connect#destroy ~callback:GMain.Main.quit;
   if debug then printf "GUI built, time: %f\n" (Sys.time ());
   update_state state ~packing;

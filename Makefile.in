@@ -185,7 +185,7 @@ DGRAPH_CMO=xDotDraw xDot dGraphModel dGraphViewItem \
 	dGraphView dGraphRandModel dGraphViewer
 DGRAPH_CMO:=$(patsubst %,$(DGRAPH_DIR)/%.cmo, $(DGRAPH_CMO))
 DGRAPH_CMX=$(DGRAPH_CMO:.cmo=.cmx)
-DGRAPH_CMI=$(DGRAPH_CMO:.cmo=.cmi)
+DGRAPH_CMI=$(filter-out dgraph/dGraphViewer.cmi, $(DGRAPH_CMO:.cmo=.cmi))
 
 DGRAPH_INCLUDES= @INCLUDEGTK2@ -I $(DGRAPH_DIR) $(INCLUDES) -I .
 
@@ -356,12 +356,15 @@ NODOC	= blocks dot_parser dot_lexer version
 NODOC	:= $(patsubst %, $(SRCDIR)/%.cmo, $(NODOC))
 DOC_CMO	= $(filter-out $(NODOC) $(LIB), $(CMO))
 DOC_SRC	= $(CMI:.cmi=.mli) $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
+ifeq (@LABLGNOMECANVAS@,yes)
+DOC_SRC := $(DOC_SRC) $(DGRAPH_CMI:.cmi=.mli)
+endif
 
 .PHONY: doc
 doc: $(DOC_CMO)
 	mkdir -p doc
 	rm -f doc/*
-	$(OCAMLDOC) -d doc -html $(INCLUDES) $(DOC_SRC)
+	$(OCAMLDOC) -d doc -html $(DGRAPH_INCLUDES) $(DOC_SRC)
 
 # literate programming
 $(NAME).tex: $(DOC_SRC)
