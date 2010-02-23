@@ -253,6 +253,10 @@ module type I = sig
         implementations).  The graph grows as needed, so [size] is
         just an initial guess. *)
 
+  val clear: t -> unit
+    (** Remove all vertices and edges from the given graph. 
+	@since ocamlgraph 1.4 *)
+
   val copy : t -> t
     (** [copy g] returns a copy of [g]. Vertices and edges (and eventually
 	marks, see module [Mark]) are duplicated. *)

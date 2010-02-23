@@ -108,7 +108,8 @@ module Matrix : sig
         Thus [make] must be used instead of [create]. *)
     val make : int -> t
 
-    (** Note: [add_vertex] and [remove_vertex] have no effect. *)
+  (** Note: [add_vertex] and [remove_vertex] have no effect. 
+      [clear] only removes edges, not vertices. *)
 
   end
 

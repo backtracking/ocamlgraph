@@ -51,6 +51,7 @@ module type HM = sig
   val create : ?size:int -> unit -> 'a t
   val create_from : 'a t -> 'a t
   val empty : 'a return
+  val clear: 'a t -> unit
   val is_empty : 'a t -> bool
   val add : key -> 'a -> 'a t -> 'a t
   val remove : key -> 'a t -> 'a t
@@ -108,6 +109,9 @@ module Make_Map(X: COMPARABLE) = struct
   let copy m = m
   let map f m = fold (fun k v m -> let k, v = f k v in add k v m) m empty
   let find_and_raise k h s = try find k h with Not_found -> invalid_arg s
+  let clear _ = assert false
+    (* never call and not visible for the user thank's to 
+       signature constraints *)
 end
 
 (* ************************************************************************* *)
@@ -124,6 +128,7 @@ module Minimal(S: Set.S)(HM: HM) = struct
   let create = HM.create
   let is_empty = HM.is_empty
   let copy = HM.copy
+  let clear = HM.clear
 
   let nb_vertex g = HM.fold (fun _ _ -> succ) g 0
   let nb_edges g = HM.fold (fun _ s n -> n + S.cardinal s) g 0
@@ -381,6 +386,7 @@ module Make_Abstract
      val unsafe_remove_edge: t -> vertex -> vertex -> t
      val unsafe_remove_edge_e: t -> edge -> t
      val create: ?size:int -> unit -> t
+     val clear: t -> unit
    end) = 
 struct
 
@@ -404,6 +410,7 @@ struct
     let fold_edges_e f g = G.fold_edges_e f g.edges
     let mem_vertex v g = G.mem_vertex g.edges v
     let create ?size () = { edges = G.create ?size (); size = 0 }
+    let clear g = G.clear g.edges; g.size <- 0
   end
   include I
 
@@ -475,6 +482,7 @@ module BidirectionalMinimal(S:Set.S)(HM:HM) = struct
   let is_directed = true
   let empty = HM.empty
   let create = HM.create
+  let clear = HM.clear
   let is_empty = HM.is_empty
   let copy = HM.copy
 
@@ -768,7 +776,9 @@ module Make(F : TBL_BUILDER) = struct
 
     end
 
-    module ConcreteBidirectionalLabeled(V: COMPARABLE)(Edge: ORDERED_TYPE_DFT) = struct
+    module ConcreteBidirectionalLabeled
+      (V: COMPARABLE)(Edge: ORDERED_TYPE_DFT) = 
+    struct
       include ConcreteVertex(F)(V)
       include BidirectionalLabeled(V)(Edge)(HM)
       include BidirectionalMinimal(S)(HM)
@@ -815,6 +825,7 @@ module Graph
   (G: sig 
      include Sig.G 
      val create: ?size:int -> unit -> t
+     val clear: t -> unit
      val copy: t -> t
      type return
      val add_vertex: t -> vertex -> return

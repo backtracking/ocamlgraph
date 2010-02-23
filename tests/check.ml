@@ -76,7 +76,8 @@ module Generic = struct
       G.remove_vertex g v2;
       assert (G.nb_vertex g = 1 && G.nb_edges g = 0);
       test_mirror g;
-      ()
+      G.clear g;
+      assert (G.nb_vertex g = 0 && G.nb_edges g = 0)
 
   end
 

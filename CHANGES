@@ -1,4 +1,5 @@
 
+ o add function [clear] for imperative graphs
  o new implementation Imperative.Digraph.ConcreteBidirectionalLabeled
    (contribution of Jaap Boender)
  o Dgraph displays graphs faster

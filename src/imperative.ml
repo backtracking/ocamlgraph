@@ -391,7 +391,7 @@ module Matrix = struct
     let create ?size () = 
       failwith 
 	"[ocamlgraph] do not use Matrix.create; please use Matrix.make instead"
-		      
+
     let make n =
       if n < 0 then invalid_arg "[ocamlgraph] Matrix.make";
       Array.init n (fun _ -> Bitv.create n false)
@@ -422,6 +422,9 @@ module Matrix = struct
 				  
     let remove_vertex g _ = ()
     let add_vertex g _ = ()
+		      
+    let clear g = 
+      Array.iter (fun b -> Bitv.iteri (fun j _ -> Bitv.set b j false) b) g
 			   
     let copy g = Array.init (nb_vertex g) (fun i -> Bitv.copy g.(i))
 		   
