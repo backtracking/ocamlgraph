@@ -74,9 +74,8 @@ class type common_view = object
   method adapt_zoom : unit -> unit
 end
 
-(** ViewItem class
-    Group of shapes and texts
-*)
+(** ViewItem class.
+    Group of shapes and texts *)
 class ['a ] view_item :
   cache:bool ->
   view:common_view ->

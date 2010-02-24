@@ -31,34 +31,29 @@ let ($) f x = f x
 let debug = false
 
 type state = {
-  mutable file : string option;
-  mutable random : bool;
-  mutable window : GWindow.window;
-  mutable view : DGraphViewItem.common_view option;
-  mutable table : GPack.table option;
+  mutable file: string option;
+  mutable random: bool;
+  mutable window: GWindow.window;
+  mutable view: DGraphViewItem.common_view option;
+  mutable scroll: GBin.scrolled_window option
 }
 
-(* Creates a scrolled graphView in a table *)
-let scrolled_view ~packing view frame =
-  ignore $ view#set_center_scroll_region true;
-  let table = GPack.table ~packing
-                ~rows:2 ~columns:2 ~row_spacings:4 ~col_spacings:4 () in
-  ignore $ table#attach ~left:0 ~right:1 ~top:0 ~bottom:1
-           ~expand:`BOTH ~fill:`BOTH ~shrink:`BOTH ~xpadding:0 ~ypadding:0
-           frame#coerce;
-  let w = GRange.scrollbar `HORIZONTAL ~adjustment:view#hadjustment () in
-  ignore $ table#attach ~left:0 ~right:1 ~top:1 ~bottom:2
-            ~expand:`X ~fill:`BOTH ~shrink:`X ~xpadding:0 ~ypadding:0
-            w#coerce;
-  let w = GRange.scrollbar `VERTICAL ~adjustment:view#vadjustment () in
-  ignore $ table#attach ~left:1 ~right:2 ~top:0 ~bottom:1
-            ~expand:`Y ~fill:`BOTH ~shrink:`Y ~xpadding:0 ~ypadding:0 
-            w#coerce;
-  table
+let scrolled_view ~packing model =
+  let scroll =
+    GBin.scrolled_window ~packing ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ()
+  in
+  let view = DGraphView.view ~aa:true ~packing:scroll#add model in
+  ignore (view#set_center_scroll_region true);
+  view#connect_highlighting_event ();
+  (view :> DGraphViewItem.common_view), scroll
 
 let init_state () = 
-   let window = GWindow.window ~title:"Graph Widget"
-                 ~allow_shrink:true ~allow_grow:true () in
+   let window = 
+     GWindow.window
+       ~width:1280 ~height:1024
+       ~title:"Graph Widget"
+       ~allow_shrink:true ~allow_grow:true () 
+   in
    let status = GMisc.label ~markup:"" () in
    status#set_use_markup true;
    let random = ref false in
@@ -73,7 +68,7 @@ let init_state () =
      random = !random;
      window = window;
      view = None;
-     table = None }
+     scroll = None }
 
 (* Top menu *)
 
@@ -88,51 +83,32 @@ let menu_desc = "<ui>\
 </ui>"
 
 let update_state state ~packing =
-  begin match state.table with
-    | None -> ()
-    | Some t -> t#destroy ()
-  end;
-  match state.file with	
-    | Some file ->
-	if debug then printf "Building Model...\n";
-	let model = 
-	  if Filename.check_suffix file "xdot" then
-	    DGraphModel.read_xdot file
-	  else
-	    DGraphModel.read_dot ~cmd:"dot" file in
-	if debug then printf "Building View...\n";
-	let frame = GBin.frame ~shadow_type:`IN () in
-	let aa = true (* anti-aliasing *) in
-	let view = 
-	  DGraphView.view
-	    ~aa ~width:1280 ~height:1024 ~packing:frame#add
-	    model 
-	in
-	view#connect_highlighting_event ();
-	let table = scrolled_view ~packing view frame in
-	state.file <- Some file;
-	state.view <- Some (view :> DGraphViewItem.common_view);
-	state.table <- Some table;
-	state.window#show ();
-	view#misc#show ();
-	ignore $ view#adapt_zoom ()
-    | None when state.random ->
-	let model = DGraphRandModel.create () in	
-	let frame = GBin.frame ~shadow_type:`IN () in
-	let aa = true (* anti-aliasing *) in
-	let view = 
-	  DGraphView.view
-	    ~aa ~width:1280 ~height:1024 ~packing:frame#add
-	    model 
-	in
-	view#connect_highlighting_event ();
-	let table = scrolled_view ~packing view frame in
-	state.view <- Some (view :> DGraphViewItem.common_view);
-	state.table <- Some table;
-	state.window#show ();
-	view#misc#show ();
-	(* ignore $ view#adapt_zoom () *)
-    | None -> ()
+  (match state.scroll with None -> () | Some t -> t#destroy ());
+  try
+    let view, scroll = match state.file with	
+      | Some file ->
+	  if debug then printf "Building Model...\n";
+	  let model =
+	    if Filename.check_suffix file "xdot" then
+	      DGraphModel.read_xdot file
+	    else
+	      DGraphModel.read_dot ~cmd:"dot" file
+	  in
+	  state.file <- Some file;
+	  scrolled_view ~packing model
+      | None when state.random ->
+	  state.file <- None;
+	  scrolled_view ~packing (DGraphRandModel.create ())
+      | None ->
+	  raise Not_found
+    in
+    if debug then printf "Building View...\n";
+    state.view <- Some view;
+    state.scroll <- Some scroll;
+    state.window#show ();
+    view#misc#show ()
+  with Not_found ->
+    if debug then printf "No model\n"
 
 let all_files () =
   let f = GFile.filter ~name:"All" () in
@@ -140,10 +116,12 @@ let all_files () =
   f
 
 let open_file state ~packing () = 
-  let dialog = GWindow.file_chooser_dialog 
-    ~action:`OPEN
-    ~title:"Open File"
-    ~parent:state.window () in
+  let dialog = 
+    GWindow.file_chooser_dialog 
+      ~action:`OPEN
+      ~title:"Open File"
+      ~parent:state.window () 
+  in
   dialog#add_button_stock `CANCEL `CANCEL ;
   dialog#add_select_button_stock `OPEN `OPEN ;
   dialog#add_filter (all_files ()) ;
