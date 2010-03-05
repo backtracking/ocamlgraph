@@ -77,6 +77,7 @@ end
 (** ViewItem class.
     Group of shapes and texts *)
 class ['a ] view_item :
+  fill:bool ->
   cache:bool ->
   view:common_view ->
   pos:float * float ->

@@ -160,7 +160,7 @@ let complete_props props =
 
 (* Shape class (either a rect, an ellipse, a polygon or a path).
    Uses a properties queue to undo changes *)
-class shape shape init_props = object (self) 
+class shape ~fill shape init_props = object (self) 
 
   inherit GnoCanvas.base_item (shape_item shape)
 
@@ -181,9 +181,9 @@ class shape shape init_props = object (self)
     let rec hi_props = function
       | [] -> []
       | `WIDTH_UNITS u :: l -> `WIDTH_UNITS (max 3. (u *. 3.)) :: hi_props l
-      | `FILL_COLOR c as a :: l when c = red_color -> 
-	  color := green_color; 
-	  a :: hi_props l
+      | `FILL_COLOR c :: l when fill -> 
+	  if c = red_color then color := green_color; 
+	  hi_props l
       | `OUTLINE_COLOR c :: l -> 
 	  if c = red_color then color := green_color;
 	  hi_props l
@@ -191,24 +191,27 @@ class shape shape init_props = object (self)
     in
     (* as inserted in head, `WIDTH_UNITS 3. will not apply if there is already
        a specified weight *)
-    self#set_props (`OUTLINE_COLOR !color :: `WIDTH_UNITS 3. :: hi_props props)
+    let props = hi_props props in
+    let props = if fill then `FILL_COLOR !color :: props else props in
+    self#set_props (`OUTLINE_COLOR !color :: `WIDTH_UNITS 3. :: props)
 
   method dehighlight () = 
     (* as inserted in head, `WIDTH_UNITS 1. will not apply if there is already
        a  specified weight *)
+    let props = if fill then `FILL_COLOR "black" :: props else props in
     self#set_props (`WIDTH_UNITS 1. :: `OUTLINE_COLOR "black" :: props)
 
   initializer self#set (complete_props init_props)
 
 end
 
-let ellipse draw_st group pos w h =
+let ellipse ~fill draw_st group pos w h =
   let((x1,y1), (x2,y2)) = XDot.bounding_box pos w h in
   let props = [ pen_color draw_st; fill_color draw_st ] in
   let ellip = GnoCanvas.ellipse group ~x1 ~y1 ~x2 ~y2 ~props in
-  new shape (SEllipse ellip) props
+  new shape ~fill (SEllipse ellip) props
 
-let polygon draw_st group pts =
+let polygon ~fill draw_st group pts =
   let base_props = [ pen_color draw_st; fill_color draw_st ] in
   let fold_sty_attr props = function
     | Dashed -> `DASH (0., [|10.|]) :: props
@@ -218,7 +221,7 @@ let polygon draw_st group pts =
   let props = List.fold_left fold_sty_attr base_props draw_st.style in
   let points = flatten_points pts in
   let poly = GnoCanvas.polygon group ~points ~props in
-  new shape (SPolygon poly) props
+  new shape ~fill (SPolygon poly) props
 
 let pathdef pts = 
   if List.length pts mod 3 = 1 then
@@ -239,7 +242,7 @@ let pathdef pts =
     (* failwith "Cannot build pathdef" *)
     assert false
 
-let bspline draw_st group pts =
+let bspline ~fill draw_st group pts =
   let path = 
     pathdef (Array.fold_right (fun p acc -> XDot.conv_coord p :: acc) pts []) 
   in
@@ -251,7 +254,7 @@ let bspline draw_st group pts =
   in
   let props = List.fold_left fold_sty_attr base_props draw_st.style in
   let bpath = GnoCanvas.bpath group ~bpath:path ~props in
-  new shape (SBSpline bpath) props
+  new shape ~fill (SBSpline bpath) props
 
 let text draw_st group pos align label =
   let size_points, font = draw_st.XDotDraw.font in
@@ -291,7 +294,8 @@ end
    ~pos : center of the container
    ~ops_list : list of list of operations
    ~hl_vip : highlight properties, set when method highlight is called *)
-class [ 'a ] view_item ~cache ~(view: common_view) ~pos ~ops_list ~(item:'a) = 
+class [ 'a ] view_item ~fill ~cache ~(view: common_view) ~pos ~ops_list
+  ~(item:'a) = 
 object (self)
 
   inherit GnoCanvas.group view#root#as_group
@@ -371,11 +375,11 @@ object (self)
 	(* Create shapes *)
       | XDotDraw.Filled_ellipse (pos, w, h)
       | XDotDraw.Unfilled_ellipse (pos, w, h) -> 
-	  shapes <- ellipse draw_st self pos w h :: shapes
+	  shapes <- ellipse ~fill draw_st self pos w h :: shapes
       | XDotDraw.Filled_polygon pts | XDotDraw.Unfilled_polygon pts ->
-	  shapes <- polygon draw_st self pts :: shapes
+	  shapes <- polygon ~fill draw_st self pts :: shapes
       | XDotDraw.Bspline pts | XDotDraw.Filled_bspline pts ->
-	  shapes <- bspline draw_st self pts :: shapes
+	  shapes <- bspline ~fill draw_st self pts :: shapes
       | XDotDraw.Text (pos, align, _, label) ->
 	  text_opt <- Some (text draw_st self pos align label)
       | _ -> () 
@@ -402,7 +406,9 @@ end
 let view_node ~cache ~view ~vertex ~layout () = 
   let pos = layout.n_pos in
   let ops_list = [ layout.n_ldraw; layout.n_draw ] in
-  let view = new view_item ~cache ~view ~pos ~ops_list ~item:vertex in
+  let view = 
+    new view_item ~fill:false ~cache ~view ~pos ~ops_list ~item:vertex 
+  in
   view
 
 let view_edge ~cache ~view ~edge ~layout () = 
@@ -412,12 +418,14 @@ let view_edge ~cache ~view ~edge ~layout () =
       layout.e_tldraw; layout.e_hldraw;
       layout.e_tdraw; layout.e_hdraw    ] 
   in
-  let view = new view_item ~cache ~view ~pos ~ops_list ~item:edge in
+  let view = new view_item ~fill:true ~cache ~view ~pos ~ops_list ~item:edge in
   view
 
 let view_cluster ~cache ~view ~cluster ~layout () =
   let pos = layout.c_pos in
   let ops_list = [ layout.c_ldraw; layout.c_draw ] in
-  let view = new view_item ~cache ~pos ~ops_list ~view ~item:cluster in
+  let view = 
+    new view_item ~fill:false ~cache ~pos ~ops_list ~view ~item:cluster 
+  in
   view#lower_to_bottom ();
   view
