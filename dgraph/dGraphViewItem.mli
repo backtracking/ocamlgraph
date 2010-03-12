@@ -22,9 +22,11 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open GnoCanvas
+(** View items for the different elements of a graph. *)
 
-(* Shape *)
+(* ********************************************************************** *)
+(** {2 Shape} *)
+(* ********************************************************************** *)
 
 (** Shape properties *)
 type shape_p = [ `FILL_COLOR of string
@@ -33,15 +35,24 @@ type shape_p = [ `FILL_COLOR of string
 	       | `DASH of float * float array ]
 
 class type textshape = object
-  method highlight: unit -> unit
+
+  method highlight: ?color:string * string -> unit -> unit
+    (** Change the color of the text. May be cancelled by [dehighlight].
+	If [color] is [primary,secondary], then
+	[primary] is used except if the current color is [primary]. In this
+	case, [secondary] is used. *)
+
   method dehighlight: unit -> unit
+    (** Cancel [highlight]. *)
+
   method hide: unit -> unit
   method show: unit -> unit
   method lower_to_bottom: unit -> unit
-  method connect: 
+  method connect:
     < event : callback:(GnoCanvas.item_event -> bool) -> GtkSignal.id;
     after : GnoCanvas.item_signals;
     destroy : callback:(unit -> unit) -> GtkSignal.id; >
+
 end
 
 class type shape = object
@@ -51,7 +62,9 @@ class type shape = object
   method set: shape_p list -> unit
 end
 
-(* Text *)
+(* ********************************************************************** *)
+(** {2 Text} *)
+(* ********************************************************************** *)
 
 (** Derived text class. *)
 class graph_text :
@@ -59,17 +72,19 @@ class graph_text :
   size_points:float ->
   props:GnomeCanvas.text_p list ->
 object
-  inherit text
+  inherit GnoCanvas.text
   inherit textshape
   method init_size: float
     (** Initial size in points *)
   method resize: float -> unit
 end
 
-(* View items *)
+(* ********************************************************************** *)
+(** {2 View items} *)
+(* ********************************************************************** *)
 
 class type common_view = object
-  inherit canvas
+  inherit GnoCanvas.canvas
   method zoom_factor : float
   method adapt_zoom : unit -> unit
 end
@@ -78,27 +93,35 @@ end
     Group of shapes and texts *)
 class ['a ] view_item :
   fill:bool ->
-  cache:bool ->
+  delay:bool (** May the item be displayed non instantaneously? *) ->
   view:common_view ->
   pos:float * float ->
   ops_list:XDotDraw.operation list list ->
   item:'a ->
 object
-  inherit group
+  inherit GnoCanvas.group
   method item: 'a
   method zoom_text: float -> unit
-  method highlight : unit -> unit
-  method dehighlight : unit -> unit
+
+  method highlight: ?color:string * string -> unit -> unit
+    (** Change the color of the item. May be cancelled by [dehighlight].
+	If [color] is [primary,secondary], then
+	[primary] is used except if the current color is [primary]. In this
+	case, [secondary] is used. *)
+
+  method dehighlight: unit -> unit
+    (** Cancel [highlight]. *)
+
   method show : unit -> unit
   method hide : unit -> unit
   method center : unit -> unit
   method connect_event: callback:(GnoCanvas.item_event -> bool) -> unit
-  method compute: unit -> unit (** apply all cached operations *)
+  method compute: unit -> unit (** apply all delayed operations *)
   method lower_to_bottom: unit -> unit
 end
 
 val view_node:
-  cache:bool ->
+  delay:bool ->
   view:common_view ->
   vertex:'vertex ->
   layout:XDot.node_layout ->
@@ -106,7 +129,7 @@ val view_node:
   'vertex view_item
 
 val view_edge:
-  cache:bool ->
+  delay:bool ->
   view:common_view ->
   edge:'edge ->
   layout:XDot.edge_layout ->
@@ -114,7 +137,7 @@ val view_edge:
   'edge view_item
 
 val view_cluster:
-  cache:bool ->
+  delay:bool ->
   view:common_view ->
   cluster:'cluster ->
   layout:XDot.cluster_layout ->

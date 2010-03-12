@@ -24,36 +24,36 @@
 
 (** View classes.
 
-    Each optional function [cache_node], [cache_edge] and [cache_cluster] of
+    Each optional function [delay_node], [delay_edge] and [delay_cluster] of
     this module may be used to indicate whether an element must be displayed
-    immediatly (if the function returns [false]) or only cached and displayed
-    latter (if the function returns [true]). By default, each function always
-    returns [false]. It may be set for improving efficiency. *)
+    instantaneously (if the function returns [false]) or may be delayed for
+    latter display (if the function returns [true]). By default, each function
+    always returns [false]. It may be set for returning [true] from time to
+    time, improving efficiency. *)
 
-open DGraphModel
 open DGraphViewItem
-open GnoCanvas
 
-(** Simple widget derived from the Gnome Canvas
-    Supports zooming and scrolling. *)
+(** Graph widget derived from [GnoCanvas.canvas].
+    Support zooming and scrolling. *)
 class ['vertex, 'edge, 'cluster] view:
-  ?cache_node:('vertex -> bool) ->
-  ?cache_edge:('edge -> bool) ->
-  ?cache_cluster:('cluster -> bool) ->
+  ?delay_node:('vertex -> bool) ->
+  ?delay_edge:('edge -> bool) ->
+  ?delay_cluster:('cluster -> bool) ->
   GnomeCanvas.canvas Gtk.obj ->
   ('vertex, 'edge, 'cluster) DGraphModel.abstract_model ->
 object
-  inherit canvas
-    
-  (** Model from DGraphModel *)
+  inherit GnoCanvas.canvas
+
   method model : ('vertex, 'edge, 'cluster) DGraphModel.abstract_model
-    
-  (** Getters *)
+
+  (** {2 Getters} *)
+
   method get_node : 'vertex -> 'vertex view_item
   method get_edge : 'edge -> 'edge view_item
   method get_cluster : 'cluster -> 'cluster view_item
 
-  (** Iterators *)
+  (** {2 Iterators} *)
+
   method iter_nodes:  ('vertex view_item -> unit) -> unit
   method iter_edges: ('vertex view_item -> 'vertex view_item -> unit) -> unit
   method iter_edges_e:  ('edge view_item -> unit) -> unit
@@ -64,11 +64,14 @@ object
   method iter_succ_e: ('edge view_item -> unit) -> 'vertex view_item -> unit
   method iter_pred_e: ('edge view_item -> unit) -> 'vertex view_item -> unit
 
-  (** Membership functions *)
+  (** {2 Membership functions} *)
+
   method mem_edge: 'vertex view_item -> 'vertex view_item -> bool
   method find_edge: 'vertex view_item -> 'vertex view_item -> 'edge view_item
   method src: 'edge view_item -> 'vertex view_item
   method dst: 'edge view_item -> 'vertex view_item
+
+  (** {2 Zooming} *)
 
   method zoom_factor : float
   method zoom_to : float -> unit
@@ -76,24 +79,35 @@ object
   method zoom_out : unit -> unit
   method adapt_zoom : unit -> unit
 
+  (** {2 Highlighting} *)
+
   method connect_highlighting_event: unit -> unit
-  method private highlight: 'vertex view_item -> unit
-  method private dehighlight: 'vertex view_item -> unit
+
+  method highlight: ?color:string * string -> 'vertex view_item -> unit
+    (** Change the color of the given vertex item.
+	May be cancelled by [dehighlight].
+	If [color] is [primary,secondary], then
+	[primary] is used except if the current color is [primary]. In this
+	case, [secondary] is used. *)
+
+  method dehighlight: 'vertex view_item -> unit
+    (** Cancel [highlight]. *)
+
 end
 
 val view:
   ?aa:bool (** Anti-aliasing *) ->
-  ?cache_node:('vertex -> bool) ->
-  ?cache_edge:('edge -> bool) ->
-  ?cache_cluster:('cluster -> bool) ->
+  ?delay_node:('vertex -> bool) ->
+  ?delay_edge:('edge -> bool) ->
+  ?delay_cluster:('cluster -> bool) ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->
   ?packing:(GObj.widget -> unit) ->
-  ?show:bool -> 
+  ?show:bool ->
   ('vertex, 'edge, 'cluster) DGraphModel.abstract_model ->
   ('vertex, 'edge, 'cluster) view
-  (** View as a Gnome Canvas. 
+  (** View as a Gnome Canvas.
       Support zooming and scrolling. *)
 
 (* Same widget augmented with highlighting, focus

@@ -30,14 +30,12 @@ let ($) f x = f x
 (** View from a model *)
 (* ************************************************************************* *)
 
-let do_nothing _ = false
-
 (* Widget derived from Gnome Canvas.
    Supports zooming and scrolling *)
-class ['v, 'e, 'c] view
-  ?(cache_node=do_nothing) ?(cache_edge=do_nothing) ?(cache_cluster=do_nothing)
-  obj (model : ('v, 'e, 'c) DGraphModel.abstract_model) 
+class ['v, 'e, 'c] view ?delay_node ?delay_edge ?delay_cluster
+  obj (model : ('v, 'e, 'c) DGraphModel.abstract_model)
   =
+  let delay f v = match f with None -> false | Some f -> f v in
   let (x1, y2), (x2, y1) = model#bounding_box in
 object(self)
 
@@ -51,49 +49,49 @@ object(self)
   val cluster_hash : ('c, 'c view_item) Hashtbl.t = Hashtbl.create 17
 
   (* Canvas items creation *)
-    
+
   method private add_vertex vertex =
     try
       let layout = model#get_vertex_layout vertex in
-      let item = 
-	view_node 
-	  ~cache:(cache_node vertex)
-	  ~view:(self :> common_view) ~vertex ~layout () 
+      let item =
+	view_node
+	  ~delay:(delay delay_node vertex)
+	  ~view:(self :> common_view) ~vertex ~layout ()
       in
       Hashtbl.add node_hash vertex item
-    with Not_found -> 
+    with Not_found ->
       assert false
 
   method private add_edge edge =
     try
       let layout = model#get_edge_layout edge in
-      let item = 
-	view_edge 
-	  ~cache:(cache_edge edge)
-	  ~view:(self:>common_view) ~edge ~layout () 
+      let item =
+	view_edge
+	  ~delay:(delay delay_edge edge)
+	  ~view:(self:>common_view) ~edge ~layout ()
       in
       Hashtbl.add edge_hash edge item
-    with Not_found -> 
+    with Not_found ->
       assert false
 
   method private add_cluster cluster =
     let layout = model#get_cluster_layout cluster in
-    let item = 
-      view_cluster 
-	~cache:(cache_cluster cluster)
-	~view:(self :> common_view) ~cluster ~layout () 
+    let item =
+      view_cluster
+	~delay:(delay delay_cluster cluster)
+	~view:(self :> common_view) ~cluster ~layout ()
     in
     Hashtbl.add cluster_hash cluster item
-      
+
   (* From model to view items *)
 
-  method get_node n = 
+  method get_node n =
     try Hashtbl.find node_hash n with Not_found -> assert false
 
   method get_edge e =
     try Hashtbl.find edge_hash e with Not_found -> assert false
 
-  method get_cluster c = 
+  method get_cluster c =
     try Hashtbl.find cluster_hash c with Not_found -> assert false
 
   (* Iterate on nodes and edges *)
@@ -162,8 +160,8 @@ object(self)
   method adapt_zoom () =
     let (x1',y1') = self#w2c ~wx:x1 ~wy:y1 in
     let (x2',y2') = self#w2c ~wx:x2 ~wy:y2 in
-    let w = self#hadjustment#page_size in 
-    let h = self#vadjustment#page_size in 
+    let w = self#hadjustment#page_size in
+    let h = self#vadjustment#page_size in
     let w_zoom = 0.99 *. w /. float (x2' - x1') in
     let h_zoom = 0.99 *. h /. float (y2' - y1') in
     self#zoom_to (min 1. (min w_zoom h_zoom));
@@ -185,15 +183,17 @@ object(self)
     | `DOWN -> self#zoom_out (); true
     | _ -> false
 
-  method private highlight node =
-    node#highlight ();
-    (* Highlight successors *)
-    self#iter_succ_e (fun e -> e#highlight ()) node;
+  method highlight ?color node =
+    let h e = e#highlight ?color () in
+    h node;
+    self#iter_succ_e h node;
+    self#iter_pred_e h node
 
-  method private dehighlight node =
-    node#dehighlight ();
-    (* De-highlight successors *)
-    self#iter_succ_e (fun e -> e#dehighlight ()) node;
+  method dehighlight node =
+    let h e = e#dehighlight () in
+    h node;
+    self#iter_succ_e h node;
+    self#iter_pred_e h node
 
   method connect_highlighting_event () =
     let connect node =
@@ -223,17 +223,17 @@ end
 
 (* Constructor copied from gnoCanvas.ml *)
 let view
-    ?(aa=false) ?cache_node ?cache_edge ?cache_cluster 
+    ?(aa=false) ?delay_node ?delay_edge ?delay_cluster
     ?border_width ?width ?height ?packing ?show
     model =
-  GContainer.pack_container [] 
+  GContainer.pack_container []
     ~create:(fun pl ->
 	       let w =
 		 if aa then GnomeCanvas.Canvas.new_canvas_aa ()
-		 else GnomeCanvas.Canvas.new_canvas () 
+		 else GnomeCanvas.Canvas.new_canvas ()
 	       in
 	       Gobject.set_params w pl;
-	       new view ?cache_node ?cache_edge ?cache_cluster w model)
+	       new view ?delay_node ?delay_edge ?delay_cluster w model)
     ?border_width ?width ?height ?packing ?show
     ()
 
@@ -243,12 +243,12 @@ let view
 class ['v, 'e, 'c] drag_view obj model =
 object(self)
   inherit ['v, 'e, 'c] highlight_focus_view obj model
-    
+
   val mutable drag = false
   val mutable prev_pos = (0.,0.)
 
   (* EVENTS *)
-    
+
   method private drag_start button =
     if not drag then begin
       drag <- true;
@@ -260,7 +260,7 @@ object(self)
 
   method private drag_end _button =
     if drag then begin
-      drag <- false;  
+      drag <- false;
     end;
     false
 

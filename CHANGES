@@ -1,5 +1,5 @@
 
- o add function [clear] for imperative graphs
+ o new function [clear] for imperative graphs
  o new implementation Imperative.Digraph.ConcreteBidirectionalLabeled
    (contribution of Jaap Boender)
  o Dgraph displays graphs faster
@@ -20,12 +20,12 @@ version 1.3, Octobre 2nd, 2009
  o Dgraph is now packed in a single module Dgraph (break compatibility with
    previous version)
  o Makefile: fixed bug when the installation directory of binaries does not
-             exist 
+             exist
  o Makefile: fixed bug of ocamldep under Windows
 
 version 1.2, August 31, 2009
 ----------------------------
- o experimental: new GTK-based graph viewer called Dgraph 
+ o experimental: new GTK-based graph viewer called Dgraph
    (viewGraph is now deprecated)
  o added Delaunay.iter_triangles (not of use in Ocamlgraph, actually)
 
@@ -43,21 +43,21 @@ version 1.0, October 14th, 2008
 -------------------------------
  o license: LGPL updated to version 2.1
  o ocamlgraph now requires ocaml 3.10 or higher
- o experimental: GTK-based graph viewer based on dot 
+ o experimental: GTK-based graph viewer based on dot
    (contribution of Anne Pacalet)
- o Makefile: 
+ o Makefile:
      - fixed bug when lablgnomecanvas is not installed
      - fixed bug when ocamlfind is installed
      - patch to the build system for a DESTDIR (patch by Igor Galic)
      - "make -j" compliant
  o new function Blocks.after_unserialization in order to be able to safely
    serialize abstract vertices (see the FAQ)
- o Dot: 
+ o Dot:
      - fixed bug in the parsing of attributes
      - fixed bug in the parsing of subgraphs (patch by Anne Pacalet)
  o Oper: fixed bug in intersect
  o Path: improved efficiency of Dijkstra
- o Topological: 
+ o Topological:
      - fixed bug in Make.{iter,fold}
      - folding is now tail-recursive (patch by Michael Furr)
 
@@ -68,13 +68,13 @@ version 0.99c, April 3rd, 2008
 
 version 0.99b, December 18th, 2007
 ----------------------------------
- o fixed link bug with ocaml 3.09 
+ o fixed link bug with ocaml 3.09
    (see http://caml.inria.fr/mantis/view.php?id=4124)
 
 version 0.99a, November 21st, 2007
 ---------------------------------
  o fixed bug in Makefile when lablgtk2 is not installed
- o Sig.I.create and Sig_pack.create are now of type ?size:int -> unit -> t 
+ o Sig.I.create and Sig_pack.create are now of type ?size:int -> unit -> t
    (instead of unit -> t) to indicate an initial guess on the graph size
 
 version 0.99, June 27th, 2007
@@ -92,7 +92,7 @@ version 0.99, June 27th, 2007
 version 0.98, Sep 27th, 2006
 ----------------------------
  o rename Sig.IA to Sig.IM
- o add subgraph support in Graphviz 
+ o add subgraph support in Graphviz
    (breaks ascendent compatibility if you use Graphviz: by default add
       let get_subgraph _ = None
    in the argument of Graphviz.Dot and Graphviz.Neato)
@@ -114,7 +114,7 @@ version 0.96, May 2nd, 2006
 version 0.95, November 2nd, 2005
 --------------------------------
  o compatibility with ocaml 3.09
- o new module Path.Check to check for paths 
+ o new module Path.Check to check for paths
 
 version 0.94, July 6th, 2005
 ----------------------------
@@ -204,6 +204,6 @@ version 0.50, Feb 4th, 2004
 ---------------------------
  o first release
 
-Local Variables: 
+Local Variables:
 mode: text
-End: 
+End:
