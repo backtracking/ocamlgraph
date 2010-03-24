@@ -1,4 +1,6 @@
 
+version 1.4, March 24, 2010
+--------------------------- 
  o new function [clear] for imperative graphs
  o new implementation Imperative.Digraph.ConcreteBidirectionalLabeled
    (contribution of Jaap Boender)
@@ -7,8 +9,8 @@
  o several API changes in DGraph
    (may break compatibility with existing development)
 
-version 1.3, Octobre 2nd, 2009
-------------------------------
+version 1.3, October 2, 2009
+----------------------------
  o Oper.mirror: undirected graphs are not copied anymore
  o Oper.mirror: fixed bug (isolated vertices were lost)
  o Graphviz: new signature GraphWithDotAttrs
@@ -29,8 +31,8 @@ version 1.2, August 31, 2009
    (viewGraph is now deprecated)
  o added Delaunay.iter_triangles (not of use in Ocamlgraph, actually)
 
-version 1.1, June 23rd, 2009
-----------------------------
+version 1.1, June 23, 2009
+--------------------------
  o added constraint "type E.label = unit" to unlabeled graph data structure
  o viewGraph: new module viewGraph_utils; fixed compilation (gtkInit
    was missing; patch by Mehdi Dogguy)
@@ -39,8 +41,8 @@ version 1.1, June 23rd, 2009
  o Makefile: fixed make install-findlib when lablgtk and/or
    lablgnomecanvas not installed (patch by Peter Hawkins)
 
-version 1.0, October 14th, 2008
--------------------------------
+version 1.0, October 14, 2008
+-----------------------------
  o license: LGPL updated to version 2.1
  o ocamlgraph now requires ocaml 3.10 or higher
  o experimental: GTK-based graph viewer based on dot
