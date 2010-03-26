@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: graphviz.mli,v 1.4 2005-01-18 09:17:49 filliatr Exp $ *)
-
 (** Interface with {i GraphViz}
 
     This module provides a basic interface with dot and neato,
@@ -43,7 +41,7 @@ open Format
 type color = int
 
 type arrow_style =
-  [ `None | `Normal | `Inv | `Dot | `Odot | `Invdot | `Invodot ] 
+  [ `None | `Normal | `Inv | `Dot | `Odot | `Invdot | `Invodot ]
 
 (** The [ATTRIBUTES] module type defines the interface for the engines. *)
 module type ATTRIBUTES = sig
@@ -54,7 +52,7 @@ module type ATTRIBUTES = sig
 
   type edge   (** Attributes of edges. *)
 
-  (** Attributes of (optional) boxes around vertices. *) 
+  (** Attributes of (optional) boxes around vertices. *)
   type subgraph = {
     sg_name : string;            (** Box name. *)
     sg_attributes : vertex list; (** Box attributes. *)
@@ -92,12 +90,12 @@ module CommonAttributes : sig
     | `OrderingOut
         (** Constrains  order of out-edges in a subgraph according to
           their file sequence *)
-    ] 
+    ]
 
   (** Attributes of vertices. *)
   type vertex =
     [ `Color of color
-        (** Sets the color of the border of the vertex. 
+        (** Sets the color of the border of the vertex.
 	  Default value is [black] *)
     | `Fontcolor of color
         (** Sets the label font color.  Default value is [black]. *)
@@ -110,11 +108,11 @@ module CommonAttributes : sig
     | `Height of float
         (** Sets the minimum height.  Default value is [0.5]. *)
     | `Label of string
-        (** Sets the label printed in the vertex. 
+        (** Sets the label printed in the vertex.
 	    The string may include escaped
             newlines [\n], [\l], or [\r] for center, left, and right justified
 	    lines.
-            Record labels may contain recursive box lists delimited by { | }. 
+            Record labels may contain recursive box lists delimited by { | }.
 	*)
     | `Orientation of float
         (** Vertex rotation angle, in degrees.  Default value is [0.0]. *)
@@ -131,11 +129,11 @@ module CommonAttributes : sig
             [`Polygon (i, f)] draws a polygon with [n] sides and a skewing
             of [f]. *)
     | `Style of [ `Filled | `Solid | `Dashed | `Dotted | `Bold | `Invis ]
-        (** Sets the layout style of the vertex.  
+        (** Sets the layout style of the vertex.
 	    Several styles may be combined simultaneously. *)
     | `Width of float
         (** Sets the minimum width.  Default value is [0.75]. *)
-    ]     
+    ]
 
   (** Attributes of edges. *)
   type edge =
@@ -143,7 +141,7 @@ module CommonAttributes : sig
         (** Sets the edge stroke color.  Default value is [black]. *)
     | `Decorate of bool
         (** If [true], draws a line connecting labels with their edges. *)
-    | `Dir of [ `Forward | `Back | `Both | `None ] 
+    | `Dir of [ `Forward | `Back | `Both | `None ]
         (** Sets arrow direction.  Default value is [`Forward]. *)
     | `Fontcolor of color
         (** Sets the label font color.  Default value is [black]. *)
@@ -163,12 +161,12 @@ module CommonAttributes : sig
         (** Sets the font family name for head and tail labels.  Default
             value is ["Times-Roman"]. *)
     | `Labelfontsize of int
-        (** Sets the font size for head and tail labels (in points). 
+        (** Sets the font size for head and tail labels (in points).
             Default value is [14]. *)
     | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ]
         (** Sets the layout style of the edge.  Several styles may be combined
             simultaneously. *)
-    ]     
+    ]
 
 end
 
@@ -223,7 +221,7 @@ module DotAttributes : sig
 	    Default value is [8]. *)
     | `Url of string
         (** URL associated with graph (format-dependent). *)
-    ] 
+    ]
 
   (** Attributes of nodes.  They include all common node attributes and
       several specific ones.  All attributes described in the "dot User's
@@ -249,7 +247,7 @@ module DotAttributes : sig
 	    Distiller 3.0 and up. *)
     | `Z of float
         (** z coordinate for VRML output. *)
-    ] 
+    ]
 
   (** Attributes of edges.  They include all common edge attributes and
       several specific ones.  All attributes described in the "dot User's
@@ -265,7 +263,7 @@ module DotAttributes : sig
     | `Comment of string
         (** Comment string. *)
     | `Constraints of bool
-        (** If [false], causes an edge to be ignored for rank assignment. 
+        (** If [false], causes an edge to be ignored for rank assignment.
             Default value is [true]. *)
     | `Headlabel of string
         (** Sets the label attached to the head arrow. *)
@@ -274,18 +272,18 @@ module DotAttributes : sig
     | `Headurl of string
         (** Url attached to head label if output format is ismap. *)
     | `Labelangle of float
-        (** Angle in degrees which head or tail label is rotated off edge. 
+        (** Angle in degrees which head or tail label is rotated off edge.
             Default value is [-25.0]. *)
     | `Labeldistance of float
-        (** Scaling factor for distance of head or tail label from node. 
+        (** Scaling factor for distance of head or tail label from node.
             Default value is [1.0]. *)
     | `Labelfloat of bool
-        (** If [true], lessen constraints on edge label placement. 
+        (** If [true], lessen constraints on edge label placement.
             Default value is [false]. *)
     | `Layer of string
         (** Overlay. *)
     | `Minlen of int
-        (** Minimum rank distance between head an tail.  
+        (** Minimum rank distance between head an tail.
 	    Default value is [1]. *)
     | `Samehead of string
         (** Tag for head node; edge heads with the same tag are merged onto the
@@ -302,7 +300,7 @@ module DotAttributes : sig
     | `Weight of int
         (** Sets the integer cost of stretching the edge.  Default value is
             [1]. *)
-    ] 
+    ]
 
   (** Subgraphs have a name and some vertices. *)
   type subgraph = {
@@ -347,11 +345,11 @@ module Dot
      module E : sig type t val src : t -> V.t val dst : t -> V.t end
      val iter_vertex : (V.t -> unit) -> t -> unit
      val iter_edges_e : (E.t -> unit) -> t -> unit
-       
+
      (** Graph, vertex and edge attributes. *)
 
      val graph_attributes: t -> DotAttributes.graph list
-       
+
      val default_vertex_attributes: t -> DotAttributes.vertex list
      val vertex_name : V.t -> string
      val vertex_attributes: V.t -> DotAttributes.vertex list
@@ -360,10 +358,10 @@ module Dot
        (** The box (if exists) which the vertex belongs to. Boxes with same
 	   names are not distinguished and so they should have the same
 	   attributes. *)
-       
+
      val default_edge_attributes: t -> DotAttributes.edge list
      val edge_attributes: E.t -> DotAttributes.edge list
-       
+
    end) :
 sig
 
@@ -398,9 +396,9 @@ module NeatoAttributes : sig
 	(** [true] makes edge splines if nodes don't overlap.
 	    Default value is [false]. *)
     | `Sep of float
-	(** Edge spline separation factor from nodes.  Default value 
+	(** Edge spline separation factor from nodes.  Default value
 	    is [0.0]. *)
-    ] 
+    ]
 
   (** Attributes of nodes.  They include all common node attributes and
       several specific ones.  All attributes described in the "Neato User's
@@ -409,7 +407,7 @@ module NeatoAttributes : sig
     [ CommonAttributes.vertex
     | `Pos of float * float
         (** Initial coordinates of the vertex. *)
-    ] 
+    ]
 
   (** Attributes of edges.  They include all common edge attributes and
       several specific ones.  All attributes described in the "Neato User's
@@ -422,7 +420,7 @@ module NeatoAttributes : sig
         (** Preferred length of edge.  Default value is [1.0]. *)
     | `Weight of float
         (** Strength of edge spring.  Default value is [1.0]. *)
-    ] 
+    ]
 
   (** Subgraphs have a name and some vertices. *)
   type subgraph = {
@@ -440,14 +438,14 @@ module Neato
      type t
      module V : sig type t end
      module E : sig type t val src : t -> V.t val dst : t -> V.t end
-       
+
      val iter_vertex : (V.t -> unit) -> t -> unit
      val iter_edges_e : (E.t -> unit) -> t -> unit
-       
+
      (** Graph, vertex and edge attributes. *)
 
      val graph_attributes: t -> NeatoAttributes.graph list
-       
+
      val default_vertex_attributes: t -> NeatoAttributes.vertex list
      val vertex_name : V.t -> string
      val vertex_attributes: V.t -> NeatoAttributes.vertex list
@@ -456,10 +454,10 @@ module Neato
        (** The box (if exists) which the vertex belongs to. Boxes with same
 	   names are not distinguished and so they should have the same
 	   attributes. *)
-       
+
      val default_edge_attributes: t -> NeatoAttributes.edge list
      val edge_attributes: E.t -> NeatoAttributes.edge list
-       
+
    end) :
 sig
 
@@ -481,3 +479,9 @@ sig
 	language on the channel [oc]. *)
 
 end
+
+(*
+Local Variables:
+compile-command: "make -C .."
+End:
+*)
