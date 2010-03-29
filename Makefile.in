@@ -103,7 +103,7 @@ graph.cmo: $(CMI) $(CMO)
 graph.cmx: $(CMI) $(CMX)
 	$(OCAMLOPT) $(INCLUDES) -pack -o $@ $^
 
-VERSION=1.4
+VERSION=1.4+dev
 
 src/version.ml: Makefile
 	rm -f $@
@@ -217,7 +217,7 @@ $(DGRAPH_DIR)/dgraph.opt: $(CMXA) $(DGRAPH_CMXLIB) dgraph/dGraphViewer.cmx
 
 EXAMPLESBIN=bin/demo.$(OCAMLBEST) bin/demo_planar.$(OCAMLBEST) \
   bin/bench.$(OCAMLBEST) bin/color.$(OCAMLBEST) bin/sudoku.$(OCAMLBEST) \
-  bin/test.$(OCAMLBEST) 
+  bin/test.$(OCAMLBEST)
 
 .PHONY: examples
 examples: $(EXAMPLESBIN)
@@ -301,7 +301,7 @@ else
 endif
 endif
 
-install-byte: 
+install-byte:
 	mkdir -p $(INSTALL_LIBDIR)
 	cp -f graph.cmo graph.cmi $(CMA) $(INSTALL_LIBDIR)
 	cp -f $(SRCDIR)/*.mli $(INSTALL_LIBDIR)
@@ -403,7 +403,7 @@ FILES = src/*.ml* lib/*.ml* Makefile.in configure configure.in META.in  \
 
 export: source export-doc export-web export-delaunay
 
-source: 
+source:
 	mkdir -p export
 	cd export; rm -rf $(EXPORTDIR)
 	mkdir -p export/$(EXPORTDIR)/bin
@@ -470,7 +470,7 @@ export-delaunay:
 	latex $< && latex $<
 
 .dvi.ps:
-	dvips $< -o $@ 
+	dvips $< -o $@
 
 .tex.html:
 	hevea $<
@@ -495,7 +495,7 @@ tags:
 ######################################################################
 
 Makefile: Makefile.in config.status
-	if test -e $@; then chmod a+w $@; fi		
+	if test -e $@; then chmod a+w $@; fi
 	./config.status
 	chmod a-w $@
 
@@ -503,7 +503,7 @@ config.status: configure
 	./config.status --recheck
 
 configure: configure.in
-	autoconf 
+	autoconf
 
 # clean
 #######
@@ -516,7 +516,7 @@ clean:
 	  rm -f $$d/*.cm[iox] $$d/*$(OBJEXT) $$d/*~ $$d/*.annot; \
 	done
 	rm -f $(GENERATED) $(SRCDIR)/dot_parser.output
-	rm -f graph.*a graph.cm* graph.o graph$(LIBEXT) 
+	rm -f graph.*a graph.cm* graph.o graph$(LIBEXT)
 	rm -f $(ED_DIR)/editor.byte $(ED_DIR)/editor.opt
 	rm -f $(VIEWER_DIR)/viewgraph.byte $(VIEWER_DIR)/viewgraph.opt
 	rm -f $(DGRAPH_DIR)/dgraph.byte $(DGRAPH_DIR)/dgraph.opt

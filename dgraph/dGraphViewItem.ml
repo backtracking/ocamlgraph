@@ -207,20 +207,23 @@ class shape ~fill shape init_props = object (self)
 
 end
 
-let ellipse ~fill draw_st group pos w h =
-  let((x1,y1), (x2,y2)) = XDot.bounding_box pos w h in
-  let props = [ pen_color draw_st; fill_color draw_st ] in
-  let ellip = GnoCanvas.ellipse group ~x1 ~y1 ~x2 ~y2 ~props in
-  new shape ~fill (SEllipse ellip) props
-
-let polygon ~fill draw_st group pts =
+let get_props draw_st =
   let base_props = [ pen_color draw_st; fill_color draw_st ] in
   let fold_sty_attr props = function
     | Dashed -> `DASH (0., [|10.|]) :: props
     | Dotted -> `DASH (0., [|2.; 10.|])  :: props
     | _ -> props
   in
-  let props = List.fold_left fold_sty_attr base_props draw_st.style in
+  List.fold_left fold_sty_attr base_props draw_st.style
+
+let ellipse ~fill draw_st group pos w h =
+  let((x1,y1), (x2,y2)) = XDot.bounding_box pos w h in
+  let props = get_props draw_st in
+  let ellip = GnoCanvas.ellipse group ~x1 ~y1 ~x2 ~y2 ~props in
+  new shape ~fill (SEllipse ellip) props
+
+let polygon ~fill draw_st group pts =
+  let props = get_props draw_st in
   let points = flatten_points pts in
   let poly = GnoCanvas.polygon group ~points ~props in
   new shape ~fill (SPolygon poly) props
@@ -248,13 +251,7 @@ let bspline ~fill draw_st group pts =
   let path =
     pathdef (Array.fold_right (fun p acc -> XDot.conv_coord p :: acc) pts [])
   in
-  let base_props = [ pen_color draw_st; fill_color draw_st ] in
-  let fold_sty_attr props = function
-    | Dashed -> `DASH (0., [|10.|]) :: props
-    | Dotted -> `DASH (0., [|2.; 10.|])  :: props
-    | _ -> props
-  in
-  let props = List.fold_left fold_sty_attr base_props draw_st.style in
+  let props = get_props draw_st in
   let bpath = GnoCanvas.bpath group ~bpath:path ~props in
   new shape ~fill (SBSpline bpath) props
 

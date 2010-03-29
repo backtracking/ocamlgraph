@@ -1,6 +1,8 @@
 
+ o dgraph: handle dotted ellipse
+
 version 1.4, March 24, 2010
---------------------------- 
+---------------------------
  o new function [clear] for imperative graphs
  o new implementation Imperative.Digraph.ConcreteBidirectionalLabeled
    (contribution of Jaap Boender)
