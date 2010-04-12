@@ -1,5 +1,6 @@
 
- o improved Traverse.Dfs.has_cycle (now tail recursive)
+ o Traverse.Dfs.has_cycle: can now be used on undirected graphs as well,
+   and is now tail recursive
  o dgraph: handle dotted ellipse
 
 version 1.4, March 24, 2010
