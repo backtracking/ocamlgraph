@@ -63,6 +63,7 @@ module Dfs(G : G) = struct
      already visited in the current component; [h v = false] means
      already visited in another tree *)
   let has_cycle g =
+    Format.eprintf "non tail@.";
     let h = H.create 65537 in
     let rec visit v =
       H.add h v true;
@@ -75,6 +76,35 @@ module Dfs(G : G) = struct
     with Exit -> true
 
   module Tail = struct
+
+    let has_cycle g =
+      let h = H.create 65537 in
+      let stack = Stack.create () in
+      let loop () =
+	while not (Stack.is_empty stack) do
+	  let v = Stack.top stack in
+	  if H.mem h v then begin
+	    assert (H.find h v = true);
+	    H.replace h v false;
+	    ignore (Stack.pop stack)
+	  end else begin
+	    H.add h v true;
+	    G.iter_succ 
+	      (fun w -> 
+		 try if H.find h w then raise Exit 
+		 with Not_found -> Stack.push w stack) 
+	      g v;
+	  end
+	done
+      in
+      try
+	G.iter_vertex 
+	  (fun v -> 
+	     if not (H.mem h v) then begin Stack.push v stack; loop () end)
+	  g;
+	false
+      with Exit ->
+	true
 
     let iter f g = 
       let h = H.create 65537 in
@@ -111,6 +141,7 @@ module Dfs(G : G) = struct
   end
 
   let prefix = Tail.iter
+  let has_cycle = Tail.has_cycle
   let prefix_component = Tail.iter_component
 
   (* step-by-step iterator *)
