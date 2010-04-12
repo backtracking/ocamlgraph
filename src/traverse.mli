@@ -24,6 +24,7 @@
 (** Minimal graph signature for {!Dfs} and {!Bfs}.
     Sub-signature of {!Sig.G}. *)
 module type G = sig
+  val is_directed : bool
   type t
   module V : Sig.COMPARABLE
   val iter_vertex : (V.t -> unit) -> t -> unit

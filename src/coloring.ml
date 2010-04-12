@@ -16,6 +16,7 @@
 (**************************************************************************)
 
 module type GM = sig
+  val is_directed : bool
   type t
   val nb_vertex : t -> int
   module V : Sig.COMPARABLE
@@ -92,6 +93,7 @@ end
 (** Graph coloring for graphs without marks: we use an external hashtbl *)
 
 module type G = sig
+  val is_directed : bool
   type t
   val nb_vertex : t -> int
   module V : Sig.COMPARABLE

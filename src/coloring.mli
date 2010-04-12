@@ -25,6 +25,7 @@
 (** Minimal graph signature for {!Make}.
     Sub-signature of {!Sig.G}. *)
 module type G = sig
+  val is_directed : bool
   type t
   val nb_vertex : t -> int
   module V : Sig.COMPARABLE
@@ -52,6 +53,7 @@ end
 (** Minimal graph signature for {!Mark}.
     Sub-signature of {!Sig.IM}. *)
 module type GM = sig
+  val is_directed : bool
   type t
   val nb_vertex : t -> int
   module V : Sig.COMPARABLE

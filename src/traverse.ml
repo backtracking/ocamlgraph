@@ -20,6 +20,7 @@
 (* Graph traversal *)
 
 module type G = sig
+  val is_directed : bool
   type t
   module V : Sig.COMPARABLE
   val iter_vertex : (V.t -> unit) -> t -> unit
@@ -63,7 +64,6 @@ module Dfs(G : G) = struct
      already visited in the current component; [h v = false] means
      already visited in another tree *)
   let has_cycle g =
-    Format.eprintf "non tail@.";
     let h = H.create 65537 in
     let rec visit v =
       H.add h v true;
@@ -75,6 +75,28 @@ module Dfs(G : G) = struct
     try G.iter_vertex (fun v -> if not (H.mem h v) then visit v) g; false 
     with Exit -> true
 
+  let has_cycle_undirected g =
+    let h = H.create 65537 in
+    let father = H.create 65537 in
+    let is_father u v = (* u is the father of v in the DFS descent *)
+      try G.V.equal (H.find father v) u with Not_found -> false
+    in
+    let rec visit v =
+      H.add h v true;
+      G.iter_succ 
+	(fun w -> 
+	   try if H.find h w && not (is_father w v) then raise Exit 
+	   with Not_found -> H.add father w v; visit w) 
+	g v;
+      H.remove father v;
+      H.replace h v false
+    in
+    try G.iter_vertex (fun v -> if not (H.mem h v) then visit v) g; false 
+    with Exit -> true
+
+  let has_cycle g = 
+    if G.is_directed then has_cycle g else has_cycle_undirected g
+
   module Tail = struct
 
     let has_cycle g =
@@ -84,10 +106,12 @@ module Dfs(G : G) = struct
 	while not (Stack.is_empty stack) do
 	  let v = Stack.top stack in
 	  if H.mem h v then begin
-	    assert (H.find h v = true);
+	    (* we are now done with node v *)
+	    (* assert (H.find h v = true); *)
 	    H.replace h v false;
 	    ignore (Stack.pop stack)
 	  end else begin
+	    (* we start DFS from node v *)
 	    H.add h v true;
 	    G.iter_succ 
 	      (fun w -> 
@@ -105,6 +129,45 @@ module Dfs(G : G) = struct
 	false
       with Exit ->
 	true
+
+    let has_cycle_undirected g =
+      let h = H.create 65537 in
+      let father = H.create 65537 in
+      let is_father u v = (* u is the father of v in the DFS descent *)
+	try G.V.equal (H.find father v) u with Not_found -> false
+      in
+      let stack = Stack.create () in
+      let loop () =
+	while not (Stack.is_empty stack) do
+	  let v = Stack.top stack in
+	  if H.mem h v then begin
+	    (* we are now done with node v *)
+	    (* assert (H.find h v = true); *)
+	    H.remove father v;
+	    H.replace h v false;
+	    ignore (Stack.pop stack)
+	  end else begin
+	    (* we start DFS from node v *)
+	    H.add h v true;
+	    G.iter_succ 
+	      (fun w -> 
+		 try if H.find h w && not (is_father w v) then raise Exit 
+		 with Not_found -> H.add father w v; Stack.push w stack) 
+	      g v;
+	  end
+	done
+      in
+      try
+	G.iter_vertex 
+	  (fun v -> 
+	     if not (H.mem h v) then begin Stack.push v stack; loop () end)
+	  g;
+	false
+      with Exit ->
+	true
+
+    let has_cycle g = 
+      if G.is_directed then has_cycle g else has_cycle_undirected g
 
     let iter f g = 
       let h = H.create 65537 in

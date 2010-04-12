@@ -15,6 +15,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
+open Format
 open Graph
 
 module Int = struct 
@@ -40,7 +41,7 @@ let test_hash_cycle n =
   G.add_edge g (v (n-1)) (v 0);
   assert (T.has_cycle g)
 
-let () = test_hash_cycle 1_000_000
+let () = test_hash_cycle 1_000
 
 (*
 module Int = struct 
