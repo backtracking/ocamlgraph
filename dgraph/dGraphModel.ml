@@ -62,7 +62,7 @@ end
 module Make(G : Graphviz.GraphWithDotAttrs) = struct
 
   type cluster = string
-      
+
   class model layout g : [G.vertex, G.edge, cluster] abstract_model = object
 
     (* Iterators *)
@@ -73,7 +73,7 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
     method iter_succ f = G.iter_succ f g
     method iter_succ_e f = G.iter_succ_e f g
     method iter_vertex f = G.iter_vertex f g
-    method iter_clusters f = 
+    method iter_clusters f =
       Hashtbl.iter (fun k v -> f k) layout.XDot.cluster_layouts
 
     (* Membership functions *)
@@ -83,7 +83,7 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
     method mem_vertex = G.mem_vertex g
     method src = G.E.src
     method dst = G.E.dst
-      
+
     (* Layout *)
     method bounding_box = layout.XDot.bbox
 
@@ -91,22 +91,22 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
       try Hashtbl.find layout.XDot.vertex_layouts v
       with Not_found -> assert false
 
-    method get_edge_layout e = 
-      try Hashtbl.find layout.XDot.edge_layouts e 
+    method get_edge_layout e =
+      try Hashtbl.find layout.XDot.edge_layouts e
       with Not_found -> assert false
 
-    method get_cluster_layout c = 
+    method get_cluster_layout c =
       try Hashtbl.find layout.XDot.cluster_layouts c
       with Not_found -> assert false
 
   end
-    
+
   let from_graph ?(cmd="dot") ?(tmp_name = "dgraph") g =
     (* Output dot file *)
     let module DumpDot = Graphviz.Dot(G) in
     let dot_file, out = Filename.open_temp_file tmp_name ".dot" in
     DumpDot.output_graph out g;
-    close_out out;    
+    close_out out;
     (* Get layout from dot file *)
     let module X = XDot.Make(G) in
     let layout = X.layout_of_dot ~cmd ~dot_file g in
@@ -141,7 +141,7 @@ type dotg_model = (DotG.vertex, DotG.edge, cluster) abstract_model
 module DotParser =
   Dot.Parse
     (DotB)
-    (struct 
+    (struct
        (* Read the attributes of a node *)
        let node = XDot.read_node_layout
 
@@ -153,8 +153,8 @@ module DotParser =
 module DotModel = struct
   type cluster = string
   type clusters_hash = (cluster, Graph.Dot_ast.attr list) Hashtbl.t
-  class model g clusters_hash bounding_box 
-    : [DotG.vertex, DotG.edge, cluster] abstract_model 
+  class model g clusters_hash bounding_box
+    : [DotG.vertex, DotG.edge, cluster] abstract_model
     =
   object
     (* Iterators *)
@@ -163,7 +163,7 @@ module DotModel = struct
     method iter_pred f v = DotG.iter_pred f g v
     method iter_pred_e f v = DotG.iter_pred_e f g v
     method iter_succ f = DotG.iter_succ f g
-    method iter_succ_e f = DotG.iter_succ_e f g 
+    method iter_succ_e f = DotG.iter_succ_e f g
     method iter_vertex f = DotG.iter_vertex f g
     method iter_clusters f = Hashtbl.iter (fun k _ -> f k) clusters_hash
 
@@ -180,8 +180,8 @@ module DotModel = struct
     method get_vertex_layout = DotG.V.label
     method get_edge_layout = DotG.E.label
     method get_cluster_layout c =
-      let attrs = 
-	try Hashtbl.find clusters_hash c with Not_found -> assert false 
+      let attrs =
+	try Hashtbl.find clusters_hash c with Not_found -> assert false
       in
       XDot.read_cluster_layout attrs
   end
@@ -191,7 +191,7 @@ end
 
 (* Runs graphviz, parses the graph and instantiates the model *)
 let read_dot ?(cmd="dot") dot_file =
-  let basename = try Filename.chop_extension dot_file 
+  let basename = try Filename.chop_extension dot_file
                  with Invalid_argument _ -> dot_file in
   let xdot_file = basename ^ ".xdot" in
   let dot_cmd = Printf.sprintf "%s -Txdot %s > %s" cmd dot_file xdot_file in

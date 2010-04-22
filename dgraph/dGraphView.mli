@@ -74,10 +74,14 @@ object
   (** {2 Zooming} *)
 
   method zoom_factor : float
+
   method zoom_to : float -> unit
   method zoom_in : unit -> unit
   method zoom_out : unit -> unit
   method adapt_zoom : unit -> unit
+
+  method set_zoom_padding: float -> unit
+    (** Set the zoom padding used by [zoom_in] and [zoom_out]. *)
 
   (** {2 Highlighting} *)
 

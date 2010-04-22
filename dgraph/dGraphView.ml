@@ -135,6 +135,9 @@ object(self)
   val mutable zoom_f = 1.
   method zoom_factor = zoom_f
 
+  val mutable zoom_padding = 0.1
+  method set_zoom_padding n = zoom_padding <- n
+
   method private set_zoom_f x = if x > 1e-10 then zoom_f <- x
 
   (* Zooms the canvas according to the zoom factor *)
@@ -149,13 +152,8 @@ object(self)
     self#set_zoom_f x;
     self#zoom ()
 
-  method zoom_in () =
-    self#set_zoom_f (zoom_f +. 0.1);
-    self#zoom ()
-
-  method zoom_out () =
-    self#set_zoom_f (zoom_f -. 0.1);
-    self#zoom ()
+  method zoom_in () = self#zoom_to (zoom_f +. zoom_padding *. zoom_f)
+  method zoom_out () = self#zoom_to (zoom_f -. zoom_padding *. zoom_f)
 
   method adapt_zoom () =
     let (x1',y1') = self#w2c ~wx:x1 ~wy:y1 in

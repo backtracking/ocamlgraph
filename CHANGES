@@ -1,7 +1,10 @@
 
+ o Makefile: bug fixed when installing ocamlgraph with ocamlfind
+   (patch by Virgile Prevosto)
+ o DGraph: new method set_zoom_padding in DgraphView.view
  o Traverse.Dfs.has_cycle: can now be used on undirected graphs as well,
    and is now tail recursive
- o dgraph: handle dotted ellipse
+ o DGraph: handle dotted ellipse
 
 version 1.4, March 24, 2010
 ---------------------------
@@ -9,8 +12,8 @@ version 1.4, March 24, 2010
  o new implementation Imperative.Digraph.ConcreteBidirectionalLabeled
    (contribution of Jaap Boender)
  o Dgraph displays graphs faster
- o several bugs fixed in DGraph
- o several API changes in DGraph
+ o DGraph: several bugs fixed
+ o DGraph: several API changes
    (may break compatibility with existing development)
 
 version 1.3, October 2, 2009

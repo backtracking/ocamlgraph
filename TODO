@@ -1,11 +1,10 @@
-$Id: TODO,v 1.14 2004-10-22 14:42:06 signoles Exp $
 
 o has_cycle: return the cycle as a list of vertices
 o Better graph viewer and editor
 o Improve the website
-o It should be possible to specify the first vertex to visit in traversal 
+o It should be possible to specify the first vertex to visit in traversal
   algorithm (suggestion of Fabrice Derepas)
-o Implementations for graph with unlabeled vertices 
+o Implementations for graph with unlabeled vertices
   (exactly like graph with unlabeled edges)
 o Provide more bidirectional graph implementation:
   only Imperative.Digraph.ConcreteBidirectional exists at this day.
