@@ -1,4 +1,6 @@
 
+version 1.5, April 29, 2010
+---------------------------
  o Makefile: bug fixed when installing ocamlgraph with ocamlfind
    (patch by Virgile Prevosto)
  o DGraph: new method set_zoom_padding in DgraphView.view
