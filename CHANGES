@@ -1,4 +1,7 @@
 
+ o Makefile: bug fixed when ocamlc (resp. ocamlopt) and ocamlc.opt
+   (resp. ocamlopt.opt) are unconsistent
+
 version 1.5, April 29, 2010
 ---------------------------
  o Makefile: bug fixed when installing ocamlgraph with ocamlfind

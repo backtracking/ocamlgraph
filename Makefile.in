@@ -161,10 +161,10 @@ VIEWER_CMILIB	= $(VIEWER_DIR)/viewgraph.cmi
 VIEWER_CMXLIB	= $(VIEWER_DIR)/viewgraph.cmx
 
 $(VIEWER_CMOLIB): $(filter-out $(VIEWER_DIR)/viewGraph_test.cmo, $(VIEWER_CMO))
-	ocamlc -o $@ $(VIEWER_INCLUDES) -pack $^
+	$(OCAMLC) -o $@ $(VIEWER_INCLUDES) -pack $^
 
 $(VIEWER_CMXLIB): $(filter-out $(VIEWER_DIR)/viewGraph_test.cmx, $(VIEWER_CMX))
-	ocamlopt -o $@ $(VIEWER_INCLUDES) -pack $^
+	$(OCAMLOPT) -o $@ $(VIEWER_INCLUDES) -pack $^
 
 $(VIEWER_DIR)/viewgraph.byte: $(CMA) $(VIEWER_CMOLIB)
 	$(OCAMLC) -g -o $@ $(VIEWER_INCLUDES) \
@@ -199,10 +199,10 @@ DGRAPH_CMILIB	= $(DGRAPH_DIR)/dgraph.cmi
 DGRAPH_CMXLIB	= $(DGRAPH_DIR)/dgraph.cmx
 
 $(DGRAPH_CMOLIB): $(filter-out $(DGRAPH_DIR)/dGraphViewer.cmo, $(DGRAPH_CMO))
-	ocamlc -o $@ $(DGRAPH_INCLUDES) -pack $^
+	$(OCAMLC) -o $@ $(DGRAPH_INCLUDES) -pack $^
 
 $(DGRAPH_CMXLIB): $(filter-out $(DGRAPH_DIR)/dGraphViewer.cmx, $(DGRAPH_CMX))
-	ocamlopt -o $@ $(DGRAPH_INCLUDES) -pack $^
+	$(OCAMLOPT) -o $@ $(DGRAPH_INCLUDES) -pack $^
 
 $(DGRAPH_DIR)/dgraph.byte: $(CMA) $(DGRAPH_CMOLIB) dgraph/dGraphViewer.cmo
 	$(OCAMLC) -g -o $@ $(DGRAPH_INCLUDES) \
