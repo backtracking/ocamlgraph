@@ -20,7 +20,7 @@
 #   OCAMLC        "ocamlc" if present in the path, or a failure
 #                 or "ocamlc.opt" if present with same version number as ocamlc
 #   OCAMLOPT      "ocamlopt" (or "ocamlopt.opt" if present), or "no"
-#   OCAMLBEST     either "byte" if no native compiler was found, 
+#   OCAMLBEST     either "byte" if no native compiler was found,
 #                 or "opt" otherwise
 #   OCAMLDEP      "ocamldep"
 #   OCAMLLEX      "ocamllex" (or "ocamllex.opt" if present)
@@ -31,7 +31,7 @@
 #   OCAMLWIN32    "yes"/"no" depending on Sys.os_type = "Win32"
 #   EXE           ".exe" if OCAMLWIN32=yes, "" otherwise
 
-# check for one particular file of the sources 
+# check for one particular file of the sources
 # ADAPT THE FOLLOWING LINE TO YOUR SOURCES!
 AC_INIT(src/sig.mli)
 
@@ -51,7 +51,7 @@ case $OCAMLVERSION in
   0.*|1.*|2.*|3.0*)
         AC_MSG_ERROR(ocamlgraph needs ocaml version 3.10.0 or higher);;
   *)
-	FORPACK="-for-pack Graph";;
+	;;
 esac
 
 # OCAMLLIB=`$OCAMLC -v | tail -n 1 | cut -f 4 -d " "`
@@ -196,7 +196,6 @@ AC_SUBST(OCAMLWIN32)
 AC_SUBST(EXE)
 AC_SUBST(LIBEXT)
 AC_SUBST(OBJEXT)
-AC_SUBST(FORPACK)
 AC_SUBST(INCLUDEGTK2)
 
 # Finally create the Makefile from Makefile.in

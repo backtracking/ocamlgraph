@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: imperative.mli,v 1.18 2006-05-12 14:07:16 filliatr Exp $ *)
-
 (** Imperative Graph Implementations. *)
 
 open Sig
@@ -34,28 +32,28 @@ module type S = sig
       - Abstract: type of vertices is abstract (in particular it is not equal
       to type of vertex labels
 
-      <b>How to choose between concrete and abstract vertices for my graph 
+      <b>How to choose between concrete and abstract vertices for my graph
       implementation</b>?
 
       Usually, if you fall into one of the following cases, use abstract
-      vertices: 
+      vertices:
       - you cannot provide efficient comparison/hash functions for vertices; or
       - you wish to get two different vertices with the same label.
 
       In other cases, it is certainly easier to use concrete vertices.  *)
 
   (** Imperative Unlabeled Graphs. *)
-  module Concrete (V: COMPARABLE) : 
+  module Concrete (V: COMPARABLE) :
     Sig.I with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t
 	  and type E.label = unit
 
   (** Abstract Imperative Unlabeled Graphs. *)
-  module Abstract(V: ANY_TYPE) : 
+  module Abstract(V: ANY_TYPE) :
     Sig.IM with type V.label = V.t and type E.label = unit
 
   (** Imperative Labeled Graphs. *)
   module ConcreteLabeled (V: COMPARABLE)(E: ORDERED_TYPE_DFT) :
-    Sig.I with type V.t = V.t and type V.label = V.t 
+    Sig.I with type V.t = V.t and type V.label = V.t
 	    and type E.t = V.t * E.t * V.t and type E.label = E.t
 
   (** Abstract Imperative Labeled Graphs. *)
@@ -65,10 +63,10 @@ module type S = sig
 end
 
 (** Imperative Directed Graphs. *)
-module Digraph : sig 
+module Digraph : sig
 
-  include S   
-    
+  include S
+
   (** {2 Bidirectional graphs}
 
       Bidirectional graphs use more memory space (at worse the double) that
@@ -78,8 +76,8 @@ module Digraph : sig
       graph. *)
 
   (** Imperative Unlabeled, bidirectional graph. *)
-  module ConcreteBidirectional (V: COMPARABLE) : 
-    Sig.I with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t 
+  module ConcreteBidirectional (V: COMPARABLE) :
+    Sig.I with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t
           and type E.label = unit
 
   (** Imperative Labeled and bidirectional graph. *)
@@ -97,8 +95,8 @@ module Matrix : sig
 
   module type S = sig
 
-    (** Vertices are integers in [0..n-1]. 
-        A vertex label is the vertex itself. 
+    (** Vertices are integers in [0..n-1].
+        A vertex label is the vertex itself.
         Edges are unlabeled. *)
 
     include Sig.I with type V.t = int and type V.label = int
@@ -108,7 +106,7 @@ module Matrix : sig
         Thus [make] must be used instead of [create]. *)
     val make : int -> t
 
-  (** Note: [add_vertex] and [remove_vertex] have no effect. 
+  (** Note: [add_vertex] and [remove_vertex] have no effect.
       [clear] only removes edges, not vertices. *)
 
   end
@@ -132,7 +130,7 @@ module UV : sig
   (** directed graphs *)
   module Digraph : sig
 
-    module Abstract(V: ANY_TYPE) : 
+    module Abstract(V: ANY_TYPE) :
       Sig.IM with type V.label = V.t and type E.label = unit
 
     module AbstractLabeled (V: ANY_TYPE)(E: ORDERED_TYPE_DFT) :
@@ -143,7 +141,7 @@ module UV : sig
   (** undirected graphs *)
   module Graph : sig
 
-    module Abstract(V: ANY_TYPE) : 
+    module Abstract(V: ANY_TYPE) :
       Sig.IM with type V.label = V.t and type E.label = unit
 
     module AbstractLabeled (V: ANY_TYPE)(E: ORDERED_TYPE_DFT) :
@@ -153,3 +151,9 @@ module UV : sig
 
 end
 ****)
+
+(*
+Local Variables:
+compile-command: "make -C .."
+End:
+*)

@@ -554,7 +554,6 @@ ac_unique_file="src/sig.mli"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 INCLUDEGTK2
-FORPACK
 OBJEXT
 LIBEXT
 EXE
@@ -1706,7 +1705,7 @@ case $OCAMLVERSION in
   0.*|1.*|2.*|3.0*)
         as_fn_error "ocamlgraph needs ocaml version 3.10.0 or higher" "$LINENO" 5;;
   *)
-	FORPACK="-for-pack Graph";;
+	;;
 esac
 
 # OCAMLLIB=`$OCAMLC -v | tail -n 1 | cut -f 4 -d " "`
@@ -2302,7 +2301,6 @@ $as_echo "$as_me: WARNING: lablgnomecanvas not found: the graph editor and view_
 fi
 
 # substitutions to perform
-
 
 
 

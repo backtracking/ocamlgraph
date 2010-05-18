@@ -48,7 +48,7 @@ LIBDIR	= lib
 
 INCLUDES= -I $(SRCDIR) -I $(LIBDIR)
 BFLAGS = $(INCLUDES) -g -dtypes
-OFLAGS = $(INCLUDES) @FORPACK@
+OFLAGS = $(INCLUDES)
 
 # main target
 #############
@@ -84,6 +84,8 @@ CMI := $(patsubst %, src/%.cmi, $(CMI))
 GENERATED = META \
 	src/gml.ml src/version.ml \
 	src/dot_parser.ml src/dot_parser.mli src/dot_lexer.ml
+
+$(CMX): OFLAGS += -for-pack Graph
 
 byte: $(CMA)
 opt: $(CMXA)
