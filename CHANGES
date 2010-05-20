@@ -1,4 +1,5 @@
 
+ o 'make -j' works again
  o new implementation Persistent.Digraph.ConcreteBidirectionalLabeled
  o new implementation Persistent.Digraph.ConcreteBidirectional
  o Makefile: bug fixed when ocamlc (resp. ocamlopt) and ocamlc.opt
