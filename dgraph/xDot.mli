@@ -29,7 +29,7 @@ open Graph
 (** Simple layout types *)
 
 (** 2D coordinates *)
-type pos = float * float      
+type pos = float * float
 
 (** upper-left and bottom-right corners *)
 type bounding_box = pos * pos
@@ -41,7 +41,7 @@ type bounding_box = pos * pos
    Each node or edge layout thus contains several lists of
    drawing operations.
 
-   See http://www.graphviz.org/doc/info/output.html#d:xdot 
+   See http://www.graphviz.org/doc/info/output.html#d:xdot
    to understand the details of the layout informations.
 
 *)
@@ -57,8 +57,8 @@ type node_layout = {
 
 
 type cluster_layout = {
-  c_pos : pos;                        
-  c_bbox   : bounding_box;            
+  c_pos : pos;
+  c_bbox   : bounding_box;
   c_draw   : XDotDraw.operation list;
   c_ldraw  : XDotDraw.operation list;
 }
@@ -78,7 +78,7 @@ type ('vertex, 'edge, 'cluster) graph_layout = {
   edge_layouts    : ('edge,    edge_layout)    Hashtbl.t;
   cluster_layouts : ('cluster, cluster_layout) Hashtbl.t;
   bbox : bounding_box;
-} 
+}
 
 (** Creates a node layout *)
 val mk_node_layout :
@@ -118,13 +118,13 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
 
   (** Extracts a layout of an xdot file *)
   val layout_of_xdot :
-    xdot_file:string -> G.t -> (G.vertex, G.edge, string) graph_layout
+    xdot_file:string -> G.t -> (G.V.t, G.E.t, string) graph_layout
 
-  (** Using the dot file and graphviz, 
-      create an xdot and extracts its layout. *) 
+  (** Using the dot file and graphviz,
+      create an xdot and extracts its layout. *)
   val layout_of_dot :
     ?cmd:string ->
-    dot_file:string -> G.t -> (G.vertex, G.edge, string) graph_layout
+    dot_file:string -> G.t -> (G.V.t, G.E.t, string) graph_layout
 
 end
 

@@ -35,15 +35,15 @@ type bounding_box = pos * pos (* bounding box   *)
 
 type node_layout = {
   n_name : string;
-  n_pos : pos;                        
-  n_bbox   : bounding_box;            
+  n_pos : pos;
+  n_bbox   : bounding_box;
   n_draw   : XDotDraw.operation list;
   n_ldraw  : XDotDraw.operation list;
 }
 
 type cluster_layout = {
-  c_pos : pos;                        
-  c_bbox   : bounding_box;            
+  c_pos : pos;
+  c_bbox   : bounding_box;
   c_draw   : XDotDraw.operation list;
   c_ldraw  : XDotDraw.operation list;
 }
@@ -63,7 +63,7 @@ type ('vertex, 'edge, 'cluster) graph_layout = {
   edge_layouts    : ('edge,    edge_layout)    Hashtbl.t;
   cluster_layouts : ('cluster, cluster_layout) Hashtbl.t;
   bbox : bounding_box;
-} 
+}
 
 let mk_node_layout ~name ~pos ~bbox ~draw ~ldraw =
   { n_name    = name;
@@ -96,7 +96,7 @@ let rec take n = function
   | l when n = 0 -> []
   | h::t -> h::(take (n-1) t)
 
-let suffix s i = try String.sub s i ((String.length s)-i) 
+let suffix s i = try String.sub s i ((String.length s)-i)
                  with Invalid_argument("String.sub") -> ""
 
 let rec group_tuples = function
@@ -106,11 +106,11 @@ let rec group_tuples = function
 
 (** Splits a string with a separator
    returns a list of strings *)
-let split c s = 
-  let rec split_from n = 
-    try let p = String.index_from s n c 
-        in (String.sub s n (p-n)) :: (split_from (p+1)) 
-    with Not_found -> [ suffix s n ] 
+let split c s =
+  let rec split_from n =
+    try let p = String.index_from s n c
+        in (String.sub s n (p-n)) :: (split_from (p+1))
+    with Not_found -> [ suffix s n ]
   in if s="" then [] else split_from 0
 
 (** Converts a coordinate from the dot file to a coordinate on
@@ -136,7 +136,7 @@ let read_pos s =
     @param w width of the node, in inch.
     @param h height of the node, in inch.
 *)
-let bounding_box (x,y) w h = 
+let bounding_box (x,y) w h =
   let dot_ppi = 72. (* number of pixels per inch on a display device *) in
   let dot_png_ppi = 96. (* number of pixels per inch on a display device *) in
   try
@@ -155,7 +155,7 @@ let bounding_box (x,y) w h =
     let x2 = x2 *. factor in
     let y2 = -. y2 *. factor in
     ((x1,y1),(x2,y2))
-  with e -> 
+  with e ->
     let s = Printexc.to_string e in
     failwith (Format.sprintf "compute_coord failed : %s@." s)
 
@@ -173,7 +173,7 @@ let read_node_label = function
   | Dot_ast.String s
   | Dot_ast.Html s -> s
 
-let read_points c s = 
+let read_points c s =
   let s' = suffix s (String.index s c) in
   let tokens = List.filter (fun s -> s <> "") (List.tl (split ' ' s')) in
   try match tokens with
@@ -202,8 +202,8 @@ let read_common_layout mk_layout attr_list =
     | (Dot_ast.Ident "_ldraw_"), Some (Dot_ast.String ldraw) ->
 	p,w,h, draw, XDotDraw.parse ldraw
     | _ -> attrs in
-	
-  let fold_attr acc attr_list = 
+
+  let fold_attr acc attr_list =
     List.fold_left fold acc attr_list in
   let attrs = List.fold_left fold_attr (None, None, None, [], [])
     attr_list in
@@ -261,7 +261,7 @@ let read_edge_layout attr_list =
     | (Dot_ast.Ident "_hldraw_"), Some (Dot_ast.String s) ->
 	hldraw := XDotDraw.parse s
     | (Dot_ast.Ident "_tldraw_"), Some (Dot_ast.String s) ->
-	tldraw := XDotDraw.parse s	  
+	tldraw := XDotDraw.parse s
     | _ -> () in
   List.iter (List.iter fill_draw_ops) attr_list;
   let draw, ldraw = !draw, !ldraw in
@@ -279,19 +279,13 @@ let read_bounding_box str =
   let x2,y2 = conv_coord (x2,y2) in
   ((x1,y1), (x2,y2))
 
-module Make
-  (G : sig
-     include Graph.Sig.G
-     val vertex_name : V.t -> string
-     val edge_attributes: E.t -> Graph.Graphviz.DotAttributes.edge list
-   end) = 
-struct
+module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
 
   exception Found of string
 
   let get_edge_comment e =
     let al = G.edge_attributes e in
-    try 
+    try
       List.iter (function `Comment c -> raise (Found c) | _ -> ()) al;
       None
     with Found c ->
@@ -299,9 +293,9 @@ struct
 
   let get_dot_comment (al : Dot_ast.attr list) =
     try
-      List.iter 
+      List.iter
 	(List.iter
-	   (function 
+	   (function
 	    | Ident "comment", Some c -> raise (Found (get_dot_string c))
 	    | _ -> ()))
       al;
@@ -321,18 +315,18 @@ struct
     let read_attr = function
       | Ident ident , Some (String attr) when ident = id ->
 	  raise (Found attr)
-      | _ -> () 
+      | _ -> ()
     in
     let read_stmt = function
       | Attr_graph attrs -> List.iter (List.iter read_attr) attrs
-      | _ -> () 
+      | _ -> ()
     in
     try
       List.iter read_stmt stmts;
       failwith ("Could not find the graph attribute named " ^ id)
     with Found attr ->
       conv attr
-    
+
   let parse_bounding_box = parse_graph_attr "bb" read_bounding_box
   (*let parse_bgcolor = parse_graph_attr "bgcolor" XDotDraw.normalize_color*)
 
@@ -354,12 +348,12 @@ struct
       (fun e ->
 	 let comment = match get_edge_comment e with
 	   | Some c -> Some (strip_quotes c)
-	   | None -> None 
+	   | None -> None
 	 in
 	 let src, dst = G.E.src e, G.E.dst e in
 	 Hashtbl.add vertices_comment_to_edge (src,dst,comment) e)
       g;
-    
+
     let find_vertex (id,_) =
       let name = get_dot_string id in
       try Hashtbl.find name_to_vertex name
@@ -370,14 +364,14 @@ struct
       try Hashtbl.find vertices_comment_to_edge (v,v',comment)
       with Not_found ->
 (*	Printf.printf "Did not find edge from %s to %s with comment %s\n"
-	  (G.vertex_name v) (G.vertex_name v') 
+	  (G.vertex_name v) (G.vertex_name v')
 	  (match comment with Some c -> c | None -> "none");*)
-	raise Not_found 
+	raise Not_found
     in
-    
+
     let rec collect_layouts cluster stmt =
       try
-	match stmt with 
+	match stmt with
 	| Node_stmt (node_id, al) ->
 	    let v = find_vertex node_id in
 	    Hashtbl.add vertex_layouts v (read_node_layout node_id al)
@@ -398,8 +392,8 @@ struct
 	     | Some c -> Hashtbl.add cluster_layouts c (read_cluster_layout al)
 	     | None -> ())
 	|  _ -> ()
-      with Not_found -> 
-	() 
+      with Not_found ->
+	()
     in
     List.iter (collect_layouts None) stmts;
     vertex_layouts, edge_layouts, cluster_layouts
@@ -420,20 +414,20 @@ struct
    parse g dot_ast
 
  let layout_of_dot ?(cmd="dot") ~dot_file g =
-   let base_name = 
+   let base_name =
      try Filename.basename (Filename.chop_extension dot_file)
-     with Invalid_argument _ -> dot_file 
+     with Invalid_argument _ -> dot_file
    in
    let xdot_file = Filename.temp_file base_name ".xdot" in
    (* Run graphviz to get xdot file *)
    let dot_cmd = sprintf "%s -Txdot %s > %s" cmd dot_file xdot_file in
    match Sys.command dot_cmd with
-   | 0 -> 
+   | 0 ->
        let l = layout_of_xdot ~xdot_file g in
        Sys.remove xdot_file;
        l
    | _ ->
        Sys.remove xdot_file;
-       raise (DotError "Error during dot execution") 
+       raise (DotError "Error during dot execution")
 
 end

@@ -65,8 +65,8 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
   type cluster = string
 
   class model :
-    (G.vertex, G.edge, cluster) XDot.graph_layout -> G.t -> 
-    [G.vertex, G.edge, cluster] abstract_model
+    (G.V.t, G.E.t, cluster) XDot.graph_layout -> G.t ->
+    [G.V.t, G.E.t, cluster] abstract_model
 
       (** Creates a model using graphviz.
 	  [tmp_name] is the name of the temporary dot files *)
@@ -77,7 +77,7 @@ end
 
 module Vertex : Sig.ANY_TYPE with type t = XDot.node_layout
 module Edge : Sig.ORDERED_TYPE_DFT with type t = XDot.edge_layout
-module DotG : 
+module DotG :
   Sig.G with type t = Graph.Imperative.Digraph.AbstractLabeled(Vertex)(Edge).t
 type cluster = string
 type dotg_model = (DotG.vertex, DotG.edge, cluster) abstract_model
