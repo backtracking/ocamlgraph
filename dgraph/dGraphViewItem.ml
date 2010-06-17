@@ -255,14 +255,17 @@ let bspline ~fill draw_st group pts =
   let bpath = GnoCanvas.bpath group ~bpath:path ~props in
   new shape ~fill (SBSpline bpath) props
 
-let text draw_st group pos align label =
+let text draw_st group pos align anchor label =
   let size_points, font = draw_st.XDotDraw.font in
   let x, y = XDot.conv_coord pos in
-  let y = y +. size_points /. 2. in
+  let y = y -. size_points /. 2. in
   let props = [ `FILL_COLOR draw_st.XDotDraw.pen_color ] in
+  let anchor =
+    if anchor = -. 1. then `WEST else if anchor = 1.0 then `EAST else `CENTER
+  in
   graph_text
     group
-    ~x ~y ~text:label ~props ~anchor:`SOUTH
+    ~x ~y ~text:label ~props ~anchor
     ~font ~size_points:(size_points -. 1.)
 
 class type common_view = object
@@ -300,7 +303,7 @@ object (self)
   inherit GnoCanvas.group view#root#as_group
 
   val mutable hilighted = false
-  val mutable text_opt = None
+  val mutable texts = []
   val mutable shapes = []
   val mutable computed = not delay
   val mutable cached_events = []
@@ -314,34 +317,33 @@ object (self)
 
   method zoom_text zf =
     self#cache
-      (fun zf -> match text_opt with
-       | None -> ()
-       | Some t ->
-	   let new_size = t#init_size *. zf in
-	   t#resize new_size)
+      (fun zf ->
+        List.iter
+          (fun t -> let new_size = t#init_size *. zf in t#resize new_size)
+          texts)
       zf
 
   method private iter f =
-    (match text_opt with None -> () | Some t -> f (t :> textshape));
+    List.iter (fun t -> f (t :> textshape)) texts;
     List.iter f (shapes :> textshape list)
 
   method highlight ?color () =
     self#cache
       (fun () ->
-	 if not hilighted then begin
-	   hilighted <- true;
-	   self#iter (fun s -> s#highlight ?color ());
-	   match text_opt with None -> () | Some t -> t#raise_to_top ();
-	 end)
+	if not hilighted then begin
+	  hilighted <- true;
+	  self#iter (fun s -> s#highlight ?color ());
+	  List.iter (fun t -> t#raise_to_top ()) texts;
+	end)
       ()
 
   method dehighlight () =
     self#cache
       (fun () ->
-	 if hilighted then begin
-	   hilighted <- false;
-	   self#iter (fun s -> s#dehighlight ());
-	 end)
+	if hilighted then begin
+	  hilighted <- false;
+	  self#iter (fun s -> s#dehighlight ());
+	end)
       ()
 
   method hide () = self#cache (fun () -> self#iter (fun s -> s#hide ())) ()
@@ -355,13 +357,13 @@ object (self)
   method center () =
     self#cache
       (fun () ->
-	 let x, y = pos in
-	 let w = view#hadjustment#page_size /. view#zoom_factor in
-	 let h = view#vadjustment#page_size /. view#zoom_factor in
-	 let sx = x -. (w /. 2.) in
-	 let sy = y -. (h /. 2.) in
-	 let sx, sy = view#w2c ~wx:sx ~wy:sy in
-	 ignore $ view#scroll_to ~x:sx ~y:sy)
+	let x, y = pos in
+	let w = view#hadjustment#page_size /. view#zoom_factor in
+	let h = view#vadjustment#page_size /. view#zoom_factor in
+	let sx = x -. (w /. 2.) in
+	let sy = y -. (h /. 2.) in
+	let sx, sy = view#w2c ~wx:sx ~wy:sy in
+	ignore $ view#scroll_to ~x:sx ~y:sy)
       ()
 
   method lower_to_bottom () =
@@ -371,20 +373,20 @@ object (self)
      Updates the shapes and texts lists *)
   method private read_operations () =
     let read_op draw_st = function
-	(* Create shapes *)
+      (* Create shapes *)
       | XDotDraw.Filled_ellipse (pos, w, h)
       | XDotDraw.Unfilled_ellipse (pos, w, h) ->
-	  shapes <- ellipse ~fill draw_st self pos w h :: shapes
+	shapes <- ellipse ~fill draw_st self pos w h :: shapes
       | XDotDraw.Filled_polygon pts | XDotDraw.Unfilled_polygon pts ->
-	  shapes <- polygon ~fill draw_st self pts :: shapes
+	shapes <- polygon ~fill draw_st self pts :: shapes
       | XDotDraw.Bspline pts | XDotDraw.Filled_bspline pts ->
-	  shapes <- bspline ~fill draw_st self pts :: shapes
-      | XDotDraw.Text (pos, align, _, label) ->
-	  text_opt <- Some (text draw_st self pos align label)
+	shapes <- bspline ~fill draw_st self pts :: shapes
+      | XDotDraw.Text (pos, align, anchor, label) ->
+	texts <- text draw_st self pos align anchor label :: texts
       | _ -> ()
     in
     List.iter (draw_with read_op) ops_list;
-    (match text_opt with None -> () | Some t -> t#raise_to_top ());
+    List.iter (fun t -> t#raise_to_top ()) texts;
     List.fold_right (* preserve order *) (fun f () -> f ()) cached_events ()
 
   method compute () =
