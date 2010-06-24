@@ -44,21 +44,19 @@ object (self)
     props <- p;
     text#set p
 
-  method init_size = size_points
-
   method highlight ?(color=red_color,green_color) () =
     let primary, secondary = color in
     let color = ref primary in
     let rec hi_props = function
       | [] -> []
       | `SIZE_POINTS p :: l ->
-	  let s = if p >= 12. then p else max 6. (p *. 1.5) in
-	  `SIZE_POINTS s :: hi_props l
+	let p = if p >= 12. then p else max 6. (p *. 1.5) in
+	`SIZE_POINTS p :: hi_props l
       | `WEIGHT d :: l ->
-	  `WEIGHT (max 600 (int_of_float (float d *. 1.5))) :: hi_props l
+	`WEIGHT (max 600 (int_of_float (float d *. 1.5))) :: hi_props l
       | `FILL_COLOR c :: l ->
-	  if c = primary then color := secondary;
-	  hi_props l
+	if c = primary then color := secondary;
+	hi_props l
       | p :: l -> p :: hi_props l
     in
     (* as inserted in head, `WEIGHT 600 will not apply if there is already a
@@ -315,12 +313,9 @@ object (self)
       if computed then f x
       else cached_events <- (fun () -> f x) :: cached_events
 
-  method zoom_text zf =
+  method zoom_text (zf:float) =
     self#cache
-      (fun zf ->
-        List.iter
-          (fun t -> let new_size = t#init_size *. zf in t#resize new_size)
-          texts)
+      (fun zf -> List.iter (fun t -> t#resize (10. *. zf)) texts)
       zf
 
   method private iter f =

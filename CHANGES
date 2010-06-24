@@ -1,4 +1,5 @@
 
+ o DGraph: fixed font size issue when zooming
  o DGraph: now interpret text anchors and espaced sequences correctly
  o 'make -j' works again
  o new implementation Persistent.Digraph.ConcreteBidirectionalLabeled

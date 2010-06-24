@@ -74,8 +74,6 @@ class graph_text :
 object
   inherit GnoCanvas.text
   inherit textshape
-  method init_size: float
-    (** Initial size in points *)
   method resize: float -> unit
 end
 

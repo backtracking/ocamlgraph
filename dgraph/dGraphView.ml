@@ -142,10 +142,10 @@ object(self)
 
   (* Zooms the canvas according to the zoom factor *)
   method private zoom () =
-    self#set_pixels_per_unit zoom_f;
     self#iter_clusters (fun c -> c#zoom_text zoom_f);
     self#iter_nodes (fun n -> n#zoom_text zoom_f);
-    self#iter_edges_e (fun e -> e#zoom_text zoom_f)
+    self#iter_edges_e (fun e -> e#zoom_text zoom_f);
+    self#set_pixels_per_unit zoom_f
 
   (* Zoom to a particular factor *)
   method zoom_to x =
