@@ -459,7 +459,6 @@ struct
     (** [output_graph oc graph] pretty prints the graph [graph] in the dot
 	language on the channel [oc]. *)
     let output_graph oc graph =
-
       let ppf = formatter_of_out_channel oc in
       fprint_graph ppf graph;
       pp_print_flush ppf ()

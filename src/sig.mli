@@ -25,14 +25,14 @@
 module type VERTEX = sig
 
   (** Vertices are {!COMPARABLE}. *)
-  
-  type t 
-  val compare : t -> t -> int 
-  val hash : t -> int 
+
+  type t
+  val compare : t -> t -> int
+  val hash : t -> int
   val equal : t -> t -> bool
-      
+
   (** Vertices are labeled. *)
-      
+
   type label
   val create : label -> t
   val label : t -> label
@@ -46,7 +46,7 @@ module type EDGE = sig
 
   type t
   val compare : t -> t -> int
-      
+
   (** Edges are directed. *)
 
   type vertex
@@ -55,9 +55,9 @@ module type EDGE = sig
     (** Edge origin. *)
   val dst : t -> vertex
     (** Edge destination. *)
-      
+
   (** Edges are labeled. *)
-      
+
   type label
   val create : vertex -> label -> vertex -> t
       (** [create v1 l v2] creates an edge from [v1] to [v2] with label [l] *)
@@ -116,7 +116,7 @@ module type G = sig
 	Unspecified behaviour if [g] has several edges from [v1] to [v2].
 	@raise Not_found if no such edge exists. *)
 
-  (** {2 Successors and predecessors} 
+  (** {2 Successors and predecessors}
 
       You should better use iterators on successors/predecessors (see
       Section "Vertex iterators"). *)
@@ -162,12 +162,12 @@ module type G = sig
   val map_vertex : (vertex -> vertex) -> t -> t
     (** Map on all vertices of a graph. *)
 
-  (** {2 Vertex iterators} 
+  (** {2 Vertex iterators}
 
       Each iterator [iterator f v g] iters [f] to the successors/predecessors
       of [v] in the graph [g] and raises [Invalid_argument] if [v] is not in
       [g]. It is the same for functions [fold_*] which use an additional
-      accumulator. 
+      accumulator.
 
       <b>Time complexity for ocamlgraph implementations:</b>
       operations on successors are in O(1) amortized for imperative graphs and
@@ -201,29 +201,29 @@ module type P = sig
     (** The empty graph. *)
 
   val add_vertex : t -> vertex -> t
-    (** [add_vertex g v] adds the vertex [v] from the graph [g].
+    (** [add_vertex g v] adds the vertex [v] to the graph [g].
 	Just return [g] if [v] is already in [g]. *)
 
   val remove_vertex : t -> vertex -> t
-    (** [remove g v] removes the vertex [v] from the graph [g] 
+    (** [remove g v] removes the vertex [v] from the graph [g]
 	(and all the edges going from [v] in [g]).
-	Just return [g] if [v] is not in [g]. 
+	Just return [g] if [v] is not in [g].
 
 	<b>Time complexity for ocamlgraph implementations:</b>
 	O(|V|*ln(|V|)) for unlabeled graphs and
-	O(|V|*max(ln(|V|),D)) for labeled graphs. 
-	D is the maximal degree of the graph. *) 
+	O(|V|*max(ln(|V|),D)) for labeled graphs.
+	D is the maximal degree of the graph. *)
 
   val add_edge : t -> vertex -> vertex -> t
     (** [add_edge g v1 v2] adds an edge from the vertex [v1] to the vertex [v2]
-	in the graph [g]. 
-	Add also [v1] (resp. [v2]) in [g] if [v1] (resp. [v2]) is not in [g]. 
-	Just return [g] if this edge is already in [g]. *) 
+	in the graph [g].
+	Add also [v1] (resp. [v2]) in [g] if [v1] (resp. [v2]) is not in [g].
+	Just return [g] if this edge is already in [g]. *)
 
   val add_edge_e : t -> edge -> t
     (** [add_edge_e g e] adds the edge [e] in the graph [g].
 	Add also [E.src e] (resp. [E.dst e]) in [g] if [E.src e] (resp. [E.dst
-	e]) is not in [g]. 
+	e]) is not in [g].
 	Just return [g] if [e] is already in [g]. *)
 
   val remove_edge : t -> vertex -> vertex -> t
@@ -235,7 +235,7 @@ module type P = sig
 
   val remove_edge_e : t -> edge -> t
     (** [remove_edge_e g e] removes the edge [e] from the graph [g].
-	Just return [g] if [e] is not in [g]. 
+	Just return [g] if [e] is not in [g].
 	@raise Invalid_argument if [E.src e] or [E.dst e] are not in [g]. *)
 
 end
@@ -254,7 +254,7 @@ module type I = sig
         just an initial guess. *)
 
   val clear: t -> unit
-    (** Remove all vertices and edges from the given graph. 
+    (** Remove all vertices and edges from the given graph.
 	@since ocamlgraph 1.4 *)
 
   val copy : t -> t
@@ -262,28 +262,28 @@ module type I = sig
 	marks, see module [Mark]) are duplicated. *)
 
   val add_vertex : t -> vertex -> unit
-    (** [add_vertex g v] adds the vertex [v] from the graph [g].
+    (** [add_vertex g v] adds the vertex [v] to the graph [g].
 	Do nothing if [v] is already in [g]. *)
 
   val remove_vertex : t -> vertex -> unit
-    (** [remove g v] removes the vertex [v] from the graph [g] 
+    (** [remove g v] removes the vertex [v] from the graph [g]
 	(and all the edges going from [v] in [g]).
-	Do nothing if [v] is not in [g]. 
+	Do nothing if [v] is not in [g].
 
 	<b>Time complexity for ocamlgraph implementations:</b>
 	O(|V|*ln(D)) for unlabeled graphs and O(|V|*D)	for
-	labeled graphs. D is the maximal degree of the graph. *) 
+	labeled graphs. D is the maximal degree of the graph. *)
 
   val add_edge : t -> vertex -> vertex -> unit
     (** [add_edge g v1 v2] adds an edge from the vertex [v1] to the vertex [v2]
-	in the graph [g]. 
-	Add also [v1] (resp. [v2]) in [g] if [v1] (resp. [v2]) is not in [g]. 
-	Do nothing if this edge is already in [g]. *) 
+	in the graph [g].
+	Add also [v1] (resp. [v2]) in [g] if [v1] (resp. [v2]) is not in [g].
+	Do nothing if this edge is already in [g]. *)
 
   val add_edge_e : t -> edge -> unit
     (** [add_edge_e g e] adds the edge [e] in the graph [g].
 	Add also [E.src e] (resp. [E.dst e]) in [g] if [E.src e] (resp. [E.dst
-	e]) is not in [g]. 
+	e]) is not in [g].
 	Do nothing if [e] is already in [g]. *)
 
   val remove_edge : t -> vertex -> vertex -> unit
@@ -338,15 +338,15 @@ module type ORDERED_TYPE_DFT = sig include ORDERED_TYPE val default : t end
 
 (** Signature equivalent to [Hashtbl.HashedType]. *)
 module type HASHABLE = sig
-  type t 
-  val hash : t -> int 
+  type t
+  val hash : t -> int
   val equal : t -> t -> bool
 end
 
 (** Signature merging {!ORDERED_TYPE} and {!HASHABLE}. *)
-module type COMPARABLE = sig 
-  type t 
-  val compare : t -> t -> int 
-  val hash : t -> int 
+module type COMPARABLE = sig
+  type t
+  val compare : t -> t -> int
+  val hash : t -> int
   val equal : t -> t -> bool
 end
