@@ -41,6 +41,8 @@ class type ['vertex, 'edge, 'cluster] abstract_model = object
   method iter_succ_e : ('edge -> unit) -> 'vertex -> unit
   method iter_vertex : ('vertex -> unit) -> unit
   method iter_clusters : ('cluster -> unit) -> unit
+  method iter_associated_vertex : ('vertex -> unit) -> 'vertex -> unit
+ 
 
   (** Membership functions *)
   method find_edge : 'vertex -> 'vertex -> 'edge
@@ -73,6 +75,7 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
     method iter_succ f = G.iter_succ f g
     method iter_succ_e f = G.iter_succ_e f g
     method iter_vertex f = G.iter_vertex f g
+    method iter_associated_vertex f v = f v
     method iter_clusters f =
       Hashtbl.iter (fun k v -> f k) layout.XDot.cluster_layouts
 
@@ -165,6 +168,7 @@ module DotModel = struct
     method iter_succ f = DotG.iter_succ f g
     method iter_succ_e f = DotG.iter_succ_e f g
     method iter_vertex f = DotG.iter_vertex f g
+    method iter_associated_vertex f v = f v
     method iter_clusters f = Hashtbl.iter (fun k _ -> f k) clusters_hash
 
     (* Membership functions *)
@@ -211,3 +215,4 @@ let read_xdot xdot_file =
   let graph, bb, clusters_hash =
     DotParser.parse_bounding_box_and_clusters xdot_file in
   DotModel.model graph clusters_hash (XDot.read_bounding_box bb)
+

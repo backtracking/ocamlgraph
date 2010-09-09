@@ -27,25 +27,26 @@ open Dgraph
 open Printf
 
 let ($) f x = f x
+let get_some = function Some t -> t | None -> assert false
 
 let debug = false
 
 type state = {
   mutable file: string option;
-  mutable random: bool;
   mutable window: GWindow.window;
-  mutable view: DGraphViewItem.common_view option;
-  mutable scroll: GBin.scrolled_window option
+  mutable content: GPack.table option
 }
 
-let scrolled_view ~packing model =
-  let scroll =
-    GBin.scrolled_window ~packing ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ()
-  in
-  let view = DGraphView.view ~aa:true ~packing:scroll#add model in
-  ignore (view#set_center_scroll_region true);
-  view#connect_highlighting_event ();
-  (view :> DGraphViewItem.common_view), scroll
+module Content = DGraphContainer.DotMake
+
+(*let scrolled_view ~packing model =*)
+  (*let scroll =*)
+(*GBin.scrolled_window ~packing ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ()*)
+(*in*)
+(*let view = DGraphView.view ~aa:true ~packing:scroll#add model in*)
+  (*ignore (view#set_center_scroll_region true);*)
+  (*view#connect_highlighting_event ();*)
+(*(view :> DGraphViewItem.common_view), scroll*)
 
 let init_state () = 
    let window = 
@@ -56,19 +57,13 @@ let init_state () =
    in
    let status = GMisc.label ~markup:"" () in
    status#set_use_markup true;
-   let random = ref false in
    let file = ref None in
    for i=1 to Array.length Sys.argv - 1 do
-     if Sys.argv.(i) = "--random" then
-       random := true
-     else
-       file := Some Sys.argv.(i)
+     file := Some Sys.argv.(i)
    done;
    { file = !file;
-     random = !random;
      window = window;
-     view = None;
-     scroll = None }
+     content = None }
 
 (* Top menu *)
 
@@ -83,30 +78,18 @@ let menu_desc = "<ui>\
 </ui>"
 
 let update_state state ~packing =
-  (match state.scroll with None -> () | Some t -> t#destroy ());
+  (match state.content with None -> () | Some t -> t#destroy ());
   try
-    let view, scroll = match state.file with	
+    let content = match state.file with	
       | Some file ->
 	  if debug then printf "Building Model...\n";
-	  let model =
-	    if Filename.check_suffix file "xdot" then
-	      DGraphModel.read_xdot file
-	    else
-	      DGraphModel.read_dot ~cmd:"dot" file
-	  in
 	  state.file <- Some file;
-	  scrolled_view ~packing model
-      | None when state.random ->
-	  state.file <- None;
-	  scrolled_view ~packing (DGraphRandModel.create ())
+	  Content.from_dot_with_commands ~packing file
       | None ->
 	  raise Not_found
     in
-    if debug then printf "Building View...\n";
-    state.view <- Some view;
-    state.scroll <- Some scroll;
+    state.content <- Some content;
     state.window#show ();
-    view#misc#show ()
   with Not_found ->
     if debug then printf "No model\n"
 
@@ -141,8 +124,18 @@ let create_menu state ~packing =
       ~callback:(fun _ -> open_file state ~packing ());
     GAction.add_action
       "Zoom fit" ~label:"Zoom fit" ~accel:"<Control>t" ~stock:`ZOOM_FIT
+      ~callback:(fun _ -> ());
+    (*GAction.add_action
+      "Zoom fit" ~label:"Zoom fit" ~accel:"<Control>t" ~stock:`ZOOM_FIT
       ~callback:
-      (fun _ -> match state.view with Some v -> v#adapt_zoom() | None -> ());
+      (fun _ -> match state.content with 
+	|Some v -> 
+	  (match v#status with
+	    |Global -> (get_some v#global_view)#adjust_zoom()
+	    |Tree -> (get_some v#tree_view)#adjust_zoom()
+	    |Paned -> (get_some v#global_view)#adjust_zoom();
+	      (get_some v#tree_view)#adjust_zoom())
+	| None -> ());*)
     GAction.add_action "Quit" ~label:"Quit" ~accel:"<Control>q" ~stock:`QUIT
       ~callback:(fun _ -> GMain.Main.quit ());
   ];

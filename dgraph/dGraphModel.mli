@@ -41,6 +41,7 @@ class type ['vertex, 'edge, 'cluster] abstract_model = object
   method iter_succ_e : ('edge -> unit) -> 'vertex -> unit
   method iter_vertex : ('vertex -> unit) -> unit
   method iter_clusters : ('cluster -> unit) -> unit
+  method iter_associated_vertex : ('vertex -> unit) -> 'vertex -> unit
 
   (** Membership functions *)
   method find_edge : 'vertex -> 'vertex -> 'edge
@@ -85,6 +86,5 @@ type dotg_model = (DotG.vertex, DotG.edge, cluster) abstract_model
 (** Creates a model from a dot file. *)
 val read_dot : ?cmd:string -> string -> dotg_model
 
-(** Creates a model from an xdot file (the layout is not recomputed, thus
-    efficiency is better than [read_dot]). *)
+(** Creates a model from an xdot file (the layout is not recomputed)*)
 val read_xdot : string -> dotg_model

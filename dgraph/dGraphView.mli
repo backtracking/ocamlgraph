@@ -64,6 +64,10 @@ object
   method iter_succ_e: ('edge view_item -> unit) -> 'vertex view_item -> unit
   method iter_pred_e: ('edge view_item -> unit) -> 'vertex view_item -> unit
 
+  (* Benoit Bataille's method: is it really useful? *)
+  method iter_associated_vertex:
+    ('vertex view_item -> unit) -> 'vertex view_item -> unit
+
   (** {2 Membership functions} *)
 
   method mem_edge: 'vertex view_item -> 'vertex view_item -> bool

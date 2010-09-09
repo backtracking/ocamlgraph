@@ -182,13 +182,15 @@ $(VIEWER_DIR)/viewgraph.opt: $(CMXA) $(VIEWER_CMXLIB)
 
 DGRAPH_DIR=dgraph
 
-dgraph: $(DGRAPH_DIR)/dgraph.byte $(DGRAPH_DIR)/dgraph.$(OCAMLBEST)
+dgraph: $(DGRAPH_DIR)/dgraph.byte $(DGRAPH_DIR)/dgraph.$(OCAMLBEST) 
 
-DGRAPH_CMO=xDotDraw xDot dGraphModel dGraphViewItem \
-	dGraphView dGraphRandModel dGraphViewer
+DGRAPH_CMO=dGraphSubTree xDotDraw xDot dGraphTreeLayout dGraphModel \
+dGraphTreeModel dGraphViewItem dGraphView dGraphRandModel dGraphContainer \
+dGraphViewer dGraphTest
 DGRAPH_CMO:=$(patsubst %,$(DGRAPH_DIR)/%.cmo, $(DGRAPH_CMO))
 DGRAPH_CMX=$(DGRAPH_CMO:.cmo=.cmx)
-DGRAPH_CMI=$(filter-out dgraph/dGraphViewer.cmi, $(DGRAPH_CMO:.cmo=.cmi))
+DGRAPH_CMI=$(filter-out dgraph/dGraphViewer.cmi dgraph/dGraphTest.cmi, \
+  $(DGRAPH_CMO:.cmo=.cmi))
 
 DGRAPH_INCLUDES= @INCLUDEGTK2@ -I $(DGRAPH_DIR) $(INCLUDES) -I .
 
@@ -202,20 +204,25 @@ DGRAPH_CMOLIB	= $(DGRAPH_DIR)/dgraph.cmo
 DGRAPH_CMILIB	= $(DGRAPH_DIR)/dgraph.cmi
 DGRAPH_CMXLIB	= $(DGRAPH_DIR)/dgraph.cmx
 
+
 dgraph/dGraphViewer.cmo: $(DGRAPH_CMOLIB)
 dgraph/dGraphViewer.cmx: $(DGRAPH_CMXLIB)
 
-$(DGRAPH_CMOLIB): $(filter-out $(DGRAPH_DIR)/dGraphViewer.cmo, $(DGRAPH_CMO))
+$(DGRAPH_CMOLIB): $(filter-out dgraph/dGraphViewer.cmo dgraph/dGraphTest.cmo, \
+  $(DGRAPH_CMO))
 	$(OCAMLC) -o $@ $(DGRAPH_INCLUDES) -pack $^
 
-$(DGRAPH_CMXLIB): $(filter-out $(DGRAPH_DIR)/dGraphViewer.cmx, $(DGRAPH_CMX))
+$(DGRAPH_CMXLIB): $(filter-out dgraph/dGraphViewer.cmx dgraph/dGraphTest.cmx, \
+  $(DGRAPH_CMX))
 	$(OCAMLOPT) -o $@ $(DGRAPH_INCLUDES) -pack $^
 
-$(DGRAPH_DIR)/dgraph.byte: $(CMA) $(DGRAPH_CMOLIB) dgraph/dGraphViewer.cmo
+$(DGRAPH_DIR)/dgraph.byte: $(CMA) $(DGRAPH_CMOLIB) \
+  $(DGRAPH_DIR)/dGraphViewer.cmo
 	$(OCAMLC) -g -o $@ $(DGRAPH_INCLUDES) \
 		lablgtk.cma gtkInit.cmo lablgnomecanvas.cma $^
 
-$(DGRAPH_DIR)/dgraph.opt: $(CMXA) $(DGRAPH_CMXLIB) dgraph/dGraphViewer.cmx
+$(DGRAPH_DIR)/dgraph.opt: $(CMXA) $(DGRAPH_CMXLIB) \
+  $(DGRAPH_DIR)/dGraphViewer.cmx
 	$(OCAMLOPT) -o $@ $(DGRAPH_INCLUDES) \
 		lablgtk.cmxa gtkInit.cmx lablgnomecanvas.cmxa $^
 

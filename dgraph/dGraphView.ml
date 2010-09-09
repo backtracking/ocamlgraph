@@ -36,7 +36,7 @@ class ['v, 'e, 'c] view ?delay_node ?delay_edge ?delay_cluster
   obj (model : ('v, 'e, 'c) DGraphModel.abstract_model)
   =
   let delay f v = match f with None -> false | Some f -> f v in
-  let (x1, y2), (x2, y1) = model#bounding_box in
+  let (x1, y1), (x2, y2) = model#bounding_box in
 object(self)
 
   inherit GnoCanvas.canvas obj
@@ -120,6 +120,11 @@ object(self)
     let f' e = f (self#get_edge e) in
     model#iter_pred_e f' node#item
 
+  (* Iterate on associated nodes *)
+  method iter_associated_vertex f (node: 'v view_item) =
+    let f' v = f (self#get_node v) in
+    model#iter_associated_vertex f' node#item
+
   (* Membership functions *)
 
   method mem_edge (n1:'v view_item) (n2:'v view_item) =
@@ -184,14 +189,20 @@ object(self)
   method highlight ?color node =
     let h e = e#highlight ?color () in
     h node;
-    self#iter_succ_e h node;
-    self#iter_pred_e h node
+    self#iter_associated_vertex (fun v ->
+      h v;
+      self#iter_succ_e h v;
+      self#iter_pred_e h v) 
+    node
 
   method dehighlight node =
     let h e = e#dehighlight () in
     h node;
-    self#iter_succ_e h node;
-    self#iter_pred_e h node
+    self#iter_associated_vertex (fun v ->
+      h v;
+      self#iter_succ_e h v;
+      self#iter_pred_e h v)
+    node
 
   method connect_highlighting_event () =
     let connect node =
