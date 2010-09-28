@@ -1,4 +1,6 @@
 
+ o Graphviz: fixed bug with attribute `Constraint (was `Constraints) (patch by
+   Boris Yakobowski)
  o DGraph: fixed font size issue when zooming
  o DGraph: now interpret text anchors and espaced sequences correctly
  o 'make -j' works again

@@ -262,7 +262,7 @@ module DotAttributes : sig
         (** Sets the style of the tail arrow.  Default value is [`Normal]. *)
     | `Comment of string
         (** Comment string. *)
-    | `Constraints of bool
+    | `Constraint of bool
         (** If [false], causes an edge to be ignored for rank assignment.
             Default value is [true]. *)
     | `Headlabel of string

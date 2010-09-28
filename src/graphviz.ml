@@ -561,7 +561,7 @@ module DotAttributes = struct
         (** Sets the style of the tail arrow.  Default value is [`Normal]. *)
     | `Comment of string
         (** Comment string. *)
-    | `Constraints of bool
+    | `Constraint of bool
         (** If [false], causes an edge to be ignored for rank assignment.
             Default value is [true]. *)
     | `Headlabel of string
@@ -664,7 +664,7 @@ module DotAttributes = struct
       | `Arrowsize f -> fprintf ppf "arrowsize=%f" f
       | `Arrowtail a -> fprintf ppf "arrowtail=%a" fprint_arrow_style a
       | `Comment s -> fprintf ppf "comment=%a" fprint_string s
-      | `Constraints b -> fprintf ppf "constraints=%b" b
+      | `Constraint b -> fprintf ppf "constraint=%b" b
       | `Headlabel s -> fprintf ppf "headlabel=%a" fprint_string s
       | `Headport a -> fprintf ppf "headport=%a" fprint_port a
       | `Headurl s -> fprintf ppf "headURL=%a" fprint_string s
