@@ -182,7 +182,7 @@ $(VIEWER_DIR)/viewgraph.opt: $(CMXA) $(VIEWER_CMXLIB)
 
 DGRAPH_DIR=dgraph
 
-dgraph: $(DGRAPH_DIR)/dgraph.byte $(DGRAPH_DIR)/dgraph.$(OCAMLBEST) 
+dgraph: $(DGRAPH_DIR)/dgraph.byte $(DGRAPH_DIR)/dgraph.$(OCAMLBEST)
 
 DGRAPH_CMO=dGraphSubTree xDotDraw xDot dGraphTreeLayout dGraphModel \
 dGraphTreeModel dGraphViewItem dGraphView dGraphRandModel dGraphContainer \
@@ -391,12 +391,17 @@ wc:
 ##############
 
 headers:
-	headache -c misc/headache_config.txt -h misc/header.txt \
-		Makefile.in configure.in README \
-		$(LIBDIR)/*.ml $(LIBDIR)/*.ml[ily] \
-		$(SRCDIR)/*.ml $(SRCDIR)/*.ml[ily] \
-		$(ED_DIR)/*.ml $(ED_DIR)/*.mli \
-
+	headache \
+	   -c misc/headache_config.txt \
+	   -h misc/header.txt \
+	   Makefile.in configure.in README \
+	   $(LIBDIR)/*.ml $(LIBDIR)/*.ml[ily] \
+	   $(SRCDIR)/*.ml $(SRCDIR)/*.ml[ily] \
+	   $(ED_DIR)/*.ml $(ED_DIR)/*.mli
+	headache \
+           -c misc/headache_config.txt \
+	   -h $(DGRAPH_DIR)/headers/CEA_LGPL \
+	   $(DGRAPH_DIR)/*.ml $(DGRAPH_DIR)/*.mli
 # export
 ########
 

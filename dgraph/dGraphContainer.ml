@@ -2,8 +2,8 @@
 (*                                                                        *)
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
-(*  Copyright (C) 2009                                                    *)
-(*    CEA (Commissariat Ã  l'Ã‰nergie Atomique)                             *)
+(*  Copyright (C) 2009-2010                                               *)
+(*    CEA (Commissariat à l'Énergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -17,8 +17,9 @@
 (*  See the file ../LICENSE for more details.                             *)
 (*                                                                        *)
 (*  Authors:                                                              *)
-(*    - Benoit Bataille  (benoit.bataille@gmail.com)                      *)
 (*    - Julien Signoles  (Julien.Signoles@cea.fr)                         *)
+(*    - Jean-Denis Koeck (jdkoeck@gmail.com)                              *)
+(*    - Benoit Bataille  (benoit.bataille@gmail.com)                      *)
 (*                                                                        *)
 (**************************************************************************)
 
@@ -134,10 +135,9 @@ module Make ( G : Graphviz.GraphWithDotAttrs ) = struct
 
   class view_container global_view_fun tree_view_fun v g =
 
-    let paned_window = GPack.paned `VERTICAL ~packing:(fun _ -> ()) ()
-    and global_frame = GBin.frame ~label:"Global View" ()
-    and tree_frame = GBin.frame ~label:"Tree View" ()
-    in
+    let paned_window = GPack.paned `VERTICAL ~packing:(fun _ -> ()) () in
+    let global_frame = GBin.frame ~label:"Global View" () in
+    let tree_frame = GBin.frame ~label:"Tree View" () in
     let scrolled_global_view = GBin.scrolled_window
       ~hpolicy:`AUTOMATIC
       ~vpolicy:`AUTOMATIC

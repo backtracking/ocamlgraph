@@ -2,7 +2,7 @@
 (*                                                                        *)
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
-(*  Copyright (C) 2009                                                    *)
+(*  Copyright (C) 2009-2010                                               *)
 (*    CEA (Commissariat à l'Énergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
@@ -17,8 +17,9 @@
 (*  See the file ../LICENSE for more details.                             *)
 (*                                                                        *)
 (*  Authors:                                                              *)
-(*    - Jean-Denis Koeck (jdkoeck@gmail.com)                              *)
 (*    - Julien Signoles  (Julien.Signoles@cea.fr)                         *)
+(*    - Jean-Denis Koeck (jdkoeck@gmail.com)                              *)
+(*    - Benoit Bataille  (benoit.bataille@gmail.com)                      *)
 (*                                                                        *)
 (**************************************************************************)
 
@@ -192,7 +193,7 @@ object(self)
     self#iter_associated_vertex (fun v ->
       h v;
       self#iter_succ_e h v;
-      self#iter_pred_e h v) 
+      self#iter_pred_e h v)
     node
 
   method dehighlight node =
