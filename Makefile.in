@@ -184,9 +184,12 @@ DGRAPH_DIR=dgraph
 
 dgraph: $(DGRAPH_DIR)/dgraph.byte $(DGRAPH_DIR)/dgraph.$(OCAMLBEST)
 
-DGRAPH_CMO=dGraphSubTree xDotDraw xDot dGraphTreeLayout dGraphModel \
-dGraphTreeModel dGraphViewItem dGraphView dGraphRandModel dGraphContainer \
-dGraphViewer dGraphTest
+DGRAPH_CMO=xDotDraw xDot \
+	dGraphModel \
+	dGraphTreeLayout dGraphSubTree dGraphTreeModel \
+	dGraphViewItem dGraphView \
+	dGraphRandModel dGraphContainer \
+	dGraphViewer dGraphTest
 DGRAPH_CMO:=$(patsubst %,$(DGRAPH_DIR)/%.cmo, $(DGRAPH_CMO))
 DGRAPH_CMX=$(DGRAPH_CMO:.cmo=.cmx)
 DGRAPH_CMI=$(filter-out dgraph/dGraphViewer.cmi dgraph/dGraphTest.cmi, \

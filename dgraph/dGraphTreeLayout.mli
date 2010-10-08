@@ -27,40 +27,27 @@ open Graph
 
 type cluster = string
 
-module Make (Tree : Graphviz.GraphWithDotAttrs ) : sig
+module Make
+  (Tree: Graphviz.GraphWithDotAttrs)
+  (TreeManipulation: sig val is_ghost_node: Tree.V.t -> bool end):
+sig
 
-  val from_tree : [> `widget] Gtk.obj -> Tree.t -> Tree.V.t ->
-    (Tree.V.t,Tree.E.t,cluster) XDot.graph_layout
+  val from_tree:
+    [> `widget] Gtk.obj -> Tree.t -> Tree.V.t -> XDot.Make(Tree).graph_layout
 
 end
 
-module type Tree = sig
-  type t
-  module V : sig
-    type t
-    type label
-    val label : t -> label
-  end
-  module E : sig
-    type t
-    type label
-    val src : t -> V.t
-    val dst : t -> V.t
-  end
-  val iter_vertex : (V.t -> unit) -> t -> unit
-  val iter_edges_e : (E.t -> unit) -> t -> unit
-  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
-  val iter_pred : (V.t -> unit) -> t -> V.t -> unit
-  val fold_succ : (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
-  val fold_pred : (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
-end
+module MakeFromDotModel
+  (Tree : Sig.G with type V.label = DGraphModel.DotG.V.t
+		and type E.label = unit)
+  (TreeManipulation: sig val is_ghost_node: Tree.V.t -> bool end):
+sig
 
-module MakeFromDotModel (Tree : Tree with
-type V.label = DGraphModel.DotG.V.t and type E.label = unit) : sig
+  module Tree: Graphviz.GraphWithDotAttrs with module V = Tree.V
+					  and module E = Tree.E
+					  and type t = Tree.t
 
-  val from_model : Tree.t -> Tree.V.t -> 
-    (DGraphModel.DotG.V.t, DGraphModel.DotG.E.t, cluster)
-    DGraphModel.abstract_model ->
-    (Tree.V.t, Tree.E.t, cluster) XDot.graph_layout
+  val from_model:
+    Tree.t -> Tree.V.t -> DGraphModel.dotg_model -> XDot.Make(Tree).graph_layout
 
 end

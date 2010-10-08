@@ -29,13 +29,14 @@ let ($) f x = f x
 let get_some = function None -> assert false | Some t -> t
 
 type cluster = string
-
 type status = Global | Tree | Both
 
 (* ABSTRACT CLASS *)
 
-class type ['vertex, 'edge, 'cluster,
-'tree_vertex, 'tree_edge, 'tree_cluster] abstract_view_container = object
+class type
+    ['vertex, 'edge, 'cluster, 'tree_vertex, 'tree_edge, 'tree_cluster]
+      view_container_type =
+object
   method content : GPack.paned
   method global_view :
     ('vertex, 'edge, 'cluster) DGraphView.view option
@@ -48,33 +49,72 @@ class type ['vertex, 'edge, 'cluster,
   method set_depth_forward : int -> unit
   method status : status
   method switch : status -> unit
+  method adapt_zoom: unit -> unit
+end
+
+module type S = sig
+
+  type graph
+  type vertex
+  type edge
+
+  module Tree: Sig.G with type V.label = vertex
+
+  module GView: DGraphView.S with type vertex = vertex
+			     and type edge = edge
+			     and type cluster = cluster
+
+  module TView: DGraphView.S with type vertex = Tree.V.t
+			     and type edge = Tree.E.t
+			     and type cluster = cluster
+
+  type global_view = (vertex, edge, cluster) DGraphView.view
+  type tree_view = (Tree.V.t, Tree.E.t, cluster) DGraphView.view
+
+  class view_container :
+    ?packing:(GObj.widget -> unit)
+    -> ?status:status
+    -> mk_global_view: (unit -> global_view)
+      -> mk_tree_view:
+	(depth_backward:int -> depth_forward:int -> Gtk.widget Gtk.obj -> vertex
+	 -> tree_view)
+	-> vertex option
+	  -> [ vertex, edge, cluster, Tree.V.t, Tree.E.t, cluster]
+	    view_container_type
+
 end
 
 (* CONTAINER *)
 
-let with_commands ?packing container =
+let with_commands ?packing mk_view model =
   let main_table = GPack.table
     ~columns:2
     ~rows:2
     ?packing () in
 
   (* Viewer *)
-  main_table#attach
-    ~left:0
-    ~right:2
-    ~top:1
-    ~expand:`BOTH
-    container#content#coerce;
+  let view =
+    mk_view
+      ~packing:(fun w ->
+	main_table#attach
+	  ~left:0
+	  ~right:2
+	  ~top:1
+	  ~expand:`BOTH
+	  w)
+      model
+  in
 
   (* View controls *)
-  let button_top_box = GPack.button_box
-    `HORIZONTAL
-    ~border_width:3
-    ~child_height:10
-    ~child_width:85
-    ~spacing:10
-    ~layout:`START
-    ~packing:(main_table#attach ~top:0 ~left:0 ~expand:`X) ()
+  let button_top_box =
+    GPack.button_box
+      `HORIZONTAL
+      ~border_width:3
+      ~child_height:10
+      ~child_width:85
+      ~spacing:10
+      ~layout:`START
+      ~packing:(main_table#attach ~top:0 ~left:0 ~expand:`X) ()
   in
   let view_label = GMisc.label ~markup:"<b>View</b>" () in
   button_top_box#pack ~expand:false view_label#coerce;
@@ -88,11 +128,11 @@ let with_commands ?packing container =
     GButton.button ~label:"Both" ~packing:button_top_box#pack ()
   in
   ignore $ button_global_view#connect#clicked
-    ~callback:(fun _ -> container#switch Global) ;
+    ~callback:(fun _ -> view#switch Global) ;
   ignore $ button_tree_view#connect#clicked
-    ~callback:(fun _ -> container#switch Tree) ;
+    ~callback:(fun _ -> view#switch Tree) ;
   ignore $ button_paned_view#connect#clicked
-    ~callback:(fun _ -> container#switch Both) ;
+    ~callback:(fun _ -> view#switch Both) ;
 
   (* Depth of exploration controls *)
   let depth_hbox = GPack.hbox
@@ -107,63 +147,90 @@ let with_commands ?packing container =
     content#set_depth_backward (int_of_float adj#value)
   in
   ignore $ depth_forward_adj#connect#value_changed
-    ~callback:(change_depth_forward depth_forward_adj container);
+    ~callback:(change_depth_forward depth_forward_adj view);
   ignore $ depth_backward_adj#connect#value_changed
-    ~callback:(change_depth_backward depth_backward_adj container);
+    ~callback:(change_depth_backward depth_backward_adj view);
   let depth_label = GMisc.label ~markup:"<b>Depth</b>" () in
   let depth_forward_label = GMisc.label ~text:" forward: " () in
   let depth_backward_label = GMisc.label ~text:" backward: " () in
-  let depth_forward_spin = GEdit.spin_button ~value:3.
-    ~adjustment:depth_forward_adj () in
-  let depth_backward_spin = GEdit.spin_button ~value:3.
-    ~adjustment:depth_backward_adj () in
+  let depth_forward_spin =
+    GEdit.spin_button ~value:2. ~adjustment:depth_forward_adj ()
+  in
+  let depth_backward_spin =
+    GEdit.spin_button ~value:2. ~adjustment:depth_backward_adj ()
+  in
   depth_hbox#pack ~from:`END depth_backward_spin#coerce;
   depth_hbox#pack ~from:`END depth_backward_label#coerce;
   depth_hbox#pack ~from:`END depth_forward_spin#coerce;
   depth_hbox#pack ~from:`END depth_forward_label#coerce;
   depth_hbox#pack ~from:`END depth_label#coerce;
 
-  main_table;;
+  main_table, view;;
 
 (* FROM GRAPH *)
 
-module Make ( G : Graphviz.GraphWithDotAttrs ) = struct
+module HString = struct
+  type t = string
+  let equal = (=)
+  let hash = Hashtbl.hash
+end
 
-  module Choose = Oper.Choose(G)
+module Build
+  (G: Sig.G)
+  (T: DGraphTreeModel.S with type Tree.V.label = G.V.t) =
+struct
 
-  module TreeModel = DGraphTreeModel.SubTreeMake(G)
+  type graph = G.t
+  type vertex = G.V.t
+  type edge = G.E.t
+  module TreeModel = T
+  module Tree = T.Tree
 
-  class view_container global_view_fun tree_view_fun v g =
+  module HE(E: sig type t val compare: t -> t -> int end) = struct
+    type t = E.t
+    let equal x y = E.compare x y = 0
+    let hash = Hashtbl.hash
+  end
+  module GView = DGraphView.Make(G.V)(HE(G.E))(HString)
+  module TView = DGraphView.Make(Tree.V)(HE(Tree.E))(HString)
 
-    let paned_window = GPack.paned `VERTICAL ~packing:(fun _ -> ()) () in
+  type global_view = (G.V.t, G.E.t, string) DGraphView.view
+  type tree_view = (Tree.V.t, Tree.E.t, string) DGraphView.view
+
+  class view_container
+    ?packing
+    ?(status=Global)
+    ~mk_global_view
+    ~mk_tree_view
+    default_tree_root
+    =
+    (* widgets *)
+    let paned_window = GPack.paned `VERTICAL ?packing () in
     let global_frame = GBin.frame ~label:"Global View" () in
     let tree_frame = GBin.frame ~label:"Tree View" () in
-    let scrolled_global_view = GBin.scrolled_window
-      ~hpolicy:`AUTOMATIC
-      ~vpolicy:`AUTOMATIC
-      ~packing:global_frame#add
-      ()
+    let scrolled_global_view =
+      GBin.scrolled_window
+	~hpolicy:`AUTOMATIC
+	~vpolicy:`AUTOMATIC
+	~packing:global_frame#add
+	()
     in
-    let scrolled_tree_view = GBin.scrolled_window
-      ~hpolicy:`AUTOMATIC
-      ~vpolicy:`AUTOMATIC
-      ~packing:tree_frame#add
-      ()
+    let scrolled_tree_view =
+      GBin.scrolled_window
+	~hpolicy:`AUTOMATIC
+	~vpolicy:`AUTOMATIC
+	~packing:tree_frame#add
+	()
     in
-
-    (* [JS 2010/09/09] To factorize with the same code in the other functor *)
-
     (* Callback functions *)
     let connect_tree_callback obj node =
       let callback = function
 	| `BUTTON_PRESS _ ->
-	  obj#set_tree_view (TreeModel.Tree.V.label node#item);
+	  obj#set_tree_view (T.Tree.V.label node#item);
 	  false
 	|_ -> false
-      in
-      node#connect_event ~callback
+      in node#connect_event ~callback
     in
-
     let connect_global_callback obj node =
       let callback = function
 	| `BUTTON_PRESS _ ->
@@ -176,392 +243,266 @@ module Make ( G : Graphviz.GraphWithDotAttrs ) = struct
 	  | Tree -> assert false);
 	  false
 	|_ -> false
+      in node#connect_event ~callback
+    in
+    let connect_switch_tree_callback obj node =
+      let global_view : global_view = get_some obj#global_view in
+      let tree = T.tree () in
+      let gnode =
+	global_view#get_node
+	  (T.TreeManipulation.get_graph_vertex node#item tree)
+      in
+      let callback = function
+	| `MOTION_NOTIFY _ ->
+	  global_view#highlight gnode;
+	  false
+	| `LEAVE_NOTIFY _ | `BUTTON_PRESS _ ->
+	  global_view#dehighlight gnode;
+	  false
+	|_ ->
+	  false
       in
       node#connect_event ~callback
     in
-
-    let connect_switch_tree_callback obj node =
-      let global_view = ((get_some obj#global_view) :>
-	(G.V.t, G.E.t, string) DGraphView.view)
-      in
-      let tree = get_some (TreeModel.get_tree()) in
-      let callback = function
-	| `MOTION_NOTIFY _ ->
-	  global_view#highlight (global_view#get_node
-	    (TreeModel.TreeManipulation.get_graph_vertex node#item tree));
-	  false
-	| `LEAVE_NOTIFY _ ->
-	  global_view#dehighlight (global_view#get_node
-	    (TreeModel.TreeManipulation.get_graph_vertex node#item tree));
-	  false
-	| `BUTTON_PRESS _ ->
-	  global_view#dehighlight (global_view#get_node
-	    (TreeModel.TreeManipulation.get_graph_vertex node#item tree));
-	  false
-	|_ -> false
-      in node#connect_event ~callback
-    in
-
     let connect_switch_global_callback obj node =
-      let tree_view = ((get_some obj#tree_view) :>
-	(TreeModel.Tree.V.t,TreeModel.Tree.E.t,string) DGraphView.view)
+      let tree_view : tree_view = get_some obj#tree_view in
+      let tree = T.tree () in
+      let vertices = T.TreeManipulation.get_tree_vertices node#item tree in
+      let apply f =
+	List.iter (fun v -> f (tree_view#get_node v)) vertices;
+	false
       in
-      let tree = get_some (TreeModel.get_tree ()) in
       let callback = function
-	| `MOTION_NOTIFY _ ->
-	  List.iter (fun v -> tree_view#highlight (tree_view#get_node v))
-	  (TreeModel.TreeManipulation.get_tree_vertices node#item tree);
-	  false
-	| `LEAVE_NOTIFY _ ->
-	  List.iter (fun v -> tree_view#dehighlight (tree_view#get_node v))
-	  (TreeModel.TreeManipulation.get_tree_vertices node#item tree);
-	  false
+	| `MOTION_NOTIFY _ -> apply tree_view#highlight
+	| `LEAVE_NOTIFY _ -> apply tree_view#dehighlight
 	|_ -> false
-      in node#connect_event ~callback
+      in
+      node#connect_event ~callback
     in
+  object (self)
 
-    object (self)
-      val mutable global_view = (None :
-	(G.V.t, G.E.t,string) DGraphView.view option)
-      val mutable tree_view = (None :
-	(TreeModel.Tree.V.t, TreeModel.Tree.E.t,string)
-	DGraphView.view option)
-      val mutable status = Global
-      val mutable depth_forward = 3
-      val mutable depth_backward = 3
+    val mutable global_view: global_view option = None
+    val mutable tree_view: tree_view option = None
+    val mutable status = status
+    val mutable depth_forward = 2
+    val mutable depth_backward = 2
 
-      (* Getters *)
-      method status = status
-      method global_view = global_view
-      method tree_view = tree_view
-      method content = paned_window
-      method depth_forward = depth_forward
-      method depth_backward = depth_backward
+    (* Getters *)
+    method status = status
+    method global_view = global_view
+    method tree_view = tree_view
+    method content = paned_window
+    method depth_forward = depth_forward
+    method depth_backward = depth_backward
 
-      (* Setters *)
-      method set_depth_forward i = depth_forward <- i
-      method set_depth_backward i = depth_backward <- i
+    (* Setters *)
+    method set_depth_forward i = depth_forward <- i
+    method set_depth_backward i = depth_backward <- i
 
-      method set_tree_view v =
-	let model = TreeModel.from_graph
-	  ~depth_forward:depth_forward
-	  ~depth_backward:depth_backward
-	  paned_window#as_widget g v
-	in
-	if tree_view != None then
-	  scrolled_tree_view#remove scrolled_tree_view#child;
-	let view = tree_view_fun model in
-	scrolled_tree_view#add view#coerce;
-	tree_view <- Some(view);
-	view#connect_highlighting_event();
-	view#iter_nodes (connect_tree_callback self);
-	if status = Both then begin
+    method set_tree_view root =
+      if tree_view <> None then
+	scrolled_tree_view#remove scrolled_tree_view#child;
+      let view =
+	mk_tree_view ~depth_backward ~depth_forward paned_window#as_widget root
+      in
+      scrolled_tree_view#add view#coerce;
+      tree_view <- Some view;
+      view#connect_highlighting_event();
+      view#iter_nodes (connect_tree_callback self);
+      if status = Both then begin
 	view#iter_nodes (connect_switch_tree_callback self);
-	(get_some global_view)#iter_nodes
-	  (connect_switch_global_callback self)
-	end
+	(get_some global_view)#iter_nodes (connect_switch_global_callback self)
+      end
 
-      method private init_global_view () =
-	let module GraphModel = DGraphModel.Make(G) in
-	let model = GraphModel.from_graph g in
-	let view = global_view_fun model in
-	scrolled_global_view#add view#coerce;
-	global_view <- Some(view);
-	view#connect_highlighting_event();
-	view#iter_nodes (connect_global_callback self)
+    method private init_global_view () =
+      let view = mk_global_view () in
+      scrolled_global_view#add view#coerce;
+      view#connect_highlighting_event ();
+      view#iter_nodes (connect_global_callback self);
+      global_view <- Some view;
 
-      (* Switch *)
-      method private switch_to_global_view () =
-	if global_view = None then self#init_global_view ();
+    (* Switch *)
+    method private switch_to_global_view () =
+      if global_view = None then self#init_global_view ();
+      (match status with
+      | Global -> ()
+      | Both ->
+	status <- Global;
+	paned_window#remove paned_window#child2
+      | Tree ->
+	status <- Global;
+	paned_window#remove paned_window#child2;
+	paned_window#pack1 global_frame#coerce);
+      match global_view with None -> assert false | Some v -> v#adapt_zoom ()
+
+    method private switch_to_tree_view () =
+      match default_tree_root with
+      | None -> ()
+      | Some root ->
+	if tree_view = None then self#set_tree_view root;
 	(match status with
-	  |Global -> ()
-	  |Both ->
-	    status <- Global;
-	    paned_window#remove paned_window#child2
-	  |Tree ->
-	    status <- Global;
-	    paned_window#remove paned_window#child2;
-	    paned_window#add1 global_frame#coerce);
-	(get_some global_view)#adapt_zoom()
+	| Tree -> ()
+	| Both ->
+	  status <- Tree;
+	  paned_window#remove paned_window#child1
+	| Global ->
+	  status <- Tree;
+	  paned_window#remove paned_window#child1;
+	  paned_window#pack2 tree_frame#coerce);
+	match tree_view with None -> () | Some t -> t#adapt_zoom ()
 
-      method private switch_to_tree_view () =
-	if tree_view = None then
-	  self#set_tree_view v;
-	(match status with
-	  |Tree -> ()
-	  |Both ->
-	    status <- Tree;
-	    paned_window#remove paned_window#child1
-	  |Global ->
-	    status <- Tree;
-	    paned_window#remove paned_window#child1;
-	    paned_window#add2 tree_frame#coerce);
-	(get_some tree_view)#adapt_zoom()
-
-      method private switch_to_paned_view () =
-	if tree_view = None then
-	  self#set_tree_view v;
+    method private switch_to_paned_view () =
+      (match default_tree_root with
+      | None -> self#switch_to_global_view ()
+      | Some root ->
+	if tree_view = None then self#set_tree_view root;
 	if global_view = None then self#init_global_view ();
 	(get_some tree_view)#iter_nodes (connect_switch_tree_callback self);
 	(get_some global_view)#iter_nodes
 	  (connect_switch_global_callback self);
-	(match status with
-	  |Both -> ()
-	  |Global ->
-	    status <- Both;
-	    paned_window#add2 tree_frame#coerce
-	  |Tree ->
-	    status <- Both;
-	    paned_window#add1 global_frame#coerce);
-	(get_some global_view)#adapt_zoom();
-	(get_some tree_view)#adapt_zoom()
+	match status with
+	| Both -> ()
+	| Global ->
+	  status <- Both;
+	  paned_window#pack2 tree_frame#coerce
+	| Tree ->
+	  status <- Both;
+	  paned_window#pack1 global_frame#coerce);
+      self#adapt_zoom ()
 
-      method switch = function
-	|Global -> self#switch_to_global_view ()
-	|Tree -> self#switch_to_tree_view ()
-	|Both -> self#switch_to_paned_view ()
+    method switch = function
+    | Global -> self#switch_to_global_view ()
+    | Tree -> self#switch_to_tree_view ()
+    | Both -> self#switch_to_paned_view ()
 
-      (* Constructor *)
-      initializer
-	if (G.nb_vertex g < 1000 && G.nb_edges g < 10000) then begin
-	  status <- Global;
-	  self#init_global_view();
-	  paned_window#add1 global_frame#coerce;
-	  (get_some global_view)#adapt_zoom();
-	end else begin
-	  status <- Tree;
-	  self#set_tree_view v;
-	  paned_window#add2 tree_frame#coerce
-	end
+    method adapt_zoom () =
+      let az = function None -> () | Some w -> w#adapt_zoom () in
+      match status with
+      | Global -> az global_view
+      | Tree -> az tree_view
+      | Both ->
+	az tree_view;
+	az global_view
+
+    (* Constructor *)
+    initializer
+      match status, default_tree_root with
+      | Global, _ | _, None ->
+	status <- Global;
+	self#init_global_view ();
+	paned_window#pack1 global_frame#coerce
+      | Tree, Some r ->
+	status <- Tree;
+	self#set_tree_view r;
+	paned_window#pack2 tree_frame#coerce
+      | Both, Some r ->
+	status <- Both;
+	self#init_global_view ();
+	self#set_tree_view r;
+	paned_window#pack1 global_frame#coerce;
+	paned_window#pack2 tree_frame#coerce
+
   end
 
-  let from_graph
-    ?(global_view = fun model -> DGraphView.view ~aa:true model)
-    ?(tree_view = fun model -> DGraphView.view ~aa:true model)
-    ?(vertex=None) g =
-      match vertex with
-	|None -> new view_container global_view tree_view
-	  (Choose.choose_vertex g) g
-	|Some v -> new view_container global_view tree_view v g;;
+end
 
-  let from_graph_with_commands ?packing ?global_view ?tree_view ?vertex g =
-      with_commands ?packing (from_graph ?global_view ?tree_view ?vertex g);;
+module Make(G: Graphviz.GraphWithDotAttrs) = struct
+
+  module FullTreeModel = DGraphTreeModel.SubTreeMake(G)
+  include Build(G)(FullTreeModel)
+  module GlobalModel = DGraphModel.Make(G)
+
+  let from_graph
+      ?packing
+      ?status
+      ?(mk_global_view = fun model -> GView.view ~aa:true model)
+      ?(mk_tree_view = fun model -> TView.view ~aa:true model)
+      ?root
+      g =
+    let status = match status with
+      | None ->
+	if G.nb_vertex g < 500 && G.nb_edges g < 2500 then Global else Tree
+      | Some s -> s
+    in
+    new view_container
+      ?packing
+      ~status
+      ~mk_global_view:(fun () -> mk_global_view (GlobalModel.from_graph g))
+      ~mk_tree_view:(fun ~depth_backward ~depth_forward w v ->
+	let model =
+	  FullTreeModel.from_graph ~depth_forward ~depth_backward w g v
+	in
+	mk_tree_view model)
+      root
+
+  let from_graph_with_commands
+      ?packing ?status ?mk_global_view ?mk_tree_view ?root g =
+    with_commands
+      ?packing
+      (fun ~packing g ->
+	from_graph ~packing ?status ?mk_global_view ?mk_tree_view ?root g) g
 
 end
 
 (* FROM DOT *)
 
-module DotMake = struct
+module Dot = struct
 
-  module TreeModel = DGraphTreeModel.SubTreeDotModelMake
+  include Build(DGraphModel.DotG)(DGraphTreeModel.SubTreeDotModelMake)
 
-  class dot_view_container global_view_fun tree_view_fun dot_file =
+  exception Found of DGraphModel.DotG.V.t
 
-    let paned_window = GPack.paned `VERTICAL ~packing:(fun _ -> ()) ()
-    and global_frame = GBin.frame ~label:"Global View" ()
-    and tree_frame = GBin.frame ~label:"Tree View" ()
-    in
-    let scrolled_global_view = GBin.scrolled_window
-      ~hpolicy:`AUTOMATIC
-      ~vpolicy:`AUTOMATIC
-      ~packing:global_frame#add ()
-    and scrolled_tree_view = GBin.scrolled_window
-      ~hpolicy:`AUTOMATIC
-      ~vpolicy:`AUTOMATIC
-      ~packing:tree_frame#add ()
-    in
-
-    (* Callback functions *)
-    let connect_tree_callback obj node =
-      let callback = function
-	| `BUTTON_PRESS _ ->
-	  obj#set_tree_view (TreeModel.Tree.V.label node#item);
-	  false
-	|_ -> false
-      in node#connect_event ~callback
-    in
-
-    let connect_global_callback obj node =
-      let callback = function
-	| `BUTTON_PRESS _ ->
-	  (match obj#status with
-	  | Global -> ()
-	  | Both ->
-	    obj#set_tree_view node#item;
-	    let tree_view = get_some obj#tree_view in
-	    tree_view#adapt_zoom ()
-	  | Tree -> assert false);
-	  false
-	|_ -> false
-      in node#connect_event ~callback
-    in
-
-    let connect_switch_tree_callback obj node =
-      let global_view = ((get_some obj#global_view) :>
-	(DGraphModel.DotG.V.t, DGraphModel.DotG.E.t, string) DGraphView.view)
-      in
-      let tree = get_some (TreeModel.get_tree()) in
-      let callback = function
-	| `MOTION_NOTIFY _ ->
-	  global_view#highlight (global_view#get_node
-	    (TreeModel.TreeManipulation.get_graph_vertex node#item tree));
-	  false
-	| `LEAVE_NOTIFY _ ->
-	  global_view#dehighlight (global_view#get_node
-	    (TreeModel.TreeManipulation.get_graph_vertex node#item tree));
-	  false
-	| `BUTTON_PRESS _ ->
-	  global_view#dehighlight (global_view#get_node
-	    (TreeModel.TreeManipulation.get_graph_vertex node#item tree));
-	  false
-	|_ -> false
-      in node#connect_event ~callback
-    in
-
-    let connect_switch_global_callback obj node =
-      let tree_view = ((get_some obj#tree_view) :>
-	(TreeModel.Tree.V.t,TreeModel.Tree.E.t,string) DGraphView.view)
-      in
-      let tree = get_some (TreeModel.get_tree ()) in
-      let callback = function
-	| `MOTION_NOTIFY _ ->
-	  List.iter (fun v -> tree_view#highlight (tree_view#get_node v))
-	  (TreeModel.TreeManipulation.get_tree_vertices node#item tree);
-	  false
-	| `LEAVE_NOTIFY _ ->
-	  List.iter (fun v -> tree_view#dehighlight (tree_view#get_node v))
-	  (TreeModel.TreeManipulation.get_tree_vertices node#item tree);
-	  false
-	|_ -> false
-      in node#connect_event ~callback
-    in
-
-    let global_model =
+  let from_dot
+      ?packing
+      ?status
+      ?(mk_global_view = fun model -> GView.view ~aa:true model)
+      ?(mk_tree_view = fun model -> TView.view ~aa:true model)
+      dot_file =
+    let gmodel =
       if Filename.check_suffix dot_file "xdot" then
 	DGraphModel.read_xdot dot_file
       else
 	DGraphModel.read_dot dot_file
     in
-
-    object (self)
-      val mutable global_view = (None :
-	(DGraphModel.DotG.V.t, DGraphModel.DotG.E.t,string)
-	DGraphView.view option)
-      val mutable tree_view = (None :
-	(TreeModel.Tree.V.t, TreeModel.Tree.E.t,string)
-	DGraphView.view option)
-      val mutable status = Global
-      val mutable depth_forward = 3
-      val mutable depth_backward = 3
-
-      (* Getters *)
-      method status = status
-      method global_view = global_view
-      method tree_view = tree_view
-      method content = paned_window
-      method depth_forward = depth_forward
-      method depth_backward = depth_backward
-
-      (* Setters *)
-      method set_depth_forward i = depth_forward <- i
-      method set_depth_backward i = depth_backward <- i
-
-      method set_tree_view vertex =
-	let model = TreeModel.from_model
-	  ~depth_forward:depth_forward
-	  ~depth_backward:depth_backward
-	  global_model vertex
+    let one_vertex =
+      try
+	gmodel#iter_vertex (fun v -> raise (Found v));
+	None
+      with Found v ->
+	Some v
+    in
+    let status = match status with
+      | None ->
+	let nb f =
+	  let cpt = ref 0 in
+	  f gmodel (fun _ -> incr cpt);
+	  !cpt
 	in
-	if tree_view <> None then
-	  scrolled_tree_view#remove scrolled_tree_view#child;
-	let view = tree_view_fun model in
-	scrolled_tree_view#add view#coerce;
-	tree_view <- Some view;
-	view#connect_highlighting_event();
-	view#iter_nodes (connect_tree_callback self);
-	if status = Both then begin
-	view#iter_nodes (connect_switch_tree_callback self);
-	(get_some global_view)#iter_nodes (connect_switch_global_callback self)
-	end
+	if nb (fun g -> g#iter_vertex) < 500
+	  && nb (fun g -> g#iter_edges_e) < 2500
+	then Global
+	else Tree
+      | Some s -> s
+    in
+    new view_container
+      ?packing
+      ~status
+      ~mk_global_view:(fun () -> mk_global_view gmodel)
+      ~mk_tree_view:(fun ~depth_backward ~depth_forward _ v ->
+	mk_tree_view
+	  (DGraphTreeModel.SubTreeDotModelMake.from_model
+	     ~depth_forward
+	     ~depth_backward
+	     gmodel
+	     v))
+      one_vertex
 
-      method private init_global_view () =
-	let view = global_view_fun global_model in
-	scrolled_global_view#add view#coerce;
-(*	view#adapt_zoom ();
-	ignore (view#set_center_scroll_region true);*)
-	view#connect_highlighting_event ();
-	view#iter_nodes (connect_global_callback self);
-	global_view <- Some view;
-
-      (* Switch *)
-      method private switch_to_global_view () =
-	if global_view = None then self#init_global_view ();
-	match status with
-	  |Global -> ()
-	  |Both ->
-	    status <- Global;
-	    paned_window#remove paned_window#child2
-	  |Tree ->
-	    status <- Global;
-	    paned_window#remove paned_window#child2;
-	    paned_window#add1 global_frame#coerce
-
-      method private switch_to_tree_view () =
-	if tree_view = None then begin
-	  let vertex = ref None in
-	  global_model#iter_vertex
-	    (fun v -> if !vertex = None then vertex := Some v);
-	  self#set_tree_view (get_some !vertex);
-	end;
-	match status with
-	  |Tree -> ()
-	  |Both ->
-	    status <- Tree;
-	    paned_window#remove paned_window#child1
-	  |Global ->
-	    status <- Tree;
-	    paned_window#remove paned_window#child1;
-	    paned_window#add2 tree_frame#coerce
-
-      method private switch_to_paned_view () =
-	if tree_view = None then begin
-	  let vertex = ref None in
-	  global_model#iter_vertex
-	    (fun v -> if !vertex = None then vertex := Some v);
-	  self#set_tree_view (get_some !vertex)
-	end;
-	if global_view = None then self#init_global_view ();
-	(get_some tree_view)#iter_nodes (connect_switch_tree_callback self);
-	(get_some global_view)#iter_nodes
-	  (connect_switch_global_callback self);
-	match status with
-	  |Both -> ()
-	  |Global ->
-	    status <- Both;
-	    paned_window#add2 tree_frame#coerce
-	  |Tree ->
-	    status <- Both;
-	    paned_window#add1 global_frame#coerce
-
-      method switch = function
-	|Global -> self#switch_to_global_view ()
-	|Tree -> self#switch_to_tree_view ()
-	|Both -> self#switch_to_paned_view ()
-
-      (* Constructor *)
-      initializer
-	  status <- Global;
-	  self#init_global_view();
-	  paned_window#add1 global_frame#coerce
-  end
-
-  let from_dot
-    ?(global_view = fun model -> DGraphView.view ~aa:true model)
-    ?(tree_view = fun model -> DGraphView.view ~aa:true model)
-    dot_file =
-      new dot_view_container global_view tree_view dot_file
-
-  let from_dot_with_commands ?packing ?global_view ?tree_view dot_file =
-      with_commands ?packing (from_dot ?global_view ?tree_view dot_file);;
+  let from_dot_with_commands
+      ?packing ?status ?mk_global_view ?mk_tree_view dot_file =
+    with_commands
+      ?packing
+      (fun ~packing d ->
+	from_dot ~packing ?status ?mk_global_view ?mk_tree_view d)
+      dot_file
 
 end

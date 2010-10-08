@@ -23,36 +23,37 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(** This functor creates a model centered on a vertex from a graph *)
-module SubTreeMake (G : Graph.Graphviz.GraphWithDotAttrs) : sig
+module type S = sig
+
+  module Tree: Graph.Graphviz.GraphWithDotAttrs
+
+  module TreeManipulation : sig
+    type t
+    val get_structure : t -> Tree.t
+    val get_tree_vertices : Tree.V.label -> t -> Tree.V.t list
+    val get_graph_vertex : Tree.V.t -> t -> Tree.V.label
+    val is_ghost_node : Tree.V.t -> t -> bool
+    val is_ghost_edge : Tree.E.t -> t -> bool
+  end
 
   type cluster = string
 
-  module Tree : Sig.G
-    with type t = Graph.Imperative.Digraph.Abstract(G.V).t
-    and type V.label = G.V.t
-  module TreeManipulation : sig
-    type tree
-    val make : G.t -> G.V.t -> int -> int -> tree
-    val get_structure : tree -> Tree.t
-    val get_tree_vertices : G.V.t -> tree -> Tree.V.t list
-    val get_graph_vertex : Tree.V.t -> tree -> G.V.t
-    val is_ghost_node : Tree.V.t -> tree -> bool
-    val is_ghost_edge : Tree.E.t -> tree -> bool
-  end
-
   class tree_model :
-    (Tree.V.t, Tree.E.t, cluster) XDot.graph_layout ->
-    TreeManipulation.tree -> [Tree.V.t, Tree.E.t, cluster]
-    DGraphModel.abstract_model
+    XDot.Make(Tree).graph_layout ->
+      TreeManipulation.t ->
+	[ Tree.V.t, Tree.E.t, cluster ] DGraphModel.abstract_model
 
-  val get_tree : unit -> TreeManipulation.tree option
+  val tree : unit -> TreeManipulation.t
+
+end
+
+(** This functor creates a model centered on a vertex from a graph *)
+module SubTreeMake(G : Graph.Graphviz.GraphWithDotAttrs) : sig
+
+  include S with type Tree.V.label = G.V.t
 
   val from_graph :
-    ?cmd:string ->
-    ?tmp_name:string ->
-    ?depth_forward:int ->
-    ?depth_backward:int ->
+    ?depth_forward:int -> ?depth_backward:int ->
     [> `widget] Gtk.obj -> G.t -> G.V.t -> tree_model
 
 end
@@ -60,34 +61,12 @@ end
 (** Creates a model centered on a vertex from a dot model *)
 module SubTreeDotModelMake : sig
 
-  type cluster = string
-
-  module Tree : Sig.G
-    with type t = Graph.Imperative.Digraph.Abstract(DGraphModel.DotG.V).t
-    and type V.label = DGraphModel.DotG.V.t
-  module TreeManipulation : sig
-    type tree
-    val make : (DGraphModel.DotG.V.t, DGraphModel.DotG.E.t, string)
-      DGraphModel.abstract_model -> DGraphModel.DotG.V.t ->
-      int -> int -> tree
-    val get_structure : tree -> Tree.t
-    val get_tree_vertices : DGraphModel.DotG.V.t -> tree -> Tree.V.t list
-    val get_graph_vertex : Tree.V.t -> tree -> DGraphModel.DotG.V.t
-    val is_ghost_node : Tree.V.t -> tree -> bool
-    val is_ghost_edge : Tree.E.t -> tree -> bool
-  end
-
-  class tree_model :
-    (Tree.V.t, Tree.E.t, cluster) XDot.graph_layout ->
-    TreeManipulation.tree -> [Tree.V.t, Tree.E.t, cluster]
-    DGraphModel.abstract_model
-
-  val get_tree : unit -> TreeManipulation.tree option
+  include S with type Tree.V.label = DGraphModel.DotG.V.t
 
   val from_model :
-    ?depth_forward:int ->
-    ?depth_backward:int ->
-    (DGraphModel.DotG.V.t, DGraphModel.DotG.E.t, string)
-    DGraphModel.abstract_model -> DGraphModel.DotG.V.t -> tree_model
+    ?depth_forward:int -> ?depth_backward:int
+    -> DGraphModel.dotg_model
+    -> DGraphModel.DotG.V.t
+    -> tree_model
 
 end

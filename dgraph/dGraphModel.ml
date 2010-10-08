@@ -43,7 +43,7 @@ class type ['vertex, 'edge, 'cluster] abstract_model = object
   method iter_vertex : ('vertex -> unit) -> unit
   method iter_clusters : ('cluster -> unit) -> unit
   method iter_associated_vertex : ('vertex -> unit) -> 'vertex -> unit
- 
+
 
   (** Membership functions *)
   method find_edge : 'vertex -> 'vertex -> 'edge
@@ -65,6 +65,7 @@ end
 module Make(G : Graphviz.GraphWithDotAttrs) = struct
 
   type cluster = string
+  module X = XDot.Make(G)
 
   class model layout g : [G.vertex, G.edge, cluster] abstract_model = object
 
@@ -78,7 +79,7 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
     method iter_vertex f = G.iter_vertex f g
     method iter_associated_vertex f v = f v
     method iter_clusters f =
-      Hashtbl.iter (fun k v -> f k) layout.XDot.cluster_layouts
+      Hashtbl.iter (fun k v -> f k) layout.X.cluster_layouts
 
     (* Membership functions *)
     method find_edge = try G.find_edge g with Not_found -> assert false
@@ -89,18 +90,18 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
     method dst = G.E.dst
 
     (* Layout *)
-    method bounding_box = layout.XDot.bbox
+    method bounding_box = layout.X.bbox
 
     method get_vertex_layout v =
-      try Hashtbl.find layout.XDot.vertex_layouts v
+      try X.HV.find layout.X.vertex_layouts v
       with Not_found -> assert false
 
     method get_edge_layout e =
-      try Hashtbl.find layout.XDot.edge_layouts e
+      try X.HE.find layout.X.edge_layouts e
       with Not_found -> assert false
 
     method get_cluster_layout c =
-      try Hashtbl.find layout.XDot.cluster_layouts c
+      try Hashtbl.find layout.X.cluster_layouts c
       with Not_found -> assert false
 
   end
@@ -112,7 +113,6 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
     DumpDot.output_graph out g;
     close_out out;
     (* Get layout from dot file *)
-    let module X = XDot.Make(G) in
     let layout = X.layout_of_dot ~cmd ~dot_file g in
     let model = new model layout g in
     Sys.remove dot_file;
@@ -214,6 +214,7 @@ let read_dot ?(cmd="dot") dot_file =
    Parses a graph from an xdot file and instantiates the model. *)
 let read_xdot xdot_file =
   let graph, bb, clusters_hash =
-    DotParser.parse_bounding_box_and_clusters xdot_file in
+    DotParser.parse_bounding_box_and_clusters xdot_file
+  in
   DotModel.model graph clusters_hash (XDot.read_bounding_box bb)
 

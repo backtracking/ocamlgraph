@@ -29,9 +29,10 @@ type cluster = string
 
 type status = Global | Tree | Both
 
-(* ABSTRACT CLASS *)
-class type ['vertex, 'edge, 'cluster,
-  'tree_vertex, 'tree_edge, 'tree_cluster] abstract_view_container = object
+class type
+    ['vertex, 'edge, 'cluster, 'tree_vertex, 'tree_edge, 'tree_cluster]
+      view_container_type =
+object
   method content : GPack.paned
   method global_view :
     ('vertex, 'edge, 'cluster) DGraphView.view option
@@ -44,97 +45,99 @@ class type ['vertex, 'edge, 'cluster,
   method set_depth_forward : int -> unit
   method status : status
   method switch : status -> unit
+  method adapt_zoom: unit -> unit
 end
 
-module Make ( G : Graphviz.GraphWithDotAttrs ) : sig
+module type S = sig
 
-  module TreeModel : sig
+  type graph
+  type vertex
+  type edge
 
-    module Tree : Sig.G 
-      with type t = Graph.Imperative.Digraph.Abstract(G.V).t
-      and type V.label = G.V.t
+  module Tree: Sig.G with type V.label = vertex
 
-  end
+  module GView: DGraphView.S with type vertex = vertex
+			     and type edge = edge
+			     and type cluster = cluster
 
-  class view_container : 
-    (
-      (G.V.t, G.E.t, cluster) DGraphModel.abstract_model ->
-      (G.V.t, G.E.t, cluster) DGraphView.view
-    ) -> (
-      (TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster) 
-      DGraphModel.abstract_model ->
-      (TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster) DGraphView.view
-    ) -> 
-    G.vertex -> G.t ->
-    [G.vertex, G.edge, cluster,
-    TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster] 
-    abstract_view_container
+  module TView: DGraphView.S with type vertex = Tree.V.t
+			     and type edge = Tree.E.t
+			     and type cluster = cluster
+
+  type global_view = (vertex, edge, cluster) DGraphView.view
+  type tree_view = (Tree.V.t, Tree.E.t, cluster) DGraphView.view
+
+  class view_container :
+    ?packing:(GObj.widget -> unit)
+    -> ?status:status
+    -> mk_global_view: (unit -> global_view)
+      -> mk_tree_view:
+	(depth_backward:int -> depth_forward:int -> Gtk.widget Gtk.obj -> vertex
+	 -> tree_view)
+	-> vertex option
+	  -> [ vertex, edge, cluster, Tree.V.t, Tree.E.t, cluster]
+	    view_container_type
+
+end
+
+module Make(G: Graphviz.GraphWithDotAttrs) : sig
+
+  include S with type graph = G.t and type vertex = G.V.t and type edge = G.E.t
 
   val from_graph :
-    ?global_view:(
-      (G.V.t, G.E.t, cluster) DGraphModel.abstract_model ->
-      (G.V.t, G.E.t, cluster) DGraphView.view
-    ) -> ?tree_view:(
-      (TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster) 
-      DGraphModel.abstract_model ->
-      (TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster) DGraphView.view
-    ) -> ?vertex:(G.vertex option) -> G.t -> view_container
+    ?packing:(GObj.widget -> unit)
+    -> ?status:status
+    ->
+    ?mk_global_view:
+      ((G.V.t, G.E.t, cluster) DGraphModel.abstract_model -> global_view)
+    ->
+    ?mk_tree_view:
+      ((Tree.V.t, Tree.E.t, cluster) DGraphModel.abstract_model -> tree_view)
+    -> ?root:G.vertex
+    -> G.t
+    -> view_container
 
   val from_graph_with_commands :
-    ?packing:(GObj.widget -> unit) ->
-    ?global_view:(
-      (G.V.t, G.E.t, cluster) DGraphModel.abstract_model ->
-      (G.V.t, G.E.t, cluster) DGraphView.view
-    ) -> ?tree_view:(
-      (TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster) 
-      DGraphModel.abstract_model ->
-      (TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster) DGraphView.view
-    ) -> ?vertex:(G.vertex option) -> G.t -> GPack.table
+    ?packing:(GObj.widget -> unit)
+    -> ?status:status
+    ->
+    ?mk_global_view:
+      ((G.V.t, G.E.t, cluster) DGraphModel.abstract_model -> global_view)
+    ->
+    ?mk_tree_view:
+      ((Tree.V.t, Tree.E.t, cluster) DGraphModel.abstract_model -> tree_view)
+    -> ?root:G.vertex
+    -> G.t
+    -> GPack.table * view_container
 
 end
 
-module DotMake : sig
+module Dot : sig
 
-  module TreeModel : sig
-    module Tree : Sig.G with type V.label = DGraphModel.DotG.V.t
-  end
- 
-  class dot_view_container : 
-    (
-      (DGraphModel.DotG.V.t, DGraphModel.DotG.E.t, cluster) 
-      DGraphModel.abstract_model ->
-      (DGraphModel.DotG.V.t, DGraphModel.DotG.E.t, cluster) DGraphView.view
-    ) -> (
-      (TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster) 
-      DGraphModel.abstract_model ->
-      (TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster) DGraphView.view
-    ) -> 
-    string ->
-    [DGraphModel.DotG.vertex, DGraphModel.DotG.edge, cluster,
-    TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster] 
-    abstract_view_container
+  open DGraphModel
+
+  include S with type graph = DotG.t
+	    and type vertex = DotG.V.t
+	    and type edge = DotG.E.t
 
   val from_dot :
-    ?global_view:(
-      (DGraphModel.DotG.V.t, DGraphModel.DotG.E.t, cluster)
-      DGraphModel.abstract_model ->
-      (DGraphModel.DotG.V.t, DGraphModel.DotG.E.t, cluster) DGraphView.view
-    ) -> ?tree_view:(
-      (TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster) 
-      DGraphModel.abstract_model ->
-      (TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster) DGraphView.view
-    ) -> string -> dot_view_container
+    ?packing:(GObj.widget -> unit)
+    -> ?status:status
+    -> ?mk_global_view:
+    ((DotG.V.t, DotG.E.t, cluster) abstract_model -> global_view)
+    -> ?mk_tree_view:
+    ((Tree.V.t, Tree.E.t, cluster) abstract_model -> tree_view)
+    -> string (* dot filename *)
+    -> view_container
 
   val from_dot_with_commands :
-    ?packing:(GObj.widget -> unit) ->
-    ?global_view:(
-      (DGraphModel.DotG.V.t, DGraphModel.DotG.E.t, cluster)
-      DGraphModel.abstract_model ->
-      (DGraphModel.DotG.V.t, DGraphModel.DotG.E.t, cluster) DGraphView.view
-    ) -> ?tree_view:(
-      (TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster) 
-      DGraphModel.abstract_model ->
-      (TreeModel.Tree.V.t, TreeModel.Tree.E.t, cluster) DGraphView.view
-    ) -> string -> GPack.table
+    ?packing:(GObj.widget -> unit)
+    -> ?status:status
+    -> ?mk_global_view:
+    ((DotG.V.t, DotG.E.t, cluster) abstract_model -> global_view)
+    -> ?mk_tree_view:
+    ((Tree.V.t, Tree.E.t, cluster) abstract_model -> tree_view)
+    -> string (* dot filename *)
+    -> GPack.table * view_container
 
 end

@@ -58,14 +58,6 @@ type edge_layout = {
   e_tldraw : XDotDraw.operation list;
 }
 
-(** Main layout type *)
-type ('vertex, 'edge, 'cluster) graph_layout = {
-  vertex_layouts  : ('vertex,  node_layout)    Hashtbl.t;
-  edge_layouts    : ('edge,    edge_layout)    Hashtbl.t;
-  cluster_layouts : ('cluster, cluster_layout) Hashtbl.t;
-  bbox : bounding_box;
-}
-
 let mk_node_layout ~name ~pos ~bbox ~draw ~ldraw =
   { n_name    = name;
     n_pos   = pos;
@@ -114,17 +106,15 @@ let split c s =
     with Not_found -> [ suffix s n ]
   in if s="" then [] else split_from 0
 
-(** Converts a coordinate from the dot file to a coordinate on
- the canvas *)
+(** Converts a coordinate from the dot file to a coordinate on the canvas *)
 let conv_coord (x,y) =
   let pad = 4. in
   let dot_ppi = 72. in
   let dot_png_ppi = 96. in
   let factor = dot_png_ppi /. dot_ppi in
-  (x +. pad) *. factor, -. (y +. pad) *. factor
+  (x +. pad) *. factor, (y +. pad) *. factor
 
-let read_pos s =
-  Scanf.sscanf s "%f,%f" (fun x y -> (x,y))
+let read_pos s = Scanf.sscanf s "%f,%f" (fun x y -> x, y)
 
 (** Converts a bounding box of center (x,y), width w and height h
     from a Dot file to a pair of corners (lower left and upper right)
@@ -137,25 +127,23 @@ let read_pos s =
     @param w width of the node, in inch.
     @param h height of the node, in inch.
 *)
-let bounding_box (x,y) w h =
+let bounding_box (x, y) w h =
   let dot_ppi = 72. (* number of pixels per inch on a display device *) in
   let dot_png_ppi = 96. (* number of pixels per inch on a display device *) in
   try
     let pad = 4. in
     let x = x +. pad in
     let y = y +. pad in
-    let dx = w in
-    let dy = h in
-    let x1 = x -. dx in
-    let y1 = y -. dy in
-    let x2 = x +. dx in
-    let y2 = y +. dy in
+    let x1 = x -. w in
+    let y1 = y -. h in
+    let x2 = x +. w in
+    let y2 = y +. h in
     let factor = dot_png_ppi /. dot_ppi in
     let x1 = x1 *. factor in
-    let y1 = -. y1 *. factor in
+    let y1 = y1 *. factor in
     let x2 = x2 *. factor in
-    let y2 = -. y2 *. factor in
-    ((x1,y1),(x2,y2))
+    let y2 = y2 *. factor in
+    (x1,y1), (x2,y2)
   with e ->
     let s = Printexc.to_string e in
     failwith (Format.sprintf "compute_coord failed : %s@." s)
@@ -271,16 +259,34 @@ let read_edge_layout attr_list =
 
 (* Computes the bounding box *)
 let read_bounding_box str =
-  let x1,y1,x2,y2 =
-    Scanf.sscanf str "%f,%f,%f,%f"
-      (fun a b c d -> a,b,c,d) in
-
+  let x1,y1,x2,y2 = Scanf.sscanf str "%d,%d,%d,%d" (fun a b c d -> a,b,c,d) in
   (* Convert coordinates to the display coordinates *)
-  let x1,y1 = conv_coord (x1,y1) in
-  let x2,y2 = conv_coord (x2,y2) in
-  ((x1,y1), (x2,y2))
+  let x1, y1 = conv_coord (float x1, float ( y1)) in
+  let x2, y2 = conv_coord (float x2, float ( y2)) in
+  (x1, y1), (x2, y2)
 
 module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
+
+  module HV = Hashtbl.Make(G.V)
+  module HE =
+    Hashtbl.Make
+      (struct
+	type t = G.E.t
+	let equal x y = compare x y = 0
+	let hash = Hashtbl.hash
+       end)
+
+  module HT =
+    Hashtbl.Make
+      (Util.HTProduct
+	 (Util.HTProduct(G.V)(G.V))
+	 (struct type t = string let equal = (=) let hash = Hashtbl.hash end))
+
+  type graph_layout =
+      { vertex_layouts  : node_layout HV.t;
+	edge_layouts    : edge_layout HE.t;
+	cluster_layouts : (string, cluster_layout) Hashtbl.t;
+	bbox : bounding_box }
 
   exception Found of string
 
@@ -300,16 +306,16 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
 	    | Ident "comment", Some c -> raise (Found (get_dot_string c))
 	    | _ -> ()))
       al;
-      None
+      ""
     with Found c ->
-      Some c
+      c
 
   let strip_quotes = function
     | "" -> ""
     | s ->
-	if s.[0] = '"' && s.[String.length s -1] = '"' then
-	  String.sub s 1 (String.length s - 2)
-	else s
+      let len = String.length s in
+      if s.[0] = '"' && s.[len -1] = '"' then String.sub s 1 (len - 2)
+      else s
 
   (* Parses the graph attribute named id, and converts it with conv *)
   let parse_graph_attr id conv stmts =
@@ -333,10 +339,10 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
 
   let parse_layouts g stmts =
     let name_to_vertex = Hashtbl.create 97 in
-    let vertices_comment_to_edge = Hashtbl.create 97 in
+    let vertices_comment_to_edge = HT.create 97 in
 
-    let vertex_layouts = Hashtbl.create 97 in
-    let edge_layouts = Hashtbl.create 97 in
+    let vertex_layouts = HV.create 97 in
+    let edge_layouts = HE.create 97 in
     let cluster_layouts = Hashtbl.create 97 in
 
     G.iter_vertex
@@ -348,11 +354,11 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
     G.iter_edges_e
       (fun e ->
 	 let comment = match get_edge_comment e with
-	   | Some c -> Some (strip_quotes c)
-	   | None -> None
+	   | Some c -> strip_quotes c
+	   | None -> ""
 	 in
-	 let src, dst = G.E.src e, G.E.dst e in
-	 Hashtbl.add vertices_comment_to_edge (src,dst,comment) e)
+	 let vs = G.E.src e, G.E.dst e in
+	 HT.add vertices_comment_to_edge (vs, comment) e)
       g;
 
     let find_vertex (id,_) =
@@ -362,7 +368,7 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
     in
 
     let find_edge v v' comment =
-      try Hashtbl.find vertices_comment_to_edge (v,v',comment)
+      try HT.find vertices_comment_to_edge ((v, v'), comment)
       with Not_found ->
 (*	Printf.printf "Did not find edge from %s to %s with comment %s\n"
 	  (G.vertex_name v) (G.vertex_name v')
@@ -375,13 +381,13 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
 	match stmt with
 	| Node_stmt (node_id, al) ->
 	    let v = find_vertex node_id in
-	    Hashtbl.add vertex_layouts v (read_node_layout node_id al)
+	    HV.add vertex_layouts v (read_node_layout node_id al)
 	| Edge_stmt (NodeId id, [NodeId id'], al) ->
 	    let v  = find_vertex id  in
 	    let v' = find_vertex id' in
 	    let comment = get_dot_comment al in
 	    let e = find_edge v v' comment in
-	    Hashtbl.add edge_layouts e (read_edge_layout al)
+	    HE.add edge_layouts e (read_edge_layout al)
         | Subgraph (SubgraphDef (Some id, stmts)) ->
 	    let cluster = get_dot_string id in
 	    List.iter (collect_layouts (Some cluster)) stmts

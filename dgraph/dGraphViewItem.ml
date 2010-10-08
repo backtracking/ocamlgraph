@@ -257,7 +257,7 @@ let bspline ~fill draw_st group pts =
 let text draw_st group pos align anchor label =
   let size_points, font = draw_st.XDotDraw.font in
   let x, y = XDot.conv_coord pos in
-  let y = y -. size_points /. 2. in
+  let y = y +. size_points /. 2. in
   let props = [ `FILL_COLOR draw_st.XDotDraw.pen_color ] in
   let anchor =
     if anchor = -. 1. then `WEST else if anchor = 1.0 then `EAST else `CENTER

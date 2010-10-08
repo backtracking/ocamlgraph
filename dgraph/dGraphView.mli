@@ -36,13 +36,8 @@ open DGraphViewItem
 
 (** Graph widget derived from [GnoCanvas.canvas].
     Support zooming and scrolling. *)
-class ['vertex, 'edge, 'cluster] view:
-  ?delay_node:('vertex -> bool) ->
-  ?delay_edge:('edge -> bool) ->
-  ?delay_cluster:('cluster -> bool) ->
-  GnomeCanvas.canvas Gtk.obj ->
-  ('vertex, 'edge, 'cluster) DGraphModel.abstract_model ->
-object
+class type ['vertex, 'edge, 'cluster] view = object
+
   inherit GnoCanvas.canvas
 
   method model : ('vertex, 'edge, 'cluster) DGraphModel.abstract_model
@@ -104,35 +99,28 @@ object
 
 end
 
-val view:
-  ?aa:bool (** Anti-aliasing *) ->
-  ?delay_node:('vertex -> bool) ->
-  ?delay_edge:('edge -> bool) ->
-  ?delay_cluster:('cluster -> bool) ->
-  ?border_width:int ->
-  ?width:int ->
-  ?height:int ->
-  ?packing:(GObj.widget -> unit) ->
-  ?show:bool ->
-  ('vertex, 'edge, 'cluster) DGraphModel.abstract_model ->
-  ('vertex, 'edge, 'cluster) view
-  (** View as a Gnome Canvas.
-      Support zooming and scrolling. *)
+module type S = sig
 
-(* Same widget augmented with highlighting, focus
-    and the ability to drag the canvas (click'n hold)
-*)
-(* class ['vertex, 'edge, 'cluster] drag_view : *)
-(*   GnomeCanvas.canvas Gtk.obj -> *)
-(*   ('vertex, 'edge, 'cluster) DGraphModel.abstract_model -> *)
-(*   ['vertex, 'edge, 'cluster] view *)
+  type vertex
+  type edge
+  type cluster
 
-(* val drag_view : *)
-(*   ?aa:bool -> (\** Anti aliasing *\) *)
-(*   ('vertex, 'edge, 'cluster) DGraphModel.abstract_model -> *)
-(*   ?border_width:int -> *)
-(*   ?width:int -> *)
-(*   ?height:int -> *)
-(*   ?packing:(GObj.widget -> unit) -> *)
-(*   ?show:bool -> unit *)
-(*   -> ('vertex, 'edge, 'cluster) highlight_focus_view *)
+  val view:
+    ?aa:bool (** Anti-aliasing *) ->
+    ?delay_node:(vertex -> bool) ->
+    ?delay_edge:(edge -> bool) ->
+    ?delay_cluster:(cluster -> bool) ->
+    ?border_width:int ->
+    ?width:int ->
+    ?height:int ->
+    ?packing:(GObj.widget -> unit) ->
+    ?show:bool ->
+    (vertex, edge, cluster) DGraphModel.abstract_model ->
+    (vertex, edge, cluster) view
+(** View as a Gnome Canvas.
+    Support zooming and scrolling. *)
+
+end
+
+module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) :
+  S with type vertex = V.t and type edge = E.t and type cluster = C.t

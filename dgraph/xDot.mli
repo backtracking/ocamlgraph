@@ -73,14 +73,6 @@ type edge_layout = {
   e_tldraw : XDotDraw.operation list; (** Tail label drawing *)
 }
 
-(** Main layout type *)
-type ('vertex, 'edge, 'cluster) graph_layout = {
-  vertex_layouts  : ('vertex,  node_layout)    Hashtbl.t;
-  edge_layouts    : ('edge,    edge_layout)    Hashtbl.t;
-  cluster_layouts : ('cluster, cluster_layout) Hashtbl.t;
-  bbox : bounding_box;
-}
-
 (** Creates a node layout *)
 val mk_node_layout :
   name:string ->
@@ -115,17 +107,24 @@ exception ParseError of string
 (** Instantiates a module which creates graph layouts from xdot files *)
 module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
 
+  module HV: Hashtbl.S with type key = G.V.t
+  module HE: Hashtbl.S with type key = G.E.t
+
+  (** Main layout type *)
+  type graph_layout =
+      { vertex_layouts  : node_layout HV.t;
+	edge_layouts    : edge_layout HE.t;
+	cluster_layouts : (string, cluster_layout) Hashtbl.t;
+	bbox : bounding_box }
+
   exception DotError of string
 
   (** Extracts a layout of an xdot file *)
-  val layout_of_xdot :
-    xdot_file:string -> G.t -> (G.V.t, G.E.t, string) graph_layout
+  val layout_of_xdot: xdot_file:string -> G.t -> graph_layout
 
   (** Using the dot file and graphviz,
       create an xdot and extracts its layout. *)
-  val layout_of_dot :
-    ?cmd:string ->
-    dot_file:string -> G.t -> (G.V.t, G.E.t, string) graph_layout
+  val layout_of_dot: ?cmd:string -> dot_file:string -> G.t -> graph_layout
 
 end
 

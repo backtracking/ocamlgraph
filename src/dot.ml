@@ -210,4 +210,5 @@ struct
 	  graph, bounding_box, clusters
       | None ->
 	  failwith "Cannot read bounding box in xdot file"
+
 end

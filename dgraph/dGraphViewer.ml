@@ -32,29 +32,20 @@ let get_some = function Some t -> t | None -> assert false
 
 let debug = false
 
+module Content = DGraphContainer.Dot
+
 type state = {
   mutable file: string option;
   mutable window: GWindow.window;
-  mutable content: GPack.table option
+  mutable content: (GPack.table * Content.view_container) option
 }
 
-module Content = DGraphContainer.DotMake
-
-(*let scrolled_view ~packing model =*)
-  (*let scroll =*)
-(*GBin.scrolled_window ~packing ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ()*)
-(*in*)
-(*let view = DGraphView.view ~aa:true ~packing:scroll#add model in*)
-  (*ignore (view#set_center_scroll_region true);*)
-  (*view#connect_highlighting_event ();*)
-(*(view :> DGraphViewItem.common_view), scroll*)
-
-let init_state () = 
-   let window = 
+let init_state () =
+   let window =
      GWindow.window
        ~width:1280 ~height:1024
        ~title:"Graph Widget"
-       ~allow_shrink:true ~allow_grow:true () 
+       ~allow_shrink:true ~allow_grow:true ()
    in
    let status = GMisc.label ~markup:"" () in
    status#set_use_markup true;
@@ -79,9 +70,9 @@ let menu_desc = "<ui>\
 </ui>"
 
 let update_state state ~packing =
-  (match state.content with None -> () | Some t -> t#destroy ());
+  (match state.content with None -> () | Some (t, _) -> t#destroy ());
   try
-    let content = match state.file with	
+    let _, view as content = match state.file with
       | Some file ->
 	  if debug then printf "Building Model...\n";
 	  state.file <- Some file;
@@ -91,6 +82,8 @@ let update_state state ~packing =
     in
     state.content <- Some content;
     state.window#show ();
+    view#adapt_zoom ()
+
   with Not_found ->
     if debug then printf "No model\n"
 
@@ -99,12 +92,12 @@ let all_files () =
   f#add_pattern "*" ;
   f
 
-let open_file state ~packing () = 
-  let dialog = 
-    GWindow.file_chooser_dialog 
+let open_file state ~packing () =
+  let dialog =
+    GWindow.file_chooser_dialog
       ~action:`OPEN
       ~title:"Open File"
-      ~parent:state.window () 
+      ~parent:state.window ()
   in
   dialog#add_button_stock `CANCEL `CANCEL ;
   dialog#add_select_button_stock `OPEN `OPEN ;
@@ -126,17 +119,6 @@ let create_menu state ~packing =
     GAction.add_action
       "Zoom fit" ~label:"Zoom fit" ~accel:"<Control>t" ~stock:`ZOOM_FIT
       ~callback:(fun _ -> ());
-    (*GAction.add_action
-      "Zoom fit" ~label:"Zoom fit" ~accel:"<Control>t" ~stock:`ZOOM_FIT
-      ~callback:
-      (fun _ -> match state.content with 
-	|Some v -> 
-	  (match v#status with
-	    |Global -> (get_some v#global_view)#adjust_zoom()
-	    |Tree -> (get_some v#tree_view)#adjust_zoom()
-	    |Paned -> (get_some v#global_view)#adjust_zoom();
-	      (get_some v#tree_view)#adjust_zoom())
-	| None -> ());*)
     GAction.add_action "Quit" ~label:"Quit" ~accel:"<Control>q" ~stock:`QUIT
       ~callback:(fun _ -> GMain.Main.quit ());
   ];
@@ -149,8 +131,8 @@ let create_menu state ~packing =
 let main () =
   (* GUI *)
   let state = init_state () in
-  let vbox = 
-    GPack.vbox ~border_width:4 ~spacing:4 ~packing:state.window#add () 
+  let vbox =
+    GPack.vbox ~border_width:4 ~spacing:4 ~packing:state.window#add ()
   in
   let packing = vbox#pack ~expand:true ~fill:true in
   (* Menu *)
@@ -162,6 +144,6 @@ let main () =
   update_state state ~packing;
   state.window#show ();
   GMain.Main.main ()
-    
+
 (* [JS 2009/09/21] Printexc.print prevents to use ocaml < 3.11 *)
 let _ = (*Printexc.print*) main ()
