@@ -107,7 +107,7 @@ module CliqueTree(Gr : Sig.G) = struct
       (struct
 	 type t = int
 	 type label = int
-	 let compare x y = Pervasives.compare x y
+         let compare : t -> t -> int = Pervasives.compare
 	 let hash = Hashtbl.hash
 	 let equal x y = x = y
 	 let label x = x
@@ -117,7 +117,7 @@ module CliqueTree(Gr : Sig.G) = struct
   module CliqueTreeE = struct
     type t = int * CVS.t
 	
-    let compare (x, _) (y, _) = Pervasives.compare x y
+    let compare (x, _ : t) (y, _ : t) = Pervasives.compare x y
 
     let default = (0, CVS.empty)
 		    
@@ -168,7 +168,7 @@ module CliqueTree(Gr : Sig.G) = struct
     List.sort
       (fun x y -> 
 	 (*let markx = mark x and marky = mark y in*)
-	 - Pervasives.compare (number x) (number y))
+	 (Pervasives.compare : int -> int -> int) (number y) (number x))
       l
 
   let mcs_clique g =

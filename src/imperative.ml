@@ -368,7 +368,7 @@ module Matrix = struct
     module V = struct
       type t = int
       type label = int
-      let compare = Pervasives.compare
+      let compare : t -> t -> int = Pervasives.compare
       let hash = Hashtbl.hash
       let equal = (==)
       let create i = i
@@ -378,7 +378,7 @@ module Matrix = struct
     module E = struct
       type t = V.t * V.t
       type vertex = V.t
-      let compare = Pervasives.compare
+      let compare : t -> t -> int = Pervasives.compare
       type label = unit
       let create v1 _ v2 = (v1, v2)
       let src = fst

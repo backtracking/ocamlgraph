@@ -54,7 +54,12 @@ module Parse
 struct
 
   module Attr = struct
-    module M = Map.Make(struct type t = id let compare = compare end)
+    module M = 
+      Map.Make
+        (struct
+           type t = id
+           let compare : t -> t -> int = Pervasives.compare
+         end)
     type t = id option M.t
     let empty = M.empty
     let add = List.fold_left (fun a (x,v) -> M.add x v a)

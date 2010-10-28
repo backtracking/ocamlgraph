@@ -62,7 +62,7 @@ let make_edge_info () =
 
 module EDGE = struct
   type t = edge_info
-  let compare = Pervasives.compare
+  let compare : t -> t -> int = Pervasives.compare
   let default = make_edge_info ()
 end
 

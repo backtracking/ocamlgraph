@@ -133,7 +133,7 @@ module Edge = struct
   type t = XDot.edge_layout
   let default = XDot.mk_edge_layout
     ~draw:[] ~ldraw:[] ~hdraw:[] ~tdraw:[] ~hldraw:[] ~tldraw:[]
-  let compare = compare
+  let compare : t -> t -> int = Pervasives.compare
 end
 
 module DotG = Imperative.Digraph.AbstractLabeled(Vertex)(Edge)

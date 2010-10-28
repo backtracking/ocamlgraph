@@ -272,7 +272,7 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
     Hashtbl.Make
       (struct
 	type t = G.E.t
-	let equal x y = compare x y = 0
+	let equal x y = G.E.compare x y = 0
 	let hash = Hashtbl.hash
        end)
 

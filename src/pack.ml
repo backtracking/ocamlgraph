@@ -48,7 +48,7 @@ struct
     let weight x = x
     let zero = 0
     let add = (+)
-    let compare = compare
+    let compare : t -> t -> int = Pervasives.compare
   end
 
   include Path.Dijkstra(G)(W)
@@ -61,7 +61,7 @@ struct
     let flow _ = 0
     let add = (+)
     let sub = (-)
-    let compare = compare
+    let compare : t -> t -> int = Pervasives.compare
     let max = max_int
     let min = 0
     let zero = 0
@@ -86,7 +86,7 @@ struct
 
   module Int = struct
     type t = int
-    let compare = Pervasives.compare
+    let compare : t -> t -> int = Pervasives.compare
   end
 
   include Kruskal.Make(G)(Int)
@@ -167,7 +167,7 @@ end
 
 module I = struct
   type t = int 
-  let compare = compare 
+  let compare : t -> t -> int = Pervasives.compare
   let hash = Hashtbl.hash 
   let equal = (=)
   let default = 0

@@ -50,7 +50,7 @@ end
 
 module Edge = struct
   type t = int
-  let compare = compare
+  let compare : int -> int -> int = Pervasives.compare
   let default = 0
 end
 
