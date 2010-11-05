@@ -377,12 +377,8 @@ struct
 
     method adapt_zoom () =
       let az = function None -> () | Some w -> w#adapt_zoom () in
-      match status with
-      | Global -> az global_view
-      | Tree -> az tree_view
-      | Both ->
-	az tree_view;
-	az global_view
+      az tree_view;
+      az global_view
 
     (* Constructor *)
     initializer
