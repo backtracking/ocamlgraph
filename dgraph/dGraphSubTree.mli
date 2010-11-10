@@ -86,7 +86,7 @@ module Make_from_dot_model
 sig
   include S with module Tree = Tree
   val make:
-    (Tree.V.label, DGraphModel.DotG.E.t, string) DGraphModel.abstract_model
-    -> Tree.V.label -> int -> int -> t
+    (Tree.V.label, DGraphModel.DotG.E.t, string) DGraphModel.abstract_model ->
+    Tree.V.label -> int -> int -> t
 end
 

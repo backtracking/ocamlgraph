@@ -211,6 +211,8 @@ module SubTreeMake(G: Graphviz.GraphWithDotAttrs) = struct
       v
       =
     (* Generate subtree *)
+    Format.printf "builting tree with bkw=%d fwd=%d@." depth_backward
+      depth_forward ;
     let t = TM.make g v depth_forward depth_backward in
     tree_ref := Some t;
     graph_ref := Some g;
@@ -238,6 +240,8 @@ module SubTreeDotModelMake = struct
   include Build(DGraphModel.DotG)(Tree)(TM)
 
   let from_model ?(depth_forward=2) ?(depth_backward=2) model v =
+    Format.printf "builting dot tree with bkw=%d fwd=%d@." depth_backward
+      depth_forward ;
     let t = TM.make model v depth_forward depth_backward in
     tree_ref := Some t;
     let tree_structure = TM.get_structure t in
