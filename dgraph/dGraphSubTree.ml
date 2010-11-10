@@ -94,16 +94,12 @@ struct
        end)
 
   type t = {
-    (* The tree graph *)
-    structure: Tree.t;
-    (* Its root *)
-    root : Tree.V.t;
-    (* Give correspondance between nodes of the new tree graph and nodes of
-       the original graph *)
+    structure: Tree.t; (* the tree itself *)
+    root : Tree.V.t; (* the root *)
+    (* nodes of the tree corresponding to the original nodes *)
     assoc_vertex_table: Tree.V.t H.t;
-    (* Contain nodes added in an esthetic purpose *)
+
     ghost_vertices: unit HT.t;
-    (* Contain edges added in an esthetic purpose *)
     ghost_edges: unit HE.t;
   }
 
@@ -134,7 +130,6 @@ struct
   (* Explore the graph from a vertex and build a tree -
      Will be used forward and backward *)
   let build src_graph tree src_vertex tree_root backward_flag depth =
-    Format.printf "BUILD %d (is_bkw=%b)@." depth backward_flag;
     let complete_to_depth v missing =
       let pred_vertex = ref v in
       let next_vertex = ref v in
@@ -214,7 +209,50 @@ struct
       end
     in
     empty_queue ()
-
+  (* [JS 2010/11/10] trying to simplify the algorithm. Not finish yet
+  let new_build graph tree root troot depth backward =
+    let first = ref true in
+    let q = Queue.create () in
+    (* invariant: [h] contains exactly the vertices which have been pushed *)
+    let must_add_ghost = ref true in
+    let add_tree_vertex v =
+      let tv = if !first then troot else Tree.V.create v in
+      first := false;
+      Tree.add_vertex tree.structure tv;
+      H.add tree.assoc_vertex_table v tv;
+      tv
+    in
+    let add_tree_edge tsrc dst =
+      let tdst = add_tree_vertex dst in
+      let tsrc, tdst = if backward then tdst, tsrc else tsrc, tdst in
+      let e = Tree.E.create tsrc () tdst in
+      Tree.add_edge_e tree.structure e;
+      tdst, e
+    in
+    let push n src dst =
+      if n < depth then Queue.add (dst, n + 1) q;
+      ignore (add_tree_edge src dst);
+      must_add_ghost := false
+    in
+    let loop () =
+      while not (Queue.is_empty q) do
+	let v, n = Queue.pop q in
+	let tv = add_tree_vertex v in
+	must_add_ghost := true;
+	(if backward then GA.iter_pred else GA.iter_succ) (push n tv) graph v;
+	if !must_add_ghost then
+	  let tsrc = ref tv in
+	  for i = n to depth do
+	    let tdst, te = add_tree_edge !tsrc v in
+	    HT.add tree.ghost_vertices tdst ();
+	    HE.add tree.ghost_edges te ();
+	    tsrc := tdst
+	  done
+      done
+    in
+    Queue.add (root, 0) q;
+    loop ()
+ *)
   (** Build a tree graph centered on a vertex and containing its
       predecessors and successors *)
   let make src_graph src_vertex depth_forward depth_backward =
@@ -230,7 +268,9 @@ struct
     Tree.add_vertex tree.structure tree.root;
     build src_graph tree src_vertex tree.root false depth_forward;
     build src_graph tree src_vertex tree.root true depth_backward;
-    tree;;
+(*    new_build src_graph tree src_vertex tree.root depth_forward false;
+    new_build src_graph tree src_vertex tree.root depth_backward true;*)
+    tree
 
 end
 
@@ -247,6 +287,6 @@ module Make_from_dot_model
     (Tree)
     (struct
       type t =  DGraphModel.dotg_model
-      let iter_succ f g = g#iter_pred f
+      let iter_succ f g = g#iter_succ f
       let iter_pred f g = g#iter_pred f
      end)

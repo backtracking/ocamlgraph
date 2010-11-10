@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(*i $Id: topological.ml,v 1.5 2004-02-20 14:37:41 signoles Exp $ i*)
-
 module type G = sig
   type t
   module V : Sig.HASHABLE

@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: traverse.mli,v 1.14 2005-04-01 07:13:24 filliatr Exp $ *)
-
 (** Graph traversal. *)
 
 (** {2 Dfs and Bfs} *)
@@ -38,11 +36,11 @@ module Dfs(G : G) : sig
 
   (** {2 Classical big-step iterators} *)
 
-  val iter : ?pre:(G.V.t -> unit) -> 
+  val iter : ?pre:(G.V.t -> unit) ->
              ?post:(G.V.t -> unit) -> G.t -> unit
-      (** [iter pre post g] visits all nodes of [g] in depth-first search, 
+      (** [iter pre post g] visits all nodes of [g] in depth-first search,
 	 applying [pre] to each visited node before its successors,
-	 and [post] after them. Each node is visited exactly once. 
+	 and [post] after them. Each node is visited exactly once.
          Not tail-recursive. *)
 
   val prefix : (G.V.t -> unit) -> G.t -> unit
@@ -55,7 +53,7 @@ module Dfs(G : G) : sig
   (** Same thing, but for a single connected component
       (only [prefix_component] is tail-recursive) *)
 
-  val iter_component : ?pre:(G.V.t -> unit) -> 
+  val iter_component : ?pre:(G.V.t -> unit) ->
              ?post:(G.V.t -> unit) -> G.t -> G.V.t -> unit
   val prefix_component : (G.V.t -> unit) -> G.t -> G.V.t -> unit
   val postfix_component : (G.V.t -> unit) -> G.t -> G.V.t -> unit
@@ -64,11 +62,11 @@ module Dfs(G : G) : sig
 
     This is a variant of the iterators above where you can move on
     step by step. The abstract type [iterator] represents the current
-    state of the iteration. The [step] function returns the next state. 
+    state of the iteration. The [step] function returns the next state.
     In each state, function [get] returns the currently visited vertex.
-    On the final state both [get] and [step] raises exception [Exit]. 
+    On the final state both [get] and [step] raises exception [Exit].
 
-    Note: the iterator type is persistent (i.e. is not modified by the 
+    Note: the iterator type is persistent (i.e. is not modified by the
     [step] function) and thus can be used in backtracking algorithms. *)
 
   type iterator
@@ -101,12 +99,12 @@ module Bfs(G : G) : sig
 
 end
 
-(** {2 Traversal with marking} 
+(** {2 Traversal with marking}
 
     Provide a more efficient version of depth-first algorithm when graph
     vertices are marked. *)
 
-(** Minimal graph signature for graph traversal with marking. 
+(** Minimal graph signature for graph traversal with marking.
     Sub-signature of {!Sig.IM}. *)
 module type GM = sig
   type t
@@ -120,7 +118,7 @@ module type GM = sig
   end
 end
 
-(** Graph traversal with marking. 
+(** Graph traversal with marking.
     Only applies to imperative graphs with marks. *)
 module Mark(G : GM) : sig
 
