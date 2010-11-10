@@ -33,19 +33,26 @@ class type
     ['vertex, 'edge, 'cluster, 'tree_vertex, 'tree_edge, 'tree_cluster]
       view_container_type =
 object
-  method content : GPack.paned
+
   method global_view :
     ('vertex, 'edge, 'cluster) DGraphView.view option
-  method tree_view :
+
+  method tree_view:
     ('tree_vertex, 'tree_edge, 'tree_cluster) DGraphView.view option
-  method set_tree_view : 'vertex -> unit
+
+  method tree_root: 'vertex option
+
   method depth_backward : int
   method depth_forward : int
+  method status : status
+
   method set_depth_backward : int -> unit
   method set_depth_forward : int -> unit
-  method status : status
+  method set_tree_root: 'vertex -> unit
   method switch : status -> unit
+
   method adapt_zoom: unit -> unit
+
 end
 
 module type S = sig

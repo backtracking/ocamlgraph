@@ -101,7 +101,8 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
      Supports zooming and scrolling *)
   class view
     ?delay_node ?delay_edge ?delay_cluster
-    obj (model : (V.t, E.t, C.t) DGraphModel.abstract_model)
+    obj
+    (model : (V.t, E.t, C.t) DGraphModel.abstract_model)
     =
     let delay f v = match f with None -> false | Some f -> f v in
     let (x1, y1), (x2, y2) = model#bounding_box in
@@ -111,12 +112,12 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
 
     method model = model
 
-  (* Hash tables from the model to the view items*)
+    (* Hash tables from the model to the view items*)
     val node_hash : V.t view_item HV.t = HV.create 17
     val edge_hash : E.t view_item HE.t = HE.create 17
     val cluster_hash : C.t view_item HC.t = HC.create 7
 
-  (* Canvas items creation *)
+    (* Canvas items creation *)
 
     method private add_vertex vertex =
       try
@@ -151,7 +152,7 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
       in
       HC.add cluster_hash cluster item
 
-  (* From model to view items *)
+    (* From model to view items *)
 
     method get_node n =
       try HV.find node_hash n with Not_found -> assert false
@@ -162,7 +163,7 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
     method get_cluster c =
       try HC.find cluster_hash c with Not_found -> assert false
 
-  (* Iterate on nodes and edges *)
+    (* Iterate on nodes and edges *)
     method iter_nodes f = HV.iter (fun _ v -> f v) node_hash
     method iter_edges_e f = HE.iter (fun _ e -> f e) edge_hash
     method iter_clusters f = HC.iter (fun _ c -> f c) cluster_hash
@@ -170,12 +171,12 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
     method iter_edges f =
       model#iter_edges (fun v1 v2 -> f (self#get_node v1) (self#get_node v2))
 
-  (* Iterate on successors of a node *)
+    (* Iterate on successors of a node *)
     method iter_succ f (node: 'v view_item) =
       let f' v = f (self#get_node v) in
       model#iter_succ f' node#item
 
-  (* Iterate on predecessors of a node *)
+    (* Iterate on predecessors of a node *)
     method iter_pred f (node: 'v view_item) =
       let f' v = f (self#get_node v) in
       model#iter_pred f' node#item
@@ -188,12 +189,12 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
       let f' e = f (self#get_edge e) in
       model#iter_pred_e f' node#item
 
-  (* Iterate on associated nodes *)
+    (* Iterate on associated nodes *)
     method iter_associated_vertex f (node: 'v view_item) =
       let f' v = f (self#get_node v) in
       model#iter_associated_vertex f' node#item
 
-  (* Membership functions *)
+    (* Membership functions *)
 
     method mem_edge (n1:'v view_item) (n2:'v view_item) =
       model#mem_edge n1#item n2#item
@@ -204,7 +205,7 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
     method src (e: 'e view_item) = self#get_node (model#src e#item)
     method dst (e: 'e view_item) = self#get_node (model#dst e#item)
 
-  (* Zoom factor *)
+    (* Zoom factor *)
     val mutable zoom_f = 1.
     method zoom_factor = zoom_f
 
@@ -213,14 +214,14 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
 
     method private set_zoom_f x = if x > 1e-10 then zoom_f <- x
 
-  (* Zooms the canvas according to the zoom factor *)
+    (* Zooms the canvas according to the zoom factor *)
     method private zoom () =
       self#set_pixels_per_unit zoom_f;
       self#iter_clusters (fun c -> c#zoom_text zoom_f);
       self#iter_nodes (fun n -> n#zoom_text zoom_f);
       self#iter_edges_e (fun e -> e#zoom_text zoom_f)
 
-  (* Zoom to a particular factor *)
+    (* Zoom to a particular factor *)
     method zoom_to x =
       self#set_zoom_f x;
       self#zoom ()
@@ -229,25 +230,26 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
     method zoom_out () = self#zoom_to (zoom_f -. zoom_padding *. zoom_f)
 
     method adapt_zoom () =
+      let width = self#hadjustment#page_size in
+      let height = self#vadjustment#page_size in
       let x1', y1' = self#w2c ~wx:x1 ~wy:y1 in
       let x2', y2' = self#w2c ~wx:x2 ~wy:y2 in
-      let w = self#hadjustment#page_size in
-      let h = self#vadjustment#page_size in
-      let w_zoom = 0.99 *. w /. float (distance x1' x2') in
-      let h_zoom = 0.99 *. h /. float (distance y1' y2') in
+      let w_zoom = 0.99 *. width /. float (distance x1' x2') in
+      let h_zoom = 0.99 *. height /. float (distance y1' y2') in
+(*      Format.printf "%f %f %f %d %d@." width x1'' x2'' x1' x2';*)
       self#zoom_to (min 1. (min w_zoom h_zoom));
       ignore (self#scroll_to ~x:x1' ~y:y1')
 
-  (* EVENTS *)
+    (* EVENTS *)
 
-  (* Zoom with the keys *)
+    (* Zoom with the keys *)
     method private zoom_keys_ev ev =
       match GdkEvent.Key.keyval ev with
       | k when k = GdkKeysyms._KP_Subtract -> self#zoom_out (); true
       | k when k = GdkKeysyms._KP_Add -> self#zoom_in (); true
       | _ -> false
 
-  (* Zoom with the mouse *)
+    (* Zoom with the mouse *)
     method private zoom_mouse_ev ev =
       match GdkEvent.Scroll.direction ev with
       | `UP -> self#zoom_in (); true
@@ -284,15 +286,15 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
       self#iter_nodes connect
 
     initializer
-    (* Create and add items from the model vertices, edges and clusters *)
+      (* Create and add items from the model vertices, edges and clusters *)
       model#iter_clusters self#add_cluster;
       model#iter_vertex self#add_vertex;
       model#iter_edges_e self#add_edge;
-    (* Set up scroll region *)
+      (* Set up scroll region *)
       let x1', y1' = self#w2c ~wx:x1 ~wy:y1 in
       ignore $ self#set_scroll_region ~x1 ~y1 ~x2 ~y2;
       ignore $ self#scroll_to ~x:x1' ~y:y1';
-    (* Attach zoom events *)
+      (* Attach zoom events *)
       ignore $ self#event#connect#key_press self#zoom_keys_ev;
       ignore $ self#event#connect#scroll self#zoom_mouse_ev;
 
@@ -302,16 +304,16 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
   let view
       ?(aa=false) ?delay_node ?delay_edge ?delay_cluster
       ?border_width ?width ?height ?packing ?show
-      model =
-    GContainer.pack_container []
-      ~create:(fun pl ->
-	let w =
-	  if aa then GnomeCanvas.Canvas.new_canvas_aa ()
-	  else GnomeCanvas.Canvas.new_canvas ()
-	in
-	Gobject.set_params w pl;
-	new view ?delay_node ?delay_edge ?delay_cluster w model)
-      ?border_width ?width ?height ?packing ?show
-      ()
+      (model:(vertex, edge, cluster) DGraphModel.abstract_model) =
+    let create pl =
+      let w =
+	if aa then GnomeCanvas.Canvas.new_canvas_aa ()
+	else GnomeCanvas.Canvas.new_canvas ()
+      in
+      Gobject.set_params w pl;
+      new view ?delay_node ?delay_edge ?delay_cluster w model
+    in
+    GContainer.pack_container
+      [] ~create ?border_width ?width ?height ?packing ?show ()
 
 end
