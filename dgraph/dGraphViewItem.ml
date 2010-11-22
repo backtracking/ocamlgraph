@@ -37,6 +37,7 @@ let green_color = "#00FF00"
 class graph_text txt_obj ~size_points ~(props:GnomeCanvas.text_p list) =
   let props = `SIZE_POINTS size_points :: props in
 object (self)
+
   inherit GnoCanvas.text txt_obj as text
 
   val mutable props = props
@@ -78,7 +79,8 @@ object (self)
     in
     self#set (change props)
 
-  initializer text#set props
+  initializer
+    text#set props
 
 end
 

@@ -9,3 +9,17 @@ o Implementations for graph with unlabeled vertices
 o Provide more bidirectional graph implementation:
   only Imperative.Digraph.ConcreteBidirectional exists at this day.
 o Provide generic marks (instead of only integer marks)
+
+======
+DGraph
+======
+
+mode Tree:
+----------
+
+- texte trop bas
+- texte multi-ligne
+- gros zoom déviant
+- mauvaise borne polygone & rectangle
+
+Un bon exemple est examples/fancy.dot

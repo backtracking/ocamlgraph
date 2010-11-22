@@ -27,12 +27,11 @@ open Graph
 
 let ($) f x = f x
 
-let set_if_none field value =
-  match field with
-    |None -> Some value
-    |Some a -> Some a
+let set_if_none field value = match field with
+  | None -> Some value
+  | Some a -> Some a
 
-let get_some = function None -> assert false | Some a -> a
+let the = function None -> assert false | Some a -> a
 
 type cluster = string
 
@@ -160,7 +159,7 @@ struct
      string prefixed by # *)
   let string_color i = "#" ^ Printf.sprintf "%06X" i;;
 
-  (** @return an array of positions to draw a edge given positions and
+  (** @return an array of positions to draw an edge from positions and
       dimensions of vertices *)
   let edge_to_posarray src dst geometry_info =
     let xsrc, ysrc = get_position src geometry_info in
@@ -170,12 +169,13 @@ struct
     let ystart = ysrc -. hsrc and yend = ydst +. hdst in
     let xdec = 0.4 *. (xdst -. xsrc) in
     let ydec = 0.4 *. (ydst -. ysrc) in
+(*    Format.printf "%f %f %f@." ystart yend ydec;*)
     [| xsrc, ystart;
        xsrc +. xdec, ystart +. ydec;
        xdst -. xdec, yend -. ydec;
        xdst, yend |];;
 
-  (** @return an array to draw an arrow given start and end positions of the
+  (** @return an array to draw an arrow from start and end positions of the
       edge *)
   let edge_to_arrow (x1, y1) (x2, y2) =
     let warrow = 4. in (* Half-width of the arrow *)
@@ -222,48 +222,25 @@ struct
     mutable fillcolor : int option
   }
 
-  let rec attributes_list_to_vattributes vattrs = function
-  | [] -> ()
-  | `Color c :: q ->
-    vattrs.color <- set_if_none vattrs.color c;
-    attributes_list_to_vattributes vattrs q
-  | `Fontcolor c :: q ->
-    vattrs.fontcolor <- set_if_none vattrs.fontcolor c;
-    attributes_list_to_vattributes vattrs q
-  | `Fontname n :: q ->
-    vattrs.fontname <- set_if_none vattrs.fontname n;
-    attributes_list_to_vattributes vattrs q
-  | `Fontsize s :: q ->
-    vattrs.fontsize <- set_if_none vattrs.fontsize s;
-    attributes_list_to_vattributes vattrs q
-  | `Height h :: q ->
-    vattrs.height <- set_if_none vattrs.height h;
-    attributes_list_to_vattributes vattrs q
-  | `Label label :: q ->
-    vattrs.label <- set_if_none vattrs.label label;
-    attributes_list_to_vattributes vattrs q
-  | `Orientation o :: q ->
-    vattrs.orientation <- set_if_none vattrs.orientation o;
-    attributes_list_to_vattributes vattrs q
-  | `Peripheries p :: q ->
-    vattrs.peripheries <- set_if_none vattrs.peripheries p;
-    attributes_list_to_vattributes vattrs q
-  | `Regular r :: q ->
-    vattrs.regular <- set_if_none vattrs.regular r;
-    attributes_list_to_vattributes vattrs q
-  | `Shape shape :: q ->
-    vattrs.shape <- set_if_none vattrs.shape shape;
-    attributes_list_to_vattributes vattrs q
-  | `Style s :: q ->
-    vattrs.style <- s :: vattrs.style;
-    attributes_list_to_vattributes vattrs q
-  | `Width w :: q ->
-    vattrs.width <- set_if_none vattrs.width w;
-    attributes_list_to_vattributes vattrs q
-  | `Fillcolor c :: q ->
-    vattrs.fillcolor <- set_if_none vattrs.fillcolor c;
-    attributes_list_to_vattributes vattrs q
-  | _ :: q -> attributes_list_to_vattributes vattrs q
+  let set_vattribute vattrs = function
+    | `Color c -> vattrs.color <- set_if_none vattrs.color c
+    | `Fontcolor c -> vattrs.fontcolor <- set_if_none vattrs.fontcolor c
+    | `Fontname n -> vattrs.fontname <- set_if_none vattrs.fontname n
+    | `Fontsize s -> vattrs.fontsize <- set_if_none vattrs.fontsize s
+    | `Height h -> vattrs.height <- set_if_none vattrs.height h
+    | `Label label -> vattrs.label <- set_if_none vattrs.label label
+    | `Orientation o -> vattrs.orientation <- set_if_none vattrs.orientation o
+    | `Peripheries p -> vattrs.peripheries <- set_if_none vattrs.peripheries p
+    | `Regular r -> vattrs.regular <- set_if_none vattrs.regular r
+    | `Shape shape -> vattrs.shape <- set_if_none vattrs.shape shape
+    | `Style s -> vattrs.style <- s :: vattrs.style
+    | `Width w -> vattrs.width <- set_if_none vattrs.width w
+    | `Fillcolor c -> vattrs.fillcolor <- set_if_none vattrs.fillcolor c
+    | `Comment _ | `Distortion _ | `Fixedsize _ | `Layer _ | `Url _ | `Z _ ->
+      () (* TODO *)
+
+  let attributes_list_to_vattributes vattrs =
+    List.iter (set_vattribute vattrs)
 
   let fill_vattributes tree vattributes =
     let vertex_to_vattrs v =
@@ -304,7 +281,7 @@ struct
       ptsize
       ?(weight=`NORMAL)
       ?(style=`NORMAL)
-      string_to_mesure
+      s
       context_obj
       =
     let width_margin = 20. in
@@ -319,19 +296,19 @@ struct
     let context = GtkBase.Widget.create_pango_context context_obj in
     Pango.Context.set_font_description context font_description;
     let layout = Pango.Layout.create context in
-    Pango.Layout.set_text layout string_to_mesure;
+    Pango.Layout.set_text layout s;
     let width, height = Pango.Layout.get_pixel_size layout in
     float width +. width_margin, float height +. height_margin
 
   let fill_dimensions context tree vattributes geometry_info =
     let add_vertex_dimensions v =
       let vattrs = try HV.find vattributes v with Not_found -> assert false in
-      let minwidth, minheight = get_some vattrs.width, get_some vattrs.height in
+      let minwidth, minheight = the vattrs.width, the vattrs.height in
       let truewidth, trueheight =
 	calc_dimensions
-	  (get_some vattrs.fontname)
-	  (get_some vattrs.fontsize)
-	  (get_some vattrs.label) context
+	  (the vattrs.fontname)
+	  (the vattrs.fontsize)
+	  (the vattrs.label) context
       in
       let width = max minwidth truewidth in
       let height = max minheight trueheight in
@@ -406,21 +383,21 @@ struct
 
   let vattrs_to_draw_operations v vattributes geometry_info =
     let vattrs = try HV.find vattributes v with Not_found -> assert false in
-    let (width,height) = get_dimensions v geometry_info in
+    let width, height = get_dimensions v geometry_info in
     (* Vertex shape drawing *)
-    XDotDraw.Pen_color (string_color (get_some vattrs.color)) ::
+    XDotDraw.Pen_color (string_color (the vattrs.color)) ::
       XDotDraw.Style (List.map (style_to_style_attr) vattrs.style) ::
       (if List.mem `Filled vattrs.style then
-	  XDotDraw.Fill_color (string_color (get_some vattrs.fillcolor)) ::
-	    shape_to_operations v vattrs geometry_info (get_some vattrs.shape)
+	  XDotDraw.Fill_color (string_color (the vattrs.fillcolor)) ::
+	    shape_to_operations v vattrs geometry_info (the vattrs.shape)
        else
-	  shape_to_operations v vattrs geometry_info (get_some vattrs.shape))
+	  shape_to_operations v vattrs geometry_info (the vattrs.shape))
       ,
     (* Vertex label drawing *)
-    [ XDotDraw.Pen_color (string_color (get_some vattrs.fontcolor));
+    [ XDotDraw.Pen_color (string_color (the vattrs.fontcolor));
       XDotDraw.Font
-	(float_of_int (get_some vattrs.fontsize),
-	 get_some vattrs.fontname);
+	(float (the vattrs.fontsize),
+	 the vattrs.fontname);
       let x, y = get_position v geometry_info in
       let _, h = get_dimensions v geometry_info in
       (* [JS 2010/10/08] "/. 4." is quite strange but gives better results *)
@@ -428,7 +405,7 @@ struct
 	((x, y -. h /. 4.),
 	 XDotDraw.Center,
 	 width,
-	 get_some vattrs.label) ]
+	 the vattrs.label) ]
 
   let vertex_to_node_layout v vattributes geometry_info =
     let draw, ldraw = vattrs_to_draw_operations v vattributes geometry_info in
@@ -648,25 +625,25 @@ struct
     let xend, yend = posarray.(3) in
     (
       (* Shapes and curves *)
-      [ XDotDraw.Pen_color (string_color (get_some eattrs.color));
-	XDotDraw.Fill_color (string_color (get_some eattrs.color));
+      [ XDotDraw.Pen_color (string_color (the eattrs.color));
+	XDotDraw.Fill_color (string_color (the eattrs.color));
 	XDotDraw.Style (List.map (style_to_style_attr) eattrs.style);
 	XDotDraw.Filled_bspline posarray ]
     ,
       (* Label drawing *)
-      [ XDotDraw.Pen_color (string_color (get_some eattrs.fontcolor));
-	XDotDraw.Fill_color (string_color (get_some eattrs.fontcolor));
-	XDotDraw.Font (float_of_int (get_some eattrs.fontsize),
-	(get_some eattrs.fontname));
+      [ XDotDraw.Pen_color (string_color (the eattrs.fontcolor));
+	XDotDraw.Fill_color (string_color (the eattrs.fontcolor));
+	XDotDraw.Font (float_of_int (the eattrs.fontsize),
+	(the eattrs.fontname));
 	(let pos = ((xsrc +. xend) /. 2. +. 5., (ysrc +. yend) /. 2.) in
-	XDotDraw.Text (pos,XDotDraw.Center,40.,get_some eattrs.label)) ]
+	XDotDraw.Text (pos,XDotDraw.Center,40.,the eattrs.label)) ]
     ,
       (* Head arrowhead drawing *)
       (if eattrs.dir = Some `None then
 	[]
       else
-	XDotDraw.Pen_color (string_color (get_some eattrs.color)) ::
-	XDotDraw.Fill_color (string_color (get_some eattrs.color)) ::
+	XDotDraw.Pen_color (string_color (the eattrs.color)) ::
+	XDotDraw.Fill_color (string_color (the eattrs.color)) ::
 	XDotDraw.Style (List.map (style_to_style_attr) eattrs.style) ::
 	(edge_to_arrow posarray.(2) posarray.(3)))
     ,
@@ -772,15 +749,15 @@ struct
 	pos_array
     in
     let rec get_size = function
-      | [] -> (0., 0.)
-      | XDotDraw.Unfilled_ellipse (_,w,h) :: _ -> (2. *. w, h)
-      | XDotDraw.Filled_ellipse (_,w,h) :: _ -> (2. *. w, h)
+      | [] -> 0., 0.
+      | XDotDraw.Unfilled_ellipse (_,w,h) :: _ -> 2. *. w, h
+      | XDotDraw.Filled_ellipse (_,w,h) :: _ -> 2. *. w, h
       | XDotDraw.Unfilled_polygon pos_array :: _ ->
-	let ((minx,maxy),(maxx, miny)) = corners pos_array in
-	(maxx -. minx, maxy -. miny)
+	let (minx, maxy), (maxx, miny) = corners pos_array in
+	maxx -. minx, maxy -. miny
       | XDotDraw.Filled_polygon pos_array :: _ ->
 	let (minx, maxy), (maxx, miny) = corners pos_array in
-	(maxx -. minx, maxy -. miny)
+	maxx -. minx, maxy -. miny
       | _ :: tl -> get_size tl
     in
     Tree.iter_vertex
