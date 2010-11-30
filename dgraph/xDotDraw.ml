@@ -302,7 +302,7 @@ let parse_style state =
     | "dashed" ->  Dashed
     | "dotted" ->  Dotted
     | "solid" ->  Solid
-    | "blod" ->  Bold
+    | "bold" ->  Bold
     | s -> StyleString s in
   let str = parse_bytes state in
   Style (List.map read (split ',' str))
