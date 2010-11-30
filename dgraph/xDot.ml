@@ -259,10 +259,9 @@ let read_edge_layout attr_list =
 
 (* Computes the bounding box *)
 let read_bounding_box str =
-  let x1,y1,x2,y2 = Scanf.sscanf str "%d,%d,%d,%d" (fun a b c d -> a,b,c,d) in
+  let x1,y1,x2,y2 = Scanf.sscanf str "%f,%f,%f,%f" (fun a b c d -> a,b,c,d) in
   (* Convert coordinates to the display coordinates *)
-  let x1, y1 = conv_coord (float x1, float ( y1)) in
-  let x2, y2 = conv_coord (float x2, float ( y2)) in
+  let x1, y1 = conv_coord (x1, y1) and x2, y2 = conv_coord (x2, y2) in
   (x1, y1), (x2, y2)
 
 module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
