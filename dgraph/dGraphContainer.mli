@@ -77,6 +77,8 @@ module type S = sig
   class view_container :
     ?packing:(GObj.widget -> unit)
     -> ?status:status
+    -> ?default_callbacks:bool (* register default node callbacks (centering
+                                 and highlighting). True by default *)
     -> mk_global_view: (unit -> global_view)
       -> mk_tree_view:
 	(depth_backward:int -> depth_forward:int -> Gtk.widget Gtk.obj -> vertex

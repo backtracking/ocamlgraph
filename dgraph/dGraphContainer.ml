@@ -26,7 +26,6 @@
 open Graph
 
 let ($) f x = f x
-let get_some = function None -> assert false | Some t -> t
 
 type cluster = string
 type status = Global | Tree | Both
@@ -81,6 +80,7 @@ module type S = sig
   class view_container :
     ?packing:(GObj.widget -> unit)
     -> ?status:status
+    -> ?default_callbacks:bool
     -> mk_global_view: (unit -> global_view)
       -> mk_tree_view:
 	(depth_backward:int -> depth_forward:int -> Gtk.widget Gtk.obj -> vertex
@@ -186,6 +186,7 @@ struct
   class view_container
     ?packing
     ?(status=Global)
+    ?(default_callbacks=true)
     ~mk_global_view
     ~mk_tree_view
     default_tree_root
@@ -295,7 +296,8 @@ struct
 	  in
 	  tree_view <- Some view;
 	  view#connect_highlighting_event();
-	  view#iter_nodes (connect_tree_callback self);
+	  if default_callbacks then
+            view#iter_nodes (connect_tree_callback self);
 	  let scroll =
 	    GBin.scrolled_window
 	      ~hpolicy:`AUTOMATIC
@@ -311,7 +313,8 @@ struct
       let view = mk_global_view () in
       global_view <- Some view;
       view#connect_highlighting_event ();
-      view#iter_nodes (connect_global_callback self);
+      if default_callbacks then
+        view#iter_nodes (connect_global_callback self);
       let scroll =
 	GBin.scrolled_window
 	  ~hpolicy:`AUTOMATIC

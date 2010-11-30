@@ -3,6 +3,7 @@
    Boris Yakobowski)
  o DGraph: fixed font size issue when zooming
  o DGraph: now interpret text anchors and espaced sequences correctly
+ o DGraph: offer possibility to disable the default callbacks on nodes
  o 'make -j' works again
  o new implementation Persistent.Digraph.ConcreteBidirectionalLabeled
  o new implementation Persistent.Digraph.ConcreteBidirectional
