@@ -76,9 +76,9 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
 end
 
 
-(*module Vertex : Sig.ANY_TYPE with type t = XDot.node_layout
-module Edge : Sig.ORDERED_TYPE_DFT with type t = XDot.edge_layout*)
 module DotG : Sig.G
+  with type V.label = XDot.node_layout and type E.label = XDot.edge_layout
+
 
 type cluster = string
 type dotg_model = (DotG.vertex, DotG.edge, cluster) abstract_model
