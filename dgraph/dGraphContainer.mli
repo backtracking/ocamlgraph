@@ -96,6 +96,7 @@ module Make(G: Graphviz.GraphWithDotAttrs) : sig
   val from_graph :
     ?packing:(GObj.widget -> unit)
     -> ?status:status
+    -> ?default_callbacks:bool 
     ->
     ?mk_global_view:
       ((G.V.t, G.E.t, cluster) DGraphModel.abstract_model -> global_view)
@@ -109,6 +110,7 @@ module Make(G: Graphviz.GraphWithDotAttrs) : sig
   val from_graph_with_commands :
     ?packing:(GObj.widget -> unit)
     -> ?status:status
+    -> ?default_callbacks:bool 
     ->
     ?mk_global_view:
       ((G.V.t, G.E.t, cluster) DGraphModel.abstract_model -> global_view)
@@ -132,6 +134,7 @@ module Dot : sig
   val from_dot :
     ?packing:(GObj.widget -> unit)
     -> ?status:status
+    -> ?default_callbacks:bool 
     -> ?mk_global_view:
     ((DotG.V.t, DotG.E.t, cluster) abstract_model -> global_view)
     -> ?mk_tree_view:
@@ -142,6 +145,7 @@ module Dot : sig
   val from_dot_with_commands :
     ?packing:(GObj.widget -> unit)
     -> ?status:status
+    -> ?default_callbacks:bool 
     -> ?mk_global_view:
     ((DotG.V.t, DotG.E.t, cluster) abstract_model -> global_view)
     -> ?mk_tree_view:

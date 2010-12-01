@@ -287,7 +287,10 @@ struct
 
     method private memo_tree_view () =
       if tree_change then begin
-	List.iter tree_frame#remove tree_frame#all_children;
+        (match tree_view with
+           | None -> ()
+           | Some view -> tree_frame#remove view#coerce
+        );
 	match tree_root with
 	| None -> assert false
 	| Some r ->
@@ -295,9 +298,10 @@ struct
 	    mk_tree_view ~depth_backward ~depth_forward paned_box#as_widget r
 	  in
 	  tree_view <- Some view;
-	  view#connect_highlighting_event();
-	  if default_callbacks then
+	  if default_callbacks then begin
+	    view#connect_highlighting_event();
             view#iter_nodes (connect_tree_callback self);
+          end;
 	  let scroll =
 	    GBin.scrolled_window
 	      ~hpolicy:`AUTOMATIC
@@ -312,9 +316,10 @@ struct
     | None ->
       let view = mk_global_view () in
       global_view <- Some view;
-      view#connect_highlighting_event ();
-      if default_callbacks then
+      if default_callbacks then begin
+        view#connect_highlighting_event ();
         view#iter_nodes (connect_global_callback self);
+      end;
       let scroll =
 	GBin.scrolled_window
 	  ~hpolicy:`AUTOMATIC
@@ -366,6 +371,7 @@ module Make(G: Graphviz.GraphWithDotAttrs) = struct
   let from_graph
       ?packing
       ?status
+      ?(default_callbacks=true)
       ?(mk_global_view = fun model -> GView.view ~aa:true model)
       ?(mk_tree_view = fun model -> TView.view ~aa:true model)
       ?root
@@ -377,6 +383,7 @@ module Make(G: Graphviz.GraphWithDotAttrs) = struct
     in
     new view_container
       ?packing
+      ~default_callbacks
       ~status
       ~mk_global_view:(fun () -> mk_global_view (GlobalModel.from_graph g))
       ~mk_tree_view:(fun ~depth_backward ~depth_forward w v ->
@@ -386,12 +393,13 @@ module Make(G: Graphviz.GraphWithDotAttrs) = struct
 	mk_tree_view model)
       root
 
-  let from_graph_with_commands
-      ?packing ?status ?mk_global_view ?mk_tree_view ?root g =
+  let from_graph_with_commands ?packing ?status ?(default_callbacks=true) ?mk_global_view ?mk_tree_view ?root g =
     with_commands
       ?packing
       (fun ~packing g ->
-	from_graph ~packing ?status ?mk_global_view ?mk_tree_view ?root g)
+         from_graph
+           ~packing ?status ~default_callbacks ?mk_global_view ?mk_tree_view
+           ?root g)
       g
 
 end
@@ -407,6 +415,7 @@ module Dot = struct
   let from_dot
       ?packing
       ?status
+      ?(default_callbacks=true)
       ?(mk_global_view = fun model -> GView.view ~aa:true model)
       ?(mk_tree_view = fun model -> TView.view ~aa:true model)
       dot_file =
@@ -439,6 +448,7 @@ module Dot = struct
     new view_container
       ?packing
       ~status
+      ~default_callbacks
       ~mk_global_view:(fun () -> mk_global_view gmodel)
       ~mk_tree_view:(fun ~depth_backward ~depth_forward _ v ->
 	mk_tree_view
@@ -449,12 +459,12 @@ module Dot = struct
 	     v))
       one_vertex
 
-  let from_dot_with_commands
-      ?packing ?status ?mk_global_view ?mk_tree_view dot_file =
+  let from_dot_with_commands ?packing ?status ?(default_callbacks=true) ?mk_global_view ?mk_tree_view dot_file =
     with_commands
       ?packing
       (fun ~packing d ->
-	from_dot ~packing ?status ?mk_global_view ?mk_tree_view d)
+	from_dot
+          ~packing ?status ~default_callbacks ?mk_global_view ?mk_tree_view d)
       dot_file
 
 end
