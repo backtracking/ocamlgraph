@@ -289,7 +289,10 @@ struct
       if tree_change then begin
         (match tree_view with
            | None -> ()
-           | Some view -> tree_frame#remove view#coerce
+           | Some view ->
+               match view#misc#parent with
+                 | Some parent -> tree_frame#remove parent
+                 | None -> ()
         );
 	match tree_root with
 	| None -> assert false
