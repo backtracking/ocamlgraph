@@ -1,4 +1,6 @@
 
+version 1.6, December 13, 2010
+------------------------------
  o DGraph: new viewer mode (called `tree') which focus on a subset part of the
  graph centered on a given node
  o Graphviz: fixed bug with attribute `Constraint (was `Constraints) (patch by

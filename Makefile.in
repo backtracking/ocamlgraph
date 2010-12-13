@@ -105,7 +105,7 @@ graph.cmo: $(CMI) $(CMO)
 graph.cmx: $(CMI) $(CMX)
 	$(OCAMLOPT) $(INCLUDES) -pack -o $@ $^
 
-VERSION=1.5+dev
+VERSION=1.6
 
 src/version.ml: Makefile
 	rm -f $@
@@ -460,7 +460,7 @@ MISCFTP = $(HOME)/WWW/ftp/ocaml/misc
 DELAUNAY=delaunay.ml delaunay.mli
 export-delaunay:
 	cd src; cp -f $(DELAUNAY) $(MISCFTP)
-	cd src; caml2html -d $(MISCFTP) $(DELAUNAY)
+	cd src; caml2html -noannot -d $(MISCFTP) $(DELAUNAY)
 
 # generic rules
 ###############
