@@ -28,10 +28,19 @@ open XDot
 open XDotDraw
 open Printf
 
+exception Cannot_convert_color of string
+let rgba_to_int32 col =
+  try Int32.of_string ("0x" ^ String.sub col 1 (String.length col - 1))
+  with Failure _ -> raise (Cannot_convert_color (col^" but int32 expected"))
+
+let convert_fill_color col = `FILL_COLOR_RGBA (rgba_to_int32 col)
+let convert_outline_color col = `OUTLINE_COLOR_RGBA (rgba_to_int32 col)
+
 let ($) f x = f x
 
-let red_color = "#FF0000"
-let green_color = "#00FF00"
+let red_color = 0xFF0000FFl
+let green_color = 0x00FF00FFl
+let black_color = 0l
 
 (* Derived text class. *)
 class graph_text txt_obj ~size_points ~(props:GnomeCanvas.text_p list) =
@@ -56,19 +65,19 @@ object (self)
 	`SIZE_POINTS p :: hi_props l
       | `WEIGHT d :: l ->
 	`WEIGHT (max 600 (int_of_float (float d *. 1.5))) :: hi_props l
-      | `FILL_COLOR c :: l ->
+      | `FILL_COLOR_RGBA c :: l ->
 	if c = primary then color := secondary;
 	hi_props l
       | p :: l -> p :: hi_props l
     in
     (* as inserted in head, `WEIGHT 600 will not apply if there is already a
        specified weight *)
-    text#set (`FILL_COLOR !color :: `WEIGHT 600 :: hi_props props)
+    text#set (`FILL_COLOR_RGBA !color :: `WEIGHT 600 :: hi_props props)
 
   method dehighlight () =
     (* as inserted in head, properties will not apply if they are already
        specified *)
-    text#set (`WEIGHT 400 :: `FILL_COLOR "black" :: props)
+    text#set (`WEIGHT 400 :: `FILL_COLOR_RGBA black_color :: props)
 
   method resize f =
     let rec change = function
@@ -102,8 +111,8 @@ let graph_text ?x ?y ?text ?font ?anchor ~size_points ?(props=[]) p =
 (* Shape properties.
    Used when initializing items *)
 
-let pen_color draw_st = `OUTLINE_COLOR draw_st.XDotDraw.pen_color
-let fill_color draw_st = `FILL_COLOR draw_st.XDotDraw.fill_color
+let pen_color draw_st = convert_outline_color draw_st.XDotDraw.pen_color
+let fill_color draw_st = convert_fill_color draw_st.XDotDraw.fill_color
 
 (* Flattens an array of pair of coordinates into an array of coordinates *)
 let flatten_points pts =
@@ -131,8 +140,8 @@ let shape_item = function
 
 (* Shape properties (used by canvas items ellipse, polygon and bpath) *)
 type shape_p =
-    [ `FILL_COLOR of string
-    | `OUTLINE_COLOR of string
+    [ `FILL_COLOR_RGBA of int32
+    | `OUTLINE_COLOR_RGBA of int32
     | `WIDTH_UNITS of float
     | `DASH of float * float array ]
 
@@ -147,17 +156,19 @@ let to_p = function
 let complete_props props =
   let rec what_props (fill, width, outline, dash as acc) = function
     | [] -> acc
-    | `FILL_COLOR _ :: l -> what_props (true, width, outline, dash) l
+    | `FILL_COLOR_RGBA _ :: l -> what_props (true, width, outline, dash) l
     | `WIDTH_UNITS _ :: l -> what_props (fill, true, outline, dash) l
-    | `OUTLINE_COLOR _ :: l -> what_props (fill, width, true, dash) l
+    | `OUTLINE_COLOR_RGBA _ :: l -> what_props (fill, width, true, dash) l
     | `DASH _ :: l -> what_props (fill, width, outline, true) l
   in
   let fill, width, outline, dash =
     what_props (false, false, false, false) props
   in
-  let props = if fill then props else `FILL_COLOR "black" :: props in
+  let props = if fill then props else `FILL_COLOR_RGBA black_color :: props in
   let props = if width then props else `WIDTH_UNITS 1. :: props in
-  let props = if outline then props else `OUTLINE_COLOR "black" :: props in
+  let props =
+    if outline then props else `OUTLINE_COLOR_RGBA black_color :: props
+  in
   if dash then props else `DASH (0., [| |]) :: props
 
 (* Shape class (either a rect, an ellipse, a polygon or a path).
@@ -184,10 +195,10 @@ class shape ~fill shape init_props = object (self)
     let rec hi_props = function
       | [] -> []
       | `WIDTH_UNITS u :: l -> `WIDTH_UNITS (max 3. (u *. 3.)) :: hi_props l
-      | `FILL_COLOR c :: l when fill ->
+      | `FILL_COLOR_RGBA c :: l when fill ->
 	  if c = primary then color := secondary;
 	  hi_props l
-      | `OUTLINE_COLOR c :: l ->
+      | `OUTLINE_COLOR_RGBA c :: l ->
 	  if c = primary then color := secondary;
 	  hi_props l
       | p :: l -> p :: hi_props l
@@ -195,14 +206,14 @@ class shape ~fill shape init_props = object (self)
     (* as inserted in head, `WIDTH_UNITS 3. will not apply if there is already
        a specified weight *)
     let props = hi_props props in
-    let props = if fill then `FILL_COLOR !color :: props else props in
-    self#set_props (`OUTLINE_COLOR !color :: `WIDTH_UNITS 3. :: props)
+    let props = if fill then `FILL_COLOR_RGBA !color :: props else props in
+    self#set_props (`OUTLINE_COLOR_RGBA !color :: `WIDTH_UNITS 3. :: props)
 
   method dehighlight () =
     (* as inserted in head, `WIDTH_UNITS 1. will not apply if there is already
        a  specified weight *)
-    let props = if fill then `FILL_COLOR "black" :: props else props in
-    self#set_props (`WIDTH_UNITS 1. :: `OUTLINE_COLOR "black" :: props)
+    let props = if fill then `FILL_COLOR_RGBA black_color :: props else props in
+    self#set_props (`WIDTH_UNITS 1. :: `OUTLINE_COLOR_RGBA black_color :: props)
 
   initializer self#set (complete_props init_props)
 
@@ -260,7 +271,7 @@ let text draw_st group pos align anchor label =
   let size_points, font = draw_st.XDotDraw.font in
   let x, y = XDot.conv_coord pos in
   let y = y +. size_points /. 2. in
-  let props = [ `FILL_COLOR draw_st.XDotDraw.pen_color ] in
+  let props = [ convert_fill_color draw_st.XDotDraw.pen_color ] in
   let anchor =
     if anchor = -. 1. then `WEST else if anchor = 1.0 then `EAST else `CENTER
   in
@@ -278,7 +289,7 @@ end
 (* ITEMS *)
 
 class type textshape = object
-  method highlight: ?color:string * string -> unit -> unit
+  method highlight: ?color:int32 * int32 -> unit -> unit
   method dehighlight: unit -> unit
   method hide: unit -> unit
   method show: unit -> unit

@@ -2286,17 +2286,16 @@ if ocaml check_arch.ml | grep -q Win32; then
 $as_echo "yes" >&6; }
     OCAMLWIN32=yes
     EXE=.exe
-    LIBEXT=.lib
-    OBJEXT=.obj
 else
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
     OCAMLWIN32=no
     EXE=
-    LIBEXT=.a
-    OBJEXT=.o
 fi
 rm -f check_arch.ml
+
+LIBEXT=`ocamlc -config | grep ext_lib | sed -e 's/.*\(\..*\)/\1/' `
+OBJEXT=`ocamlc -config | grep ext_obj | sed -e 's/.*\(\..*\)/\1/' `
 
 if test "$LABLGNOMECANVAS" = no ; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: lablgnomecanvas not found: the graph editor and view_graph will not be compiled" >&5

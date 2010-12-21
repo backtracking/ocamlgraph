@@ -62,8 +62,8 @@ type draw_state = {
 let copy_draw_st ds = { ds with fill_color = ds.fill_color }
 
 let default_draw_state () =
-  { fill_color = "white";
-    pen_color = "black";
+  { fill_color = "#FFFFFFFF";
+    pen_color = "#000000FF";
     font = 0., "";
     style = [] }
 
@@ -74,16 +74,16 @@ let set_style st s = st.style <- s
 
 (* STRING OPERATIONS *)
 
-let suffix s i = try String.sub s i ((String.length s)-i) 
+let suffix s i = try String.sub s i ((String.length s)-i)
                  with Invalid_argument("String.sub") -> ""
 
 (** Splits a string with a separator
    returns a list of strings *)
-let split c s = 
-  let rec split_from n = 
-    try let p = String.index_from s n c 
-        in (String.sub s n (p-n)) :: (split_from (p+1)) 
-    with Not_found -> [ suffix s n ] 
+let split c s =
+  let rec split_from n =
+    try let p = String.index_from s n c
+        in (String.sub s n (p-n)) :: (split_from (p+1))
+    with Not_found -> [ suffix s n ]
   in if s="" then [] else split_from 0 ;;
 
 (* HSV TO RGB CONVERSION *)
@@ -242,7 +242,7 @@ let parse_bytes st =
     incr st;
     get_n n st
   end
-  
+
 let parse_ellipse constr state =
   (* pos width height *)
   let pos = get_pos state in

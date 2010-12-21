@@ -164,16 +164,15 @@ if ocaml check_arch.ml | grep -q Win32; then
     AC_MSG_RESULT(yes)
     OCAMLWIN32=yes
     EXE=.exe
-    LIBEXT=.lib
-    OBJEXT=.obj
 else
     AC_MSG_RESULT(no)
     OCAMLWIN32=no
     EXE=
-    LIBEXT=.a
-    OBJEXT=.o
 fi
 rm -f check_arch.ml
+
+LIBEXT=`ocamlc -config | grep ext_lib | sed -e 's/.*\(\..*\)/\1/' `
+OBJEXT=`ocamlc -config | grep ext_obj | sed -e 's/.*\(\..*\)/\1/' `
 
 if test "$LABLGNOMECANVAS" = no ; then
   AC_MSG_WARN([lablgnomecanvas not found: the graph editor and view_graph will not be compiled])

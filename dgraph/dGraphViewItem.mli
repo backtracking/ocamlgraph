@@ -30,14 +30,14 @@
 (* ********************************************************************** *)
 
 (** Shape properties *)
-type shape_p = [ `FILL_COLOR of string
-               | `OUTLINE_COLOR of string
+type shape_p = [ `FILL_COLOR_RGBA of int32
+               | `OUTLINE_COLOR_RGBA of int32
 	       | `WIDTH_UNITS of float
 	       | `DASH of float * float array ]
 
 class type textshape = object
 
-  method highlight: ?color:string * string -> unit -> unit
+  method highlight: ?color:int32 * int32 -> unit -> unit
     (** Change the color of the text. May be cancelled by [dehighlight].
 	If [color] is [primary,secondary], then
 	[primary] is used except if the current color is [primary]. In this
@@ -102,7 +102,7 @@ object
   method item: 'a
   method zoom_text: float -> unit
 
-  method highlight: ?color:string * string -> unit -> unit
+  method highlight: ?color: int32 * int32 -> unit -> unit
     (** Change the color of the item. May be cancelled by [dehighlight].
 	If [color] is [primary,secondary], then
 	[primary] is used except if the current color is [primary]. In this
@@ -118,6 +118,8 @@ object
   method compute: unit -> unit (** apply all delayed operations *)
   method lower_to_bottom: unit -> unit
 end
+
+exception Cannot_convert_color of string
 
 val view_node:
   delay:bool ->

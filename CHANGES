@@ -1,4 +1,8 @@
 
+ o DGraph: fixed bug with color on some windows manager
+ o Configure: fixed issue with automatic detection of extension under
+   Windows/Mingw
+
 version 1.6, December 13, 2010
 ------------------------------
  o DGraph: new viewer mode (called `tree') which focus on a subset part of the

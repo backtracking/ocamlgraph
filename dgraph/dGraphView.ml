@@ -56,7 +56,7 @@ class type ['vertex, 'edge, 'cluster] view = object
   method adapt_zoom : unit -> unit
   method set_zoom_padding: float -> unit
   method connect_highlighting_event: unit -> unit
-  method highlight: ?color:string * string -> 'vertex view_item -> unit
+  method highlight: ?color: int32 * int32 -> 'vertex view_item -> unit
   method dehighlight: 'vertex view_item -> unit
 end
 

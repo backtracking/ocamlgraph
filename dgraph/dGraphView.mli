@@ -87,7 +87,7 @@ class type ['vertex, 'edge, 'cluster] view = object
 
   method connect_highlighting_event: unit -> unit
 
-  method highlight: ?color:string * string -> 'vertex view_item -> unit
+  method highlight: ?color: int32 * int32 -> 'vertex view_item -> unit
     (** Change the color of the given vertex item.
 	May be cancelled by [dehighlight].
 	If [color] is [primary,secondary], then
