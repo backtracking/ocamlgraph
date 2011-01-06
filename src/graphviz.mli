@@ -40,6 +40,13 @@ open Format
 
 type color = int
 
+type color_with_transparency = int32
+  (** The two least significant bytes encode the transparency information;
+      the six most signification are the standard RGB color *)
+
+val color_to_color_with_transparency: color -> color_with_transparency
+
+
 type arrow_style =
   [ `None | `Normal | `Inv | `Dot | `Odot | `Invdot | `Invodot ]
 
@@ -97,6 +104,9 @@ module CommonAttributes : sig
     [ `Color of color
         (** Sets the color of the border of the vertex.
 	  Default value is [black] *)
+    | `ColorWithTransparency of color_with_transparency
+        (** Sets the color of the border of the vertex with a transparency
+            component. Default value is fully opaque [black] *)
     | `Fontcolor of color
         (** Sets the label font color.  Default value is [black]. *)
     | `Fontname of string
@@ -139,6 +149,9 @@ module CommonAttributes : sig
   type edge =
     [ `Color of color
         (** Sets the edge stroke color.  Default value is [black]. *)
+    | `ColorWithTransparency of color_with_transparency
+        (** Sets the edge stroke color with a transparency
+            component. Default value is fully opaque [black] *)
     | `Decorate of bool
         (** If [true], draws a line connecting labels with their edges. *)
     | `Dir of [ `Forward | `Back | `Both | `None ]
@@ -185,6 +198,9 @@ module DotAttributes : sig
     [ CommonAttributes.graph
     | `Bgcolor of color
         (** Sets the background color and the inital fill color. *)
+    | `BgcolorWithTransparency of color_with_transparency
+        (** Sets the background color and the inital fill color with
+            a transparency component. *)
     | `Comment of string
         (** Comment string. *)
     | `Concentrate of bool
@@ -236,6 +252,9 @@ module DotAttributes : sig
     | `Fillcolor of color
         (** Sets the fill color (used when `Style filled).  Default value
             is [lightgrey]. *)
+    | `FillcolorWithTransparency of color_with_transparency
+        (** Sets the fill color (used when `Style filled) with a transparency
+            component.  Default value is fully opaque [lightgrey]. *)
     | `Fixedsize of bool
         (** If [true], forces the given dimensions to be the actual ones.
             Default value is [false]. *)

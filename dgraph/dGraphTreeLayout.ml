@@ -157,7 +157,8 @@ struct
 
   (* Convert an int in hexadecimal representing a color in rgb format to a
      string prefixed by # *)
-  let string_color i = "#" ^ Printf.sprintf "%06X" i;;
+  let string_color i = Printf.sprintf "#%06X" i;;
+  let string_color32 i = Printf.sprintf "#%08lX" i;;
 
   (** @return an array of positions to draw an edge from positions and
       dimensions of vertices *)
@@ -205,7 +206,7 @@ struct
 
   type vattributes = {
     (* See graphviz.mli for the meaning of each options *)
-    mutable color : int option;
+    mutable color : int32 option;
     mutable fontcolor : int option;
     mutable fontname : string option;
     mutable fontsize : int option;
@@ -219,11 +220,14 @@ struct
     mutable style : [ `Filled | `Solid | `Dashed | `Dotted | `Bold
       | `Invis ] list;
     mutable width : float option;
-    mutable fillcolor : int option
+    mutable fillcolor : int32 option;
   }
 
   let set_vattribute vattrs = function
-    | `Color c -> vattrs.color <- set_if_none vattrs.color c
+    | `Color c ->
+        vattrs.color <-
+          set_if_none vattrs.color (Graphviz.color_to_color_with_transparency c)
+    | `ColorWithTransparency c -> vattrs.color <- set_if_none vattrs.color c
     | `Fontcolor c -> vattrs.fontcolor <- set_if_none vattrs.fontcolor c
     | `Fontname n -> vattrs.fontname <- set_if_none vattrs.fontname n
     | `Fontsize s -> vattrs.fontsize <- set_if_none vattrs.fontsize s
@@ -235,7 +239,11 @@ struct
     | `Shape shape -> vattrs.shape <- set_if_none vattrs.shape shape
     | `Style s -> vattrs.style <- s :: vattrs.style
     | `Width w -> vattrs.width <- set_if_none vattrs.width w
-    | `Fillcolor c -> vattrs.fillcolor <- set_if_none vattrs.fillcolor c
+    | `Fillcolor c ->
+        vattrs.fillcolor <- set_if_none vattrs.fillcolor
+          (Graphviz.color_to_color_with_transparency c)
+    | `FillcolorWithTransparency c ->
+        vattrs.fillcolor <- set_if_none vattrs.fillcolor c
     | `Comment _ | `Distortion _ | `Fixedsize _ | `Layer _ | `Url _ | `Z _ ->
       () (* TODO *)
 
@@ -385,10 +393,10 @@ struct
     let vattrs = try HV.find vattributes v with Not_found -> assert false in
     let width, height = get_dimensions v geometry_info in
     (* Vertex shape drawing *)
-    XDotDraw.Pen_color (string_color (the vattrs.color)) ::
+    XDotDraw.Pen_color (string_color32 (the vattrs.color)) ::
       XDotDraw.Style (List.map (style_to_style_attr) vattrs.style) ::
       (if List.mem `Filled vattrs.style then
-	  XDotDraw.Fill_color (string_color (the vattrs.fillcolor)) ::
+	  XDotDraw.Fill_color (string_color32 (the vattrs.fillcolor)) ::
 	    shape_to_operations v vattrs geometry_info (the vattrs.shape)
        else
 	  shape_to_operations v vattrs geometry_info (the vattrs.shape))
@@ -544,7 +552,7 @@ struct
 
   type eattributes = {
     (* See graphviz.mli for the meaning of each field *)
-    mutable color : int option;
+    mutable color : int32 option;
     mutable decorate : bool option;
     mutable dir : [ `Forward | `Back | `Both | `None ] option;
     mutable fontcolor : int option;
@@ -560,6 +568,10 @@ struct
   let rec attributes_list_to_eattributes eattrs = function
     |[] -> ()
     | `Color c :: q ->
+      eattrs.color <-
+        set_if_none eattrs.color (Graphviz.color_to_color_with_transparency c);
+      attributes_list_to_eattributes eattrs q
+    | `ColorWithTransparency c :: q ->
       eattrs.color <- set_if_none eattrs.color c;
       attributes_list_to_eattributes eattrs q
     | `Decorate d :: q ->
@@ -592,7 +604,11 @@ struct
     | `Style s :: q ->
       eattrs.style <- s :: eattrs.style;
       attributes_list_to_eattributes eattrs q
-    | _ :: q ->
+    | (`Arrowhead _ | `Arrowsize _ | `Arrowtail _ | `Comment_  | `Constraint_
+      | `Headlabel _ | `Headport _ | `Headurl _ | `Labelangle _
+      |`Labeldistance _ | `Labelfloat _ | `Layer _ | `Minlen _ | `Samehead _
+      | `Sametail _ | `Taillabel _ | `Tailport _ | `Tailurl _ | `Weight _
+      | `Comment _ | `Constraint _) :: q ->
       attributes_list_to_eattributes eattrs q;;
 
   let eattrs_to_operation tree e geometry_info =
@@ -625,8 +641,8 @@ struct
     let xend, yend = posarray.(3) in
     (
       (* Shapes and curves *)
-      [ XDotDraw.Pen_color (string_color (the eattrs.color));
-	XDotDraw.Fill_color (string_color (the eattrs.color));
+      [ XDotDraw.Pen_color (string_color32 (the eattrs.color));
+	XDotDraw.Fill_color (string_color32 (the eattrs.color));
 	XDotDraw.Style (List.map (style_to_style_attr) eattrs.style);
 	XDotDraw.Filled_bspline posarray ]
     ,
@@ -642,8 +658,8 @@ struct
       (if eattrs.dir = Some `None then
 	[]
       else
-	XDotDraw.Pen_color (string_color (the eattrs.color)) ::
-	XDotDraw.Fill_color (string_color (the eattrs.color)) ::
+	XDotDraw.Pen_color (string_color32 (the eattrs.color)) ::
+	XDotDraw.Fill_color (string_color32 (the eattrs.color)) ::
 	XDotDraw.Style (List.map (style_to_style_attr) eattrs.style) ::
 	(edge_to_arrow posarray.(2) posarray.(3)))
     ,

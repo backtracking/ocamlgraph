@@ -62,8 +62,8 @@ type draw_state = {
 let copy_draw_st ds = { ds with fill_color = ds.fill_color }
 
 let default_draw_state () =
-  { fill_color = "#FFFFFFFF";
-    pen_color = "#000000FF";
+  { fill_color = "#FFFFFF";
+    pen_color = "#000000";
     font = 0., "";
     style = [] }
 

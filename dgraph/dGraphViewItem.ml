@@ -28,19 +28,40 @@ open XDot
 open XDotDraw
 open Printf
 
+let red_color =   0xFF0000FFl
+let blue_color =  0x0000FFFFl
+let green_color = 0x00FF00FFl
+let black_color = 0x000000FFl
+let white_color = 0xFFFFFFFFl
+
+
 exception Cannot_convert_color of string
 let rgba_to_int32 col =
-  try Int32.of_string ("0x" ^ String.sub col 1 (String.length col - 1))
-  with Failure _ -> raise (Cannot_convert_color (col^" but int32 expected"))
+  (* Graphivz sometimes insert named colors by itself, we need to catch
+     those. The list might be incomplete though; if it is, we might need to
+     translate http://www.w3.org/TR/SVG/types.html#ColorKeywords *)
+  match col with
+    | "black" -> black_color
+    | "white" -> white_color
+    | "red" -> red_color
+    | "green" -> green_color
+    | "blue" -> blue_color
+    | _ ->
+        try
+          match String.length col with
+            | 7 -> Graph.Graphviz.color_to_color_with_transparency
+                (int_of_string ("0x" ^ String.sub col 1 6))
+            | 9 -> Int32.of_string ("0x" ^ String.sub col 1 8)
+            | _ -> failwith ""
+        with Failure _ ->
+          (* Can fail either in the failed match above, or in int*of_string *)
+          raise (Cannot_convert_color (col^" but int32 expected"))
 
 let convert_fill_color col = `FILL_COLOR_RGBA (rgba_to_int32 col)
 let convert_outline_color col = `OUTLINE_COLOR_RGBA (rgba_to_int32 col)
 
 let ($) f x = f x
 
-let red_color = 0xFF0000FFl
-let green_color = 0x00FF00FFl
-let black_color = 0l
 
 (* Derived text class. *)
 class graph_text txt_obj ~size_points ~(props:GnomeCanvas.text_p list) =

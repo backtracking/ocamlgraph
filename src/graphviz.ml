@@ -43,8 +43,16 @@ open Pervasives (* for compatibility with ocaml 3.12.0+dev17
 
 type color = int
 
+type color_with_transparency = int32
+
+let color_to_color_with_transparency color =
+  Int32.add (Int32.shift_left (Int32.of_int color) 8) 0xFFl
+
 let fprint_color ppf color =
   fprintf ppf "\"#%06X\"" color
+
+let fprint_color_with_transparency ppf color =
+  fprintf ppf "\"#%08lX\"" color
 
 let fprint_string ppf s = fprintf ppf "\"%s\"" s
 (*  let s' = String.escaped s in
@@ -123,6 +131,9 @@ module CommonAttributes = struct
     [ `Color of color
         (** Sets the color of the border of the node. Default value is [black]
          *)
+    | `ColorWithTransparency of color_with_transparency
+        (** Sets the color of the border of the vertex with a transparency
+            component. Default value is fully opaque [black] *)
     | `Fontcolor of color
         (** Sets the label font color.  Default value is [black]. *)
     | `Fontname of string
@@ -163,6 +174,9 @@ module CommonAttributes = struct
   type edge =
     [ `Color of color
         (** Sets the edge stroke color.  Default value is [black]. *)
+    | `ColorWithTransparency of color_with_transparency
+        (** Sets the color of the border of the vertex with a transparency
+            component. Default value is fully opaque [black] *)
     | `Decorate of bool
         (** If [true], draws a line connecting labels with their edges. *)
     | `Dir of [ `Forward | `Back | `Both | `None ]
@@ -229,7 +243,9 @@ module CommonAttributes = struct
     | `Invis -> fprintf ppf "invis"
 
   let fprint_vertex ppf = function
-      `Color a -> fprintf ppf "color=%a" fprint_color a
+    | `Color a -> fprintf ppf "color=%a" fprint_color a
+    | `ColorWithTransparency a ->
+        fprintf ppf "color=%a" fprint_color_with_transparency a
     | `Fontcolor a -> fprintf ppf "fontcolor=%a" fprint_color a
     | `Fontname s -> fprintf ppf "fontname=%a"  fprint_string s
     | `Fontsize i -> fprintf ppf "fontsize=%i" i
@@ -252,7 +268,9 @@ module CommonAttributes = struct
     | `None -> fprintf ppf "none"
 
   let fprint_edge ppf = function
-      `Color a -> fprintf ppf "color=%a" fprint_color a
+    | `Color a -> fprintf ppf "color=%a" fprint_color a
+    | `ColorWithTransparency a ->
+        fprintf ppf "color=%a" fprint_color_with_transparency a
     | `Decorate b -> fprintf ppf "decorate=%b" b
     | `Dir a -> fprintf ppf "dir=%a" fprint_arrow_direction a
     | `Fontcolor a -> fprintf ppf "fontcolor=%a" fprint_color a
@@ -482,6 +500,9 @@ module DotAttributes = struct
     [ CommonAttributes.graph
     | `Bgcolor of color
         (** Sets the background color and the inital fill color. *)
+    | `BgcolorWithTransparency of color_with_transparency
+        (** Sets the background color and the inital fill color with
+            a transparency component. *)
     | `Comment of string
         (** Comment string. *)
     | `Concentrate of bool
@@ -534,6 +555,9 @@ module DotAttributes = struct
     | `Fillcolor of color
         (** Sets the fill color (used when `Style filled).  Default value
             is [lightgrey]. *)
+    | `FillcolorWithTransparency of color_with_transparency
+        (** Sets the fill color (used when `Style filled) with a transparency
+            component.  Default value is fully opaque [lightgrey]. *)
     | `Fixedsize of bool
         (** If [true], forces the given dimensions to be the actual ones.
             Default value is [false]. *)
@@ -621,6 +645,8 @@ module DotAttributes = struct
     let fprint_graph ppf = function
 	#CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
       | `Bgcolor a -> fprintf ppf "bgcolor=%a" fprint_color a
+      | `BgcolorWithTransparency a ->
+          fprintf ppf "bcolor=%a" fprint_color_with_transparency a
       | `Comment s -> fprintf ppf "comment=%a" fprint_string s
       | `Concentrate b -> fprintf ppf "concentrate=%b" b
       | `Fontpath s -> fprintf ppf "fontpath=%a" fprint_string s
@@ -643,6 +669,8 @@ module DotAttributes = struct
       | `Comment s -> fprintf ppf "comment=%a" fprint_string s
       | `Distortion f -> fprintf ppf "distortion=%f" f
       | `Fillcolor a -> fprintf ppf "fillcolor=%a" fprint_color a
+      | `FillcolorWithTransparency a ->
+          fprintf ppf "fillcolor=%a" fprint_color_with_transparency a
       | `Fixedsize b -> fprintf ppf "fixedsize=%b" b
       | `Layer s -> fprintf ppf "layer=%a" fprint_string s
       | `Url s -> fprintf ppf "URL=\"%s\"" s (*(String.escaped s)*)
