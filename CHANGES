@@ -1,4 +1,5 @@
 
+ o Makefile: fixed bug when installing ocamlgraph with ocamlfind
  o DGraph: fixed bug with color on some windows manager
  o Configure: fixed issue with automatic detection of extension under
    Windows/Mingw

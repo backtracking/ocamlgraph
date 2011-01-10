@@ -189,11 +189,10 @@ DGRAPH_CMO=xDotDraw xDot \
 	dGraphTreeLayout dGraphSubTree dGraphTreeModel \
 	dGraphViewItem dGraphView \
 	dGraphRandModel dGraphContainer \
-	dGraphViewer dGraphTest
+	dGraphViewer
 DGRAPH_CMO:=$(patsubst %,$(DGRAPH_DIR)/%.cmo, $(DGRAPH_CMO))
 DGRAPH_CMX=$(DGRAPH_CMO:.cmo=.cmx)
-DGRAPH_CMI=$(filter-out dgraph/dGraphViewer.cmi dgraph/dGraphTest.cmi, \
-  $(DGRAPH_CMO:.cmo=.cmi))
+DGRAPH_CMI=$(filter-out dgraph/dGraphViewer.cmi, $(DGRAPH_CMO:.cmo=.cmi))
 
 DGRAPH_INCLUDES= @INCLUDEGTK2@ -I $(DGRAPH_DIR) $(INCLUDES) -I .
 
@@ -211,12 +210,10 @@ DGRAPH_CMXLIB	= $(DGRAPH_DIR)/dgraph.cmx
 dgraph/dGraphViewer.cmo: $(DGRAPH_CMOLIB)
 dgraph/dGraphViewer.cmx: $(DGRAPH_CMXLIB)
 
-$(DGRAPH_CMOLIB): $(filter-out dgraph/dGraphViewer.cmo dgraph/dGraphTest.cmo, \
-  $(DGRAPH_CMO))
+$(DGRAPH_CMOLIB): $(filter-out dgraph/dGraphViewer.cmo, $(DGRAPH_CMO))
 	$(OCAMLC) -o $@ $(DGRAPH_INCLUDES) -pack $^
 
-$(DGRAPH_CMXLIB): $(filter-out dgraph/dGraphViewer.cmx dgraph/dGraphTest.cmx, \
-  $(DGRAPH_CMX))
+$(DGRAPH_CMXLIB): $(filter-out dgraph/dGraphViewer.cmx, $(DGRAPH_CMX))
 	$(OCAMLOPT) -o $@ $(DGRAPH_INCLUDES) -pack $^
 
 $(DGRAPH_DIR)/dgraph.byte: $(CMA) $(DGRAPH_CMOLIB) \
