@@ -457,7 +457,7 @@ MISCFTP = $(HOME)/WWW/ftp/ocaml/misc
 DELAUNAY=delaunay.ml delaunay.mli
 export-delaunay:
 	cd src; cp -f $(DELAUNAY) $(MISCFTP)
-	cd src; caml2html -noannot -d $(MISCFTP) $(DELAUNAY)
+	cd src; rm -f delaunay.annot; caml2html -noannot -d $(MISCFTP) $(DELAUNAY)
 
 # generic rules
 ###############
