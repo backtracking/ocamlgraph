@@ -409,6 +409,7 @@ module Matrix = struct
     let mem_edge g i j = Bitv.get g.(i) j
     let mem_edge_e g (i,j) = Bitv.get g.(i) j
     let find_edge g i j = if mem_edge g i j then i, j else raise Not_found
+    let find_all_edges g i j = try [ find_edge g i j ] with Not_found -> []
 
     (* constructors *)
     let add_edge g i j = Bitv.set g.(i) j true

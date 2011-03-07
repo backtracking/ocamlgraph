@@ -83,8 +83,8 @@ module Make(B : Builder.S) = struct
 	   G.fold_succ_e
 	     (fun e g ->
 	       if List.exists (fun e' -> G.E.compare e e' = 0) succ
-		then B.add_edge_e g e
-		else g)
+	       then B.add_edge_e g e
+	       else g)
 	     g1 v (B.add_vertex g v)
 	 with Invalid_argument _ ->
 	   (* [v] not in [g2] *)

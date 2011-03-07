@@ -208,6 +208,7 @@ module Generic = struct
     let g = G.create ()
 
     let test_exn v1 v2 =
+      assert (G.find_all_edges g v1 v2 = []);
       try
 	let _ = G.find_edge g v1 v2 in
 	assert false
@@ -217,17 +218,20 @@ module Generic = struct
     let () =
       let e1 = 1, 0, 2 in
       let e2 = 1, 1, 3 in
+      let e2' = 1, 2, 3 in
       let e3 = 2, 2, 1 in
       G.add_edge_e g e1;
       G.add_edge_e g e2;
+      G.add_edge_e g e2';
       G.add_edge_e g e3;
       G.add_edge_e g e3;
       assert (G.find_edge g 1 2 = e1);
+      assert (List.length (G.find_all_edges g 1 3) = 2);
       test_exn 2 3;
       test_exn 2 4;
       test_exn 5 2;
       G.remove_vertex g 2;
-      assert (G.nb_vertex g = 2 && G.nb_edges g = 1)
+      assert (G.nb_vertex g = 2 && G.nb_edges g = 2)
 
   end
 

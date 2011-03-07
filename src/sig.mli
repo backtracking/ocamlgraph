@@ -116,6 +116,10 @@ module type G = sig
 	Unspecified behaviour if [g] has several edges from [v1] to [v2].
 	@raise Not_found if no such edge exists. *)
 
+  val find_all_edges : t -> vertex -> vertex -> edge list
+  (** [find_all_edges g v1 v2] returns all the edges from [v1] to [v2].
+      @since ocamlgraph 1.8 *)
+
   (** {2 Successors and predecessors}
 
       You should better use iterators on successors/predecessors (see

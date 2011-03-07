@@ -211,6 +211,7 @@ module Unlabeled(V: COMPARABLE)(HM: HM with type key = V.t) = struct
   let mem_edge_e g (v1, v2) = mem_edge g v1 v2
 
   let find_edge g v1 v2 = if mem_edge g v1 v2 then v1, v2 else raise Not_found
+  let find_all_edges g v1 v2 = try [ find_edge g v1 v2 ] with Not_found -> []
 
   let unsafe_remove_edge g v1 v2 = HM.add v1 (S.remove v2 (HM.find v1 g)) g
   let unsafe_remove_edge_e g (v1, v2) = unsafe_remove_edge g v1 v2
@@ -293,6 +294,16 @@ struct
       raise Not_found
     with Found e ->
       e
+
+  let find_all_edges g v1 v2 =
+    try
+      S.fold
+	(fun (v2', l) acc ->
+	  if V.equal v2 v2' then (v1, l, v2') :: acc else acc)
+	(HM.find v1 g)
+	[]
+    with Not_found ->
+      []
 
   let unsafe_remove_edge g v1 v2 =
     HM.add
@@ -439,6 +450,7 @@ struct
   let mem_edge g = G.mem_edge g.edges
   let mem_edge_e g = G.mem_edge_e g.edges
   let find_edge g = G.find_edge g.edges
+  let find_all_edges g = G.find_all_edges g.edges
 
   let iter_vertex f g = G.iter_vertex f g.edges
   let fold_vertex f g = G.fold_vertex f g.edges
@@ -520,6 +532,7 @@ module BidirectionalUnlabeled(V:COMPARABLE)(HM:HM with type key = V.t) = struct
   let mem_edge_e g (v1,v2) = mem_edge g v1 v2
 
   let find_edge g v1 v2 = if mem_edge g v1 v2 then v1, v2 else raise Not_found
+  let find_all_edges g v1 v2 = try [ find_edge g v1 v2 ] with Not_found -> []
 
   let unsafe_remove_edge g v1 v2 =
     let in_set, out_set = HM.find v1 g in
@@ -628,6 +641,16 @@ struct
       raise Not_found
     with Found e ->
       e
+
+  let find_all_edges g v1 v2 =
+    try
+      S.fold
+	(fun (v2', l) acc ->
+	  if V.equal v2 v2' then (v1, l, v2') :: acc else acc)
+	(snd (HM.find v1 g))
+	[]
+    with Not_found ->
+      []
 
   let unsafe_remove_edge g v1 v2 =
     let in_set, out_set = HM.find v1 g in

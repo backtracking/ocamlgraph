@@ -21,7 +21,7 @@
     imperative graph signature and all algorithms.
     Vertices and edges are labeled with integers. *)
 
-(** Signature gathering an imperative graph signature and all algorithms. 
+(** Signature gathering an imperative graph signature and all algorithms.
     Vertices and edges are labeled with integers. *)
 module type S = sig
 
@@ -34,9 +34,9 @@ module type S = sig
   module V : sig
     (** Vertices are [COMPARABLE] *)
 
-    type t 
-    val compare : t -> t -> int 
-    val hash : t -> int 
+    type t
+    val compare : t -> t -> int
+    val hash : t -> int
     val equal : t -> t -> bool
 
     (** vertices are labeled with integers *)
@@ -85,7 +85,7 @@ module type S = sig
         just an initial guess. *)
 
   val clear: t -> unit
-    (** Remove all vertices and edges from the given graph. 
+    (** Remove all vertices and edges from the given graph.
 	@since ocamlgraph 1.4 *)
 
   val copy : t -> t
@@ -97,20 +97,20 @@ module type S = sig
       Do nothing if [v] is already in [g]. *)
 
   val remove_vertex : t -> V.t -> unit
-    (** [remove g v] removes the vertex [v] from the graph [g] 
+    (** [remove g v] removes the vertex [v] from the graph [g]
       (and all the edges going from [v] in [g]).
       Do nothing if [v] is not in [g]. *)
 
   val add_edge : t -> V.t -> V.t -> unit
     (** [add_edge g v1 v2] adds an edge from the vertex [v1] to the vertex [v2]
-      in the graph [g]. 
-      Add also [v1] (resp. [v2]) in [g] if [v1] (resp. [v2]) is not in [g]. 
-      Do nothing if this edge is already in [g]. *) 
+      in the graph [g].
+      Add also [v1] (resp. [v2]) in [g] if [v1] (resp. [v2]) is not in [g].
+      Do nothing if this edge is already in [g]. *)
 
   val add_edge_e : t -> E.t -> unit
     (** [add_edge_e g e] adds the edge [e] in the graph [g].
       Add also [E.src e] (resp. [E.dst e]) in [g] if [E.src e] (resp. [E.dst
-      e]) is not in [g]. 
+      e]) is not in [g].
       Do nothing if [e] is already in [g]. *)
 
   val remove_edge : t -> V.t -> V.t -> unit
@@ -124,7 +124,7 @@ module type S = sig
       Do nothing if [e] is not in [g].
       @raise Invalid_argument if [E.src e] or [E.dst e] are not in [g]. *)
 
-  (** Vertices contains integers marks, which can be set or used by some 
+  (** Vertices contains integers marks, which can be set or used by some
       algorithms (see for instance module [Marking] below) *)
   module Mark : sig
     type graph = t
@@ -157,6 +157,7 @@ module type S = sig
   val mem_edge : t -> V.t -> V.t -> bool
   val mem_edge_e : t -> E.t -> bool
   val find_edge : t -> V.t -> V.t -> E.t
+  val find_all_edges : t -> V.t -> V.t -> E.t list
 
   (** {2 Successors and predecessors of a vertex} *)
 
@@ -219,13 +220,13 @@ module type S = sig
 
   val find_vertex : t -> int -> V.t
     (** [vertex g i] returns a vertex of label [i] in [g]. The behaviour is
-      unspecified if [g] has several vertices with label [i]. 
+      unspecified if [g] has several vertices with label [i].
       Note: this function is inefficient (linear in the number of vertices);
       you should better keep the vertices as long as you create them. *)
 
   val transitive_closure : ?reflexive:bool -> t -> t
-    (** [transitive_closure ?reflexive g] returns the transitive closure 
-      of [g] (as a new graph). Loops (i.e. edges from a vertex to itself) 
+    (** [transitive_closure ?reflexive g] returns the transitive closure
+      of [g] (as a new graph). Loops (i.e. edges from a vertex to itself)
       are added only if [reflexive] is [true] (default is [false]). *)
 
   val add_transitive_closure : ?reflexive:bool -> t -> t
@@ -245,21 +246,21 @@ module type S = sig
 
   val intersect : t -> t -> t
     (** [intersect g1 g2] returns a new graph which is the intersection of [g1]
-      and [g2]: each vertex and edge present in [g1] *and* [g2] is present 
+      and [g2]: each vertex and edge present in [g1] *and* [g2] is present
       in the resulting graph. *)
 
   val union : t -> t -> t
     (** [union g1 g2] returns a new graph which is the union of [g1] and [g2]:
-      each vertex and edge present in [g1] *or* [g2] is present in the 
+      each vertex and edge present in [g1] *or* [g2] is present in the
       resulting graph. *)
 
   (** {2 Traversal} *)
 
   (** Depth-first search *)
   module Dfs : sig
-    val iter : ?pre:(V.t -> unit) -> 
+    val iter : ?pre:(V.t -> unit) ->
                ?post:(V.t -> unit) -> t -> unit
-      (** [iter pre post g] visits all nodes of [g] in depth-first search, 
+      (** [iter pre post g] visits all nodes of [g] in depth-first search,
 	  applying [pre] to each visited node before its successors,
 	  and [post] after them. Each node is visited exactly once. *)
     val prefix : (V.t -> unit) -> t -> unit
@@ -269,8 +270,8 @@ module type S = sig
 
     (** Same thing, but for a single connected component *)
 
-    val iter_component : 
-               ?pre:(V.t -> unit) -> 
+    val iter_component :
+               ?pre:(V.t -> unit) ->
                ?post:(V.t -> unit) -> t -> V.t -> unit
     val prefix_component : (V.t -> unit) -> t -> V.t -> unit
     val postfix_component : (V.t -> unit) -> t -> V.t -> unit
@@ -295,17 +296,17 @@ module type S = sig
   (** Classic graphs *)
   module Classic : sig
     val divisors : int -> t
-      (** [divisors n] builds the graph of divisors. 
+      (** [divisors n] builds the graph of divisors.
 	Vertices are integers from [2] to [n]. [i] is connected to [j] if
-        and only if [i] divides [j]. 
+        and only if [i] divides [j].
 	@raise Invalid_argument is [n < 2]. *)
 
     val de_bruijn : int -> t
       (** [de_bruijn n] builds the de Bruijn graph of order [n].
 	Vertices are bit sequences of length [n] (encoded as their
 	interpretation as binary integers). The sequence [xw] is connected
-	to the sequence [wy] for any bits [x] and [y] and any bit sequence 
-        [w] of length [n-1]. 
+	to the sequence [wy] for any bits [x] and [y] and any bit sequence
+        [w] of length [n-1].
 	@raise Invalid_argument is [n < 1] or [n > Sys.word_size-1]. *)
 
     val vertex_only : int -> t
@@ -322,10 +323,10 @@ module type S = sig
     val graph : ?loops:bool -> v:int -> e:int -> unit -> t
       (** [random v e] generates a random with [v] vertices and [e] edges. *)
 
-    val labeled : 
-      (V.t -> V.t -> E.label) -> 
+    val labeled :
+      (V.t -> V.t -> E.label) ->
 	?loops:bool -> v:int -> e:int -> unit -> t
-	  (** [random_labeled f] is similar to [random] except that edges are 
+	  (** [random_labeled f] is similar to [random] except that edges are
             labeled using function [f] *)
   end
 
@@ -366,7 +367,7 @@ module type S = sig
 
   (** {2 Input / Output} *)
 
-  val dot_output : t -> string -> unit 
+  val dot_output : t -> string -> unit
     (** DOT output *)
 
   val display_with_gv : t -> unit
