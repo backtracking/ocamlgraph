@@ -113,7 +113,11 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
     DumpDot.output_graph out g;
     close_out out;
     (* Get layout from dot file *)
-    let layout = X.layout_of_dot ~cmd ~dot_file g in
+    let layout = 
+      try
+        X.layout_of_dot ~cmd ~dot_file g 
+      with X.DotError err -> raise (DotError err)
+    in
     let model = new model layout g in
     Sys.remove dot_file;
     model
