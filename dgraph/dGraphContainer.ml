@@ -232,10 +232,15 @@ struct
 	    false
 	in
 	match ev with
-	| `BUTTON_PRESS _ ->
-	  (* clicking on a node of the global view *)
+	| `BUTTON_PRESS _ -> (* clicking on a node of the global view *)
+          (* Update the root of the tree view *)
 	  view#set_tree_root node#item;
-	  false
+          (* Center the global view on the selected node *)
+          begin match view#global_view with 
+          | None -> ()
+          | Some w -> w#center_node node
+          end;
+          false
 	| `MOTION_NOTIFY _ -> apply (fun v n -> v#highlight n)
 	| `LEAVE_NOTIFY _ -> apply (fun v -> v#dehighlight)
 	|_ -> false
@@ -277,6 +282,7 @@ struct
     method set_tree_root v =
       tree_root <- Some v;
       tree_change <- true;
+      
       self#update ()
 
     method switch s =
@@ -330,7 +336,7 @@ struct
 	  ~packing:global_frame#add
 	  ()
       in
-      scroll#add view#coerce;
+      scroll#add view#coerce
     | Some _ ->
       ()
 
@@ -355,8 +361,7 @@ struct
       (match status, tree_root with
       | Global, _ | _, None -> self#add_global_view ()
       | Tree, Some _ -> self#add_tree_view ()
-      | Both, Some _ -> self#add_global_view (); self#add_tree_view ());
-      self#adapt_zoom ()
+      | Both, Some _ -> self#add_global_view (); self#add_tree_view ())
 
     initializer
       self#update ()

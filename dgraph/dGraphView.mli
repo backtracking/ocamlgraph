@@ -72,17 +72,29 @@ class type ['vertex, 'edge, 'cluster] view = object
   method dst: 'edge view_item -> 'vertex view_item
 
   (** {2 Zooming} *)
-
+    
   method zoom_factor : float
+  (** The current zoom factor.*)
 
   method zoom_to : float -> unit
+  (** Set an absolute zoom factor.*)
+
   method zoom_in : unit -> unit
+  (** Increase [zoom_factor] by [zoom_factor*zoom_padding].*)
+
   method zoom_out : unit -> unit
+  (** Decrease [zoom_factor] by [zoom_factor*zoom_padding].*)
+
   method adapt_zoom : unit -> unit
+  (** Zoom in order to view the whole graph (bird eye view). *)
 
   method set_zoom_padding: float -> unit
-    (** Set the zoom padding used by [zoom_in] and [zoom_out]. *)
+  (** Set the zoom padding used by [zoom_in] and [zoom_out]. 
+      It defaults to 0.1. *)
 
+  method center_node: 'vertex view_item -> unit
+  (** Center canvas on a node. *)
+    
   (** {2 Highlighting} *)
 
   method connect_highlighting_event: unit -> unit

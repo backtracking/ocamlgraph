@@ -138,7 +138,7 @@ let fill_color draw_st = convert_fill_color draw_st.XDotDraw.fill_color
 (* Flattens an array of pair of coordinates into an array of coordinates *)
 let flatten_points pts =
   let convert i =
-    let x, y = XDot.conv_coord pts.(i / 2) in
+    let x, y = pts.(i / 2) in
     if i mod 2 = 0 then x else y
   in
   Array.init (2 * Array.length pts) convert
@@ -282,24 +282,24 @@ let pathdef pts =
 
 let bspline ~fill draw_st group pts =
   let path =
-    pathdef (Array.fold_right (fun p acc -> XDot.conv_coord p :: acc) pts [])
+    pathdef (Array.fold_right (fun p acc -> p :: acc) pts [])
   in
   let props = get_props draw_st in
   let bpath = GnoCanvas.bpath group ~bpath:path ~props in
   new shape ~fill (SBSpline bpath) props
 
-let text draw_st group pos align anchor label =
+let text draw_st group (x,y) align _width label =
   let size_points, font = draw_st.XDotDraw.font in
-  let x, y = XDot.conv_coord pos in
-  let y = y +. size_points /. 2. in
   let props = [ convert_fill_color draw_st.XDotDraw.pen_color ] in
-  let anchor =
-    if anchor = -. 1. then `WEST else if anchor = 1.0 then `EAST else `CENTER
+  let anchor = match align with
+    | Center -> `CENTER
+    | Left -> `WEST
+    | Right -> `EAST
   in
   graph_text
     group
     ~x ~y ~text:label ~props ~anchor
-    ~font ~size_points:(size_points -. 1.)
+    ~font ~size_points
 
 class type common_view = object
   inherit GnoCanvas.canvas
@@ -385,15 +385,14 @@ object (self)
       ()
 
   method center () =
-    self#cache
-      (fun () ->
-	let x, y = pos in
-	let w = view#hadjustment#page_size /. view#zoom_factor in
-	let h = view#vadjustment#page_size /. view#zoom_factor in
-	let sx = x -. (w /. 2.) in
-	let sy = y -. (h /. 2.) in
-	let sx, sy = view#w2c ~wx:sx ~wy:sy in
-	ignore $ view#scroll_to ~x:sx ~y:sy)
+    self#cache(fun () -> 
+      let x, y = pos in
+      let w = view#hadjustment#page_size /. view#zoom_factor in
+      let h = view#vadjustment#page_size /. view#zoom_factor in
+      let sx = x -. (w /. 2.) in
+      let sy = y -. (h /. 2.) in
+      let sx, sy = view#w2c ~wx:sx ~wy:sy in
+      ignore $ view#scroll_to ~x:sx ~y:sy) 
       ()
 
   method lower_to_bottom () =
@@ -406,13 +405,13 @@ object (self)
       (* Create shapes *)
       | XDotDraw.Filled_ellipse (pos, w, h)
       | XDotDraw.Unfilled_ellipse (pos, w, h) ->
-	shapes <- ellipse ~fill draw_st self pos w h :: shapes
+        shapes <- ellipse ~fill draw_st self pos w h :: shapes
       | XDotDraw.Filled_polygon pts | XDotDraw.Unfilled_polygon pts ->
 	shapes <- polygon ~fill draw_st self pts :: shapes
       | XDotDraw.Bspline pts | XDotDraw.Filled_bspline pts ->
 	shapes <- bspline ~fill draw_st self pts :: shapes
-      | XDotDraw.Text (pos, align, anchor, label) ->
-	texts <- text draw_st self pos align anchor label :: texts
+      | XDotDraw.Text (pos, align, width, label) ->
+	texts <- text draw_st self pos align width label :: texts
       | _ -> ()
     in
     List.iter (draw_with read_op) ops_list;

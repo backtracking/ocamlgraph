@@ -118,7 +118,9 @@ let create_menu state ~packing =
       ~callback:(fun _ -> open_file state ~packing ());
     GAction.add_action
       "Zoom fit" ~label:"Zoom fit" ~accel:"<Control>t" ~stock:`ZOOM_FIT
-      ~callback:(fun _ -> ());
+      ~callback:(fun _ -> match state.content with 
+        |None -> ()
+        |Some (_,v) -> v#adapt_zoom ());
     GAction.add_action "Quit" ~label:"Quit" ~accel:"<Control>q" ~stock:`QUIT
       ~callback:(fun _ -> GMain.Main.quit ());
   ];

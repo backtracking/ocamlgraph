@@ -88,7 +88,8 @@ struct
       in
       Queue.add (root, 0) stack_queue;
       flush_queue stack_queue;
-    in fill_stack tree root;
+    in 
+    fill_stack tree root;
     let offset = ref geometry_info.x_offset in
     let max_depth = snd (Stack.top stack) in
     let rec flush_stack stack =
@@ -115,13 +116,12 @@ struct
 	flush_stack stack
       end
     in
-    flush_stack stack;;
-
+    flush_stack stack
+      
   (* Bind two tree position tables together *)
   let bind_tree_tables forward_table backward_table root geometry_info =
     (* Using dimension is required in order to be put at the middle of the
-       canvas but the bounding box became negative (scrollbar issue).
-       Should imply a deep modification of the placement algorithm :-( *)
+       canvas.*)
     let max_fwd, max_dim_fwd =
       HV.fold
 	(fun v (_, y) (max_y, max_dimy as acc) ->
@@ -130,13 +130,14 @@ struct
 	    if y < max_y then acc
 	    else
 	      let _, dimy = get_dimensions v geometry_info in
-	      let dimy = dimy *. 1.5 in
+	      (*[BM] why 1.5? *)
+              let dimy = dimy *. 1.5 in
 	      y, if y = max_y then max max_dimy dimy else dimy)
 	forward_table
 	(0, 0.)
     in
     HV.iter
-      (fun v (x, y) ->
+      (fun v (x, y) ->(*[BM]: why 0.5 and 1.5 ??? *)
 	HV.add
 	  geometry_info.position
 	  v
@@ -144,7 +145,7 @@ struct
 	    -. 1.5 *. max_dim_fwd))
       backward_table;
     HV.iter
-      (fun v (x, y) ->
+      (fun v (x, y) ->(*[BM]: why 0.5 and 1.5 ??? *)
 	HV.add
 	  geometry_info.position
 	  v
@@ -167,9 +168,10 @@ struct
     let _, hsrc = get_dimensions src geometry_info in
     let xdst, ydst = get_position dst geometry_info in
     let _, hdst = get_dimensions dst geometry_info in
-    let ystart = ysrc -. hsrc and yend = ydst +. hdst in
-    let xdec = 0.4 *. (xdst -. xsrc) in
-    let ydec = 0.4 *. (ydst -. ysrc) in
+    let ystart = ysrc -. hsrc/.2. and yend = ydst +. hdst/. 2. in
+    (* Bezier intermediate points. *)
+    let xdec = (xdst -. xsrc)/.4.0 in
+    let ydec = (ydst -. ysrc)/.4.0 in
 (*    Format.printf "%f %f %f@." ystart yend ydec;*)
     [| xsrc, ystart;
        xsrc +. xdec, ystart +. ydec;
@@ -410,7 +412,7 @@ struct
       let _, h = get_dimensions v geometry_info in
       (* [JS 2010/10/08] "/. 4." is quite strange but gives better results *)
       XDotDraw.Text
-	((x, y -. h /. 4.),
+	((x, y +. h /. 4.),
 	 XDotDraw.Center,
 	 width,
 	 the vattrs.label) ]
@@ -422,8 +424,7 @@ struct
     {
       XDot.n_name = Tree.vertex_name v;
       XDot.n_pos = (abs,ord);
-      XDot.n_bbox = ((abs,ord),(abs +. width, ord +. height));
-(*      XDot.n_bbox = XDot.bounding_box (abs, ord) width height;*)
+      XDot.n_bbox = XDot.bounding_box (abs, ord) width height;
       XDot.n_draw = draw;
       XDot.n_ldraw = ldraw
     }
@@ -671,11 +672,12 @@ struct
     ,
       (* Tail label drawing *)
       []
-    );;
+    )
 
   let edge_to_edge_layout tree e geometry_info =
     let (draw,ldraw,hdraw,tdraw,hldraw,tldraw) =
-      eattrs_to_operation tree e geometry_info in
+      eattrs_to_operation tree e geometry_info 
+    in
     {
       XDot.e_draw = draw;
       XDot.e_ldraw = ldraw;
@@ -683,7 +685,7 @@ struct
       XDot.e_tdraw = tdraw;
       XDot.e_hldraw = hldraw;
       XDot.e_tldraw = tldraw
-    };;
+    }
 
   (* Graph *)
   let from_tree context tree root =
@@ -759,22 +761,26 @@ struct
     let corners pos_array =
       let p0 = pos_array.(0) in
       Array.fold_left
-	(fun ((minx, maxy), (maxx, miny)) (x, y) ->
-	  (min minx x, max maxy y), (max maxx x, min miny y))
+	(fun ((minx, miny), (maxx, maxy)) (x, y) ->
+	  (min minx x, min miny y), (max maxx x, max maxy y))
 	(p0, p0)
 	pos_array
     in
+    (* The width and height of the bounding box of the first shape
+       corresponding to a node.*)
     let rec get_size = function
       | [] -> 0., 0.
-      | XDotDraw.Unfilled_ellipse (_,w,h) :: _ -> 2. *. w, h
-      | XDotDraw.Filled_ellipse (_,w,h) :: _ -> 2. *. w, h
-      | XDotDraw.Unfilled_polygon pos_array :: _ ->
-	let (minx, maxy), (maxx, miny) = corners pos_array in
-	maxx -. minx, maxy -. miny
+      | XDotDraw.Unfilled_ellipse (_,w,h) :: _ 
+      | XDotDraw.Filled_ellipse (_,w,h) :: _ -> 
+        2. *. w, 2. *. h
+      | XDotDraw.Unfilled_polygon pos_array :: _
       | XDotDraw.Filled_polygon pos_array :: _ ->
-	let (minx, maxy), (maxx, miny) = corners pos_array in
+	let (minx, miny), (maxx, maxy) = corners pos_array in
 	maxx -. minx, maxy -. miny
-      | _ :: tl -> get_size tl
+      | (XDotDraw.Style _ |XDotDraw.Font _|XDotDraw.Pen_color _ 
+            |XDotDraw.Fill_color _|XDotDraw.Filled_bspline _ |XDotDraw.Bspline _
+            | XDotDraw.Polyline _|XDotDraw.Text _) 
+        :: tl -> get_size tl
     in
     Tree.iter_vertex
       (fun v ->
@@ -788,8 +794,14 @@ struct
     let backward_table = HV.create 97 in
     fill_tree_positions tree root Tree.iter_succ Tree.fold_succ forward_table
       geometry_info;
+    (*HV.iter (fun k (off,depth) -> Format.printf "off:%f depth:%d@." off depth)
+      forward_table;*)
     fill_tree_positions tree root Tree.iter_pred Tree.fold_pred backward_table
       geometry_info;
+    (*    HV.iter (fun k (off,depth) -> 
+          Format.printf "BACKoff:%f depth:%d@." off depth)
+          backward_table;
+    Format.printf "DONE@.";*)
     bind_tree_tables forward_table backward_table root geometry_info
 
   (* VERTICES *)
@@ -813,23 +825,36 @@ struct
     in
     List.map do_one operations
 
-  let rec parse_n_ldraw_operations pos =
+  let parse_n_ldraw_operations 
+      (initial_node_pos_x,initial_node_pos_y)
+      (node_pos_x,node_pos_y) 
+      operations 
+      =
     List.map
       (function
-      | XDotDraw.Text (_, align, w, s) ->
-	(* [JS 2010/10/06] incorrect since it does not take into account font
-	   height *)
+      | XDotDraw.Text ((pos_x,pos_y), align, w, s) ->
+        let translate_x,translate_y =
+          node_pos_x-.initial_node_pos_x,node_pos_y-.initial_node_pos_y
+        in
+        let (x,y as pos) = (* same affine move as the attached node has had*)
+          pos_x+.translate_x,
+          pos_y+.translate_y
+        in
 	XDotDraw.Text (pos, align, w, s)
       | op -> op)
+      operations
 
-  let parse_vertex_layout tree v layout geometry_info =
+  let parse_vertex_layout tree v orig_layout geometry_info =
     let width, height = get_dimensions v geometry_info in
     let (abs, ord as pos) = get_position v geometry_info in
-    { XDot.n_name = layout.XDot.n_name;
+    { XDot.n_name = orig_layout.XDot.n_name;
       n_pos = pos;
-      n_bbox = pos, (abs +. width, ord +. height);
-      n_draw = parse_n_draw_operations layout.XDot.n_draw pos;
-      n_ldraw = parse_n_ldraw_operations pos layout.XDot.n_ldraw }
+      n_bbox = XDot.bounding_box pos width height;
+      n_draw = parse_n_draw_operations orig_layout.XDot.n_draw pos;
+      n_ldraw = parse_n_ldraw_operations 
+        orig_layout.XDot.n_pos
+        pos
+        orig_layout.XDot.n_ldraw}
 
   (* EDGES *)
   let rec parse_e_draw_operations operations src dst geometry_info =
@@ -923,7 +948,10 @@ struct
 	  HV.fold
 	    (fun v (x, y) ((minx, miny),(maxx, maxy) as acc) ->
 	      if TreeManipulation.is_ghost_node v then acc
-	      else (min x minx, min y miny), (max x maxx, max y maxy))
+	      else 
+                let width,height= get_dimensions v geometry_info in
+                (min (x-.width) minx, min (y-.height) miny), 
+                (max (x+.width) maxx, max (y+.height) maxy))
 	    geometry_info.position
 	    (root_pos, root_pos)
 	in

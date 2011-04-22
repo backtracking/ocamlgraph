@@ -130,10 +130,15 @@ end
 
 (** Converts and reads various layout informations *)
 
-(** Converts a coordinate from a dot file to a coordinate on the canvas *)
-val conv_coord : float * float -> float * float
-
+(** [bounding_box pos w h] converts a bounding box of center [pos], 
+    width [w] and height [h] from a Dot file to a pair of corners 
+    (lower left and upper right) in the world coordinate system.
+    @param pos position of the center of the node
+    @param w width of the node
+    @param h height of the node
+*)
 val bounding_box : (float * float) -> float -> float -> bounding_box
+
 val read_bounding_box : string -> bounding_box
 
 (** Reads xdot layouts from the dot ast *)

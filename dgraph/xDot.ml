@@ -31,6 +31,15 @@ open Dot_ast
 open Printf
 
 (* Layout types *)
+(* This file is responsible for converting the coordinates from dot coordinates
+   to GnomeCanvas world coordinates. 
+   The matrix transformation to apply is: 
+   (1  0)
+   (0 -1)
+   Care must be taken to exchange max and min values on the y axis.
+   Outside this module all coordinates are assumed to be in canvas 
+   world coordinates.
+*)
 type pos = float * float      (* coordinates *)
 type bounding_box = pos * pos (* bounding box   *)
 
@@ -106,47 +115,12 @@ let split c s =
     with Not_found -> [ suffix s n ]
   in if s="" then [] else split_from 0
 
-(** Converts a coordinate from the dot file to a coordinate on the canvas *)
-let conv_coord (x,y) =
-  let pad = 4. in
-  let dot_ppi = 72. in
-  let dot_png_ppi = 96. in
-  let factor = dot_png_ppi /. dot_ppi in
-  (x +. pad) *. factor, (y +. pad) *. factor
+let read_pos s = Scanf.sscanf s "%f,%f" (fun x y -> x, -.y)
 
-let read_pos s = Scanf.sscanf s "%f,%f" (fun x y -> x, y)
-
-(** Converts a bounding box of center (x,y), width w and height h
-    from a Dot file to a pair of corners (lower left and upper right)
-    in the canvas coordinate system
-
-    see http://www.graphviz.org/mywiki/FaqCoordTransformation
-    to understand the [pad] and [factor] variables.
-
-    @param pos position of the center of the node, in points.
-    @param w width of the node, in inch.
-    @param h height of the node, in inch.
-*)
 let bounding_box (x, y) w h =
-  let dot_ppi = 72. (* number of pixels per inch on a display device *) in
-  let dot_png_ppi = 96. (* number of pixels per inch on a display device *) in
-  try
-    let pad = 4. in
-    let x = x +. pad in
-    let y = y +. pad in
-    let x1 = x -. w in
-    let y1 = y -. h in
-    let x2 = x +. w in
-    let y2 = y +. h in
-    let factor = dot_png_ppi /. dot_ppi in
-    let x1 = x1 *. factor in
-    let y1 = y1 *. factor in
-    let x2 = x2 *. factor in
-    let y2 = y2 *. factor in
-    (x1,y1), (x2,y2)
-  with e ->
-    let s = Printexc.to_string e in
-    failwith (Format.sprintf "compute_coord failed : %s@." s)
+  let lower_left = x -. w , y -. h in
+  let upper_right =  x+.w,y+.h in
+  lower_left,upper_right
 
 let get_dot_string = function
   | Dot_ast.String s -> s
@@ -170,7 +144,7 @@ let read_points c s =
     | n::t ->
       let n = int_of_string n in
       let floats = List.map float_of_string (take (n*2) t) in
-      let points = List.map conv_coord (group_tuples floats) in
+      let points = group_tuples floats in
       Some points
   with Failure "int_of_string" -> None
 
@@ -200,11 +174,11 @@ let read_common_layout mk_layout attr_list =
   (* Check if we have position, width and height *)
   match attrs with
     | Some pos, Some w, Some h, draw,ldraw->
-	let coord = bounding_box (read_pos pos)
-	  (float_of_string w) (float_of_string h) in
+      let pos = read_pos pos in
+      let coord = bounding_box pos
+	(float_of_string w) (-.(float_of_string h)) in
 	(* Return the node model *)
-	let (x,y) = conv_coord (read_pos pos) in
-	mk_layout ~pos:(x,y) ~bbox:coord ~draw ~ldraw
+      mk_layout ~pos ~bbox:coord ~draw ~ldraw
     | _,_,_, draw, ldraw ->
 	let pos = (0.,0.) in
 	let bbox = (0.,0.),(0.,0.) in
@@ -260,9 +234,9 @@ let read_edge_layout attr_list =
 (* Computes the bounding box *)
 let read_bounding_box str =
   let x1,y1,x2,y2 = Scanf.sscanf str "%f,%f,%f,%f" (fun a b c d -> a,b,c,d) in
-  (* Convert coordinates to the display coordinates *)
-  let x1, y1 = conv_coord (x1, y1) and x2, y2 = conv_coord (x2, y2) in
-  (x1, y1), (x2, y2)
+  (* Convert coordinates to the world canvas coordinates *)
+  let lower_left = (x1, -.y2) and upper_right = x2, -.y1 in
+  lower_left,upper_right
 
 module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
 

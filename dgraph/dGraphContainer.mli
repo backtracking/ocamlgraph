@@ -52,7 +52,6 @@ object
   method switch : status -> unit
 
   method adapt_zoom: unit -> unit
-
 end
 
 module type S = sig

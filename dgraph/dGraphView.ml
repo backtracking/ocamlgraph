@@ -54,6 +54,7 @@ class type ['vertex, 'edge, 'cluster] view = object
   method zoom_in : unit -> unit
   method zoom_out : unit -> unit
   method adapt_zoom : unit -> unit
+  method center_node: 'vertex view_item -> unit
   method set_zoom_padding: float -> unit
   method connect_highlighting_event: unit -> unit
   method highlight: ?color: int32 * int32 -> 'vertex view_item -> unit
@@ -214,31 +215,27 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
 
     method private set_zoom_f x = if x > 1e-10 then zoom_f <- x
 
-    (* Zooms the canvas according to the zoom factor *)
-    method private zoom () =
+    (* Zoom to a particular factor *)
+    method zoom_to x =
+      self#set_zoom_f x;
       self#set_pixels_per_unit zoom_f;
       self#iter_clusters (fun c -> c#zoom_text zoom_f);
       self#iter_nodes (fun n -> n#zoom_text zoom_f);
       self#iter_edges_e (fun e -> e#zoom_text zoom_f)
 
-    (* Zoom to a particular factor *)
-    method zoom_to x =
-      self#set_zoom_f x;
-      self#zoom ()
-
     method zoom_in () = self#zoom_to (zoom_f +. zoom_padding *. zoom_f)
     method zoom_out () = self#zoom_to (zoom_f -. zoom_padding *. zoom_f)
+    method center_node (node:V.t view_item) = 
+      node#center ()
+(*      self#zoom_in ();*)
+
 
     method adapt_zoom () =
       let width = self#hadjustment#page_size in
       let height = self#vadjustment#page_size in
-      let x1', y1' = self#w2c ~wx:x1 ~wy:y1 in
-      let x2', y2' = self#w2c ~wx:x2 ~wy:y2 in
-      let w_zoom = 0.99 *. width /. float (distance x1' x2') in
-      let h_zoom = 0.99 *. height /. float (distance y1' y2') in
-(*      Format.printf "%f %f %f %d %d@." width x1'' x2'' x1' x2';*)
-      self#zoom_to (min 1. (min w_zoom h_zoom));
-      ignore (self#scroll_to ~x:x1' ~y:y1')
+      let w_zoom = width /. abs_float (x1-.x2) in
+      let h_zoom = height /. abs_float (y1-.y2) in
+      self#zoom_to (min 1. (min w_zoom h_zoom))
 
     (* EVENTS *)
 
@@ -290,30 +287,30 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
       model#iter_clusters self#add_cluster;
       model#iter_vertex self#add_vertex;
       model#iter_edges_e self#add_edge;
-      (* Set up scroll region *)
-      let x1', y1' = self#w2c ~wx:x1 ~wy:y1 in
-      ignore $ self#set_scroll_region ~x1 ~y1 ~x2 ~y2;
-      ignore $ self#scroll_to ~x:x1' ~y:y1';
+      (* Scroll region management *)
+      ignore $ self#set_center_scroll_region true;
+      ignore $ self#set_scroll_region ~x1 ~y1 ~x2 ~y2 ;
       (* Attach zoom events *)
       ignore $ self#event#connect#key_press self#zoom_keys_ev;
       ignore $ self#event#connect#scroll self#zoom_mouse_ev;
 
   end
 
-  (* Constructor copied from gnoCanvas.ml *)
   let view
       ?(aa=false) ?delay_node ?delay_edge ?delay_cluster
       ?border_width ?width ?height ?packing ?show
       (model:(vertex, edge, cluster) DGraphModel.abstract_model) =
-    let create pl =
-      let w =
-	if aa then GnomeCanvas.Canvas.new_canvas_aa ()
-	else GnomeCanvas.Canvas.new_canvas ()
-      in
-      Gobject.set_params w pl;
-      new view ?delay_node ?delay_edge ?delay_cluster w model
+    let canvas = 
+      GnoCanvas.canvas ~aa ?border_width ?width ?height ?show ?packing () 
     in
-    GContainer.pack_container
-      [] ~create ?border_width ?width ?height ?packing ?show ()
+    (* Grab focus to process keyboard input *)
+    ignore $ canvas#event#connect#enter_notify 
+      (fun _ -> canvas#misc#grab_focus () ; false); 
+    let view = 
+      new view ?delay_node ?delay_edge ?delay_cluster
+        (Gobject.unsafe_cast canvas#as_widget) 
+        model 
+    in 
+    view 
 
 end

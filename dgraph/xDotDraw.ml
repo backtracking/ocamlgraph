@@ -250,15 +250,17 @@ let parse_ellipse constr state =
   let h = get_float state in
   constr (pos, w, h)
 
+let invert_y_pos (x,y) = (x,-.y)
+  
 let parse_filled_ellipse =
-  parse_ellipse (fun (p,w,h) -> Filled_ellipse (p,w,h))
+  parse_ellipse (fun (p,w,h) -> Filled_ellipse (invert_y_pos p,w,h))
 
 let parse_unfilled_ellipse =
-  parse_ellipse (fun (p,w,h) -> Unfilled_ellipse (p,w,h))
+  parse_ellipse (fun (p,w,h) -> Unfilled_ellipse (invert_y_pos p,w,h))
 
 let parse_points state =
   let n = get_int state in
-  Array.init n (fun _ -> get_pos state)
+  Array.init n (fun _ -> invert_y_pos (get_pos state))
 
 let parse_filled_polygon state =
   Filled_polygon (parse_points state)
@@ -276,7 +278,7 @@ let parse_filled_bspline state =
   Filled_bspline (parse_points state)
 
 let parse_text state =
-  let pos = get_pos state in
+  let pos = invert_y_pos (get_pos state) in
   let anchor = get_anchor state in
   let width = get_float state in
   let str = parse_bytes state in
