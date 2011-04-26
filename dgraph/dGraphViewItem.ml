@@ -69,7 +69,7 @@ class graph_text txt_obj ~size_points ~(props:GnomeCanvas.text_p list) =
 object (self)
 
   inherit GnoCanvas.text txt_obj as text
-
+  val original_size = size_points
   val mutable props = props
 
   method set p =
@@ -100,10 +100,11 @@ object (self)
        specified *)
     text#set (`WEIGHT 400 :: `FILL_COLOR_RGBA black_color :: props)
 
-  method resize f =
+  method resize (zoom_factor:float) =
     let rec change = function
       | [] -> []
-      | `SIZE_POINTS _ :: l -> `SIZE_POINTS f :: change l
+      | `SIZE_POINTS f :: l -> 
+        `SIZE_POINTS (zoom_factor*.original_size) :: change l
       | `FONT _ :: l -> change l
       | p :: l -> p :: change l
     in
@@ -288,17 +289,18 @@ let bspline ~fill draw_st group pts =
   let bpath = GnoCanvas.bpath group ~bpath:path ~props in
   new shape ~fill (SBSpline bpath) props
 
-let text draw_st group (x,y) align _width label =
+let text draw_st group (x,y) align anchor label =
   let size_points, font = draw_st.XDotDraw.font in
   let props = [ convert_fill_color draw_st.XDotDraw.pen_color ] in
-  let anchor = match align with
-    | Center -> `CENTER
-    | Left -> `WEST
-    | Right -> `EAST
+  let anchor =
+    if anchor = -. 1. then `WEST else if anchor = 1.0 then `EAST else `CENTER
   in
+  let size_points,height = XDotDraw.string_scale_size font size_points label
+  in
+  (* y-height/4 because the base line of the text is 1/4th from the bottom *)
   graph_text
     group
-    ~x ~y ~text:label ~props ~anchor
+    ~x ~y:(y-.height/.4.) ~text:label ~props ~anchor
     ~font ~size_points
 
 class type common_view = object
@@ -349,9 +351,7 @@ object (self)
       else cached_events <- (fun () -> f x) :: cached_events
 
   method zoom_text (zf:float) =
-    self#cache
-      (fun zf -> List.iter (fun t -> t#resize (10. *. zf)) texts)
-      zf
+    self#cache (fun zf -> List.iter (fun t -> t#resize zf) texts) zf
 
   method private iter f =
     List.iter (fun t -> f (t :> textshape)) texts;
@@ -410,8 +410,8 @@ object (self)
 	shapes <- polygon ~fill draw_st self pts :: shapes
       | XDotDraw.Bspline pts | XDotDraw.Filled_bspline pts ->
 	shapes <- bspline ~fill draw_st self pts :: shapes
-      | XDotDraw.Text (pos, align, width, label) ->
-	texts <- text draw_st self pos align width label :: texts
+      | XDotDraw.Text (pos, align, anchor, label) ->
+	texts <- text draw_st self pos align anchor label :: texts
       | _ -> ()
     in
     List.iter (draw_with read_op) ops_list;

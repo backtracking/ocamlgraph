@@ -86,6 +86,23 @@ let split c s =
     with Not_found -> [ suffix s n ]
   in if s="" then [] else split_from 0 ;;
 
+
+let string_scale_size font size s = 
+  let context = Gdk.Screen.get_pango_context () in
+  let font_description = Pango.Font.from_string font in
+  Pango.Font.modify font_description
+    ~size:(int_of_float (size *. (float Pango.scale)))
+    ();
+  Pango.Context.set_font_description context font_description;
+  let layout = Pango.Layout.create context in
+  Pango.Layout.set_text layout s;
+  let width, height = Pango.Layout.get_pixel_size layout in
+  let width = float width in
+  let linear_width = size*. (float (String.length s)) in
+  size*.width/.linear_width,
+  float height
+
+
 (* HSV TO RGB CONVERSION *)
 
 (* If color string in hsv format, convert to hex *)

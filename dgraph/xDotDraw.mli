@@ -67,6 +67,15 @@ type operation =
   | Font of float * string
   | Style of style_attr list
 
+
+
+val string_scale_size: string -> float -> string -> width*height
+(** [string_scale_size font font_size text].
+    Interpolates the font metrics we have to use to draw the given [text]
+    with the given font but preserving the bounding box of the [text] even
+    with a proportional font.
+    For a fixed width font the result is [font_size*font_size]. *)
+
 (** {2 Parsing and drawing state } *)
 
 (** Parses an xdot drawing attribute *)

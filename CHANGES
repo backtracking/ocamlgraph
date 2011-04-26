@@ -1,3 +1,4 @@
+ o Dgraph: Correct height and width-related problems with text
  o DGraph: many bug fixes. Patch by Benjamin Monate
  o Sig.G: new function [find_all_edges] for each graph implementation
  o Oper: fixed bug with function [intersect]: now use G.E.compare instead of (=)
