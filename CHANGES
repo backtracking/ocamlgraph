@@ -1,3 +1,5 @@
+version 1.8, October 4, 2011
+----------------------------
  o removed ocamlyacc shift/reduce conflict in dot_parser.mly
    (patch contributed by Till Varoquaux)
  o Dgraph: Correct height and width-related problems with text
