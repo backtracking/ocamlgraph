@@ -17,17 +17,17 @@
 
 (* $Id: pack.ml,v 1.13 2006-05-12 14:07:16 filliatr Exp $ *)
 
-module Generic(G : Sig.IM with type V.label = int and type E.label = int) = 
+module Generic(G : Sig.IM with type V.label = int and type E.label = int) =
 struct
 
   include G
 
   exception Found of V.t
   let find_vertex g i =
-    try 
+    try
       iter_vertex (fun v -> if V.label v = i then raise (Found v)) g;
       raise Not_found
-    with Found v -> 
+    with Found v ->
       v
 
   module Builder = Builder.I(G)
@@ -42,7 +42,7 @@ struct
 
   module Components = Components.Make(G)
 
-  module W = struct 
+  module W = struct
     type label = int
     type t = int
     let weight x = x
@@ -68,13 +68,13 @@ struct
   end
 
   module FF = Flow.Ford_Fulkerson(G)(F)
-  let ford_fulkerson g = 
-    if not G.is_directed then 
+  let ford_fulkerson g =
+    if not G.is_directed then
       invalid_arg "ford_fulkerson: not a directed graph";
     FF.maxflow g
 
   module Goldberg = Flow.Goldberg(G)(F)
-  let goldberg g = 
+  let goldberg g =
     if not G.is_directed then invalid_arg "goldberg: not a directed graph";
     Goldberg.maxflow g
 
@@ -104,7 +104,7 @@ struct
   module Dot_ = Graphviz.Dot(Display)
   module Neato = Graphviz.Neato(Display)
 
-  let dot_output g f = 
+  let dot_output g f =
     let oc = open_out f in
     if is_directed then Dot_.output_graph oc g else Neato.output_graph oc g;
     close_out oc
@@ -115,11 +115,11 @@ struct
     ignore (Sys.command ("dot -Tps " ^ tmp ^ " | gv -"));
     Sys.remove tmp
 
-  module GmlParser = 
+  module GmlParser =
     Gml.Parse
       (Builder)
-      (struct 
-	 let node l = 
+      (struct
+	 let node l =
 	   try match List.assoc "id" l with Gml.Int n -> n | _ -> -1
 	   with Not_found -> -1
 	 let edge _ =
@@ -134,10 +134,10 @@ struct
       (struct
  	 let nodes = Hashtbl.create 97
 	 let new_node = ref 0
-	 let node (id,_) _ = 
-	   try 
+	 let node (id,_) _ =
+	   try
 	     Hashtbl.find nodes id
-	   with Not_found -> 
+	   with Not_found ->
 	     incr new_node;
 	     Hashtbl.add nodes id !new_node;
 	     !new_node
@@ -166,9 +166,9 @@ struct
 end
 
 module I = struct
-  type t = int 
+  type t = int
   let compare : t -> t -> int = Pervasives.compare
-  let hash = Hashtbl.hash 
+  let hash = Hashtbl.hash
   let equal = (=)
   let default = 0
 end

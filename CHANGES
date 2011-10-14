@@ -1,3 +1,8 @@
+
+ o new module Fixpoint to compute fixpoints using the work-list
+   algorithm, e.g. for data flow analysis
+   (contributed by Markus W. Weissmann <markus.weissmann@in.tum.de>)
+
 version 1.8, October 4, 2011
 ----------------------------
  o removed ocamlyacc shift/reduce conflict in dot_parser.mly
