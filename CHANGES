@@ -1,4 +1,9 @@
 
+version 1.81, October 17, 2011
+------------------------------
+ o module Gmap now has a signature for edges (E_SRC) compatible with
+   Sig, so that it is easier to apply functor Gmap.Edge
+   (contributed by Markus W. Weissmann <markus.weissmann@in.tum.de>)
  o new module Fixpoint to compute fixpoints using the work-list
    algorithm, e.g. for data flow analysis
    (contributed by Markus W. Weissmann <markus.weissmann@in.tum.de>)

@@ -33,12 +33,12 @@ module type V_DST = sig
 end
 
 module Vertex(G_Src : V_SRC)(G_Dst : V_DST ) = struct
-  
+
   module H = Hashtbl.Make(G_Src.V)
   let vertices = H.create 97
 
   let convert_vertex f x =
-    try 
+    try
       H.find vertices x
     with Not_found ->
       let x' = f x in
@@ -48,7 +48,7 @@ module Vertex(G_Src : V_SRC)(G_Dst : V_DST ) = struct
   let map f g =
     H.clear vertices;
     G_Src.fold_vertex
-      (fun x g -> G_Dst.add_vertex g (convert_vertex f x)) 
+      (fun x g -> G_Dst.add_vertex g (convert_vertex f x))
       g (G_Dst.empty ())
 
 end
@@ -57,7 +57,7 @@ end
 
 module type E_SRC = sig
   type t
-  module E : Sig.HASHABLE
+  module E : Sig.ORDERED_TYPE
   val fold_edges_e : (E.t -> 'a -> 'a) -> t -> 'a -> 'a
 end
 
@@ -68,7 +68,27 @@ module type E_DST = sig
   val add_edge_e : t -> edge -> t
 end
 
-module Edge(G_Src: E_SRC)(G_Dst: E_DST) =
+module Edge(G_Src: E_SRC)(G_Dst: E_DST) = struct
+  module M = Map.Make(G_Src.E)
+  let edges = ref M.empty
+
+  let convert_edge f x =
+    try
+      M.find x !edges
+    with Not_found ->
+      let x' = f x in
+      edges := M.add x x' !edges;
+      x'
+
+  let map f g =
+    edges := M.empty;
+    G_Src.fold_edges_e
+      (fun x g -> G_Dst.add_edge_e g (convert_edge f x))
+      g (G_Dst.empty ())
+end
+
+(*
   Vertex
-    (struct include G_Src module V = E let fold_vertex = fold_edges_e end)
-    (struct include G_Dst type vertex = edge let add_vertex = add_edge_e end)
+  (struct include G_Src module V = E let fold_vertex = fold_edges_e end)
+  (struct include G_Dst type vertex = edge let add_vertex = add_edge_e end)
+*)

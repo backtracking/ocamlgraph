@@ -50,7 +50,7 @@ end
 (** Signature for the source graph. *)
 module type E_SRC = sig
   type t
-  module E : Sig.HASHABLE
+  module E : Sig.ORDERED_TYPE
   val fold_edges_e : (E.t -> 'a -> 'a) -> t -> 'a -> 'a
 end
 
