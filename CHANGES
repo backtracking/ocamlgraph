@@ -1,6 +1,6 @@
 
-version 1.81, October 17, 2011
-------------------------------
+version 1.8.1, October 17, 2011
+-------------------------------
  o module Gmap now has a signature for edges (E_SRC) compatible with
    Sig, so that it is easier to apply functor Gmap.Edge
    (contributed by Markus W. Weissmann <markus.weissmann@in.tum.de>)
