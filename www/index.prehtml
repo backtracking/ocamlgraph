@@ -191,6 +191,18 @@ You can access the <a href="download/">download zone</a> directly.
 Here are the recent <a href="download/CHANGES">CHANGES</a>.
 </#en>
 
+<p>
+
+<#fr>Vous pouvez également accéder en lecture à la version de
+  développement d'Ocamlgraph, avec la commande</#fr>
+<#en>Alternatively, you can access the current development version
+  using anonynous SVN, as follows:</#en>
+<pre>
+  svn co https://www.lri.fr/svn/demons/ocamlgraph --username guest
+</pre>
+<#fr>et le mot de passe <tt>guest</tt>.</#fr>
+<#en>using password <tt>guest</tt>.</#en>
+
 <h4><#fr>Crédits</#fr><#en>Credits</#en></h4>
 
 <#fr>Auteurs</#fr>
@@ -213,6 +225,7 @@ Here are the recent <a href="download/CHANGES">CHANGES</a>.
 <li><a href="http://pauillac.inria.fr/~fpottier/">François Pottier</a>
 <li><a href="http://cristal.inria.fr/~simonet/">Vincent Simonet</a>
 <li><a href="http://mattam.org">Matthieu Sozeau</a>
+<li><a href="">Markus Wei&szlig;mann</a>
 <li>Boris Yakobowski
 </ul>
 
