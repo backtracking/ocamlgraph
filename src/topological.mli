@@ -48,4 +48,24 @@ module Make(G: G) : sig
 
 end
 
+module type Comparable_G = sig
+  type t
+  module V : Sig.COMPARABLE
+  val iter_vertex : (V.t -> unit) -> t -> unit
+  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
+  val in_degree : t -> V.t -> int
+end
+
+(** Provide the same features than {!Make}, except that the resulting
+    topological ordering is stable according to vertices comparison: if two
+    vertices [v1] and [v2] are topologically equal, [v1] is presented first to
+    the iterator if and only if [G.V.compare v1 v2 <= 0]. In particular, the
+    resulting order is not dependent on the provided hash function. This
+    property is not guaranteed by the functor {!Make}. The counterpart is a less
+    efficient implementation: worst time complexity is O(E*V*ln(V)) instead of
+    O(E*V) (with E = number of edges and V = number of vertices. *)
+module Make_stable(G: Comparable_G): sig
+  val fold : (G.V.t -> 'a -> 'a) -> G.t -> 'a -> 'a
+  val iter : (G.V.t -> unit) -> G.t -> unit
+end
 
