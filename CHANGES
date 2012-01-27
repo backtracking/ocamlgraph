@@ -1,4 +1,5 @@
 
+ o Topological: fix bug when a cycle depends on another cycle
  o new module Topological.Make_stable to iterate over a graph in a **stable**
    topological order. Stable means that the provided ordering only depends on
    the graph topology and on the user's vertices ordering.

@@ -17,7 +17,7 @@
 
 module type G = sig
   type t
-  module V : Sig.HASHABLE
+  module V : Sig.COMPARABLE
   val iter_vertex : (V.t -> unit) -> t -> unit
   val iter_succ : (V.t -> unit) -> t -> V.t -> unit
   val in_degree : t -> V.t -> int
@@ -30,14 +30,16 @@ module type Q = sig
   val push: elt -> q -> unit
   val pop: q -> elt
   val is_empty: q -> bool
-  val choose: old:(elt * int) -> elt * int -> elt * int 
+  val choose: old:(elt list * int) -> elt * int -> elt list * int 
 end
 
 module Build(G: G)(Q: Q with type elt = G.V.t) = struct
 
   module H = Hashtbl.Make(G.V)
+  module C = Path.Check(G)
 
   let fold f g acc =
+    let checker = C.create g in
     let degree = H.create 997 in
     let todo = Q.create () in
     let push x =
@@ -47,18 +49,22 @@ module Build(G: G)(Q: Q with type elt = G.V.t) = struct
     let rec walk acc =
       if Q.is_empty todo then
         (* let's find any node of minimal degree *)
-	let min =
-	  H.fold
-	    (fun v d acc ->
-	       match acc with
-	       | None -> Some (v, d)
-	       | Some old -> Some (Q.choose ~old (v, d)))
-	    degree
-	    None
+	let min, _ =
+	  H.fold (fun v d old -> Q.choose ~old (v, d)) degree ([], max_int)
 	in
 	match min with
-	| None -> acc
-	| Some(v, _) -> push v; walk acc
+	| [] -> acc
+	| [ v ] -> push v; walk acc
+	| v :: l ->
+	  (* in case of multiple cycles, choose one vertex in a cycle which
+	     does not depend of any other. *)
+	  let v =
+	    List.fold_left
+	      (fun acc v' -> if C.check_path checker acc v' then acc else v')
+	      v
+	      l
+	  in
+	  push v; walk acc
       else
 	let v = Q.pop todo in
 	let acc = f v acc in
@@ -85,6 +91,12 @@ module Build(G: G)(Q: Q with type elt = G.V.t) = struct
 
 end
 
+let choose ~old (v, n) =
+  let l, min = old in
+  if n = min then v :: l, n 
+  else if n < min then [ v ], n
+  else old
+
 module Make(G: G) = 
   Build
     (G)
@@ -92,20 +104,10 @@ module Make(G: G) =
       include Queue 
       type elt = G.V.t 
       type q = G.V.t t 
-      let choose ~old (_, n as new_) = 
-	let _, min = old in
-	if n < min then new_ else old
+      let choose = choose
      end)
 
-module type Comparable_G = sig
-  type t
-  module V : Sig.COMPARABLE
-  val iter_vertex : (V.t -> unit) -> t -> unit
-  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
-  val in_degree : t -> V.t -> int
-end
-
-module Make_stable(G: Comparable_G) =
+module Make_stable(G: G) =
   Build
     (G)
     (struct
@@ -119,12 +121,13 @@ module Make_stable(G: Comparable_G) =
         s := S.remove r !s;
         r
       let is_empty s = S.is_empty !s
-      let choose ~old (v, n as new_) = 
-	let v_old, min = old in
-        if n < min   then new_
-        else if n = min then
-          if G.V.compare v v_old <= 0 then new_
-          else old
-        else 
-	  old
+      let choose ~old new_ = 
+	let l, n = choose ~old new_ in
+	List.sort G.V.compare l, n
      end)
+
+(*
+Local Variables:
+compile-command: "make -C .."
+End:
+*)
