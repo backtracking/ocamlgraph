@@ -75,13 +75,24 @@ sig
 
   module H : Hashtbl.S with type key = G.V.t (* and 'a t = W *)
 
-  val shortest_path : G.t -> G.V.t -> W.t H.t option
+  exception NegativeCycle of G.E.t list
+ 
+  val shortest_path : G.t -> G.V.t -> W.t H.t
     (** [shortest_path g vs] computes the distances of shortest paths
       from vertex [vs] to all other vertices in graph [g]. They are
       returned as the hashtabe of weights by vertex as a key. If [g]
-      contains a negative-length cycle, returns [None].
+      contains a negative-length cycle, raises [NegativeCycle].
 
       Complexity: at most O(VE) *)
+
+  val find_negative_cycle_from: G.t -> G.V.t -> G.E.t list
+    (** ...
+        raises [Not_found] is there is no such negative cycle. *)
+
+  (*
+  val find_negative_cycle: G.t -> G.E.t list
+  *)
+
 end
 
 

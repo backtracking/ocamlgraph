@@ -108,8 +108,11 @@ struct
 
   module H = Hashtbl.Make(G.V)
 
+  exception NegativeCycle of G.E.t list
+
   let shortest_path g vs =
     let dist = H.create 97 in
+    let parent = H.create 97 in
     H.add dist vs W.zero;
 
     let rec relax i =
@@ -125,15 +128,20 @@ struct
             in
             if improvement then begin
               H.replace dist ev2 dev2;
+	      H.replace parent ev2 ev1;
               true
             end else x
           end with Not_found -> x) g false in
       if update then
-        if i == G.nb_vertex g then None
+        if i == G.nb_vertex g then raise (NegativeCycle []) (* TODO *)
         else relax (i + 1)
-      else Some dist
+      else dist
     in
     relax 0
+
+  let find_negative_cycle_from g vs =
+    try let _ = shortest_path g vs in raise Not_found
+    with NegativeCycle l -> l
 
 end
 
