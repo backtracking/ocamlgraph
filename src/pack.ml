@@ -53,6 +53,9 @@ struct
 
   include Path.Dijkstra(G)(W)
 
+  module BF = Path.BellmanFord(G)(W)
+  let bellman_ford = BF.find_negative_cycle_from
+
   module F = struct
     type label = int
     type t = int

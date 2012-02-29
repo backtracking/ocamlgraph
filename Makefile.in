@@ -266,6 +266,9 @@ bin/sudoku.opt: $(CMXA) examples/sudoku.cmx
 test: $(CMA) tests/test.ml
 	ocaml unix.cma graphics.cma $^
 
+test-bf: $(CMA) tests/test_bf.ml
+	ocaml unix.cma graphics.cma $^
+
 bin/test.byte: $(CMA) tests/test.cmo
 	$(OCAMLC) -g -unsafe -o $@ unix.cma graphics.cma $^
 

@@ -110,7 +110,7 @@ struct
 
   exception NegativeCycle of G.E.t list
 
-  let shortest_path g vs =
+  let all_shortest_paths g vs =
     let dist = H.create 97 in
     let parent = H.create 97 in
     H.add dist vs W.zero;
@@ -140,7 +140,7 @@ struct
     relax 0
 
   let find_negative_cycle_from g vs =
-    try let _ = shortest_path g vs in raise Not_found
+    try let _ = all_shortest_paths g vs in raise Not_found
     with NegativeCycle l -> l
 
 end

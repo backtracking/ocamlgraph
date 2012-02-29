@@ -349,6 +349,10 @@ module type S = sig
   val goldberg : t -> V.t -> V.t -> (E.t -> int) * int
     (** Goldberg maximum flow algorithm *)
 
+  val bellman_ford : t -> V.t -> E.t list
+    (** [bellman_ford g v] finds a negative cycle from [v], and returns it,
+        or raises [Not_found] if there is no such cycle *)
+
   (** Path checking *)
   module PathCheck : sig
     type path_checker

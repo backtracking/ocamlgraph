@@ -77,7 +77,7 @@ sig
 
   exception NegativeCycle of G.E.t list
  
-  val shortest_path : G.t -> G.V.t -> W.t H.t
+  val all_shortest_paths : G.t -> G.V.t -> W.t H.t
     (** [shortest_path g vs] computes the distances of shortest paths
       from vertex [vs] to all other vertices in graph [g]. They are
       returned as the hashtabe of weights by vertex as a key. If [g]
