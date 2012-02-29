@@ -27,10 +27,13 @@ module type G = sig
   module E : sig 
     type t 
     type label 
-    val label : t -> label 
+    val label : t -> label
+    val src : t -> V.t
     val dst : t -> V.t 
   end 
   val iter_succ_e : (E.t -> unit) -> t -> V.t -> unit
+  val fold_edges_e : (E.t -> 'a -> 'a) -> t -> 'a -> 'a
+  val nb_vertex : t -> int
 end
 
 (** Signature for edges' weights. *)
@@ -62,6 +65,23 @@ sig
 
       Complexity: at most O((V+E)log(V)) *)
 
+end
+
+
+module BellmanFord
+  (G: G)
+  (W: WEIGHT with type label = G.E.label) :
+sig
+
+  module H : Hashtbl.S with type key = G.V.t (* and 'a t = W *)
+
+  val shortest_path : G.t -> G.V.t -> W.t H.t option
+    (** [shortest_path g vs] computes the distances of shortest paths
+      from vertex [vs] to all other vertices in graph [g]. They are
+      returned as the hashtabe of weights by vertex as a key. If [g]
+      contains a negative-length cycle, returns [None].
+
+      Complexity: at most O(VE) *)
 end
 
 
