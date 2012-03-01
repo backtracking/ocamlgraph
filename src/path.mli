@@ -31,6 +31,8 @@ module type G = sig
     val src : t -> V.t
     val dst : t -> V.t 
   end 
+  val iter_vertex : (V.t -> unit) -> t -> unit
+  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
   val iter_succ_e : (E.t -> unit) -> t -> V.t -> unit
   val fold_edges_e : (E.t -> 'a -> 'a) -> t -> 'a -> 'a
   val nb_vertex : t -> int
@@ -78,21 +80,24 @@ sig
   exception NegativeCycle of G.E.t list
  
   val all_shortest_paths : G.t -> G.V.t -> W.t H.t
-    (** [shortest_path g vs] computes the distances of shortest paths
-      from vertex [vs] to all other vertices in graph [g]. They are
-      returned as the hashtabe of weights by vertex as a key. If [g]
-      contains a negative-length cycle, raises [NegativeCycle].
+    (** [shortest_path g vs] computes the distances of shortest paths from
+        vertex [vs] to all other vertices in graph [g]. They are returned as the
+        hashtabe of weights by vertex as a key. If [g] contains a
+        negative-length cycle, raises [NegativeCycle].
 
-      Complexity: at most O(VE) *)
+        Complexity: at most O(VE) *)
 
   val find_negative_cycle_from: G.t -> G.V.t -> G.E.t list
-    (** ...
-        raises [Not_found] is there is no such negative cycle. *)
+    (** [find_negative_cycle_from g vs] looks for a negative cycle in graph [g]
+        that is reachable from the source [vs] and returns the list of edges
+        those involve in the cycle. If no such a cycle is present, raises
+        [Not_found].
 
-  (*
+        Internally calls [all_shortest_paths]. *)
+
   val find_negative_cycle: G.t -> G.E.t list
-  *)
-
+    (** [find_negative_cycle g] looks for one of any negative cycles in graph
+        [g]. If the graph [g] is free from such a cycle, raises [Not_found]. *)
 end
 
 

@@ -36,6 +36,8 @@ module type G = sig
     val src : t -> V.t
     val dst : t -> V.t 
   end 
+  val iter_vertex : (V.t -> unit) -> t -> unit
+  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
   val iter_succ_e : (E.t -> unit) -> t -> V.t -> unit
   val fold_edges_e : (E.t -> 'a -> 'a) -> t -> 'a -> 'a
   val nb_vertex : t -> int
@@ -107,13 +109,36 @@ struct
   open G.E
 
   module H = Hashtbl.Make(G.V)
+  (*module Comp = Components.Make(G)*)
 
   exception NegativeCycle of G.E.t list
 
   let all_shortest_paths g vs =
     let dist = H.create 97 in
-    let parent = H.create 97 in
     H.add dist vs W.zero;
+    let admissible = H.create 97 in
+
+    let build_cycle_from x0 =
+      let rec traverse_parent x ret =
+	let e = H.find admissible x in
+	let s = src e in
+	if G.V.equal s x0 then e :: ret else traverse_parent s (e :: ret)
+      in
+      traverse_parent x0 []
+    in
+    let find_cycle x0 =
+      let visited = H.create 97 in
+      let rec visit x =
+	if H.mem visited x then
+	  build_cycle_from x
+	else begin
+	  H.add visited x ();
+	  let e = H.find admissible x in
+	  visit (src e)
+	end
+      in
+      visit x0
+    in
 
     let rec relax i =
       let update = G.fold_edges_e
@@ -128,14 +153,15 @@ struct
             in
             if improvement then begin
               H.replace dist ev2 dev2;
-	      H.replace parent ev2 ev1;
-              true
+	      H.replace admissible ev2 e;
+              Some ev2
             end else x
-          end with Not_found -> x) g false in
-      if update then
-        if i == G.nb_vertex g then raise (NegativeCycle []) (* TODO *)
+          end with Not_found -> x) g None in
+      match update with
+      | Some x ->
+        if i == G.nb_vertex g then raise (NegativeCycle (find_cycle x))
         else relax (i + 1)
-      else dist
+      | None -> dist
     in
     relax 0
 
@@ -143,6 +169,17 @@ struct
     try let _ = all_shortest_paths g vs in raise Not_found
     with NegativeCycle l -> l
 
+  let find_negative_cycle g = [] (*
+    (* TODO: Very inefficient implementation *)
+    match List.fold_left (
+      fun a b ->
+        match a with
+        | None -> (
+          try Some (match b with x :: _ -> find_negative_cycle_from g x)
+          with Not_found -> None)
+        | Some _ -> a) None (Comp.scc_list g) with
+    | Some ret -> ret
+    | None -> raise Not_found*)
 end
 
 

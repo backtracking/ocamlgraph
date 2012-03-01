@@ -23,6 +23,8 @@ open Persistent
 
 (** Weighted graphs without negative cycles *)
 
+(** Hello world! *)
+
 (** Signature for edges' weights. *)
 module type WEIGHT = sig
   type label
@@ -39,21 +41,25 @@ module type WEIGHT = sig
     (** Neutral element for {!add}. *)
 end
 
-(** Explain the main idea... *)
+(** Non neg  *)
 
+(***
 module NonNegative : sig
-
   (** Persistent graphs *)
+
   module Persistent
     (G: Sig.P)
     (W: WEIGHT with type label = G.E.label) : sig
 
-    include P
 
     exception NegativeCycle of G.E.t list
-	(** Exception [NegativeCycle] is raised whenever a negative cycle
-	    is introduced for the first time (either with [add_edge]
-	    or [add_edge_e]) *)
+      (** Exception [NegativeCycle] is raised whenever a negative cycle
+          is introduced for the first time (either with [add_edge]
+          or [add_edge_e]) *)
+
+
+
   end
 
 end
+***)
