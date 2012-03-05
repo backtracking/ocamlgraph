@@ -3,5 +3,13 @@
 
 module BellmanFord
 
+  use import set.Fset
+
+  type vertex
+
+  function succ vertex : set vertex
+  function weight vertex vertex : int
+
+  function succ vertex : list (vertex, int)
 
 end
