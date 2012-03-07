@@ -10,6 +10,13 @@ module BellmanFord
   function succ vertex : set vertex
   function weight vertex vertex : int
 
-  function succ vertex : list (vertex, int)
+  let initialize_single_source G s =
+    assert false
+
+  let relax u v l =
+    assert false
+
+  let bellman_ford G s l =
+    assert false
 
 end

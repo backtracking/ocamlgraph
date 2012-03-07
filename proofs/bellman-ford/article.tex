@@ -2,9 +2,11 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage{fullpage,url}
+\usepackage{algorithm}
+\usepackage{algorithmic}
 
 \title{A Formal Proof of Bellman-Ford Algorithm}
-\author{Yuto Takei \\ Your institution goes here}
+\author{Yuto Takei \\ The University of Tokyo }
 
 \begin{document}
 
@@ -20,7 +22,56 @@ I want to \emph{emphasize} a word.
 
 \section{Bellman-Ford Algorithm}
 
+The Bellman-Ford algorithm is one of the algorithms to solve the single-source shortest paths problem, i.e., to give the shortest paths to all vertices from one given source vertex. To solve such a problem, Dijkstra's algorithm is widely known as an effective solution, yet it assums arcs to have non-negative length. The Bellman-Ford algorithm relaxed such the assumption and is able to compute the solution for the directed graphs with arcs with negative length present.
+
+The single-source shortest paths problem is described as \( (G,s,l) \), where \( G \) represents a directed graph \( G=(V,E) \), \( s \in V \) is a source vertex, and \( l : E \rightarrow \mathbf{R} \) gives the length for all edges. The goal for this problem is either to produce the shortest path tree from \( s \) or to prove that there is a cycle, whose length is negative.
+
+
+[TODO: following quoted from chapter 25.3 (p.532)]
+
+\begin{algorithm}
+\caption{Initialize-Single-Source($G$,$s$)}
+\begin{algorithmic}
+\FORALL{ vertex $ v \in V[G] $}
+\STATE{$ d[v] \leftarrow \infty$}
+\STATE{$ \pi[v] \leftarrow nil$}
+\ENDFOR
+\STATE{$d[s]\leftarrow 0$}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Relax($u$,$v$,$l$)}
+\begin{algorithmic}
+\IF{$d[v]>d[u]+l(u,v)$}
+\STATE{$d[v] \leftarrow d[u]+w(u,v)$}
+\STATE{$\pi[v] \leftarrow u$}
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{BellmanFord($G$,$s$,$l$)}
+\begin{algorithmic}
+\STATE{InitializeSingleSource($G$,$s$)}
+\FOR{$i = 1 \to |V[G]|-1$}
+\FORALL{ edge $(u,v)\in E[G]$}
+\STATE{Relax($u$,$v$,$s$)}
+\ENDFOR
+\ENDFOR
+\FORALL{edge $(u,v)\in E[G]$}
+\IF{$d[v]>d[u]+l(u,v)$}
+\RETURN{False}
+\ENDIF
+\ENDFOR
+\RETURN{True}
+\end{algorithmic}
+\end{algorithm}
+
+
 \section{Quick Overview of Why3}
+
+[TODO: quoting from ``Why3: Shepherd Your Herd of Provers'']
 
 \section{Formal Proof}
 
