@@ -43,7 +43,6 @@ end
 
 (** Non neg  *)
 
-(***
 module NonNegative : sig
   (** Persistent graphs *)
 
@@ -51,8 +50,9 @@ module NonNegative : sig
     (G: Sig.P)
     (W: WEIGHT with type label = G.E.label) : sig
 
+    include Sig.P with module V = G.V and module E = G.E
 
-    exception NegativeCycle of G.E.t list
+    exception Negative_cycle of G.E.t list
       (** Exception [NegativeCycle] is raised whenever a negative cycle
           is introduced for the first time (either with [add_edge]
           or [add_edge_e]) *)
@@ -62,4 +62,3 @@ module NonNegative : sig
   end
 
 end
-***)

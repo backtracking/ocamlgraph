@@ -29,93 +29,243 @@ module type WEIGHT = sig
   val zero : t
 end
 
-(****
+
 module NonNegative = struct
   module Persistent
-    (G: Sig.P) (* is it better to give V and E to construct graph? *)
-    (W: WEIGHT with type label = G.E.label) : Sig.P = struct
+    (G: Sig.P)
+    (W: WEIGHT with type label = G.E.label) = struct
 
-    module H = Map.Make(G.V)
+    module S = Set.Make(G.V)
+    module M = Map.Make(G.V)
 
-      (* Graph itself, source list, distance table *)
-    type t = G.t * G.V.t list * G.E.t H.t H.t
+    module E = G.E
+    module V = G.V
 
-    exception NegativeCycle of G.E.t list
+    (* [G.t] represents graph itself.  [unit M.t] maintains a list of
+       source vertices to keep track of distances for all vertices.
+       [(G.E.t option * W.t) M.t M.t] holds mappings for all vertices,
+       each of which contains its shortest-path tree ancestor (parent)
+       and a distances from source vertices. *)
+    type t = G.t * S.t * (G.E.t option * W.t) M.t M.t
+    type edge = G.edge
+    type vertex = G.vertex
 
-    let add_vertex (g:t) (v:G.V.t) : t =
-      (* Check first not to duplicate add the vertext to the graph *)
-      let (g, src, dist) = g in
+    (* If an edge is going to be added to the graph, which will cause
+       a negative cycle, raises [Negative_cycle] with edges that can
+       form such the cycle. *)
+    exception Negative_cycle of G.E.t list
 
-      (* Simply add a vertex to the original one *)
-      let g_ = G.add_vertex g v in
-      if g = g_ then
+    let empty : t =
+      let g = G.empty in
+      let src = S.empty in
+      let dist = M.empty in
+      (g, src, dist)
 
-	(* If the graph is returned as is, v is already in the graph *)
-	(* TODO: Check si c'est vrai? *)
+    let add_vertex (g, src, dist) v =
+      (* Before adding vertex to the graph, make sure that the vertex
+	 is not in the graph.  If already in the graph, just do
+	 nothing and return as is. *)
+      if G.mem_vertex g v then
 	(g, src, dist)
+      else
+	(* Add a vertex to the original one *)
+	(G.add_vertex g v),
 
+	(* The new vertex will immediately be added to the source list *)
+	(S.add v src),
+
+	(* The new edge should contain a distance mapping with only
+	   from myself with distance zero. *)
+	(M.add v (M.add v (None, W.zero) M.empty) dist)
+
+
+    let rec propagate (g, src, dist) q start =
+      if Queue.is_empty q then (g, src, dist)
       else begin
-	(* The new vertex will immediately be added to the new list *)
-	let src = v :: src in
+	let (v1, v1src) = Queue.pop q in
+	let v1dist = M.find v1 dist in
+	if G.V.equal start v1 then
+	  (* Propagation reaches back to the starting node, which
+             immediately means presence of a negative cycle. *)
 
-	(* Copy the given hashtable so that the data itself can be modified *)
-	let vDist = H.create 97 in
-	H.add dist v 0;
-	H.add dist v vDist;
+	  (* We should use one of the 'src' to traverse back to start node *)
+	  let s = S.choose v1src in
+	  let rec build_cycle x ret =
+	    match M.find s (M.find x dist) with
+	      | Some e, _ ->
+		let y = G.E.src e in
+		let cycle = e :: ret in
+		if G.V.equal start y then cycle
+		else build_cycle y cycle
+	      | _ -> assert false in
+          raise (Negative_cycle (build_cycle v1 []))
+	else
+	  begin
+	    let dist = G.fold_succ_e (fun e dist ->
+	      let v2 = G.E.dst e in
+	      let v2dist = M.find v2 dist in
 
-	(* Return in the same structure *)
-	(g, src, dist)
+	      (* Compare distances from given source vertices.
+                 If relax happens, record it to the new list. *)
+	      let (v2dist, nextSrc) = S.fold (fun x (v2dist, nextSrc) ->
+		let _, dev1 = M.find x v1dist in
+		let ndev2 = W.add dev1 (W.weight (G.E.label e)) in
+		let improvement =
+		  try
+		    let _, dev2 = M.find x v2dist in
+		    W.compare ndev2 dev2 < 0
+		  with Not_found -> true in
+		if improvement then
+		  let v2dist = M.add x (Some e, ndev2) v2dist in
+		  let nextSrc = S.add x nextSrc in
+		  (v2dist, nextSrc)
+		else
+		  (v2dist, nextSrc)
+	      ) v1src (v2dist, S.empty) in
+
+	      if S.is_empty nextSrc then
+		dist
+	      else begin
+		(* TODO: Optimization required *)
+		Queue.push (v2, nextSrc) q;
+		M.add v2 v2dist dist
+	      end
+	    ) g v1 dist in
+	    propagate (g, src, dist) q start
+	  end
       end
 
-    let propagate (g:t) (v:G.V.t) (q:Queue.t) (target:G.V.t list) : t =
-      if Queue.is_empty q then g
-      else begin
-	let (g, src, dist) = g in
+    let m_cardinal m = M.fold (fun _ _ acc -> acc+1) m 0
+    let set_of_map m = M.fold (fun k _ acc -> S.add k acc) m S.empty
 
-	let desc = G.succ g v in
-	
+    let add_edge_internal (g, src, dist) v1 v2 =
+      (* Distance mappings at v1 *)
+      let dv1 = M.find v1 dist in
 
-
-	(* Add descendent nodes to the queue for distance propagation *)
-        (* TODO: Optimizable *)
-        List.iter (Queue.push q) desc
-
-
-      end
-
-    let add_edge_e (g:t) (e:G.V.t) : t =
-      let (g, src, dist) = g in
-
-      (* Check the edge is already existed in the graph or not *)
-
-      let v1 = E.src e in
-      let v2 = E.dst e in
-      
-      let dv1 = H.copy (H.find dist v1) in
-      let dv2 = H.copy (H.find dist v2) in
-
-      (* We need to check whether v2 should be kept in the source list or not.
-	 That is, if there maybe a cycle with v1, the distance from v1 should be
-	 still maintained. Otherwise, simply ignore the distance from v2 *)
-      let keepV2Src = (H.length dv1 == 1) && (H.mem dv1 v2) in
-
-      (* To reduce the amount of codes, we just start propagation from v1. Of
-	 course, this can be optimized, with starting from v2. But it may duplicate
-	 the same code in multiple places in the file *)
+      (* To reduce the amount of codes, we just start propagation from
+	 v1. Of course, this can be optimized by starting from v2. But
+	 it may duplicate the same code in multiple places in the
+	 file. In addition, such an optimization only cost for small
+	 amount, which precisely is the operations to relax edges from
+	 v1, other than which have been existed before this
+	 [add_edge_e] call. *)
       let q = Queue.create () in
-      Queue.add q v1
-      propagate (g, src, dist) q 
-	
-      
 
-    let add_edge (g:t) (v1:G.V.t) (v2:G.V.t) : t =
-      add_edge_e (* new edge, and call add_edge_e *)
+      (* We need to check whether v2 should be kept in the source list
+	 or not.  That is, if there maybe a cycle with v1, the
+	 distance from v1 should be still maintained. Otherwise,
+	 simply ignore the distance from v2 *)
+      if m_cardinal dv1 = 1 && M.mem v2 dv1 then (
+	(* Now we definitely introduced a loop (but possibly non-negative)!
+	   Let me see if this would be negative or not... *)
+	Queue.add (v1, (S.add v2 S.empty)) q;
+	propagate (g, src, dist) q v1
+      ) else (
+	(* Or even if we fall back to else-clause here, the edge addition
+           may have introduced a cycle. Anyway, we need to check if one is
+           newly created or not at [propagate] *)
 
+	let (src, dist, dv1) =
+	  if not (S.mem v2 src) then
+	    (* If v2 isn't one of the source vertices, just simply do
+	       propagation. *)
+	    (src, dist, dv1)
+	  else
+	    (* We can exclude v2 from the list of source because
+               one can reach v2 from some other vertex. *)
+	    ((S.remove v2 src),
 
-    let remove_vertex _ =
+	    (* Note that following line can be skipped only if the
+	       user don't remove vertex. Otherwise, such operation
+	       like [add_edge g v1 v2] > [remove_vertex g v2] >
+	       [add_vertex g v2] can result in unexpected
+	       behaviour. *)
+	     (M.map (M.remove v2) dist),
+
+	    (* We need to re-obtain the distance mappings at v1,
+               since it can be changed by the line above. *)
+	    (M.find v1 dist)) in
+
+	(* Now let's start propagation. *)
+	Queue.add (v1, set_of_map dv1) q;
+	propagate (g, src, dist) q v1)
+
+    let add_edge_e (g, src, dist) e =
+      (* Before adding edge to the graph, make sure that the edge is
+	 not in the graph.  If already in the graph, just do nothing
+	 and return as is. *)
+      if G.mem_edge_e g e then
+	(g, src, dist)
+      else begin
+	let g = G.add_edge_e g e in
+
+	(* Vertices involved *)
+	let v1 = G.E.src e in
+	let v2 = G.E.dst e in
+
+	add_edge_internal (g, src, dist) v1 v2
+      end
+
+    let add_edge (g, src, dist) v1 v2 =
+      (* Same as [add_edge_e] *)
+      if G.mem_edge g v1 v2 then
+	(g, src, dist)
+      else begin
+	let g = G.add_edge g v1 v2 in
+	add_edge_internal (g, src, dist) v1 v2
+      end
+
+    let remove_vertex (g, src, dist) v =
       assert false (* TODO *)
 
+    let remove_edge_e (g, src, dist) e =
+      assert false (* TODO *)
 
+    let remove_edge (g, src, dist) v1 v2 =
+      assert false (* TODO *)
+
+    let map_vertex f (g, src, dist) =
+      let map_map update m =
+        M.fold (fun v m acc -> M.add (f v) (update m) acc) m M.empty
+      in
+      (G.map_vertex f g,
+       S.fold (fun v acc -> S.add (f v) acc) src S.empty,
+       let update = function
+         | None, _ as v -> v
+         | Some e, w ->
+             Some (E.create (f (E.src e)) (E.label e) (f (E.dst e))), w
+       in
+       map_map (map_map update) dist)
+
+    (* All below are wrappers *)
+    let fold_pred_e f (g, _, _) = G.fold_pred_e f g
+    let iter_pred_e f (g, _, _) = G.iter_pred_e f g
+    let fold_succ_e f (g, _, _) = G.fold_succ_e f g
+    let iter_succ_e f (g, _, _) = G.iter_succ_e f g
+    let fold_pred f (g, _, _) = G.fold_pred f g
+    let fold_succ f (g, _, _) = G.fold_succ f g
+    let iter_pred f (g, _, _) = G.iter_pred f g
+    let iter_succ f (g, _, _) = G.iter_succ f g
+    let fold_edges_e f (g, _, _) = G.fold_edges_e f g
+    let iter_edges_e f (g, _, _) = G.iter_edges_e f g
+    let fold_edges f (g, _, _) = G.fold_edges f g
+    let iter_edges f (g, _, _) = G.iter_edges f g
+    let fold_vertex f (g, _, _) = G.fold_vertex f g
+    let iter_vertex f (g, _, _) = G.iter_vertex f g
+    let pred_e (g, _, _) = G.pred_e g
+    let succ_e (g, _, _) = G.succ_e g
+    let pred (g, _, _) = G.pred g
+    let succ (g, _, _) = G.succ g
+    let find_all_edges (g, _, _) = G.find_all_edges g
+    let find_edge (g, _, _) = G.find_edge g
+    let mem_edge_e (g, _, _) = G.mem_edge_e g
+    let mem_edge (g, _, _) = G.mem_edge g
+    let mem_vertex (g, _, _) = G.mem_vertex g
+    let in_degree (g, _, _) = G.in_degree g
+    let out_degree (g, _, _) = G.out_degree g
+    let nb_edges (g, _, _) = G.nb_edges g
+    let nb_vertex (g, _, _) = G.nb_vertex g
+    let is_empty (g, _, _) = G.is_empty g
+    let is_directed = G.is_directed
   end
 end
-****)
