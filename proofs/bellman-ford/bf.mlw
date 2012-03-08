@@ -65,3 +65,9 @@ module BellmanFord
       exists n: int. n < 0 /\ path v v n  }
 
 end
+
+(*
+Local Variables:
+compile-command: "why3ide bf.mlw"
+End:
+*)

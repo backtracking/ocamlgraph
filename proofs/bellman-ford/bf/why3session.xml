@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE why3session SYSTEM "why3session.dtd">
+<why3session
+ name="bf/why3session.xml">
+ <file
+  name="../bf.mlw"
+  verified="false"
+  expanded="true">
+  <theory
+   name="Graph"
+   locfile="bf/../bf.mlw"
+   loclnum="4" loccnumb="7" loccnume="12"
+   verified="true"
+   expanded="false">
+  </theory>
+  <theory
+   name="WP BellmanFord"
+   locfile="bf/../bf.mlw"
+   loclnum="31" loccnumb="7" loccnume="18"
+   verified="false"
+   expanded="true">
+   <goal
+    name="WP_parameter relax"
+    locfile="bf/../bf.mlw"
+    loclnum="44" loccnumb="6" loccnume="11"
+    expl="parameter relax"
+    sum="2269a2f4ae5382a6f77da45e81950da8"
+    proved="false"
+    expanded="false"
+    shape="t">
+    <label
+     name="expl:parameter relax">
+     </label>
+   </goal>
+   <goal
+    name="WP_parameter bellman_ford"
+    locfile="bf/../bf.mlw"
+    loclnum="49" loccnumb="6" loccnume="18"
+    expl="parameter bellman_ford"
+    sum="f40885a9bf30864c1dccd3612216c5d3"
+    proved="false"
+    expanded="false"
+    shape="iainfix =V1aTrueapathV2V2V3Aainfix <V3c0EAamemV2averticesECagetainitialize_single_sourceV0V4aFiniteVashortest_pathV0V4V5aInfiniteano_pathV0V4IamemV4averticesFFIamemV0averticesF">
+    <label
+     name="expl:parameter bellman_ford">
+     </label>
+   </goal>
+  </theory>
+ </file>
+</why3session>
