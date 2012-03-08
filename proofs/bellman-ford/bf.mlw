@@ -1,22 +1,67 @@
 
 (* Proof of Bellman-Ford algorithm *)
 
-module BellmanFord
+theory Graph
 
-  use import set.Fset
+  use export int.Int
+  use export set.Fset
 
   type vertex
-
+  constant vertices : set vertex
   function succ vertex : set vertex
   function weight vertex vertex : int
 
-  let initialize_single_source G s =
-    assert false
+  (* there is a path of length n from v1 to v2 *)
+  inductive path (v1 v2: vertex) (n: int) =
+    | path_empty:
+        forall v: vertex. path v v 0
+    | path_succ:
+        forall v1 v2 v3: vertex, n: int.
+        path v1 v2 n -> mem v3 (succ v2) -> path v1 v3 (n + weight v2 v3)
 
-  let relax u v l =
-    assert false
+  predicate shortest_path (v1 v2: vertex) (n: int) =
+    path v1 v2 n /\
+    forall m: int. m < n -> not (path v1 v2 m)
 
-  let bellman_ford G s l =
-    assert false
+  predicate no_path (v1 v2: vertex) =
+    forall n: int. not (path v1 v2 n)
+
+end
+
+module BellmanFord
+
+  use import map.Map
+  use import Graph
+  use import module ref.Ref
+
+  type dist = Finite int | Infinite
+
+  type distmap = map vertex dist
+
+  function initialize_single_source (s: vertex) : distmap =
+    (const Infinite)[s <- Finite 0]
+
+  let relax (m: ref distmap) (u: vertex) (v: vertex) =
+    ()
+
+  exception NegativeCycle (* list vertex *)
+
+  let bellman_ford (s: vertex) =
+    { mem s vertices }
+    let m = ref (initialize_single_source s) in
+    if any bool then raise NegativeCycle;
+    !m
+    { (* the returned map contains the shortest distance from s to any
+         reachable vertex *)
+      forall v: vertex. mem v vertices ->
+        match result[v] with
+        | Finite n -> shortest_path s v n
+        | Infinite -> no_path s v
+        end
+    }
+    | NegativeCycle ->
+    { (* there is (at least) one negative cycle *)
+      exists v: vertex. mem v vertices /\
+      exists n: int. n < 0 /\ path v v n  }
 
 end

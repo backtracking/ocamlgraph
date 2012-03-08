@@ -4,9 +4,50 @@
 \usepackage{fullpage,url}
 \usepackage{algorithm}
 \usepackage{algorithmic}
+\usepackage{listings}
+\usepackage{color}
 
 \title{A Formal Proof of Bellman-Ford Algorithm}
 \author{Yuto Takei \\ The University of Tokyo }
+
+\lstdefinelanguage{Why3}
+{
+basicstyle=\ttfamily,
+keywordstyle=\color{blue},
+morekeywords=[1]{inductive,predicate,function,goal,type,use,import,theory,end,in,%
+axiom,lemma,export,forall},%
+%keywordstyle=[1]{\color{red}},%
+morekeywords=[2]{true,false},%
+%keywordstyle=[2]{\color{blue}},%
+otherkeywords={},%
+commentstyle=\itshape,%
+columns=[l]fullflexible,%
+sensitive=true,%
+morecomment=[s]{(*}{*)},%
+escapeinside={*?}{?*},%
+keepspaces=true,
+literate=%
+{'a}{$\alpha$}{1}%
+{'b}{$\beta$}{1}%
+{<}{$<$}{1}%
+{>}{$>$}{1}%
+{<=}{$\le$}{1}%
+{>=}{$\ge$}{1}%
+{<>}{$\ne$}{1}%
+{/\\}{$\land$}{1}%
+{\\/}{ $\lor$ }{3}%
+{\ or(}{ $\lor$(}{3}%
+{not\ }{$\lnot$ }{1}%
+{not(}{$\lnot$(}{1}%
+{->}{$\rightarrow$}{2}%
+{<->}{$\leftrightarrow$}{2}%
+%
+%
+}
+
+\lstnewenvironment{why3}
+{\lstset{language=Why3}}
+{}
 
 \begin{document}
 
@@ -76,6 +117,28 @@ The single-source shortest paths problem is described as \( (G,s,l) \), where \(
 \section{Formal Proof}
 
 \subsection{Specification}
+
+\begin{why3}
+  inductive path (v1 v2: vertex) (n: int) =
+    | path_empty:
+        forall v: vertex. path v v 0
+    | path_succ:
+        forall v1 v2 v3: vertex, n: int.
+        path v1 v2 n -> mem v3 (succ v2) -> path v1 v3 (n + weight v2 v3)
+\end{why3}
+
+\begin{displaymath}
+  \frac{}
+       {\mathtt{path}~v~v~0}
+  \qquad\qquad
+  \frac{\mathtt{path}~v_1~v_2~n \qquad v_2\stackrel{m}{\to} v_3}
+       {\mathtt{path}~v_1~v_3~(n + m)}
+\end{displaymath}
+
+\begin{why3}
+  predicate no_path (v1 v2: vertex) =
+    forall n: int. not (path v1 v2 n)
+\end{why3}
 
 \subsection{Proof}
 
