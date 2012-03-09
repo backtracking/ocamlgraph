@@ -7,7 +7,7 @@ theory Graph
   use export set.Fset
 
   type vertex
-  constant vertices : set vertex
+  function vertices : set vertex
   function succ vertex : set vertex
   function weight vertex vertex : int
 
@@ -41,16 +41,48 @@ module BellmanFord
   function initialize_single_source (s: vertex) : distmap =
     (const Infinite)[s <- Finite 0]
 
+  function add_dist (x: dist) (y: dist) : dist =
+    match x with
+      | Infinite -> Infinite
+      | Finite x ->
+	match y with
+	  | Infinite -> Infinite
+	  | Finite y -> Finite (x + y)
+	end
+    end
+
+  function compare_dist (x: dist) (y: dist) : int =
+    match x with
+      | Infinite ->
+	match y with
+	  | Infinite -> 0
+	  | Finite _ -> 1
+	end
+      | Finite x ->
+	match y with
+	  | Infinite -> -1
+	  | Finite y -> x - y
+	end
+    end
+
   let relax (m: ref distmap) (u: vertex) (v: vertex) =
-    ()
+    let new_dv = add_dist (get !m u) (Finite (weight u v)) in
+    if compare_dist (get !m v) new_dv > 0 then
+      set !m v new_dv
 
   exception NegativeCycle (* list vertex *)
 
   let bellman_ford (s: vertex) =
     { mem s vertices }
     let m = ref (initialize_single_source s) in
+
+
+
     if any bool then raise NegativeCycle;
+
+
     !m
+
     { (* the returned map contains the shortest distance from s to any
          reachable vertex *)
       forall v: vertex. mem v vertices ->

@@ -91,7 +91,7 @@ The listing \ref{alg:bf} shows the psuedocode of the Bellman-Ford algorithm \cit
 \caption{$ \relaxBF (u,v,l) $}
 \begin{algorithmic}[1]
 \IF{$ d[v]>d[u]+l(u,v) $}
-\STATE{$ d[v] \leftarrow d[u]+w(u,v) $}
+\STATE{$ d[v] \leftarrow d[u]+l(u,v) $}
 \STATE{$ \pi [v] \leftarrow u $}
 \ENDIF
 \end{algorithmic}
@@ -191,10 +191,10 @@ Considering the Bellman-Ford algorithm, one must give the formal definition of t
 
 After introducing the predicate for the path existence between certain vertices, one can immediately precise that the property of the shortest path from $ v_1 $ to $ v_2 $ with length $ n $, i.e., to assert that there are no path shorter than $ n $ connecting $ v_1 $ to $ v_2 $. Moreover, if no such path exists from $ v_1 $ to $ v_2 $, it is suffice to say that there is no $ n $, which is the length between those vertices.
 
-With the specification in Why3 syntax, the formulation above is expressed as in the listing~\ref{lst:graph}. Here all graph structures and predicates are packed in the theory \mbox{\sc Graph}. Vertices are given as a global constant set namely \mbox{\sc vertices}, and edges and their weights are given by global functions \mbox{\sc succ} and \mbox{\sc weight} respectively.
+With the specification in Why3 syntax, the formulation above is expressed as in the listing~\ref{lst:why_graph}. Here all graph structures and predicates are packed in the theory \mbox{\sc Graph}. Vertices are given as a global constant set namely \mbox{\sc vertices}, and edges and their weights are given by global functions \mbox{\sc succ} and \mbox{\sc weight} respectively.
 
 \begin{algorithm}
-\caption{Definition of graph in logical way}\label{lst:graph}
+\caption{Definition of graph in logical way}\label{lst:why_graph}
 \begin{why3}[1]
 theory Graph
   use export int.Int
@@ -226,7 +226,7 @@ end
 
 Now we discuss the foundamental characteristics of Bellman-Ford algorithm. They consists of precondition, postcondition and terminability of the algorithm, and we aim to describe it by utilizing Hoare logic.
 
-Although the psuedocode of Bellman-Ford algorithm in listing \ref{alg:bf} returns an Boolean value, we slightly change the format for practical implementation and let it return a mapping from vertex to shortest-distances rather than the indication of the existence of negative-cycle. Then instead, we raise an exception in presence of the negative-cycle.
+Although the psuedocode of Bellman-Ford algorithm in listing \ref{alg:bf} returns an Boolean value and modify the distance and parent mappings in imperatiev manner, we slightly change the format for practical implementation in O'Caml and let it return a mapping from vertex to shortest-distances rather than the indication of the existence of negative-cycle. Additionally, we raise an exception in presence of the negative-cycle.
 
 As a result, our implementation will be a function that takes the source vertex $ s $ as a single argument, and either returns the mapping from $ v $ to \mbox{\sc int} for shortest paths, or raise an exception indicating the presence of a negative cycle. Now we adapt algorithmic characteristic into the implementation above.
 
@@ -234,7 +234,44 @@ As a result, our implementation will be a function that takes the source vertex 
 
 \emph{Postcondition.} If algorithm returns the value without the exception, the resulting mapping at the key $ v $ should give the length of the shortest path from $ s $ to $ v $. The existence of such a path is indicated by the algebraic type, which either has a finite integer value or an inifinity. With the exception returned, there exists at least one negative-cycle.
 
+\emph{Terminability.} (TODO)
+
 Note that the case without the exception, one does not need to assert the graph to be free of negative-cycle.
+
+
+
+
+
+
+
+
+\begin{algorithm}
+\caption{Specification of Bellman-Ford algorithm}\label{lst:why_bf}
+\begin{why3}[1]
+module BellmanFord
+  use import map.Map
+  use import Graph
+
+  type dist = Finite int | Infinite
+  type distmap = map vertex dist
+
+  exception NegativeCycle
+
+  let bellman_ford (s: vertex) : distmap =
+    { mem s vertices }
+    (* ... actual implementation comes here ... *)
+    { forall v: vertex. mem v vertices ->
+        match result[v] with
+        | Finite n -> shortest_path s v n
+        | Infinite -> no_path s v
+        end }
+    | NegativeCycle ->
+    { exists v: vertex. mem v vertices /\
+      exists n: int. n < 0 /\ path v v n  }
+end
+\end{why3}
+\end{algorithm}
+
 
 
 
