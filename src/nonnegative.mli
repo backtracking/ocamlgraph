@@ -21,9 +21,13 @@ open Sig
 open Blocks
 open Persistent
 
-(** Weighted graphs without negative cycles *)
+(** Weighted graphs without negative-cycles. *)
 
-(** Hello world! *)
+(** This graph maintains the invariant that it is free of such cycles that
+    the total length of edges involving is negative. With introduction of
+    those negative-cycles causes an inability to compute the shortest paths
+    from arbitrary vertex. By using the graph modules defined here,
+    introduction of such a cycle is automatically prevented. *)
 
 (** Signature for edges' weights. *)
 module type WEIGHT = sig
@@ -41,11 +45,10 @@ module type WEIGHT = sig
     (** Neutral element for {!add}. *)
 end
 
-(** Non neg  *)
-
+(** Graphs without negative-cycles *)
 module NonNegative : sig
-  (** Persistent graphs *)
 
+  (** Persistent graphs with negative-cycle prevention *)
   module Persistent
     (G: Sig.P)
     (W: WEIGHT with type label = G.E.label) : sig
@@ -56,9 +59,5 @@ module NonNegative : sig
       (** Exception [NegativeCycle] is raised whenever a negative cycle
           is introduced for the first time (either with [add_edge]
           or [add_edge_e]) *)
-
-
-
   end
-
 end

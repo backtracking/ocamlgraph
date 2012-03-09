@@ -29,7 +29,6 @@ module type WEIGHT = sig
   val zero : t
 end
 
-
 module NonNegative = struct
   module Persistent
     (G: Sig.P)
