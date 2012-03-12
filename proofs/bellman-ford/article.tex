@@ -103,7 +103,7 @@ The listing \ref{alg:bf} shows the psuedocode of the Bellman-Ford algorithm \cit
 \STATE{$ \initBF (G,s) $}
 \FOR{$i = 1 \to |V[G]|-1 $}
 \FORALL{ edge $ (u,v) \in E[G] $}
-\STATE{$ \relaxBF (u,v,s) $}
+\STATE{$ \relaxBF (u,v,l) $}
 \ENDFOR
 \ENDFOR
 \FORALL{edge $ (u,v)\in E[G] $}
@@ -123,7 +123,11 @@ Why3 is a software verification platfrom that enables one to describe the algori
 
 
 
-\subsection{Decribing Logics}
+\subsection{Logic}
+
+Logic component is described by set of theories that contains the definition of data types, the characteristics of data types as either an axiom or a lemma, and predicates (or functions if returns non-Boolean) upon the arguments.
+
+[TODO: align the following paragraphs]
 
 \emph{Types.} Types in why3 logic are either a non-interpreted abstract type or an algebraic type with polymorphism supported.
 
@@ -131,29 +135,13 @@ Why3 is a software verification platfrom that enables one to describe the algori
 
 \emph{Inductive predicates.} Inductive predicate is provided as an other option to declare predicates. It consists of set of clauses that
 
+\subsection{Program}
 
-\begin{enumerate}
-\item \textbf{logical part}
+Program component takes over the similar syntax as Objective Caml \ref{ocaml}, but we define conditions of the program additionally.
 
-\begin{enumerate}
+\emph{Pre-condition and post-condition.}
 
-
-\item theory
-
-\end{enumerate}
-
-\item \textbf{module part}
-
-\begin{enumerate}
-
-\item pre-condition / post-condition related to Hoare logic
-\item variant for the loop \textbf{safety - termination}
-
-\end{enumerate}
-
-\end{enumerate}
-
-
+\emph{Loop variant.} Variant expression guarantees the terminability of recursive calls or loops. One must give an arbitral integral expression, which necessarily decreases in the certain sequential operations. With the assumption that given expression is positive at the beginning, Why3 gives the 
 
 
 
@@ -291,6 +279,9 @@ end
 
 
 [TODO: citation from ``Why3: Shepherd Your Herd of Provers'']
+
+[TODO: citation to ocaml website?]
+
 
 \end{thebibliography}
 
