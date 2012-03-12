@@ -1,22 +1,22 @@
 
 (* Proof of Bellman-Ford algorithm *)
 
-theory SetExt
+theory FSetTake
 
   use export set.Fset
 
   function take (s:set 'a) : 'a
 
   axiom take_def:
-    forall x : set 'a, y : 'a.
-    y = take x -> mem y x
+    forall x : set 'a. not (is_empty x) ->
+    mem (take x) x
 
 end
 
 theory Graph
 
   use export int.Int
-  use export SetExt
+  use export FSetTake
 
   type vertex
   constant vertices : set vertex
@@ -97,6 +97,170 @@ theory Distance
 
 end
 
+(* a bag is simply a reference containing a finite set *)
+module Bag
+
+  use export FSetTake
+  use export module ref.Ref
+
+  type bag 'a = ref (set 'a)
+
+  let is_empty (b: bag 'a) =
+    {} is_empty !b { result=True <-> is_empty !b }
+
+  (*
+  val push (x: 'a) (b: bag 'a) :
+    {} unit writes b { !b = add x (old !b) }
+  *)
+
+  let pop (b: bag 'a) =
+    { not (is_empty !b) }
+    let x = take !b in
+    b := remove x !b;
+    x
+    { mem result (old !b) /\ !b = remove result (old !b) }
+
+end
+
+module BellmanFordTermination
+
+  use import int.MinMax
+  use import map.Map
+  use import module ref.Ref
+  use import Graph
+  use import Distance
+  use module Bag
+
+  type distmap = map vertex dist
+
+  function initialize_single_source (s: vertex) : distmap =
+    (const Infinite)[s <- Finite 0]
+
+  let relax (m: ref distmap) (u: vertex) (v: vertex) =
+    { (*mem u vertices /\ mem v vertices /\ mem v (succ u) *) }
+    let d = !m[u] ++ Finite (weight u v) in
+    if d << !m[v] then m := !m[u <- d]
+    { }
+
+  exception NegativeCycle (* list vertex *)
+
+  let bellman_ford () =
+    { }
+    let m = ref (initialize_single_source s) in
+
+    (let i = ref vertices in
+     while not (Bag.is_empty i) do
+      variant { cardinal !i }
+      let x = Bag.pop i in
+      let us = ref vertices in
+      while not (Bag.is_empty us) do
+	variant { cardinal !us }
+        let u = Bag.pop us in
+
+	let vs = ref (succ u) in
+	while not (Bag.is_empty vs) do
+	  variant { cardinal !vs }
+	  let v = Bag.pop vs in
+	  relax m u v
+	done
+      done
+    done);
+
+    (let us = ref vertices in
+    while not (Bag.is_empty us) do
+      variant { cardinal !us }
+      let u = Bag.pop us in
+    
+      let vs = ref (succ u) in
+      while not (Bag.is_empty vs) do
+	variant { cardinal !vs }
+        let v = Bag.pop vs in
+
+	if (get !m v) <<
+	  ((get !m u) ++ (Finite (weight u v))) then
+	  raise NegativeCycle
+      done
+    done);
+    !m
+    { } | NegativeCycle -> { }
+
+end
+
+module BellmanFordSoundness
+
+  use import int.MinMax
+  use import map.Map
+  use import module ref.Ref
+  use import Graph
+  use import Distance
+  use module Bag
+
+  type distmap = map vertex dist
+
+  function initialize_single_source (s: vertex) : distmap =
+    (const Infinite)[s <- Finite 0]
+
+  predicate paths (m: distmap) =
+    forall v: vertex. mem v vertices ->
+    match m[v] with
+      | Finite n -> path s v n (* path, not shortest_path *)
+      | Infinite -> true
+    end 
+
+  let relax (m: ref distmap) (u: vertex) (v: vertex) =
+    { mem u vertices /\ mem v vertices /\ mem v (succ u) /\ paths !m }
+    let d = !m[u] ++ Finite (weight u v) in
+    if d << !m[v] then m := !m[u <- d]
+    { paths !m }
+
+  exception NegativeCycle (* list vertex *)
+
+  let bellman_ford () =
+    { }
+    let m = ref (initialize_single_source s) in
+    assert { paths !m };
+    (for i = 1 to cardinal vertices - 1 do
+      invariant { paths !m }
+
+      let us = ref vertices in
+      while not (Bag.is_empty us) do
+	invariant { subset !us vertices /\ paths !m }
+        variant { cardinal !us }
+        let u = Bag.pop us in
+
+	let vs = ref (succ u) in
+	while not (Bag.is_empty vs) do
+	  invariant { subset !vs (succ u) /\ paths !m }
+          variant { cardinal !vs }
+
+	  let v = Bag.pop vs in
+	  relax m u v
+	done
+      done
+    done);
+
+    (let us = ref vertices in
+    while not (Bag.is_empty us) do
+      variant { cardinal !us }
+      let u = Bag.pop us in
+    
+      let vs = ref (succ u) in
+      while not (Bag.is_empty vs) do
+	variant { cardinal !vs }
+        let v = Bag.pop vs in
+
+	if (get !m v) <<
+	  ((get !m u) ++ (Finite (weight u v))) then
+	  raise NegativeCycle
+      done
+    done);
+    !m
+    { paths result }
+    | NegativeCycle -> { }
+
+end
+
+(***
 module BellmanFord
 
   use import int.MinMax
@@ -104,6 +268,7 @@ module BellmanFord
   use import module ref.Ref
   use import Graph
   use import Distance
+  use module Bag
 
   type distmap = map vertex dist
 
@@ -211,62 +376,9 @@ module BellmanFord
 *)
 
 
-  let bellman_ford () =
-    { }
-    let m = ref (initialize_single_source s) in
-
-    (let i = ref vertices in
-    while cardinal !i > 0 do
-      variant { cardinal !i }
-      (let x = take !i in i := remove x !i);
-
-      let us = ref vertices in
-      while cardinal !us > 0 do
-	variant { cardinal !us }
-        let u = take !us in us := remove u !us;
-
-	let vs = ref (succ u) in
-	while cardinal !vs > 0 do
-	  variant { cardinal !vs }
-	  let v = take !vs in vs := remove v !vs;
-
-	  m := (relax !m u v)
-	done
-      done
-    done);
-
-    (let us = ref vertices in
-    while cardinal !us > 0 do
-      variant { cardinal !us }
-      let u = take !us in us := remove u !us;
-    
-      let vs = ref (succ u) in
-      while cardinal !vs > 0 do
-	variant { cardinal !vs }
-        let v = take !vs in vs := remove v !vs;
-
-	if (get !m v) <<
-	  ((get !m u) ++ (Finite (weight u v))) then
-	  raise NegativeCycle
-      done
-    done);
-
-    !m
-
-    { (* the returned map contains the shortest distance from s to any
-         reachable vertex *)
-      forall v: vertex. mem v vertices ->
-        match result[v] with
-        | Finite n -> shortest_path s v n
-        | Infinite -> no_path s v
-        end
-    }
-    | NegativeCycle ->
-    { (* there is (at least) one negative cycle *)
-      exists v: vertex. mem v vertices /\
-      exists n: int. n < 0 /\ path v v n }
 
 end
+***)
 
 (*
 Local Variables:
