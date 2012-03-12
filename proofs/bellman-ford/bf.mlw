@@ -19,34 +19,41 @@ theory Graph
   use export SetExt
 
   type vertex
-  constant s : vertex
   constant vertices : set vertex
+  constant s : vertex
   function succ vertex : set vertex
   function weight vertex vertex : int
 
-  axiom s1: mem s vertices
+  axiom s_in_graph: mem s vertices
 
   axiom succ1:
     forall x: vertex. mem x vertices ->
     forall y: vertex. mem y (succ x) -> mem y vertices
 
-  axiom nonneg:
+(*  axiom nonneg:
     forall x y: vertex. weight x y >= 0
+*)
 
-  (* there is a path of length n from v1 to v2 *)
   inductive path (v1 v2: vertex) (n: int) =
     | path_empty:
-        forall v: vertex. path v v 0
+	forall v: vertex. path v v 0
     | path_succ:
         forall v1 v2 v3: vertex, n: int.
         path v1 v2 n -> mem v3 (succ v2) -> path v1 v3 (n + weight v2 v3)
 
   predicate shortest_path (v1 v2: vertex) (n: int) =
-    path v1 v2 n /\
-    forall m: int. m < n -> not (path v1 v2 m)
+    (path v1 v2 n) /\
+    (forall m: int. m < n -> not (path v1 v2 m))
 
   predicate no_path (v1 v2: vertex) =
     forall n: int. not (path v1 v2 n)
+
+  inductive reachable (v: vertex) (d: int) =
+    | reach_empty:
+	reachable s 0
+    | reach_succ:
+        forall v1 v2: vertex, n: int.
+	reachable v1 n -> mem v2 (succ v1) -> reachable v2 (n + 1)
 
 end 
 
@@ -147,11 +154,18 @@ module BellmanFord
 
   let rec relax1 (m: distmap) (is: set vertex)
       variant { cardinal is } =
+    { 0 <= cardinal is <= cardinal vertices (* /\
+      (forall v: vertex.
+       reachable v ((cardinal vertices) - (cardinal is)) ->
+       shortest_path  *) }
     if cardinal is <> 0 then
       let i = take is in
       relax1 (relax2 m vertices) (remove i is)
     else
       m
+    { }
+
+
 (*
   let rec check_ (m: distmap) (u: vertex) (v: vertex) =
     if (get m v) << ((get m u) ++ (Finite (weight u v))) then
@@ -174,12 +188,13 @@ module BellmanFord
     else
       m
       *)
+
   let bellman_ford2 () =
-    { }
+    { true }
 
     let m = relax1 (initialize_single_source s) vertices in
-    if any bool then raise NegativeCycle else
-    m (* check1 m (vertices) *)
+    m
+    (* check1 m (vertices) *)
 
     { (* the returned map contains the shortest distance from s to any
          reachable vertex *)
@@ -189,11 +204,13 @@ module BellmanFord
         | Infinite -> no_path s v
         end
     }
-    | NegativeCycle ->
+(*    | NegativeCycle ->
     { (* there is (at least) one negative cycle *)
       exists v: vertex. mem v vertices /\
       exists n: int. n < 0 /\ path v v n  }
-(*
+*)
+
+
   let bellman_ford () =
     { }
     let m = ref (initialize_single_source s) in
@@ -247,9 +264,7 @@ module BellmanFord
     | NegativeCycle ->
     { (* there is (at least) one negative cycle *)
       exists v: vertex. mem v vertices /\
-      exists n: int. n < 0 /\ path v v n  }
-
-*)
+      exists n: int. n < 0 /\ path v v n }
 
 end
 
