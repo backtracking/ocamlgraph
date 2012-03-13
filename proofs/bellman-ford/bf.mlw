@@ -1,22 +1,10 @@
 
 (* Proof of Bellman-Ford algorithm *)
 
-theory FSetTake
-
-  use export set.Fset
-
-  function take (s:set 'a) : 'a
-
-  axiom take_def:
-    forall x : set 'a. not (is_empty x) ->
-    mem (take x) x
-
-end
-
 theory Graph
 
   use export int.Int
-  use export FSetTake
+  use export set.Fset
 
   type vertex
   constant vertices : set vertex
@@ -29,10 +17,10 @@ theory Graph
   axiom succ1:
     forall x: vertex. mem x vertices ->
     forall y: vertex. mem y (succ x) -> mem y vertices
-
-(*  axiom nonneg:
+(*
+  axiom nonneg:
     forall x y: vertex. weight x y >= 0
-*)
+      *)
 
   inductive path (v1 v2: vertex) (n: int) =
     | path_empty:
@@ -97,6 +85,18 @@ theory Distance
 
 end
 
+theory FSetTake
+
+  use export set.Fset
+
+  function take (s:set 'a) : 'a
+
+  axiom take_def:
+    forall x : set 'a. not (is_empty x) ->
+    mem (take x) x
+
+end
+
 (* a bag is simply a reference containing a finite set *)
 module Bag
 
@@ -139,7 +139,7 @@ module BellmanFordTermination
   let relax (m: ref distmap) (u: vertex) (v: vertex) =
     { }
     let d = !m[u] ++ Finite (weight u v) in
-    if d << !m[v] then m := !m[u <- d]
+    if d << !m[v] then m := !m[v <- d]
     { }
 
   exception NegativeCycle (* list vertex *)
@@ -210,7 +210,7 @@ module BellmanFordSoundness
   let relax (m: ref distmap) (u: vertex) (v: vertex) =
     { mem u vertices /\ mem v vertices /\ mem v (succ u) /\ paths !m }
     let d = !m[u] ++ Finite (weight u v) in
-    if d << !m[v] then m := !m[u <- d]
+    if d << !m[v] then m := !m[v <- d]
     { paths !m }
 
   exception NegativeCycle (* list vertex *)
@@ -259,126 +259,6 @@ module BellmanFordSoundness
     | NegativeCycle -> { }
 
 end
-
-(***
-module BellmanFord
-
-  use import int.MinMax
-  use import map.Map
-  use import module ref.Ref
-  use import Graph
-  use import Distance
-  use module Bag
-
-  type distmap = map vertex dist
-
-  function initialize_single_source (s: vertex) : distmap =
-    (const Infinite)[s <- Finite 0]
-
-(*
-  let relax (m: distmap) (u: vertex) (v: vertex) : distmap =
-    { mem u vertices /\ mem v vertices }
-    let new_dv = (get m u) ++ (Finite (weight u v)) in
-    if new_dv << (get m v) then (set m v new_dv) else m
-    { forall x: vertex. (x <> v -> get m x = get result x) }
-*)
-
-  function relax (m: distmap) (u: vertex) (v: vertex) : distmap
-
-  axiom relax_def:
-    forall u v: vertex. mem u vertices /\ mem v vertices ->
-    forall m m1: distmap. m1 = relax m u v ->
-    (forall w: vertex. v <> w -> get m w = get m1 w) /\
-    (get m1 v = min (get m v) ((get m u) ++ (Finite (weight u v))))
-
-(*  
-    let new_dv = add_dist (get !m u) (Finite (weight u v)) in
-    if compare_dist (get !m v) new_dv > 0 then
-      let _ = set !m v new_dv in ()
-*)
-
-  exception NegativeCycle (* list vertex *)
-
-  let rec relax3 (m: distmap) (u: vertex) (vs: set vertex)
-      variant { cardinal vs } =
-    { mem u vertices /\ subset vs vertices }
-    if cardinal vs <> 0 then
-      let v = take vs in
-      relax3 (relax m u v) u (remove v vs)
-    else
-      m
-    { }
-
-  let rec relax2 (m: distmap) (us: set vertex)
-      variant { cardinal us } =
-    if cardinal us <> 0 then
-      let u = take us in
-      relax2 (relax3 m u (succ u)) (remove u us)
-    else
-      m
-
-  let rec relax1 (m: distmap) (is: set vertex)
-      variant { cardinal is } =
-    { 0 <= cardinal is <= cardinal vertices (* /\
-      (forall v: vertex.
-       reachable v ((cardinal vertices) - (cardinal is)) ->
-       shortest_path  *) }
-    if cardinal is <> 0 then
-      let i = take is in
-      relax1 (relax2 m vertices) (remove i is)
-    else
-      m
-    { }
-
-
-(*
-  let rec check_ (m: distmap) (u: vertex) (v: vertex) =
-    if (get m v) << ((get m u) ++ (Finite (weight u v))) then
-      m
-    else raise NegativeCycle
-
-  let rec check2 (m: distmap) (u: vertex) (vs: set vertex)
-      variant { cardinal vs } =
-    if cardinal vs <> 0 then
-      let v = take vs in
-      check2 (check_ m u v) u (remove v vs)
-    else
-      m
-
-  let rec check1 (m: distmap) (us: set vertex)
-      variant { cardinal us } =
-    if cardinal us <> 0 then
-      let u = take us in
-      check1 (check2 m u (succ u)) (remove u us)
-    else
-      m
-      *)
-
-  let bellman_ford2 () =
-    { true }
-
-    let m = relax1 (initialize_single_source s) vertices in
-    m
-    (* check1 m (vertices) *)
-
-    { (* the returned map contains the shortest distance from s to any
-         reachable vertex *)
-      forall v: vertex. mem v vertices ->
-        match result[v] with
-        | Finite n -> shortest_path s v n
-        | Infinite -> no_path s v
-        end
-    }
-(*    | NegativeCycle ->
-    { (* there is (at least) one negative cycle *)
-      exists v: vertex. mem v vertices /\
-      exists n: int. n < 0 /\ path v v n  }
-*)
-
-
-
-end
-***)
 
 (*
 Local Variables:

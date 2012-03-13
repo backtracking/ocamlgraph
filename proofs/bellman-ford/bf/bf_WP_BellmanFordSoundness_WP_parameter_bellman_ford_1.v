@@ -152,12 +152,6 @@ Axiom cardinal_remove : forall (a:Type), forall (x:a), forall (s:(set1 a)),
 Axiom cardinal_subset : forall (a:Type), forall (s1:(set1 a)) (s2:(set1 a)),
   (subset s1 s2) -> ((cardinal s1) <= (cardinal s2))%Z.
 
-Parameter take: forall (a:Type), (set1 a) -> a.
-Implicit Arguments take.
-
-Axiom take_def : forall (a:Type), forall (x:(set1 a)), (~ (is_empty x)) ->
-  (mem (take x) x).
-
 Parameter vertex : Type.
 
 Parameter vertices: (set1 vertex).
@@ -261,6 +255,12 @@ Axiom Max_sym : forall (x:dist) (y:dist), (ge x y) -> ((max x y) = (max y
 Axiom Min_sym : forall (x:dist) (y:dist), (ge x y) -> ((min x y) = (min y
   x)).
 
+Parameter take: forall (a:Type), (set1 a) -> a.
+Implicit Arguments take.
+
+Axiom take_def : forall (a:Type), forall (x:(set1 a)), (~ (is_empty x)) ->
+  (mem (take x) x).
+
 (* Why3 assumption *)
 Definition bag (a:Type) := (ref (set1 a)).
 
@@ -275,42 +275,23 @@ Definition paths(m:(map vertex dist)): Prop := forall (v:vertex), (mem v
   | Infinite => True
   end.
 
-Require Import Classical.
-
 (* Why3 goal *)
-Theorem WP_parameter_relax : forall (u:vertex), forall (v:vertex),
-  forall (m:(map vertex dist)), ((mem u vertices) /\ ((mem v vertices) /\
-  ((mem v (succ u)) /\ (paths m)))) -> (match (get m
-  u) with
-  | Infinite => False
-  | (Finite x) => match (get m
-      v) with
-      | Infinite => True
-      | (Finite y) => ((x + (weight u v))%Z <  y)%Z
-      end
-  end -> forall (m1:(map vertex dist)), (m1 = (set m u match (get m
-  u) with
-  | Infinite => Infinite
-  | (Finite x) => (Finite (x + (weight u v))%Z)
-  end)) -> (paths m1)).
-intros u v m.
-intros (h1, (h2, (h3, h4))).
-destruct (get m u).
-(* m[u] = Finite z *)
-intros _.
-intros m1 Hm1.
-unfold paths in *.
-intros v0 hv0.
-destruct (classic (v0 = u)).
-subst.
-rewrite Select_eq; auto.
-admit.
-subst.
-rewrite Select_neq; auto.
-generalize (h4 v0).
-intuition.
-(* Infinite *)
-intuition.
+Theorem WP_parameter_bellman_ford : (paths (set (const Infinite:(map vertex
+  dist)) s (Finite 0%Z))).
+
+Require Import Classical.
+unfold paths.
+intros.
+destruct (classic (v = s)).
+rewrite Select_eq.
+rewrite H0.
+apply path_empty.
+auto.
+rewrite Select_neq.
+rewrite Const.
+auto.
+auto.
+
 Qed.
 
 
