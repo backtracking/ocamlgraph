@@ -8,42 +8,87 @@ theory Graph
 
   type vertex
   constant vertices : set vertex
+  constant edges: set (vertex, vertex)
   constant s : vertex
-  function succ vertex : set vertex
   function weight vertex vertex : int
 
   axiom s_in_graph: mem s vertices
 
-  axiom succ1:
-    forall x: vertex. mem x vertices ->
-    forall y: vertex. mem y (succ x) -> mem y vertices
-(*
-  axiom nonneg:
-    forall x y: vertex. weight x y >= 0
-      *)
+  axiom edges_def:
+    forall x y: vertex. mem (x, y) edges ->
+    (mem x vertices /\ mem y vertices)
 
-  inductive path (v1 v2: vertex) (n: int) =
+  inductive path (v1 v2: vertex) (n d: int) =
     | path_empty:
-	forall v: vertex. path v v 0
+        forall v: vertex. path v v 0 0
     | path_succ:
-        forall v1 v2 v3: vertex, n: int.
-        path v1 v2 n -> mem v3 (succ v2) -> path v1 v3 (n + weight v2 v3)
+        forall v1 v2 v3: vertex, n d: int. path v1 v2 n d ->
+        mem (v2, v3) edges -> path v1 v3 (n + (weight v2 v3)) (d + 1)
 
-  predicate shortest_path (v1 v2: vertex) (n: int) =
-    (path v1 v2 n) /\
-    (forall m: int. m < n -> not (path v1 v2 m))
+  lemma path_depth_nonneg:
+    forall v1 v2: vertex, n d: int.
+    path v1 v2 n d -> d >= 0
 
+  lemma path_in_vertices:
+     forall v1 v2: vertex, n d: int.
+     mem v1 vertices -> path v1 v2 n d -> mem v2 vertices
+
+  lemma path_depth_empty:
+    forall v1 v2: vertex, n d: int.
+    path v1 v2 n 0 -> v1 = v2 /\ n = 0
+
+  lemma path_pred_existence:
+    forall v1 v3: vertex, n d: int. d >= 0 -> path v1 v3 n (d + 1) ->
+    exists v2: vertex. mem (v2, v3) edges /\
+    path v1 v2 (n - (weight v2 v3)) d
+
+  predicate shortest_path (v1 v2: vertex) (n d: int) =
+    (path v1 v2 n d) /\
+    (forall m dd: int. m < n -> not (path v1 v2 m dd))
+
+  lemma shortest_path_empty:
+    forall v: vertex. mem v vertices ->
+    (forall n d: int. n < 0 -> not (path v v n d)) ->
+    shortest_path v v 0 0
+(*
+  I don't think this can be proved right now.
+  lemma shortest_path_pred:
+    forall v: vertex. mem v vertices ->
+    forall d: int. shortest_path s v d ->
+    (exists u: vertex. mem (u, v) edges /\
+    forall w: int. w = weight u v /\ shortest_path s u (d - w))
+*)
   predicate no_path (v1 v2: vertex) =
-    forall n: int. not (path v1 v2 n)
+    forall n d: int. not (path v1 v2 n d)
 
-  inductive reachable (v: vertex) (d: int) =
-    | reach_empty:
-	reachable s 0
-    | reach_succ:
-        forall v1 v2: vertex, n: int.
-	reachable v1 n -> mem v2 (succ v1) -> reachable v2 (n + 1)
+  lemma no_path_not_same:
+    forall v: vertex. not (no_path v v)
 
-end 
+  lemma path_trans:
+    forall v1 v2 v3: vertex, n1 n2 d1 d2: int.
+    path v1 v2 n1 d1 -> path v2 v3 n2 d2 ->
+    path v1 v3 (n1 + n2) (d1 + d2)
+
+  lemma reach_less_than_n:
+    forall v1 v2: vertex. mem v1 vertices ->
+    forall d n: int. path v1 v2 n d ->
+    exists d' n': int. d' < cardinal vertices /\ path v1 v2 n' d'
+
+  lemma reach_most_n:
+    forall v1 v2: vertex.
+    mem v1 vertices /\ mem v2 vertices ->
+    (forall n d: int. 0 <= d < cardinal vertices ->
+      not (path v1 v2 n d)) -> 
+    no_path v1 v2
+
+  predicate negcycle =
+    exists v: vertex. mem v vertices /\
+    exists n d: int. n < 0 /\ path v v n d
+
+  (*** Later we will eliminate this assumption ***)
+  axiom ignore_negcycle: negcycle -> false
+
+end
 
 theory Distance
 
@@ -71,17 +116,17 @@ theory Distance
 	end
     end
 
-  predicate ge (x y: dist) =
+  predicate (>>=) (x y: dist) =
     match x with
       | Infinite -> true
       | Finite x ->
-	match y with
-	  | Infinite -> false
-	  | Finite y -> x >= y
+        match y with
+          | Infinite -> false
+          | Finite y -> x >= y
         end
     end
 
-  clone export comparison.MinMax with type t = dist, predicate ge = ge
+  clone export comparison.MinMax with type t = dist, predicate ge = (>>=)
 
 end
 
@@ -136,10 +181,11 @@ module BellmanFordTermination
   function initialize_single_source (s: vertex) : distmap =
     (const Infinite)[s <- Finite 0]
 
-  let relax (m: ref distmap) (u: vertex) (v: vertex) =
+  let relax (m: ref distmap) (u v: vertex) (pass: int)
+            (via: set (vertex, vertex)) =
     { }
-    let d = !m[u] ++ Finite (weight u v) in
-    if d << !m[v] then m := !m[v <- d]
+    let n = !m[u] ++ Finite (weight u v) in
+    if n << !m[v] then m := !m[v <- n]
     { }
 
   exception NegativeCycle (* list vertex *)
@@ -148,51 +194,40 @@ module BellmanFordTermination
     { }
     let m = ref (initialize_single_source s) in
 
-    (let i = ref vertices in
-     while not (Bag.is_empty i) do
-      variant { cardinal !i }
-      let x = Bag.pop i in
-      let us = ref vertices in
-      while not (Bag.is_empty us) do
-	variant { cardinal !us }
-        let u = Bag.pop us in
+    for i = 1 to cardinal vertices - 1 do
+      let es = ref edges in
+      let es_co = ref empty in
+      while not (Bag.is_empty es) do
+        variant { cardinal !es }
 
-	let vs = ref (succ u) in
-	while not (Bag.is_empty vs) do
-	  variant { cardinal !vs }
-	  let v = Bag.pop vs in
-	  relax m u v
-	done
+        let (u, v) = Bag.pop es in
+        relax m u v i !es_co;
+        es_co := add (u, v) !es_co
       done
-    done);
+    done;
 
-    (let us = ref vertices in
-    while not (Bag.is_empty us) do
-      variant { cardinal !us }
-      let u = Bag.pop us in
-    
-      let vs = ref (succ u) in
-      while not (Bag.is_empty vs) do
-	variant { cardinal !vs }
-        let v = Bag.pop vs in
+    let e = ref edges in
+    while not (Bag.is_empty e) do
+      variant { cardinal !e }
 
-	if (get !m v) <<
-	  ((get !m u) ++ (Finite (weight u v))) then
-	  raise NegativeCycle
-      done
-    done);
+      let (u, v) = Bag.pop e in
+
+      if (!m[v]) << (!m[u] ++ (Finite (weight u v))) then
+        raise NegativeCycle
+    done;
     !m
     { } | NegativeCycle -> { }
 
 end
 
-module BellmanFordSoundness
+module BellmanFord
 
   use import int.MinMax
   use import map.Map
   use import module ref.Ref
   use import Graph
   use import Distance
+  use FSetTake
   use module Bag
 
   type distmap = map vertex dist
@@ -200,62 +235,95 @@ module BellmanFordSoundness
   function initialize_single_source (s: vertex) : distmap =
     (const Infinite)[s <- Finite 0]
 
-  predicate paths (m: distmap) =
+  predicate paths (m: distmap) (pass: int) (via: set (vertex, vertex)) =
     forall v: vertex. mem v vertices ->
     match m[v] with
-      | Finite n -> path s v n (* path, not shortest_path *)
-      | Infinite -> true
-    end 
+      | Finite n ->
+        (exists d: int. 0 <= d < pass /\ path s v n d) \/
+        (exists u: vertex. mem (u, v) via /\
+         (* I don't know why, but you'll need this for Z3: *)
+         exists d: int. 0 <= d < pass /\
+         path s u (n - weight u v) pass)
+      | Infinite ->
+        (forall d: int. 0 <= d < pass ->
+          forall n: int. not (path s v n d)) /\
+        (forall u: vertex. mem (u, v) via ->
+          forall d: int. 0 <= d < pass ->
+          forall n: int. not (path s u n d))
+    end /\
+    ((no_path s v) -> m[v] = Infinite) (** Redundant condition *)
 
-  let relax (m: ref distmap) (u: vertex) (v: vertex) =
-    { mem u vertices /\ mem v vertices /\ mem v (succ u) /\ paths !m }
-    let d = !m[u] ++ Finite (weight u v) in
-    if d << !m[v] then m := !m[v <- d]
-    { paths !m }
+  lemma paths_next:
+    forall m: distmap, p: int.
+    paths m p edges -> paths m (p + 1) empty
+
+  let relax (m: ref distmap) (u v: vertex) (pass: int)
+            (via: set (vertex, vertex)) =
+    { mem (u, v) edges /\ paths !m pass via }
+    let n = !m[u] ++ Finite (weight u v) in
+    if n << !m[v] then (
+      assert { forall d: int. match !m[v] with
+                 | Finite n -> not (shortest_path s v n d)
+                 | Infinite -> true
+               end };
+      m := !m[v <- n])
+    { paths !m pass (add (u, v) via) /\
+      ((old !m)[v] >>= !m[v]) /\
+      match (old !m)[v] with
+        | Finite n ->
+          (exists d: int. shortest_path s v n d) -> (old !m) = !m
+        | Infinite -> true
+      end /\
+      forall x: vertex. (x <> v -> (old !m)[x] = !m[x]) }
 
   exception NegativeCycle (* list vertex *)
 
   let bellman_ford () =
     { }
     let m = ref (initialize_single_source s) in
-    assert { paths !m };
-    (for i = 1 to cardinal vertices - 1 do
-      invariant { paths !m }
+    assert { paths !m 1 empty };
 
-      let us = ref vertices in
-      while not (Bag.is_empty us) do
-	invariant { subset !us vertices /\ paths !m }
-        variant { cardinal !us }
-        let u = Bag.pop us in
+    for i = 1 to cardinal vertices - 1 do
+      invariant { paths !m i empty }
 
-	let vs = ref (succ u) in
-	while not (Bag.is_empty vs) do
-	  invariant { subset !vs (succ u) /\ paths !m }
-          variant { cardinal !vs }
+      let es = ref edges in
+      let es_co = ref empty in
+      while not (Bag.is_empty es) do
+        invariant { union !es !es_co = edges /\ inter !es !es_co = empty /\
+          paths !m i !es_co }
+        variant { cardinal !es }
 
-	  let v = Bag.pop vs in
-	  relax m u v
-	done
+        let (u, v) = Bag.pop es in
+        relax m u v i !es_co;
+        es_co := add (u, v) !es_co
       done
-    done);
+    done;
 
-    (let us = ref vertices in
-    while not (Bag.is_empty us) do
-      variant { cardinal !us }
-      let u = Bag.pop us in
-    
-      let vs = ref (succ u) in
-      while not (Bag.is_empty vs) do
-	variant { cardinal !vs }
-        let v = Bag.pop vs in
+    let e = ref edges in
+    while not (Bag.is_empty e) do
+      variant { cardinal !e }
 
-	if (get !m v) <<
-	  ((get !m u) ++ (Finite (weight u v))) then
-	  raise NegativeCycle
-      done
-    done);
+      let (u, v) = Bag.pop e in
+
+      if (!m[v]) << (!m[u] ++ (Finite (weight u v))) then
+        raise NegativeCycle
+    done;
+
+    assert {
+      paths !m (cardinal vertices) empty /\
+      (forall v: vertex. mem v vertices ->
+      (no_path s v -> !m[v] = Infinite) /\
+      (forall n d: int. shortest_path s v n d -> !m[v] = Finite n))
+    };
+
     !m
-    { paths result }
+
+    { (* not negcycle /\ *)
+      forall v: vertex. mem v vertices ->
+      match result[v] with
+	| Infinite -> no_path s v
+        | Finite n -> exists d: int. shortest_path s v n d
+       end }
     | NegativeCycle -> { }
 
 end
@@ -265,3 +333,4 @@ Local Variables:
 compile-command: "why3ide bf.mlw"
 End:
 *)
+
