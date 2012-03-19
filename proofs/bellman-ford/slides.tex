@@ -1,0 +1,82 @@
+\documentclass{beamer}
+
+\usetheme{Madrid}
+%\usetheme{Marburg}
+%\usecolortheme{beaver}
+\usepackage{listings}
+
+\begin{document}
+
+\title{A Formal Proof of Bellman-Ford Algorithm}
+\author[Yuto Takei]{Yuto Takei}
+\institute{The University of Tokyo}
+
+\maketitle
+
+\begin{frame}
+  \tableofcontents
+\end{frame}
+
+\section{Bellman-Ford algorithm}
+% 5 to 10 slides
+
+\begin{frame}\frametitle{Bellman-Ford algorithm}
+  % explain what it does informally
+
+  % show pseudo-code
+
+  % run it on an example
+\end{frame}
+
+\begin{frame}\frametitle{}
+
+\end{frame}
+
+\begin{frame}\frametitle{}
+
+\end{frame}
+
+\section{Implementation in OCamlgraph}
+% up to 5 slides
+  % focus on the API
+  % incremental version as well
+
+\begin{frame}\frametitle{Implementation in OCamlgraph}
+\end{frame}
+
+\begin{frame}[fragile]\frametitle{}
+  \begin{lstlisting}[language=Caml]
+  exception NegativeCycle of G.E.t list
+ 
+  val all_shortest_paths : G.t -> G.V.t -> W.t H.t
+  \end{lstlisting}
+\end{frame}
+
+
+\section{Formal proof with Why3}
+% 10 slides
+
+%\subsection{Specification}
+
+% definitions (graphs, paths, for the specification)
+% + program specification (pre/post)
+
+\begin{frame}\frametitle{}
+\end{frame}
+
+%\subsection{Proof}
+
+% code
+% additional definitions/lemmas for the proof
+% additional annotations for the proof
+% loop invariants
+
+\begin{frame}\frametitle{}
+\end{frame}
+
+
+\section{Conclusion and Perspectives}
+
+% what's next, still to be done, etc.
+
+\end{document}
