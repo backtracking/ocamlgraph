@@ -14,6 +14,36 @@
 \usepackage{listings}
 \usepackage{amssymb,amsmath,amsthm}
 
+\setbeamertemplate{footline}{
+\hfill\scriptsize{\color{white}\insertframenumber}\hspace*{24pt}\vspace{8pt}}
+\setbeamertemplate{navigation symbols}{}
+
+\lstset{basicstyle=\footnotesize, columns=fullflexible}
+\lstdefinelanguage{Ocaml}
+{
+basicstyle=\ttfamily,
+keywordstyle=\color{blue},
+morekeywords=[1]{exception,of,val},%
+%keywordstyle=[1]{\color{red}},%
+morekeywords=[2]{true,false},%
+%keywordstyle=[2]{\color{blue}},%
+otherkeywords={},%
+commentstyle=\itshape,%
+columns=[l]fullflexible,%
+sensitive=true,%
+morecomment=[s]{(*}{*)},%
+escapeinside={*?}{?*},%
+keepspaces=true,
+literate=%
+{<}{$<$}{1}%
+{>}{$>$}{1}%
+{<=}{$\le$}{1}%
+{>=}{$\ge$}{1}%
+{<>}{$\ne$}{1}%
+{->}{$\rightarrow$}{2}%
+{<->}{$\leftrightarrow$}{2}%
+}
+
 \lstdefinelanguage{Why3}
 {
 basicstyle=\ttfamily,
@@ -44,8 +74,6 @@ literate=%
 {not(}{$\lnot$(}{1}%
 {->}{$\rightarrow$}{2}%
 {<->}{$\leftrightarrow$}{2}%
-%
-%
 }
 
 \lstnewenvironment{why3}
@@ -65,6 +93,7 @@ literate=%
 \end{frame}
 
 \section{Bellman-Ford Algorithm}
+\frame{\sectionpage}
 
 \subsection{Introduction}
 
@@ -126,27 +155,16 @@ After the algorithm termination,
 
 \item \alert{Initialization}
 
-Set $(null,\infty)$ for all vertex except $s$ having $(null,0)$.\newline
-
-\pause
+Set $(nil,\infty)$ for all vertex except $s$ having $(nil,0)$.\newline
 
 \item \alert{Relaxing edges}
 
-If $w$ is reachable with less distance by $(v,w)$, update. Perform this
-over all edges for $|V|-1$ times.
+If $v$ is reachable with less distance by $(u,v)$, update. 
 
-\begin{center}
-\only<1>{\includegraphics[width=0.7\textwidth]{rlx1.pdf}
-}\only<2->{\includegraphics[width=0.7\textwidth]{rlx2.pdf}
-}
-\end{center}
+\only<1-2>{\begin{center}\onslide<2>\includegraphics[width=0.7\textwidth]{rlx1.pdf}\end{center}
+}\only<3->{\begin{center}\includegraphics[width=0.7\textwidth]{rlx2.pdf}\end{center}
+}\onslide<4>{Perform this over all edges for $|V|-1$ times.}
 
-\pause
-
-\onslide<3>{\item \alert{Still able to relax?}
-
-Something is strange... negative cycle!
-}
 \end{enumerate}
 
 \end{frame}
@@ -168,20 +186,33 @@ Something is strange... negative cycle!
 \includegraphics[width=0.9\textwidth]{ex7.pdf}
 }
 
+\end{frame}
+
+\begin{frame}\frametitle{How does it work? (cont.)}
+
+\begin{enumerate}
+\setcounter{enumi}{2}
+
+\item \alert{Still be able to relax?}
+
+After $(|V|-1)$-th pass, all vertices should be exact.
+Otherwise, a negative cycle exists.
+
+\end{enumerate}
 
 \end{frame}
 
-\begin{frame}\frametitle{$ \mbox{\sc Bellman-Ford} (G,s,l) $}
+\begin{frame}\frametitle{$\mbox{\sc Bellman-Ford}(G,s,l)$}
 
 \begin{algorithmic}[1]
-\STATE{$ \mbox{\sc Initialize-Single-Source} (G,s) $}
-\FOR{$i = 1 \to |V[G]|-1 $}
-\FORALL{ edge $ (u,v) \in E[G] $}
-\STATE{$ \mbox{\sc Relax} (u,v,l) $}
+\STATE{$\mbox{\sc Initialize-Single-Source}(G,s)$}
+\FOR{$i=1\to |V[G]|-1$}
+\FORALL{edge $(u,v) \in E[G]$}
+\STATE{$\mbox{\sc Relax}(u,v,l)$}
 \ENDFOR
 \ENDFOR
-\FORALL{edge $ (u,v)\in E[G] $}
-\IF{$ d[v]>d[u]+l(u,v) $}
+\FORALL{edge $(u,v)\in E[G]$}
+\IF{$d[v]>d[u]+l(u,v)$}
 \RETURN{False}
 \ENDIF
 \ENDFOR
@@ -193,6 +224,7 @@ Something is strange... negative cycle!
 \end {frame}
 
 \section{Implementation in OCamlgraph}
+\frame{\sectionpage}
 % up to 5 slides
   % focus on the API
   % incremental version as well
@@ -202,72 +234,127 @@ Something is strange... negative cycle!
 \begin{enumerate}
 \item Implementation of Bellman-Ford algorithm
 
-\begin{lstlisting}[language=caml]
-exception NegativeCycle of G.E.t list
-val all_shortest_paths : G.t -> G.V.t -> W.t H.t
-\end{lstlisting}
+\begin{lstlisting}[language=Ocaml]
+exception Negative_cycle of G.E.t list
+
+val all_shortest_paths:
+             G.t -> G.V.t -> W.t H.t
+
+val find_negative_cycle_from:
+             G.t -> G.V.t -> G.E.t list
+\end{lstlisting} \vspace*{10pt}
 
 \pause
 \item Negative cycle detection from any source
-\item Incremental graph builder w/o negative cycle
+
+\begin{lstlisting}[language=Ocaml]
+val find_negative_cycle: G.t -> G.E.t list
+\end{lstlisting}
+
 \end{enumerate}
 
 \end{frame}
 
 
-\begin{frame}\frametitle{Detection from any source}
+\begin{frame}\frametitle{Negative cycle detection from any source}
 
-Want to ensure that $G$ is free of any negative cycle.
+\vspace*{8pt}
+\only<1>{Want to ensure that $G$ is free of any negative cycles.\vspace*{-18pt}
+}\only<2>{Checking from specific $s$ is not exhaustive.\vspace*{-14pt}
+}\only<3>{\alert{Solution:} To give a ``virtual'' $s$ that can reach all nodes.}
 
-\begin{center} \includegraphics[width=0.8\textwidth]{s1.pdf} \end{center}
+\begin{center}
+\only<1>{\includegraphics[height=0.8\textheight]{s1.pdf}
+}\only<2>{\includegraphics[height=0.8\textheight]{s2.pdf}
+}\only<3>{\includegraphics[width=0.8\textwidth]{s3.pdf}
+}\end{center}
+
+\only<3>{$s$ connects to one of the elements in every top ancestor among
+strongly connected components.\vspace{100pt}}
 
 \end{frame}
 
 
-\begin{frame}\frametitle{}
+\begin{frame}[fragile]\frametitle{Work that has been done (cont.)}
 
-If given $s$ was pointing something, 
+\begin{enumerate}
+\setcounter{enumi}{2}
+\item Incremental graph builder w/o negative cycle
 
-\begin{center} \includegraphics[width=0.8\textwidth]{s2.pdf} \end{center}
+Keep track of ancestors, and distances from them
 
-\end{frame}
+\begin{itemize}
 
-\begin{frame}\frametitle{}
+\item When adding
+\begin{itemize}
+\item\alert{vertex $v$}: just add $v$ to ancestors set.
+\item\alert{edge $(u,v)$}: check $(u,v)$ causes a loop.
+\end{itemize}
 
-\begin{center} \includegraphics[width=0.8\textwidth]{s3.pdf} \end{center}
+\item When removing
+\begin{itemize}
+\item\alert{vertex $v$}: remove all edges $(v,\_)$ then $v$ itself.
+\item\alert{edge $(u,v)$}: correct the distances table of $v$ and propagate.
+\end{itemize}
+
+
+\end{itemize}
+
+\end{enumerate}
 
 \end{frame}
 
 \section{Formal proof with Why3}
-% 10 slides
+\frame{\sectionpage}
 
 \subsection{Specification}
 
-\begin{frame}\frametitle{Correctness of the algorithm}
+\begin{frame}[fragile]\frametitle{Terminability}
 
-\begin{itemize}
-\item Terminability
-\item 
-\end{itemize}
+Loop variants are trivial and easily given.\vspace*{12pt}
+
+\begin{algorithmic}[1]
+\STATE{$\mbox{\sc Initialize-Single-Source}(G,s)$}
+\FOR{\alert{$i=1\to |V[G]|-1$}}
+\FORALL{\alert{edge $(u,v)\in E[G]$}}
+\STATE{$\mbox{\sc Relax}(u,v,l)$}
+\ENDFOR
+\ENDFOR
+\FORALL{\alert{edge $(u,v)\in E[G]$}}
+\IF{$d[v]>d[u]+l(u,v)$}
+\RETURN{False}
+\ENDIF
+\ENDFOR
+\RETURN{True}
+\end{algorithmic}
 
 \end{frame}
 
-% definitions (graphs, paths, for the specification)
-% + program specification (pre/post)
+\begin{frame}[fragile]\frametitle{Correctness}
 
-\begin{frame}[fragile]\frametitle{Title}
+\begin{itemize}
+
+\item \alert{Precondition}
 
 \begin{lstlisting}[language=why3]
+mem s vertices
+\end{lstlisting}
 
-not negcycle /\
+\item \alert{Postcondition} when terminates with success
+\begin{lstlisting}[language=why3]
 forall v: vertex. mem v vertices ->
 match result[v] with
   | Infinite -> no_path s v
-  | Finite n -> exists d: int. shortest_path s v n d
+  | Finite n -> shortest_path s v n
 end
-
-
 \end{lstlisting}
+
+\item \alert{Postcondition} when detects a negative cycle
+\begin{lstlisting}[language=why3]
+exists v: vertex. mem v vertices /\
+exists n: int. n < 0 /\ path v v n
+\end{lstlisting}
+\end{itemize}
 
 \end{frame}
 
