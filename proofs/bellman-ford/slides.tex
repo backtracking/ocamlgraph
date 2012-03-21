@@ -126,7 +126,7 @@ The algorithm will either
 }\only<4>{\includegraphics[width=1.0\textwidth]{intro4.pdf}
 }
 
-\begin{itemize}
+\begin{itemize} 
 \only<1-2>{\onslide<2>{\item Gave distances from source to all vertices}}
 \only<3-4>{\onslide<4>{\item Found a negative cycle}}
 \end{itemize}
@@ -279,25 +279,25 @@ strongly connected components.\vspace{100pt}}
 
 \begin{enumerate}
 \setcounter{enumi}{2}
-\item Incremental graph builder w/o negative cycle
+\item Incremental graph builder w/o negative cycle\newline
 
-Keep track of ancestors, and distances from them
-
+Keep track of
 \begin{itemize}
-
-\item When adding
-\begin{itemize}
-\item\alert{vertex $v$}: just add $v$ to ancestors set.
-\item\alert{edge $(u,v)$}: check $(u,v)$ causes a loop.
+\item the set of ancestors $S$, and
+\item distances from each ancestor to every node $d_s(v)$
 \end{itemize}
 
-\item When removing
+When adding
 \begin{itemize}
-\item\alert{vertex $v$}: remove all edges $(v,\_)$ then $v$ itself.
-\item\alert{edge $(u,v)$}: correct the distances table of $v$ and propagate.
+\item\alert{vertex $v$}, just add $v$ to $S$.
+\item\alert{edge $(u,v)$}, if $v\in S$, check if $(u,v)$ causes a loop.\newline
+If not, $S\leftarrow S\backslash v$. Propagate distance to descendants.
 \end{itemize}
 
-
+When removing
+\begin{itemize}
+\item\alert{vertex $v$}, remove all edges $(v,w)$ then $v$ itself.
+\item\alert{edge $(u,v)$}, correct the distances of $v$ and propagate.
 \end{itemize}
 
 \end{enumerate}
