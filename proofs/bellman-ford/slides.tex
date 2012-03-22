@@ -13,6 +13,7 @@
 \usepackage{algorithmic}
 \usepackage{listings}
 \usepackage{amssymb,amsmath,amsthm}
+%\usepackage{natbib}
 
 \setbeamertemplate{footline}{
 \hfill\scriptsize{\color{white}\insertframenumber}\hspace*{24pt}\vspace{8pt}}
@@ -88,7 +89,7 @@ literate=%
 
 \maketitle
 
-\begin{frame}\frametitle{Table of contents}
+\begin{frame}{Table of contents}
 \tableofcontents
 \end{frame}
 
@@ -97,7 +98,7 @@ literate=%
 
 \subsection{Introduction}
 
-\begin{frame}\frametitle{Bellman-Ford Algorithm}
+\begin{frame}{Bellman-Ford Algorithm}
 
 Solution for single-source shortest path problem $(G,s,l)$
 
@@ -118,7 +119,7 @@ The algorithm will either
 
 \end{frame}
 
-\begin{frame}\frametitle{For example...}
+\begin{frame}{For example...}
 
 \only<1>{\includegraphics[width=1.0\textwidth]{intro1.pdf}
 }\only<2>{\includegraphics[width=1.0\textwidth]{intro2.pdf}
@@ -133,7 +134,7 @@ The algorithm will either
 
 \end{frame}
 
-\begin{frame}\frametitle{Goal (revisited)}
+\begin{frame}{Goal (revisited)}
 
 Each node has a tuple $(\pi,d)$ containing parent and distance.
 
@@ -141,7 +142,7 @@ Each node has a tuple $(\pi,d)$ containing parent and distance.
 
 After the algorithm termination,
 \begin{itemize}
-\item all node have the smallest possible distance from $s$, and
+\item all nodes have the smallest possible distance from $s$, and
 \item the shortest path tree is built by traversing $\pi$
 \end{itemize}
 
@@ -149,7 +150,7 @@ After the algorithm termination,
 
 \subsection{Mechanism}
 
-\begin{frame}\frametitle{How does it work?}
+\begin{frame}{How does it work?}
 
 \begin{enumerate}
 
@@ -169,7 +170,7 @@ If $v$ is reachable with less distance by $(u,v)$, update.
 
 \end{frame}
 
-\begin{frame}\frametitle{Example}
+\begin{frame}{Example}
 \only<1>{Pass \#0 - just after initialization
 \includegraphics[width=0.9\textwidth]{ex1.pdf}
 }\only<2>{Pass \#1
@@ -188,7 +189,7 @@ If $v$ is reachable with less distance by $(u,v)$, update.
 
 \end{frame}
 
-\begin{frame}\frametitle{How does it work? (cont.)}
+\begin{frame}{How does it work? (cont.)}
 
 \begin{enumerate}
 \setcounter{enumi}{2}
@@ -202,7 +203,7 @@ Otherwise, a negative cycle exists.
 
 \end{frame}
 
-\begin{frame}\frametitle{$\mbox{\sc Bellman-Ford}(G,s,l)$}
+\begin{frame}{$\mbox{\sc Bellman-Ford}(G,s,l)$}
 
 \begin{algorithmic}[1]
 \STATE{$\mbox{\sc Initialize-Single-Source}(G,s)$}
@@ -219,7 +220,7 @@ Otherwise, a negative cycle exists.
 \RETURN{True}
 \end{algorithmic}
 
-\cite[p.~532]{algo}
+(Cormen et al. Introduction to Algorithms, p 532)
 
 \end {frame}
 
@@ -229,7 +230,7 @@ Otherwise, a negative cycle exists.
   % focus on the API
   % incremental version as well
 
-\begin{frame}[fragile]\frametitle{Work that has been done}
+\begin{frame}[fragile]{Work that has been done}
 
 \begin{enumerate}
 \item Implementation of Bellman-Ford algorithm
@@ -256,7 +257,7 @@ val find_negative_cycle: G.t -> G.E.t list
 \end{frame}
 
 
-\begin{frame}\frametitle{Negative cycle detection from any source}
+\begin{frame}{Negative cycle detection from any source}
 
 \vspace*{8pt}
 \only<1>{Want to ensure that $G$ is free of any negative cycles.\vspace*{-18pt}
@@ -275,7 +276,7 @@ strongly connected components.\vspace{100pt}}
 \end{frame}
 
 
-\begin{frame}[fragile]\frametitle{Work that has been done (cont.)}
+\begin{frame}[fragile]{Work that has been done (cont.)}
 
 \begin{enumerate}
 \setcounter{enumi}{2}
@@ -309,7 +310,7 @@ When removing
 
 \subsection{Specification}
 
-\begin{frame}[fragile]\frametitle{Terminability}
+\begin{frame}[fragile]{Terminability}
 
 Loop variants are trivial and easily given.\vspace*{12pt}
 
@@ -330,7 +331,7 @@ Loop variants are trivial and easily given.\vspace*{12pt}
 
 \end{frame}
 
-\begin{frame}[fragile]\frametitle{Correctness}
+\begin{frame}[fragile]{Correctness}
 
 \begin{itemize}
 
@@ -360,29 +361,106 @@ exists n: int. n < 0 /\ path v v n
 
 \subsection{Proof}
 
-% code
-% additional definitions/lemmas for the proof
-% additional annotations for the proof
-% loop invariants
+\begin{frame}{Proof strategy}
 
-\begin{frame}\frametitle{}
+Invariant during the algorithm execution for example:
+
+\begin{itemize}
+
+\item If $v$ has a \alert{finite} distance $n$
+
+$\to$ Path from $s$ to $v$ with distance $n$ exists
+
+\item If $v$ has an \alert{infinite} distance
+
+$\to$ $v$ is not reachable
+
+\end{itemize}
+
+\end{frame}
+\begin{frame}[fragile]{Invariant at a glance}
+\footnotesize
+\begin{lstlisting}[language=why3]
+predicate invar (m: distmap) (pass: int) (via: set edge) =
+  forall v: vertex. mem v vertices ->
+  match m[v] with
+  | Finite n ->
+    negcycle \/
+    (not negcycle /\ (exists n d: int. shortest_path s v n d) /\
+    forall n' d': int. shortest_path s v n' d' ->
+      (0 <= d' < pass -> n = n') /\
+      (d' = pass ->
+        (exists u: vertex. mem (u, v) edges /\
+          shortest_path s u (n' - weight u v) (pass - 1)) /\
+        (forall u: vertex. mem (u, v) edges /\
+          shortest_path s u (n' - weight u v) (pass - 1) ->
+            mem (u, v) via -> n = n')))
+  | Infinite ->
+    (forall d: int. 0 <= d < pass ->
+      forall n: int. not (path s v n d)) /\
+    (forall u: vertex. mem (u, v) via ->
+      forall d: int. 0 <= d < pass ->
+        forall n: int. not (path s u n d))
+  end
+\end{lstlisting}
 \end{frame}
 
 
-\section{Conclusion and Perspectives}
+\begin{frame}[fragile]{Problems to solve}
 
-% what's next, still to be done, etc.
+\begin{itemize}
 
+\item Give an appropriate property for negative cycle
 
+\item Guarantee an existence of ``simple path''.
 
+\begin{lstlisting}[language=why3]
+lemma reach_less_than_n:
+  forall v1 v2: vertex. mem v1 vertices ->
+  forall d n: int. path v1 v2 n d ->
+  exists n' d': int.
+    d' < cardinal vertices /\
+    path v1 v2 n' d'
+\end{lstlisting}
 
+\item Reduce hand-proving (e.g. Coq) as much as possible
 
-\section{Bibliography}
+\end{itemize}
+\end{frame}
+
 \begin{frame}
 
-\bibliographystyle{plain}
-\bibliography{./biblio}
+\Huge \alert{Demo}\vspace{8pt}
 
+\large Proving infinite path properties on Why3
+
+\end{frame}
+
+\section{Conclusion and Perspectives}
+
+\begin{frame}{Conclusion and Perspectives}
+Done:
+
+\begin{itemize}
+\item Implemented Bellman-Ford algorithm in Ocamlgraph
+\begin{itemize}
+\item Normal traversal
+\item Exhaustive negative cycle detection
+\item Incremental graph builder
+\end{itemize}
+
+\item Proved some characteristics of the algorithm
+\begin{itemize}
+\item Terminability (including safety)
+\item Properties of unreachable nodes
+\end{itemize}
+\end{itemize}
+
+Do:
+\begin{itemize}
+\item Finish the formal proof
+\item Compile into a paper
+\end{itemize}
 \end{frame}
 
 \end{document}
