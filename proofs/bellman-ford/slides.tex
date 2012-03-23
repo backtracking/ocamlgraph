@@ -1,11 +1,7 @@
 \documentclass{beamer}
 
-%\usetheme{Madrid}
 \usetheme{Marburg}
-%\usetheme{Goettingen}
-%\usetheme{PaloAlto}
 \usecolortheme{beaver}
-%\usecolortheme{crane}
 \usefonttheme{structurebold}
 
 \usepackage{listings}
@@ -13,7 +9,6 @@
 \usepackage{algorithmic}
 \usepackage{listings}
 \usepackage{amssymb,amsmath,amsthm}
-%\usepackage{natbib}
 
 \setbeamertemplate{footline}{
 \hfill\scriptsize{\color{white}\insertframenumber}\hspace*{24pt}\vspace{8pt}}
@@ -49,7 +44,7 @@ literate=%
 {
 basicstyle=\ttfamily,
 keywordstyle=\color{blue},
-morekeywords=[1]{inductive,predicate,function,goal,type,use,import,theory,end,in,axiom,lemma,export,forall,constant,module,let,exception,match,with,exists},%
+morekeywords=[1]{inductive,predicate,function,goal,type,use,import,theory,end,in,axiom,lemma,export,forall,constant,module,let,exception,match,with,exists,val,unit},%
 %keywordstyle=[1]{\color{red}},%
 morekeywords=[2]{true,false},%
 %keywordstyle=[2]{\color{blue}},%
@@ -61,8 +56,9 @@ morecomment=[s]{(*}{*)},%
 escapeinside={*?}{?*},%
 keepspaces=true,
 literate=%
-{'a}{$\alpha$}{1}%
-{'b}{$\beta$}{1}%
+{v1}{v$_1$}{1}%
+{v2}{v$_2$}{1}%
+{v3}{v$_3$}{1}%
 {<}{$<$}{1}%
 {>}{$>$}{1}%
 {<=}{$\le$}{1}%
@@ -105,7 +101,11 @@ Solution for single-source shortest path problem $(G,s,l)$
 \begin{itemize}
 \item Directed graph $G(V,E)$
 \item Source vertex $s\in V$
-\item Length function $l: E\to \mathbf{R}$
+\item Length function $l: E\to \mathbf{K}$
+\begin{itemize}
+\item $\mathbf{K}$: Any monoid with total order (e.g. 
+$\mathbf{N}, \mathbf{Z}, \mathbf{R}$).
+\end{itemize}
 \end{itemize}
 
 \pause
@@ -136,7 +136,7 @@ The algorithm will either
 
 \begin{frame}{Goal (revisited)}
 
-Each node has a tuple $(\pi,d)$ containing parent and distance.
+Each node has a label $(\pi,d)$ containing parent and distance.
 
 \includegraphics[width=1.0\textwidth]{intro5.pdf}
 
@@ -160,11 +160,12 @@ Set $(nil,\infty)$ for all vertex except $s$ having $(nil,0)$.\newline
 
 \item \alert{Relaxing edges}
 
-If $v$ is reachable with less distance by $(u,v)$, update. 
+If $v$ is reachable with less distance by $(u,v)\in E$, update the
+label. Perform this over all edges.
 
 \only<1-2>{\begin{center}\onslide<2>\includegraphics[width=0.7\textwidth]{rlx1.pdf}\end{center}
 }\only<3->{\begin{center}\includegraphics[width=0.7\textwidth]{rlx2.pdf}\end{center}
-}\onslide<4>{Perform this over all edges for $|V|-1$ times.}
+}\onslide<4>{Iterate for $|V|-1$ times. (You can stop when stable)}
 
 \end{enumerate}
 
@@ -199,6 +200,12 @@ If $v$ is reachable with less distance by $(u,v)$, update.
 After $(|V|-1)$-th pass, all vertices should be exact.
 Otherwise, a negative cycle exists.
 
+\begin{center}
+\only<1>{\includegraphics[height=0.6\textheight]{wst1.pdf}
+}\only<2>{\includegraphics[height=0.6\textheight]{wst2.pdf}
+}
+\end{center}
+
 \end{enumerate}
 
 \end{frame}
@@ -226,9 +233,6 @@ Otherwise, a negative cycle exists.
 
 \section{Implementation in OCamlgraph}
 \frame{\sectionpage}
-% up to 5 slides
-  % focus on the API
-  % incremental version as well
 
 \begin{frame}[fragile]{Work that has been done}
 
@@ -278,16 +282,24 @@ strongly connected components.\vspace{100pt}}
 
 \begin{frame}[fragile]{Work that has been done (cont.)}
 
-\begin{enumerate}
+\vspace*{16pt}\begin{enumerate}
 \setcounter{enumi}{2}
 \item Incremental graph builder w/o negative cycle\newline
 
+\only<1>{
 Keep track of
 \begin{itemize}
 \item the set of ancestors $S$, and
 \item distances from each ancestor to every node $d_s(v)$
 \end{itemize}
 
+\begin{center}
+\includegraphics[width=0.9\textwidth]{inc1.pdf}
+\end{center}
+}
+
+\only<2-3>
+{
 When adding
 \begin{itemize}
 \item\alert{vertex $v$}, just add $v$ to $S$.
@@ -295,13 +307,26 @@ When adding
 If not, $S\leftarrow S\backslash v$. Propagate distance to descendants.
 \end{itemize}
 
+\begin{center}
+\only<2>{\includegraphics[width=0.8\textwidth]{inc2.pdf}}
+\only<3>{\includegraphics[width=0.8\textwidth]{inc3.pdf}}
+\end{center}
+}
+
+\only<4-5>
+{
 When removing
 \begin{itemize}
-\item\alert{vertex $v$}, remove all edges $(v,w)$ then $v$ itself.
+\item\alert{vertex $v$}, remove all edges $(u,v)$, $(v,w)$ then $v$ itself.
 \item\alert{edge $(u,v)$}, correct the distances of $v$ and propagate.
 \end{itemize}
 
-\end{enumerate}
+\begin{center}
+\only<4>{\includegraphics[width=0.65\textwidth]{inc4.pdf}}
+\only<5>{\includegraphics[width=0.65\textwidth]{inc5.pdf}}
+\end{center}
+}
+\end{enumerate} \vspace*{100pt}
 
 \end{frame}
 
@@ -310,7 +335,87 @@ When removing
 
 \subsection{Specification}
 
-\begin{frame}[fragile]{Terminability}
+\begin{frame}[fragile]{Specification}
+
+\begin{itemize}
+\item \alert{Graph}
+
+\begin{lstlisting}[language=why3]
+type vertex
+constant vertices : set vertex
+constant edges: set (vertex, vertex)
+constant s : vertex
+function weight vertex vertex : int
+\end{lstlisting}
+
+\item \alert{Algorithm interface}
+
+\begin{lstlisting}[language=why3]
+type dist = Finite int | Infinite
+exception Negative_cycle
+val bellman_ford : unit -> map vertex dist
+\end{lstlisting}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Specification}
+
+\begin{itemize}
+\item \alert{Path} as an inductive predicate
+\small
+\begin{lstlisting}[language=why3]
+inductive path (v1 v2: vertex) (n: int) =
+| path_empty:
+    forall v: vertex. path v v 0
+| path_succ:
+    forall v1 v2: vertex, n: int. path v1 v2 n ->
+    forall v3: vertex. mem (v2, v3) edges ->
+    path v1 v3 (n + (weight v2 v3))
+\end{lstlisting}
+\normalsize
+
+\item \alert{Shortest path} and \alert{non-reachability}
+\small
+\begin{lstlisting}[language=why3]
+predicate shortest_path (v1 v2: vertex) (n: int) =
+  (path v1 v2 n) /\
+  (forall m: int. m < n -> not (path v1 v2 m))
+
+predicate no_path (v1 v2: vertex) =
+  forall n: int. not (path v1 v2 n)
+\end{lstlisting}
+\normalsize
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Specification}
+
+\begin{itemize}
+
+\item \alert{Precondition} and \alert{postcondition}
+
+\begin{lstlisting}[language=why3]
+let bellman_ford () =
+  { (* nothing *) }
+  ...
+  { forall v: vertex. mem v vertices ->
+    match result[v] with
+    | Infinite -> no_path s v
+    | Finite n -> shortest_path s v n
+    end }
+  | Negative_cycle ->
+  { exists v: vertex. mem v vertices /\
+    exists n: int. n < 0 /\ path v v n }
+\end{lstlisting}
+
+\end{itemize}
+
+\end{frame}
+
+\subsection{Proof}
+
+\begin{frame}[fragile]{Termination}
 
 Loop variants are trivial and easily given.\vspace*{12pt}
 
@@ -331,37 +436,7 @@ Loop variants are trivial and easily given.\vspace*{12pt}
 
 \end{frame}
 
-\begin{frame}[fragile]{Correctness}
-
-\begin{itemize}
-
-\item \alert{Precondition}
-
-\begin{lstlisting}[language=why3]
-mem s vertices
-\end{lstlisting}
-
-\item \alert{Postcondition} when terminates with success
-\begin{lstlisting}[language=why3]
-forall v: vertex. mem v vertices ->
-match result[v] with
-  | Infinite -> no_path s v
-  | Finite n -> shortest_path s v n
-end
-\end{lstlisting}
-
-\item \alert{Postcondition} when detects a negative cycle
-\begin{lstlisting}[language=why3]
-exists v: vertex. mem v vertices /\
-exists n: int. n < 0 /\ path v v n
-\end{lstlisting}
-\end{itemize}
-
-\end{frame}
-
-\subsection{Proof}
-
-\begin{frame}{Proof strategy}
+\begin{frame}{Strategy for correctness}
 
 Invariant during the algorithm execution for example:
 
@@ -373,11 +448,36 @@ $\to$ Path from $s$ to $v$ with distance $n$ exists
 
 \item If $v$ has an \alert{infinite} distance
 
-$\to$ $v$ is not reachable
+$\to$ $v$ is not yet reachable at given point
 
 \end{itemize}
 
+\pause
+
+\vspace{24pt}Need to keep this condition through
+\begin{itemize}
+\item every pass
+\item every edge relaxation during one pass
+\end{itemize} 
+
 \end{frame}
+
+\begin{frame}{Strategy for correctness}
+
+\vspace*{16pt}
+
+\only<1>{After $i$-th pass\vspace*{-16pt}
+\begin{center}
+\includegraphics[height=0.8\textheight]{inv1.pdf}
+\end{center}
+}\only<2>{Executing pass \#$i+1$, relaxed some edges\vspace*{-16pt}
+\begin{center}
+\includegraphics[height=0.8\textheight]{inv2.pdf}
+\end{center}
+}
+
+\end{frame}
+
 \begin{frame}[fragile]{Invariant at a glance}
 \footnotesize
 \begin{lstlisting}[language=why3]
@@ -436,8 +536,9 @@ lemma reach_less_than_n:
 
 \end{frame}
 
-\section{Conclusion and Perspectives}
+\section{Conclusion}
 
+\frame{\sectionpage}
 \begin{frame}{Conclusion and Perspectives}
 Done:
 
@@ -451,7 +552,7 @@ Done:
 
 \item Proved some characteristics of the algorithm
 \begin{itemize}
-\item Terminability (including safety)
+\item Termination (including safety)
 \item Properties of unreachable nodes
 \end{itemize}
 \end{itemize}
