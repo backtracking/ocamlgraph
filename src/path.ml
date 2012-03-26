@@ -27,15 +27,15 @@ module type WEIGHT = sig
 end
 
 module type G = sig
-  type t 
-  module V : Sig.COMPARABLE 
-  module E : sig 
-    type t 
-    type label 
+  type t
+  module V : Sig.COMPARABLE
+  module E : sig
+    type t
+    type label
     val label : t -> label
     val src : t -> V.t
-    val dst : t -> V.t 
-  end 
+    val dst : t -> V.t
+  end
   val iter_vertex : (V.t -> unit) -> t -> unit
   val iter_succ : (V.t -> unit) -> t -> V.t -> unit
   val iter_succ_e : (E.t -> unit) -> t -> V.t -> unit
@@ -56,7 +56,7 @@ struct
     type t = W.t * G.V.t * G.E.t list
 
     (* weights are compared first, and minimal weights come first in the
-       queue *)               
+       queue *)
     let compare (w1,v1,_) (w2,v2,_) =
       let cw = W.compare w2 w1 in
       if cw != 0 then cw else G.V.compare v1 v2
@@ -68,16 +68,16 @@ struct
     let visited = H.create 97 in
     let dist = H.create 97 in
     let q = PQ.create 17 in
-    let rec loop () = 
+    let rec loop () =
       if PQ.is_empty q then raise Not_found;
       let (w,v,p) = PQ.pop_maximum q in
-      if G.V.compare v v2 = 0 then 
+      if G.V.compare v v2 = 0 then
         List.rev p, w
       else begin
         if not (H.mem visited v) then begin
           H.add visited v ();
           G.iter_succ_e
-            (fun e -> 
+            (fun e ->
                let ev = dst e in
                if not (H.mem visited ev) then begin
                  let dev = W.add w (W.weight (label e)) in
@@ -109,7 +109,6 @@ struct
   open G.E
 
   module H = Hashtbl.Make(G.V)
-  (*module Comp = Components.Make(G)*)
 
   exception NegativeCycle of G.E.t list
 
@@ -169,27 +168,35 @@ struct
     try let _ = all_shortest_paths g vs in raise Not_found
     with NegativeCycle l -> l
 
-  let find_negative_cycle g = [] (*
-    (* TODO: Very inefficient implementation *)
-    match List.fold_left (
-      fun a b ->
-        match a with
-        | None -> (
-          try Some (match b with x :: _ -> find_negative_cycle_from g x)
-          with Not_found -> None)
-        | Some _ -> a) None (Comp.scc_list g) with
-    | Some ret -> ret
-    | None -> raise Not_found*)
+
+  module Comp = Components.Make(G)
+
+  (* This is rather inefficient implementation. Indeed, for each
+     strongly connected component, we run a full Bellman-Ford
+     algorithm using one of its vertex as source, taking all edges
+     into consideration.  Instead, we could limit ourselves to the
+     edges of the component. *)
+  let find_negative_cycle g =
+    let rec iter = function
+      | [] ->
+          raise Not_found
+      | (x :: _) :: cl ->
+          begin try find_negative_cycle_from g x with Not_found -> iter cl end
+      | [] :: _ ->
+          assert false (* a component is not empty *)
+    in
+    iter (Comp.scc_list g)
+
 end
 
 
-module Check 
-  (G : 
+module Check
+  (G :
     sig
       type t
       module V : Sig.COMPARABLE
       val iter_succ : (V.t -> unit) -> t -> V.t -> unit
-    end) = 
+    end) =
 struct
 
   module HV = Hashtbl.Make(G.V)
@@ -201,9 +208,9 @@ struct
   let create g = { cache = HVV.create 97; graph = g }
 
   let check_path pc v1 v2 =
-    try 
+    try
       HVV.find pc.cache (v1, v2)
-    with Not_found -> 
+    with Not_found ->
       (* the path is not in cache; we check it with Dijkstra *)
       let visited = HV.create 97 in
       let q = Queue.create () in
@@ -214,7 +221,7 @@ struct
         end else begin
           let v = Queue.pop q in
           HVV.add pc.cache (v1, v) true;
-          if G.V.compare v v2 = 0 then 
+          if G.V.compare v v2 = 0 then
             true
           else begin
             if not (HV.mem visited v) then begin

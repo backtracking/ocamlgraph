@@ -69,7 +69,7 @@ LIB:=$(patsubst %, $(LIBDIR)/%.cmo, $(LIB))
 
 CMO = 	version util blocks persistent imperative \
 	delaunay builder classic rand oper \
-	path nonnegative traverse coloring topological components kruskal flow \
+	components path nonnegative traverse coloring topological kruskal flow \
         graphviz gml dot_parser dot_lexer dot pack \
 	gmap minsep cliquetree mcs_m md strat fixpoint leaderlist
 CMO := $(LIB) $(patsubst %, $(SRCDIR)/%.cmo, $(CMO))
