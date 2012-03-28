@@ -83,55 +83,57 @@ module NonNegative = struct
       else begin
 	let (v1, v1src) = Queue.pop q in
 	let v1dist = M.find v1 dist in
-	if G.V.equal start v1 then
-	  (* Propagation reaches back to the starting node, which
-             immediately means presence of a negative cycle. *)
 
-	  (* We should use one of the 'src' to traverse back to start node *)
-	  let s = S.choose v1src in
-	  let rec build_cycle x ret =
-	    match M.find s (M.find x dist) with
-	      | Some e, _ ->
-		let y = G.E.src e in
-		let cycle = e :: ret in
-		if G.V.equal start y then cycle
-		else build_cycle y cycle
-	      | _ -> assert false in
-          raise (Negative_cycle (build_cycle v1 []))
-	else
-	  begin
-	    let dist = G.fold_succ_e (fun e dist ->
-	      let v2 = G.E.dst e in
-	      let v2dist = M.find v2 dist in
+	let dist = G.fold_succ_e (fun e dist ->
+	  let v2 = G.E.dst e in
+	  let v2dist = M.find v2 dist in
 
-	      (* Compare distances from given source vertices.
-                 If relax happens, record it to the new list. *)
-	      let (v2dist, nextSrc) = S.fold (fun x (v2dist, nextSrc) ->
-		let _, dev1 = M.find x v1dist in
-		let ndev2 = W.add dev1 (W.weight (G.E.label e)) in
-		let improvement =
-		  try
-		    let _, dev2 = M.find x v2dist in
-		    W.compare ndev2 dev2 < 0
-		  with Not_found -> true in
-		if improvement then
-		  let v2dist = M.add x (Some e, ndev2) v2dist in
-		  let nextSrc = S.add x nextSrc in
-		  (v2dist, nextSrc)
-		else
-		  (v2dist, nextSrc)
-	      ) v1src (v2dist, S.empty) in
+	  (* Compare distances from given source vertices.
+             If relax happens, record it to the new list. *)
+	  let (v2dist, nextSrc) = S.fold (fun x (v2dist, nextSrc) ->
+	    let _, dev1 = M.find x v1dist in
+	    let ndev2 = W.add dev1 (W.weight (G.E.label e)) in
+	    let improvement =
+	      try
+		let _, dev2 = M.find x v2dist in
+		W.compare ndev2 dev2 < 0
+	      with Not_found -> true in
+	    if improvement then
+	      let v2dist = M.add x (Some e, ndev2) v2dist in
+	      let nextSrc = S.add x nextSrc in
+	      (v2dist, nextSrc)
+	    else
+	      (v2dist, nextSrc)
+	  ) v1src (v2dist, S.empty) in
 
-	      if S.is_empty nextSrc then
-		dist
-	      else begin
-		(* TODO: Optimization required *)
-		Queue.push (v2, nextSrc) q;
-		M.add v2 v2dist dist
-	      end
-	    ) g v1 dist in
-	    propagate (g, src, dist) q start
-	  end
+	  if S.is_empty nextSrc then
+	    dist
+	  else if G.V.equal start v2 then
+	    (* Propagation reaches back to the starting node, which
+	       immediately means presence of a negative cycle. *)
+
+	    (* We should use one of 'src' to traverse to the start node *)
+	    let s = S.choose nextSrc in
+	    let rec build_cycle x ret =
+	      match M.find s (M.find x dist) with
+		| Some e, _ ->
+		  let y = G.E.src e in
+		  let cycle = e :: ret in
+		  if G.V.equal start y then cycle
+		  else build_cycle y cycle
+		| _ -> assert false in
+            raise (Negative_cycle (build_cycle v2 []))
+	  else
+	    begin
+              (* TODO: Some room for improvement.
+		 If queue has (v2, s) already, technically we can merge
+		 nextSrc into s, so that the number of propagation can be
+		 reduced. *)
+	      Queue.push (v2, nextSrc) q;
+	      M.add v2 v2dist dist
+	    end
+	) g v1 dist in
+	propagate (g, src, dist) q start
       end
 
     let m_cardinal m = M.fold (fun _ _ acc -> acc+1) m 0
@@ -214,45 +216,22 @@ module NonNegative = struct
 	add_edge_internal (g, src, dist) v1 v2
       end
 
-    let remove_edge_internal (g, src, dist) v1 v2 =
-(*
-      (* Once we removed the edge between v1 and v2, we need to purge the
-         distances that were propagated from [v1]. *)
-      let v2dist = M.fold (fun x v m ->
-        match v with
-          | Some v1 -> m
-          | _ -> M.add x v m) M.empty (M.find v2 dist) in
+    let remove_edge_internal (g, src) v2 =
+      (* Actually, we need to rebuild the distance table, rather than
+         traverse precedants to remove the edge. *)
+      let q = Queue.create () in
+      let dist = S.fold (fun x dist ->
+        Queue.add (x, (S.add x S.empty)) q;
+        M.add x (M.add x (None, W.zero) M.empty) dist) src M.empty  in
+      let g, src, dist = propagate (g, src, dist) q (S.choose src) in
 
-      (* Once we need to reset the distance mapping at [v] for avoiding
-         self-loop edge cause the unexpected behaviour. *)
-      let dist = M.add v2 v2dist dist in
-
-      (* We need to think that v2 should be join in [S] or not *)
-
-
-      (* Then we reconstruct the distance mapping for [v] *)
-      let v2dist = G.fold_pred_e (fun e v2dist ->
-        let v1 = G.E.src e in
-        let v1dist = M.find v1 dist in
-
-        M.fold (fun x (_, dev1) m ->
-          let ndev2 = W.add dev1 (W.weight (G.E.label e)) in
-          let improvement =
-            try
-              let _, dev2 = M.find x v2dist in
-              W.compare ndev2 dev2 < 0
-            with Not_found -> true in
-          if improvement then
-            M.add x (Some e, ndev2) v2dist
-          else
-            v2dist
-        ) v1dist v2dist
-      ) g v M.empty in
-
-      let dist = M.add v2 v2dist dist in
-      (g, src, dist)
-*)
-      assert false
+      if M.mem v2 dist then
+        (g, src, dist)
+      else (
+        Queue.add (v2, (S.add v2 S.empty)) q;
+        let src = S.add v2 src in
+        let dist = M.add v2 (M.add v2 (None, W.zero) M.empty) dist in
+        propagate (g, src, dist) q v2)
 
     let remove_edge_e (g, src, dist) e =
       (* Same as [add_edge_e] *)
@@ -262,10 +241,9 @@ module NonNegative = struct
         let g = G.remove_edge_e g e in
 
 	(* Vertices involved *)
-	let v1 = G.E.src e in
 	let v2 = G.E.dst e in
 
-	remove_edge_internal (g, src, dist) v1 v2
+	remove_edge_internal (g, src) v2
       end
 
     let remove_edge (g, src, dist) v1 v2 =
@@ -274,7 +252,7 @@ module NonNegative = struct
 	(g, src, dist)
       else begin
 	let g = G.remove_edge g v1 v2 in
-	remove_edge_internal (g, src, dist) v1 v2
+	remove_edge_internal (g, src) v2
       end
 
     let remove_vertex t v =
