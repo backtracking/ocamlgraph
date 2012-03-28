@@ -148,7 +148,8 @@ struct
             let dev1 = H.find dist ev1 in
             let dev2 = W.add dev1 (W.weight (label e)) in
             let improvement =
-              try W.compare dev2 (H.find dist ev2) < 0 with Not_found -> true
+              try W.compare dev2 (H.find dist ev2) < 0
+              with Not_found -> true
             in
             if improvement then begin
               H.replace dist ev2 dev2;

@@ -179,7 +179,7 @@ module NonNegative = struct
 	       like [add_edge g v1 v2] > [remove_vertex g v2] >
 	       [add_vertex g v2] can result in unexpected
 	       behaviour. *)
-	     (M.map (M.remove v2) dist),
+	    (M.map (M.remove v2) dist),
 
 	    (* We need to re-obtain the distance mappings at v1,
                since it can be changed by the line above. *)
@@ -214,14 +214,85 @@ module NonNegative = struct
 	add_edge_internal (g, src, dist) v1 v2
       end
 
-    let remove_vertex (g, src, dist) v =
-      assert false (* TODO *)
+    let remove_edge_internal (g, src, dist) v1 v2 =
+(*
+      (* Once we removed the edge between v1 and v2, we need to purge the
+         distances that were propagated from [v1]. *)
+      let v2dist = M.fold (fun x v m ->
+        match v with
+          | Some v1 -> m
+          | _ -> M.add x v m) M.empty (M.find v2 dist) in
+
+      (* Once we need to reset the distance mapping at [v] for avoiding
+         self-loop edge cause the unexpected behaviour. *)
+      let dist = M.add v2 v2dist dist in
+
+      (* We need to think that v2 should be join in [S] or not *)
+
+
+      (* Then we reconstruct the distance mapping for [v] *)
+      let v2dist = G.fold_pred_e (fun e v2dist ->
+        let v1 = G.E.src e in
+        let v1dist = M.find v1 dist in
+
+        M.fold (fun x (_, dev1) m ->
+          let ndev2 = W.add dev1 (W.weight (G.E.label e)) in
+          let improvement =
+            try
+              let _, dev2 = M.find x v2dist in
+              W.compare ndev2 dev2 < 0
+            with Not_found -> true in
+          if improvement then
+            M.add x (Some e, ndev2) v2dist
+          else
+            v2dist
+        ) v1dist v2dist
+      ) g v M.empty in
+
+      let dist = M.add v2 v2dist dist in
+      (g, src, dist)
+*)
+      assert false
 
     let remove_edge_e (g, src, dist) e =
-      assert false (* TODO *)
+      (* Same as [add_edge_e] *)
+      if not (G.mem_edge_e g e) then
+        (g, src, dist)
+      else begin
+        let g = G.remove_edge_e g e in
+
+	(* Vertices involved *)
+	let v1 = G.E.src e in
+	let v2 = G.E.dst e in
+
+	remove_edge_internal (g, src, dist) v1 v2
+      end
 
     let remove_edge (g, src, dist) v1 v2 =
-      assert false (* TODO *)
+      (* Same as [add_edge] *)
+      if not (G.mem_edge g v1 v2) then
+	(g, src, dist)
+      else begin
+	let g = G.remove_edge g v1 v2 in
+	remove_edge_internal (g, src, dist) v1 v2
+      end
+
+    let remove_vertex t v =
+      (* [remove_vertex] first deletes all outgoing edges from [v] *)
+      let (g, _, _) = t in
+      let t = G.fold_succ_e (fun e t -> remove_edge_e t e) g v t in
+      (* Then after, deletes all incoming edges to [v] *)
+      let (g, _, _) = t in
+      let t = G.fold_pred_e (fun e t -> remove_edge_e t e) g v t in
+      (* Note that we are iterating on [g] that is being modified during
+         iteration. We can do such an above iteration since G is here
+         permanent. Do not try this for imperative graph. *)
+      let (g, src, dist) = t in
+
+      (* Now we can feel free to delete [v]. *)
+      (G.remove_vertex g v,
+      (S.remove v src),
+      (M.map (M.remove v) dist))
 
     let map_vertex f (g, src, dist) =
       let map_map update m =
