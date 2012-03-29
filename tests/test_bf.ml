@@ -38,3 +38,38 @@ let () =
   test false [ 0, (-10), 1; 1, 1, 2;          1, 1, 3; 3, 1, 4;         ]
 *)
 ()
+
+
+
+(* Tests for module [Nonnegative] *)
+
+module I = struct
+  type t = int
+  let compare : t -> t -> int = Pervasives.compare
+  let hash = Hashtbl.hash
+  let equal = (=)
+  let default = 0
+end
+module W = struct
+  type label = int
+  include I
+  let weight x = x
+  let add = (+)
+  let zero = 0
+end
+
+module G = Persistent.Digraph.ConcreteLabeled(I)(I)
+module NNG = Nonnegative.Persistent(G)(W)
+open NNG
+
+let g = empty
+let add s t ~weight g = add_edge_e g (E.create s weight t)
+
+let g = add 0 1 ~weight:1 g    (* should succeed *)
+let g = add 1 2 ~weight:2 g    (* should succeed *)
+let g = add 2 0 ~weight:(-3) g (* should fail *)
+(* etc. *)
+
+(* let () = dump Format.pp_print_int Format.pp_print_int g *)
+
+

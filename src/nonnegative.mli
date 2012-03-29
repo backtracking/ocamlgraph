@@ -45,19 +45,16 @@ module type WEIGHT = sig
     (** Neutral element for {!add}. *)
 end
 
-(** Graphs without negative-cycles *)
-module NonNegative : sig
+(** Persistent graphs with negative-cycle prevention *)
+module Persistent
+  (G: Sig.P)
+  (W: WEIGHT with type label = G.E.label) : sig
 
-  (** Persistent graphs with negative-cycle prevention *)
-  module Persistent
-    (G: Sig.P)
-    (W: WEIGHT with type label = G.E.label) : sig
+  include Sig.P with module V = G.V and module E = G.E
 
-    include Sig.P with module V = G.V and module E = G.E
+  exception Negative_cycle of G.E.t list
+    (** Exception [NegativeCycle] is raised whenever a negative cycle
+        is introduced for the first time (either with [add_edge]
+        or [add_edge_e]) *)
 
-    exception Negative_cycle of G.E.t list
-      (** Exception [NegativeCycle] is raised whenever a negative cycle
-          is introduced for the first time (either with [add_edge]
-          or [add_edge_e]) *)
-  end
 end

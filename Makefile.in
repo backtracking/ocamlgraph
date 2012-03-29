@@ -91,7 +91,7 @@ byte: $(CMA)
 opt: $(CMXA)
 
 graph.cma: graph.cmo
-	$(OCAMLC) $(INCLUDES) -a -o $@ $^
+	$(OCAMLC) $(INCLUDES) -a -g -o $@ $^
 
 graph.cmxa: graph.cmx
 	$(OCAMLOPT) $(INCLUDES) -a -o $@ $^
@@ -100,7 +100,7 @@ graph.cmi: graph.cmo
 graph.o: graph.cmx
 
 graph.cmo: $(CMI) $(CMO)
-	$(OCAMLC) $(INCLUDES) -pack -o $@ $^
+	$(OCAMLC) $(INCLUDES) -pack -g -o $@ $^
 
 graph.cmx: $(CMI) $(CMX)
 	$(OCAMLOPT) $(INCLUDES) -pack -o $@ $^
@@ -268,6 +268,9 @@ test: $(CMA) tests/test.ml
 
 test-bf: $(CMA) tests/test_bf.ml
 	ocaml unix.cma graphics.cma $^
+
+bin/test_bf.byte: $(CMA) tests/test_bf.ml
+	$(OCAMLC) -g -o $@ unix.cma graphics.cma $^
 
 bin/test.byte: $(CMA) tests/test.cmo
 	$(OCAMLC) -g -unsafe -o $@ unix.cma graphics.cma $^

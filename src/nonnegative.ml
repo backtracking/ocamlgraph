@@ -29,10 +29,9 @@ module type WEIGHT = sig
   val zero : t
 end
 
-module NonNegative = struct
-  module Persistent
-    (G: Sig.P)
-    (W: WEIGHT with type label = G.E.label) = struct
+module Persistent
+  (G: Sig.P)
+  (W: WEIGHT with type label = G.E.label) = struct
 
     module S = Set.Make(G.V)
     module M = Map.Make(G.V)
@@ -181,11 +180,11 @@ module NonNegative = struct
 	       like [add_edge g v1 v2] > [remove_vertex g v2] >
 	       [add_vertex g v2] can result in unexpected
 	       behaviour. *)
-	    (M.map (M.remove v2) dist),
+	     (M.map (M.remove v2) dist),
 
 	    (* We need to re-obtain the distance mappings at v1,
                since it can be changed by the line above. *)
-	    (M.find v1 dist)) in
+	     (M.find v1 dist)) in
 
 	(* Now let's start propagation. *)
 	Queue.add (v1, set_of_map dv1) q;
@@ -269,8 +268,8 @@ module NonNegative = struct
 
       (* Now we can feel free to delete [v]. *)
       (G.remove_vertex g v,
-      (S.remove v src),
-      (M.map (M.remove v) dist))
+       (S.remove v src),
+       (M.map (M.remove v) dist))
 
     let map_vertex f (g, src, dist) =
       let map_map update m =
@@ -281,7 +280,7 @@ module NonNegative = struct
        let update = function
          | None, _ as v -> v
          | Some e, w ->
-             Some (E.create (f (E.src e)) (E.label e) (f (E.dst e))), w
+           Some (E.create (f (E.src e)) (E.label e) (f (E.dst e))), w
        in
        map_map (map_map update) dist)
 
@@ -316,4 +315,3 @@ module NonNegative = struct
     let is_empty (g, _, _) = G.is_empty g
     let is_directed = G.is_directed
   end
-end
