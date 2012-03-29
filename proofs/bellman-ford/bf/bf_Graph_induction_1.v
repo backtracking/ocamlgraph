@@ -97,6 +97,65 @@ Axiom cardinal_remove : forall (a:Type), forall (x:a), forall (s:(set a)),
 Axiom cardinal_subset : forall (a:Type), forall (s1:(set a)) (s2:(set a)),
   (subset s1 s2) -> ((cardinal s1) <= (cardinal s2))%Z.
 
+(* Why3 assumption *)
+Inductive list (a:Type) :=
+  | Nil : list a
+  | Cons : a -> (list a) -> list a.
+Set Contextual Implicit.
+Implicit Arguments Nil.
+Unset Contextual Implicit.
+Implicit Arguments Cons.
+
+(* Why3 assumption *)
+Set Implicit Arguments.
+Fixpoint mem1 (a:Type)(x:a) (l:(list a)) {struct l}: Prop :=
+  match l with
+  | Nil => False
+  | (Cons y r) => (x = y) \/ (mem1 x r)
+  end.
+Unset Implicit Arguments.
+
+(* Why3 assumption *)
+Set Implicit Arguments.
+Fixpoint infix_plpl (a:Type)(l1:(list a)) (l2:(list a)) {struct l1}: (list
+  a) :=
+  match l1 with
+  | Nil => l2
+  | (Cons x1 r1) => (Cons x1 (infix_plpl r1 l2))
+  end.
+Unset Implicit Arguments.
+
+Axiom Append_assoc : forall (a:Type), forall (l1:(list a)) (l2:(list a))
+  (l3:(list a)), ((infix_plpl l1 (infix_plpl l2
+  l3)) = (infix_plpl (infix_plpl l1 l2) l3)).
+
+Axiom Append_l_nil : forall (a:Type), forall (l:(list a)), ((infix_plpl l
+  (Nil :(list a))) = l).
+
+(* Why3 assumption *)
+Set Implicit Arguments.
+Fixpoint length (a:Type)(l:(list a)) {struct l}: Z :=
+  match l with
+  | Nil => 0%Z
+  | (Cons _ r) => (1%Z + (length r))%Z
+  end.
+Unset Implicit Arguments.
+
+Axiom Length_nonnegative : forall (a:Type), forall (l:(list a)),
+  (0%Z <= (length l))%Z.
+
+Axiom Length_nil : forall (a:Type), forall (l:(list a)),
+  ((length l) = 0%Z) <-> (l = (Nil :(list a))).
+
+Axiom Append_length : forall (a:Type), forall (l1:(list a)) (l2:(list a)),
+  ((length (infix_plpl l1 l2)) = ((length l1) + (length l2))%Z).
+
+Axiom mem_append : forall (a:Type), forall (x:a) (l1:(list a)) (l2:(list a)),
+  (mem1 x (infix_plpl l1 l2)) <-> ((mem1 x l1) \/ (mem1 x l2)).
+
+Axiom mem_decomp : forall (a:Type), forall (x:a) (l:(list a)), (mem1 x l) ->
+  exists l1:(list a), exists l2:(list a), (l = (infix_plpl l1 (Cons x l2))).
+
 Parameter vertex : Type.
 
 Parameter vertices: (set vertex).
@@ -115,27 +174,46 @@ Axiom edges_def : forall (x:vertex) (y:vertex), (mem (x, y) edges) ->
   ((~ (x = y)) /\ ((mem x vertices) /\ (mem y vertices))).
 
 (* Why3 assumption *)
-Inductive path : vertex -> vertex -> Z -> Z -> Prop :=
-  | path_empty : forall (v:vertex), (path v v 0%Z 0%Z)
-  | path_succ : forall (v1:vertex) (v2:vertex) (n:Z) (d:Z), (path v1 v2 n
-      d) -> forall (v3:vertex), (mem (v2, v3) edges) -> (path v1 v3
-      (n + (weight v2 v3))%Z (d + 1%Z)%Z).
+Inductive path : vertex -> (list vertex) -> Prop :=
+  | path_empty : forall (v:vertex), (mem v vertices) -> (path v (Cons v
+      (Nil :(list vertex))))
+  | path_succ : forall (s1:vertex) (v1:vertex) (l:(list vertex)), (path s1
+      (Cons v1 l)) -> forall (v2:vertex), (mem (v1, v2) edges) -> (path s1
+      (Cons v2 (Cons v1 l))).
 
 (* Why3 assumption *)
-Inductive simple : vertex -> vertex -> (set vertex) -> Prop :=
-  | simple_zero : forall (v:vertex), (simple v v (empty :(set vertex)))
-  | simple_one : forall (u:vertex) (v:vertex), (mem (u, v) edges) ->
-      (simple u v (empty :(set vertex)))
-  | simple_succ : forall (v1:vertex) (v2:vertex) (via:(set vertex)),
-      (simple v1 v2 via) -> forall (v3:vertex), (~ (mem v3 via)) ->
-      ((~ (v1 = v3)) -> ((mem (v2, v3) edges) -> (simple v1 v3 (add v2
-      via)))).
+Set Implicit Arguments.
+Fixpoint last(l:(list vertex)) {struct l}: vertex :=
+  match l with
+  | Nil => s
+  | (Cons x Nil) => x
+  | (Cons _ rest) => (last rest)
+  end.
+Unset Implicit Arguments.
+
+(* Why3 assumption *)
+Set Implicit Arguments.
+Fixpoint sum(l:(list vertex)) {struct l}: Z :=
+  match l with
+  | Nil => 0%Z
+  | (Cons v2 rest) =>
+      match rest with
+      | Nil => 0%Z
+      | (Cons v1 _) => ((weight v1 v2) + (sum rest))%Z
+      end
+  end.
+Unset Implicit Arguments.
+
+Parameter p: vertex -> (list vertex) -> Prop.
 
 (* Why3 goal *)
-Theorem path_depth_nonneg : forall (v1:vertex) (v2:vertex) (n:Z) (d:Z),
-  (path v1 v2 n d) -> (0%Z <= d)%Z.
-
-induction 1 ; omega.
+Theorem induction : forall (s1:vertex), ((path s1 (Cons s1 (Nil :(list
+  vertex)))) -> (p s1 (Cons s1 (Nil :(list vertex))))) -> ((forall (v:vertex)
+  (l:(list vertex)), ((path s1 l) -> (p s1 l)) -> ((path s1 (Cons v l)) ->
+  (p s1 (Cons v l)))) -> ((forall (v:vertex), (mem v vertices) -> (p v
+  (Cons v (Nil :(list vertex))))) -> forall (l:(list vertex)), (path s1 l) ->
+  (p s1 l))).
+intuition.
 
 Qed.
 

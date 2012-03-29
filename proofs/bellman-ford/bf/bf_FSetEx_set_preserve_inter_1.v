@@ -97,45 +97,34 @@ Axiom cardinal_remove : forall (a:Type), forall (x:a), forall (s:(set a)),
 Axiom cardinal_subset : forall (a:Type), forall (s1:(set a)) (s2:(set a)),
   (subset s1 s2) -> ((cardinal s1) <= (cardinal s2))%Z.
 
-Parameter vertex : Type.
+Parameter take: forall (a:Type), (set a) -> a.
+Implicit Arguments take.
 
-Parameter vertices: (set vertex).
+Axiom take_def : forall (a:Type), forall (x:(set a)), (~ (is_empty x)) ->
+  (mem (take x) x).
 
-Parameter edges: (set (vertex* vertex)%type).
-
-Parameter s: vertex.
-
-Parameter weight: vertex -> vertex -> Z.
-
-Axiom s_in_graph : (mem s vertices).
-
-Axiom vertices_cardinal_pos : (0%Z <  (cardinal vertices))%Z.
-
-Axiom edges_def : forall (x:vertex) (y:vertex), (mem (x, y) edges) ->
-  ((~ (x = y)) /\ ((mem x vertices) /\ (mem y vertices))).
-
-(* Why3 assumption *)
-Inductive path : vertex -> vertex -> Z -> Z -> Prop :=
-  | path_empty : forall (v:vertex), (path v v 0%Z 0%Z)
-  | path_succ : forall (v1:vertex) (v2:vertex) (n:Z) (d:Z), (path v1 v2 n
-      d) -> forall (v3:vertex), (mem (v2, v3) edges) -> (path v1 v3
-      (n + (weight v2 v3))%Z (d + 1%Z)%Z).
-
-(* Why3 assumption *)
-Inductive simple : vertex -> vertex -> (set vertex) -> Prop :=
-  | simple_zero : forall (v:vertex), (simple v v (empty :(set vertex)))
-  | simple_one : forall (u:vertex) (v:vertex), (mem (u, v) edges) ->
-      (simple u v (empty :(set vertex)))
-  | simple_succ : forall (v1:vertex) (v2:vertex) (via:(set vertex)),
-      (simple v1 v2 via) -> forall (v3:vertex), (~ (mem v3 via)) ->
-      ((~ (v1 = v3)) -> ((mem (v2, v3) edges) -> (simple v1 v3 (add v2
-      via)))).
+Axiom set_preserve_union : forall (a:Type), forall (a1:(set a)) (b:(set a))
+  (e:a), (mem e a1) -> ((union (remove e a1) (add e b)) = (union a1 b)).
 
 (* Why3 goal *)
-Theorem path_depth_nonneg : forall (v1:vertex) (v2:vertex) (n:Z) (d:Z),
-  (path v1 v2 n d) -> (0%Z <= d)%Z.
+Theorem set_preserve_inter : forall (a:Type), forall (a1:(set a)) (b:(set a))
+  (e:a), ((mem e a1) /\ ~ (mem e b)) -> ((inter (remove e a1) (add e
+  b)) = (inter a1 b)).
 
-induction 1 ; omega.
+Require Import Classical.
+
+intuition.
+apply extensionality.
+compute.
+intuition; apply inter_def1 in H; apply inter_def1; destruct H.
+
+apply remove_def1 in H.
+apply add_def1 in H2.
+destruct (classic (e = x)); subst; tauto.
+
+destruct (classic (e = x)); subst; intuition.
+apply remove_def1; intuition.
+apply add_def1; intuition.
 
 Qed.
 

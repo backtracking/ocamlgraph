@@ -121,21 +121,50 @@ Inductive path : vertex -> vertex -> Z -> Z -> Prop :=
       d) -> forall (v3:vertex), (mem (v2, v3) edges) -> (path v1 v3
       (n + (weight v2 v3))%Z (d + 1%Z)%Z).
 
-(* Why3 assumption *)
-Inductive simple : vertex -> vertex -> (set vertex) -> Prop :=
-  | simple_zero : forall (v:vertex), (simple v v (empty :(set vertex)))
-  | simple_one : forall (u:vertex) (v:vertex), (mem (u, v) edges) ->
-      (simple u v (empty :(set vertex)))
-  | simple_succ : forall (v1:vertex) (v2:vertex) (via:(set vertex)),
-      (simple v1 v2 via) -> forall (v3:vertex), (~ (mem v3 via)) ->
-      ((~ (v1 = v3)) -> ((mem (v2, v3) edges) -> (simple v1 v3 (add v2
-      via)))).
-
-(* Why3 goal *)
-Theorem path_depth_nonneg : forall (v1:vertex) (v2:vertex) (n:Z) (d:Z),
+Axiom path_depth_nonneg : forall (v1:vertex) (v2:vertex) (n:Z) (d:Z),
   (path v1 v2 n d) -> (0%Z <= d)%Z.
 
-induction 1 ; omega.
+Axiom path_in_vertices : forall (v1:vertex) (v2:vertex) (n:Z) (d:Z), (mem v1
+  vertices) -> ((path v1 v2 n d) -> (mem v2 vertices)).
+
+Axiom path_depth_empty : forall (v1:vertex) (v2:vertex) (n:Z), (path v1 v2 n
+  0%Z) -> ((v1 = v2) /\ (n = 0%Z)).
+
+Axiom path_pred_existence : forall (v1:vertex) (v3:vertex) (n:Z) (d:Z),
+  (0%Z <= d)%Z -> ((path v1 v3 n (d + 1%Z)%Z) -> exists v2:vertex, (mem (v2,
+  v3) edges) /\ (path v1 v2 (n - (weight v2 v3))%Z d)).
+
+(* Why3 assumption *)
+Definition shortest_path(v1:vertex) (v2:vertex) (n:Z) (d:Z): Prop := (path v1
+  v2 n d) /\ forall (nqt:Z) (dqt:Z), (nqt <  n)%Z -> ~ (path v1 v2 nqt dqt).
+
+Axiom shortest_path_empty : forall (v:vertex), (mem v vertices) ->
+  ((forall (n:Z) (d:Z), (n <  0%Z)%Z -> ~ (path v v n d)) -> (shortest_path v
+  v 0%Z 0%Z)).
+
+(* Why3 assumption *)
+Definition no_path(v1:vertex) (v2:vertex): Prop := forall (n:Z) (d:Z),
+  ~ (path v1 v2 n d).
+
+Axiom no_path_not_same : forall (v:vertex), ~ (no_path v v).
+
+Axiom path_trans : forall (v1:vertex) (v2:vertex) (v3:vertex) (n1:Z) (n2:Z)
+  (d1:Z) (d2:Z), (path v1 v2 n1 d1) -> ((path v2 v3 n2 d2) -> (path v1 v3
+  (n1 + n2)%Z (d1 + d2)%Z)).
+
+Axiom reach_less_than_n : forall (v1:vertex) (v2:vertex), (mem v1
+  vertices) -> ((forall (d:Z) (n:Z), (path v1 v2 n d)) -> exists dqt:Z,
+  exists nqt:Z, (dqt <  (cardinal vertices))%Z /\ (path v1 v2 nqt dqt)).
+
+(* Why3 goal *)
+Theorem reach_not_gte_n : forall (v1:vertex) (v2:vertex), (mem v1
+  vertices) -> ((~ exists dqt:Z, exists nqt:Z,
+  (dqt <  (cardinal vertices))%Z /\ (path v1 v2 nqt dqt)) -> ~ forall (d:Z)
+  (n:Z), (path v1 v2 n d)).
+
+intuition.
+apply H0.
+apply reach_less_than_n ; assumption.
 
 Qed.
 

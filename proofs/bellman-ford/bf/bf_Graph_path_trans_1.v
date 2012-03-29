@@ -109,21 +109,33 @@ Parameter weight: vertex -> vertex -> Z.
 
 Axiom s_in_graph : (mem s vertices).
 
-Axiom edges_def : forall (x:vertex) (y:vertex), (mem (x, y) edges) -> ((mem x
-  vertices) /\ (mem y vertices)).
+Axiom vertices_cardinal_pos : (0%Z <  (cardinal vertices))%Z.
+
+Axiom edges_def : forall (x:vertex) (y:vertex), (mem (x, y) edges) ->
+  ((~ (x = y)) /\ ((mem x vertices) /\ (mem y vertices))).
 
 (* Why3 assumption *)
 Inductive path : vertex -> vertex -> Z -> Z -> Prop :=
   | path_empty : forall (v:vertex), (path v v 0%Z 0%Z)
-  | path_succ : forall (v1:vertex) (v2:vertex) (v3:vertex) (n:Z) (d:Z),
-      (path v1 v2 n d) -> ((mem (v2, v3) edges) -> (path v1 v3
-      (n + (weight v2 v3))%Z (d + 1%Z)%Z)).
+  | path_succ : forall (v1:vertex) (v2:vertex) (n:Z) (d:Z), (path v1 v2 n
+      d) -> forall (v3:vertex), (mem (v2, v3) edges) -> (path v1 v3
+      (n + (weight v2 v3))%Z (d + 1%Z)%Z).
+
+(* Why3 assumption *)
+Inductive simple : vertex -> vertex -> (set vertex) -> Prop :=
+  | simple_zero : forall (v:vertex), (simple v v (empty :(set vertex)))
+  | simple_one : forall (u:vertex) (v:vertex), (mem (u, v) edges) ->
+      (simple u v (empty :(set vertex)))
+  | simple_succ : forall (v1:vertex) (v2:vertex) (via:(set vertex)),
+      (simple v1 v2 via) -> forall (v3:vertex), (~ (mem v3 via)) ->
+      ((~ (v1 = v3)) -> ((mem (v2, v3) edges) -> (simple v1 v3 (add v2
+      via)))).
 
 Axiom path_depth_nonneg : forall (v1:vertex) (v2:vertex) (n:Z) (d:Z),
   (path v1 v2 n d) -> (0%Z <= d)%Z.
 
-Axiom path_in_vertices : forall (v1:vertex) (v2:vertex) (n:Z) (d:Z), (path v1
-  v2 n d) -> ((mem v1 vertices) /\ (mem v2 vertices)).
+Axiom path_in_vertices : forall (v1:vertex) (v2:vertex) (n:Z) (d:Z), (mem v1
+  vertices) -> ((path v1 v2 n d) -> (mem v2 vertices)).
 
 Axiom path_depth_empty : forall (v1:vertex) (v2:vertex) (n:Z), (path v1 v2 n
   0%Z) -> ((v1 = v2) /\ (n = 0%Z)).
@@ -134,11 +146,17 @@ Axiom path_pred_existence : forall (v1:vertex) (v3:vertex) (n:Z) (d:Z),
 
 (* Why3 assumption *)
 Definition shortest_path(v1:vertex) (v2:vertex) (n:Z) (d:Z): Prop := (path v1
-  v2 n d) /\ forall (m:Z) (dd:Z), (m <  n)%Z -> ~ (path v1 v2 m dd).
+  v2 n d) /\ forall (nqt:Z) (dqt:Z), (nqt <  n)%Z -> ~ (path v1 v2 nqt dqt).
+
+Axiom shortest_path_empty : forall (v:vertex), (mem v vertices) ->
+  ((forall (n:Z) (d:Z), (n <  0%Z)%Z -> ~ (path v v n d)) -> (shortest_path v
+  v 0%Z 0%Z)).
 
 (* Why3 assumption *)
 Definition no_path(v1:vertex) (v2:vertex): Prop := forall (n:Z) (d:Z),
   ~ (path v1 v2 n d).
+
+Axiom no_path_not_same : forall (v:vertex), ~ (no_path v v).
 
 (* Why3 goal *)
 Theorem path_trans : forall (v1:vertex) (v2:vertex) (v3:vertex) (n1:Z) (n2:Z)
