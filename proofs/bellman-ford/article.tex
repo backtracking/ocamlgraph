@@ -72,22 +72,23 @@ to all vertices from one given source vertex. To solve such a problem,
 Dijkstra's algorithm is widely known as an effective solution, yet it
 assums edges to have non-negative length. The Bellman-Ford algorithm
 relaxed such the assumption and is able to compute the solution for
-directed graphs with edges that have negative length. 
+directed graphs with edges that have negative length.
 
 However on the other hand, if the graph contains a cycle whose total
 length of involving edges is negative, it may cause an inability to
 compute the shortest paths. This is only limited to the case such a
 negative-cylce is reachable from the given source, and the
-Bellman-Ford algorithm detects and reports it without failure. 
+Bellman-Ford algorithm detects and reports it without failure.
 
 Now we give the formal description of the single-source shortest
 paths. It is given as a triple $ (G,s,l) $, where $ G $ represents a
 directed graph $ G=(V,E) $, $ s \in V $ is a source vertex, and $ l :
 E \rightarrow \mathbf{R} $ gives the length for all edges. The goal
 for this problem is either to produce the shortest path tree from $ s
-$ or to prove that there is a negative-cycle reachable from $ s $. 
+$ or to prove that there is a negative-cycle reachable from $ s $.
 
-The listing \ref{alg:bf} shows the psuedocode of the Bellman-Ford algorithm \cite[p.~532]{algo}.
+The listing \ref{alg:bf} shows the psuedocode of the Bellman-Ford
+algorithm \cite[p.~532]{algo}.
 
 \newcommand{\initBF}{\ensuremath{\mbox{\sc Initialize-Single-Source}}}
 \newcommand{\relaxBF}{\ensuremath{\mbox{\sc Relax}}}
@@ -138,50 +139,50 @@ The listing \ref{alg:bf} shows the psuedocode of the Bellman-Ford algorithm \cit
 Why3 is a software verification platfrom that enables one to describe
 the algorithm properties by first-order logic. Its important feature
 is the ability to separate the logical statements from programs
-\cite{boogie11why3}. 
+\cite{boogie11why3}.
 
 \subsection{Logic}
 
 Logic component is described by set of theories that contains the
 definition of data types, their characteristics as either an axiom or
 a lemma, and predicates (or functions if returns non-Boolean) upon the
-given arguments. 
+given arguments.
 
 \paragraph {[TODO: align the following paragraphs]} 
 
 \emph{Types.} Types are either a non-interpreted abstract type or an
-algebraic type with polymorphism supported. 
+algebraic type with polymorphism supported.
 
 \emph{Predicates and functions.} Predicate takes any number of
 arguments with the above type and returns a Boolean value. Function
 plays the same role but returns non-Boolean values. They are strictly
 typed before verification and recognized its recursiveness. The other
 important things is that the termination of them is guaranteed by the
-automated check of the structural decreasing of arguments. 
+automated check of the structural decreasing of arguments.
 
 \emph{Inductive predicates.} Inductive predicate is provided as an
 other option to declare predicates. It is described by the set of
 conditional clauses where the predicate holds, and defined as the
-minimum predicate that all of them hold. 
+minimum predicate that all of them hold.
 
 \subsection{Program}
 
 Program component takes over the similar syntax as Objective Caml
-\ref{ocaml}, but we define conditions of the program additionally. 
+\ref{ocaml}, but we define conditions of the program additionally.
 
 \emph{Pre-condition and post-condition.} Pre-condition is the
 assumption that the algorithm makes prior to its execution, and the
 post-condition is the result the aglrotihm ensures after its
 execution. It is often useful to describe the effect of the
 algorithm. One should give the most strict statement for
-pre-condition, and the most general statement for post-condition. 
+pre-condition, and the most general statement for post-condition.
 
 \emph{Loop variant.} Variant expression is used to guarantees the
 terminability of recursive calls or loops. One must give an arbitral
 integral expression for it, which necessarily decreases in the certain
 sequential operations. With the assumption that the given expression
 remains positive during the iteration, and firmly decreases at every
-step, Why3 guarantees that the iteration will eventually terminate. 
+step, Why3 guarantees that the iteration will eventually terminate.
 
 (TODO: Insertion of small example)
 
@@ -195,14 +196,14 @@ the algorithm. It should be minimal yet comprehensive to define the
 behavior of algorithm and should be clearly distinguished from the
 proofs. We now present minimal logical properties of graph data
 structure as prerequisites for Bellman-For algorithm, and then
-introduce those of the algorithm itself. 
+introduce those of the algorithm itself.
  
 \subsubsection{Graph}
 
 In order to show the correctness of algorithms that make use of graph
-data structure, it is neccesary for the first to define the
-characteristics of graph itself in purely logical way. There are
-several ways to represent the graph for formal verification.
+data structure, it is neccesary to define the characteristics of graph
+itself in purely logical way. There are several ways to represent the
+graph for formal verification.
 
 \begin{enumerate}
 
@@ -225,10 +226,10 @@ proof. For the simplicity in this paper, we choose the first method.
 
 Considering the Bellman-Ford algorithm, one must give the formal
 definition of the path with the given length. We define such the path
-by inductive manner. Let $\edgen{v_1}{v_2}{n}$ denote the
-existence of the edge between $ v_1 $ and $ v_2 $ with the length $ n
-$, and $ \to ^* $ represent the transitive closure of $ \to $; then
-following two properties are introduced.
+by inductive manner. Let $\edgen{v_1}{v_2}{n}$ denote the existence of
+the edge between $ v_1 $ and $ v_2 $ with the length $ n $, and $ \to
+^* $ represent the transitive closure of $ \to $; then following two
+properties are introduced.
 
 \begin{displaymath}
   \frac{}

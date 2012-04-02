@@ -1,0 +1,546 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{fullpage,url}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{listings}
+\usepackage{amssymb,amsmath,amsthm}
+\usepackage{color}
+\usepackage[usenames,dvipsnames]{xcolor}
+
+\title{Internship report at LRI}
+\author{Yuto Takei \\ The University of Tokyo }
+
+\lstset{basicstyle=\footnotesize, columns=fullflexible}
+\lstdefinelanguage{Ocaml}
+{
+basicstyle=\ttfamily,%
+morekeywords=[1]{module,sig,include,type,val,let,rec,in,begin,end,if,then,else,raise,match,try,with,exception,of,and},%
+keywordstyle=[1]{\color{blue}},%
+otherkeywords={},%
+commentstyle=\itshape\color{Brown},%
+columns=[l]fullflexible,%
+sensitive=true,%
+morecomment=[s]{(*}{*)},%
+escapeinside={*?}{?*},%
+keepspaces=true,
+literate=%
+{<}{$<$}{1}%
+{>}{$>$}{1}%
+{<=}{$\le$}{1}%
+{>=}{$\ge$}{1}%
+{<>}{$\ne$}{1}%
+{->}{$\rightarrow$}{2}%
+{<->}{$\leftrightarrow$}{2}%
+}
+
+\lstdefinelanguage{Why3}
+{
+basicstyle=\ttfamily,
+keywordstyle=\color{blue},
+morekeywords=[1]{inductive,predicate,function,goal,type,use,import,theory,end,in,axiom,lemma,export,forall,constant,module,let,exception,match,with,exists,val,unit},%
+%keywordstyle=[1]{\color{red}},%
+morekeywords=[2]{true,false},%
+%keywordstyle=[2]{\color{blue}},%
+otherkeywords={},%
+commentstyle=\itshape\color{Brown},%
+columns=[l]fullflexible,%
+sensitive=true,%
+morecomment=[s]{(*}{*)},%
+escapeinside={*?}{?*},%
+keepspaces=true,
+literate=%
+{v1}{v$_1$}{1}%
+{v2}{v$_2$}{1}%
+{v3}{v$_3$}{1}%
+{n1}{n$_1$}{1}%
+{n2}{n$_2$}{1}%
+{d1}{d$_1$}{1}%
+{d2}{d$_2$}{1}%
+{<}{$<$}{1}%
+{>}{$>$}{1}%
+{<=}{$\le$}{1}%
+{>=}{$\ge$}{1}%
+{<>}{$\ne$}{1}%
+{/\\}{$\land$}{1}%
+{\\/}{ $\lor$ }{3}%
+{\ or(}{ $\lor$(}{3}%
+{not\ }{$\lnot$ }{1}%
+{not(}{$\lnot$(}{1}%
+{->}{$\rightarrow$}{2}%
+{<->}{$\leftrightarrow$}{2}%
+%
+%
+}
+
+\lstnewenvironment{why3}{\lstset{language=Why3}}{}
+\lstnewenvironment{ocaml}{\lstset{language=Ocaml}}{}
+
+\newcommand{\edgen}[3]{#1\rightarrow_{#3}#2}
+\newcommand{\pathn}[3]{#1\rightarrow^\star_{#3}#2}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  This is the abstract.
+\end{abstract}
+
+\section{Introduction}
+
+This document reports 
+
+\section{Contribution to the Ocamlgraph}
+
+Ocamlgraph \cite{conchon07tfp} is the software library for OCaml
+language that provides the graph data structure and discrete
+algorithms applicable on it. It also includes several implementations
+of graph representation as built-in, that can be chosen in accordance
+with the user's program. It is also possible to define a new data
+structure optimized for specific purpose.
+
+For example, one may want to choose the persistent graph data
+implementation, any operations on which produce new instance of the
+graph. On the other hand, one can also choose the imperative
+implementation of graph, which addition or removal of vertex and edges
+take place in the same memory location. Finally, one can arbitrarily
+add the own graph implementations that satisfy the interface
+requirement of Ocamlgraph. The algorithms of Ocamlgraph can be
+performed any choice of them without any knowledge about the
+implementation detail.
+
+Ocamlgraph also contains several algorithms to perform on those graph
+data structure. For instance, Dijkstra's algorithm computes the
+shortest path between given vertices $v_1$ and $v_2$ over any graph
+with the time complexity of $O((V+E)\log(V))$. Another example is the
+strongly connected component decomposition, which gives an integer
+identifier to all strongly connected components and returns the
+mapping from vertex to the identifier which the vertex belongs to.
+
+\subsection {Implementation of the Bellman-Ford algorithm}
+
+During the internship, I contributed to the enrichment of the
+algorithms of Ocamlgraph, and added the implementation of Bellman-Ford
+algorithm. It is the algorithm that also computes the shortest path
+from $v_1$ to $v_2$, but allows the graph to have a negative weight on
+the edge unlike the Dijkstra's algorithm. After the termination, it
+gives a mapping from every vertex $v$ to the integer representing the
+shortest path distance from given $s$ to every $v$. In case that the
+graph contains a negative length cycle, the edges in which sum up to
+below zero, the algorithm reports the existence of such the cycle.
+
+The algorithm maintains the labels that are given on every node in
+graph $G$. It is represented as the pair $(\pi,d)$ for every node $v$,
+respectively denoting the predecessor in the shortest path tree, and
+the shortest path distance from $s$ after algorithm termination. It is
+first initialized as $(nil,\infty)$ for all nodes except $s$ having
+$(nil,0)$. Algorithm \ref{alg:init} shows the operation \cite{algo}.
+
+\newcommand{\initBF}{\ensuremath{\mbox{\sc Initialize-Single-Source}}}
+\begin{algorithm}
+\caption{$\initBF(G,s)$}\label{alg:init}
+\begin{algorithmic}[1]
+\FORALL{vertex $v\in V[G]$}
+\STATE{$d[v]\leftarrow\infty$}
+\STATE{$\pi[v]\leftarrow nil$}
+\ENDFOR
+\STATE{$d[s]\leftarrow 0$}
+\end{algorithmic}
+\end{algorithm}
+
+The fundamental part of the algorithm is to make use of every edges to
+improve the distance given for vertices. This operation is called
+relax, as shown in Algorithm \ref{alg:relax} \cite{algo}. It tests
+$(u,v)$ is interesting for reducing the known distance from $s$ to $v$
+at the moment of execution.
+
+\newcommand{\relaxBF}{\ensuremath{\mbox{\sc Relax}}}
+\begin{algorithm}
+\caption{$\relaxBF(u,v,l)$}\label{alg:relax}
+\begin{algorithmic}[1]
+\IF{$d[v]>d[u]+l(u,v)$}
+\STATE{$d[v]\leftarrow d[u]+l(u,v)$}
+\STATE{$\pi[v]\leftarrow u$}
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+Finally, we show the complete psuedo-code for the Bellman-Ford
+algorithm in Algorithm \ref{alg:bf} \cite{algo}. We firstly initialize
+the labels by \initBF, and iterate \relaxBF over all edges for $|V|-1$
+times.
+
+This upper bound is given according to the maximum possible depth of
+the shortest path tree. For the relation to the next section, I show
+an informal proof on it. Note that the vertex whose shortest path has
+$n$ steps from $s$ will acquire the shortest distance after $n$-th
+iteration. Because any shortest path tree have less than $|V|-1$
+depths, it is suffice to iterate relaxation for that number;
+otherwise, suppose the shortest path $p=[v_1;v_2;...;v_n]$ exists for
+$n>|V|-1$ and there must exists such $i,j$ that $i\ne j$ and $v_i=v_j$
+according to the pigeon hole principal. However, if the length of the
+loop $[v_i;v_{i+1};...;v_j]$ is positive, we can make a shorter path
+$p'=[v_1;v_2;...;v_{i-1};v_i;v_{j+1};...;v_n]$ than $p$ by contracting
+the loop. Otherwise when the length is negative, we can make
+artbitrarily shorter path by repeating the loop. Thus in either way,
+the shortest assumption of $p$ leads to the contradiction. If the
+length is zero, contracted loop $p'$ has smaller number of
+intermediate vertices and thus we can eventually acquire the path less
+than $|V|$ steps by induction.
+
+In such a case that the negative length cycle exists in $G$, one can
+perform \relaxBF infinitely, gaining arbitrarily small number for its
+distance as stated above. Therefore, the loop from line 7-11 tests if
+there exists an edge still to be relaxed. If the algorithm does not
+detect any negative length cycle, it returns True for the indication.
+
+The time complexity of this algorithm is $O(|E|\cdot|V|)$.
+
+\newcommand{\mainBF}{\ensuremath{\mbox{\sc Bellman-Ford}}}
+\begin{algorithm}
+\caption{$\mainBF(G,s,l)$}\label{alg:bf}
+\begin{algorithmic}[1]
+\STATE{$\initBF(G,s)$}
+\FOR{$i=1\to|V[G]|-1$}
+\FORALL{edge $(u,v)\in E[G]$}
+\STATE{$\relaxBF(u,v,l)$}
+\ENDFOR
+\ENDFOR
+\FORALL{edge $(u,v)\in E[G]$}
+\IF{$d[v]>d[u]+l(u,v)$}
+\RETURN{False}
+\ENDIF
+\ENDFOR
+\RETURN{True}
+\end{algorithmic}
+\end{algorithm}
+
+For the purporse of the implementation for Ocamlgraph, the implemented
+algorithm is provided as a functor that receives the module type for
+graph and weigt on every edge. Making use of the record polymorphism
+in OCaml language, I introduced the minimum definition of graph data
+structure that the algorithm requires (Algorithm \ref{alg:graph}).
+
+\begin{algorithm}
+\caption{Minimum required interface of the graph}\label{alg:graph}
+\begin{ocaml}
+module type G = sig
+  type t
+  module V : Sig.COMPARABLE
+  module E : sig
+    type t
+    type label
+    val label : t -> label
+    val src : t -> V.t
+    val dst : t -> V.t
+  end
+  val fold_edges_e : (E.t -> 'a -> 'a) -> t -> 'a -> 'a
+  val nb_vertex : t -> int
+end
+\end{ocaml}
+\end{algorithm}
+
+This means that the graph data structure should provide a function
+that returns the number of edges (to compute $|V|-1$) and one that
+provides the way to execute fold operation over all edges in the
+graph. This is required to perform relaxation for all edges, and at
+the same time, to check if relaxation happened on at least one
+edge. When the graph reaches to the stable state, i.e. no any relaxion
+occurs anymore, one can exit the relaxation loop before reaches to the
+terminal. In most cases, this largely contributes to the optimization
+of the algorithm.
+
+As for the weight for edges, it is given as in Algorithm
+\ref{alg:weight}. The weight can be any type that is a monoid with
+total order.
+
+\begin{algorithm}
+\caption{Minimum definition of the weight}\label{alg:weight}
+\begin{ocaml}
+module type WEIGHT = sig
+  type label
+  type t
+  val weight : label -> t
+  val compare : t -> t -> int
+  val add : t -> t -> t
+  val zero : t
+end
+\end{ocaml}
+\end{algorithm}
+
+By making use of \texttt{G} and \texttt{WEIGHT} module type, I now
+introduce the functor signature for Bellman-Ford algorithm in
+\ref{alg:bfsig}. The pair of \texttt{G} and \texttt{WEIGHT} expresses
+weighted directed graph. The algorithm is instanciated by receiving it
+as a functor parameter.
+
+\begin{algorithm}
+\caption{Module interface of Bellman-Ford algorithm}\label{alg:bfsig}
+\begin{ocaml}
+module BellmanFord
+  (G: G)
+  (W: WEIGHT with type label = G.E.label) :
+sig
+  module H : Hashtbl.S with type key = G.V.t
+
+  exception Negative_cycle of G.E.t list
+
+  val all_shortest_paths : G.t -> G.V.t -> W.t H.t
+  val find_negative_cycle_from: G.t -> G.V.t -> G.E.t list
+  val find_negative_cycle: G.t -> G.E.t list
+end
+\end{ocaml}
+\end{algorithm}
+
+I implemented three methods in this module as listed below.
+
+\begin{itemize}
+\item \emph{all\_shortest\_paths} receives a graph $G$ and the source
+  vertex $s\in V$, and returns a hashtable which maps a vertex $v\in
+  V$ to the total weight of the shortest path from $s$ to $v$. When
+  there exists a negative length cycle, it raises an exception.
+
+\item \emph{find\_negative\_cycle\_from} also receives $G$ and $s$, and
+  looks for a negative length cycle reachable from $s$. When found, it
+  returns a list of edges that involve in such a cycle. Otherwise, it
+  raises an exception.
+
+\item \emph{find\_negative\_cycle} receives only $G$. It looks for any
+  negative cycle in the graph, and when found, returns one of
+  them. Otherwise, it raises an exception.
+\end{itemize}
+
+The first two methods works as just the same except for the opposite
+behavior on raising exception.  They are both provided for the
+convenience of Ocamlgraph users.
+
+The last method \emph{find\_negative\_cycle} is slightly more
+complex. It decompose the graph into strongly connected components,
+and perform \emph{find\_negative\_cycle\_from} from one of the vertex in
+each components. In this way, we can traverse the graph to all
+vertices without giving such a vertex as $s$.
+
+However, this implementation is very naive and there is a room for
+improvement. For example, just look for the cycle in each strongly
+connected component is sufficient for this purpose. This can reduce
+$|E|$ and $|V|$ in time complexity, enabling the faster execution of
+the method.
+
+The optimization for this method is left for the future work.
+
+\subsection{Incremental graph builder without negative length cycle}
+
+As stated in the first, Ocamlgraph allows users to implement any
+arbitrarily data structure that goes along the built-in algorithms. So
+as for the other contribution on Ocamlgraph library, I added the new
+graph implementation that ensures the graph is free of negative length
+cycle. This graph module helps users to immediately find such a cycle
+and prevent some algorithms from being unable to compute the result
+(e.g. shortest paths).
+
+Algorithm \ref{alg:nng} shows the functor signature for persistent
+graph data structure. Similar to the module BellmanFord, it receives
+the graph and weight module types. Note that \emph{Sig.P} is the
+module type that encapsulate the persistent graph data structure. This
+functor returns the module that include all operations applicable on
+\emph{Sig.P}.
+
+\begin{algorithm}
+\caption{Signature for persistent graph without negative length cycle}\label{alg:nng}
+\begin{ocaml}
+module Persistent
+  (G: Sig.P)
+  (W: WEIGHT with type label = G.E.label) :
+sig
+  include Sig.P with module V = G.V and module E = G.E
+
+  exception Negative_cycle of G.E.t list
+end
+\end{ocaml}
+\end{algorithm}
+
+Additionally, as the main feature of this module, it raises
+\emph{Negative\_cycle} exception whenever the user operation is about
+to introduce a negative length cycle. As a result, such operation is
+prohibited over this graph.
+
+The implementation of this graph $G$ involves in maintaining the set
+of top ancestors in the graph, and distances from them to all
+nodes. Let $S$ denote the set of ancestors and $d[s\to v]$ denote the
+shortest path distance from $s\in S$ to $v\in V$. When $[v]_G$ denotes
+the set of vertices that are strongly connected with $v$ in $G$, any
+$s\in S$ should not be reachable from $V\backslash[s]_G$. Also if
+$s\in S$, $\forall v\in[s]_G\backslash\{s\}; v\notin S$. Finally, any
+vertex $v\in V$ has at least one $s\in S$ such that $s$ is the
+ancestor of $v$. Intuitionally, this keeps $S$ to be the minimum set
+of ancestor vertices that all vertices are reachable from at least one
+vertex in $S$.
+
+When one adds a new vertex $v$ to $G$, $v$ cannnot be reached from any
+vertex in $S$, we should update as $S\leftarrow S\cup\{v\}$. At this
+moment, we also set $d[v\to v]\leftarrow 0$, and for other vertices
+$x$, set $d[v\to x]\leftarrow \infty$. (see Algorithm
+\ref{alg:verNng})
+
+\begin{algorithm}
+\caption{$\ensuremath{\mbox{\sc Add-Vertex}}(G,S,d,v)$}\label{alg:verNng}
+\begin{algorithmic}[1]
+\STATE{$G'\leftarrow$ Add $v$ to $G$}
+\STATE{$S'\leftarrow S\cup\{v\}$}
+\STATE{$d'\leftarrow d\cup\{v\to x:\infty,v\to v:0\}$}
+\RETURN{$(G',S',d')$}
+\end{algorithmic}
+\end{algorithm}
+
+When one adds a new edge $(u,v)$ to $G$, we need to update the
+distance mapping $d$, so that it correctly keeps the shortest path
+distance. However before that, if $v\in S$, we should determine
+whether to keep $v$ in $S$ or not. In order to preserve the property
+above, we should know $u$ becomes an predecessor to $v$ or $u$ remains
+in the same strongly connected component, which can be known by
+counting how many vertices in $S$ can reach $u$ in $G$. (see Algorithm
+\ref{alg:edgNng})
+
+After appropriately updating $S$, start to update $d$ for descendants
+of $v$. This can be done by relax operations of the edges with
+improved version of Bellman-Ford algorithm, which utilizes a queue to
+manage the order of edge relaxation. During the relax operations, if one
+reaches back to $u$, this means $(u, v)$ introduced a negative cycle.
+
+\begin{algorithm}
+\caption{$\ensuremath{\mbox{\sc Add-Edge}}(G,S,d,u,v)$}\label{alg:edgNng}
+\begin{algorithmic}[1]
+\STATE{$G\leftarrow$ Add $(u,v)$ to $G$}
+\IF{$v\in S$}
+\STATE{$n\leftarrow\{s\in S\vert d[s\to u]\ne \infty\}$}
+\IF{$n\ne\{v\}$}
+\STATE{$S\leftarrow S\slash\{v\}$}
+\STATE{$d\leftarrow d\cup\{v\to x:\infty\}$}
+\ENDIF
+\ENDIF
+\STATE{$d\leftarrow Relax(G,u,v,d)$}
+\RETURN{$(G,S,d)$}
+\end{algorithmic}
+\end{algorithm}
+
+As for the removal of either vertex or edge, because it costs ver much
+to calculate the distance mapping after removal, my implementation
+chose to reconstruct the distance mapping table by using $S$.
+
+\section{Formal proofs of Bellman-Ford algorithm on Why3}
+
+Why3 \cite{boogie11why3} is a software verification platfrom that
+enables one to describe the algorithm properties by first-order
+logic. One of its important features is the ability to separate the
+logical statements from programs.
+
+Logic component is described by set of theories that contains the
+definition of data types, their characteristics as either an axiom or
+a lemma, and predicates (or functions if returns non-Boolean) upon the
+given arguments. On the other hand, program component takes over the
+similar syntax as OCaml, but we additionally define conditions of the
+program by means of Hoare Logic.
+
+Another advantage in using Why3 is the ability to prove the goal by
+combining several different SMT provers. Why3 recognizes the goals to
+solve in the course of verification and provides a way to split into
+smaller goals. Those smaller goals are then transformed into several
+formats so that different SMT provers can try to solve them.
+
+During my latter half of the internship, I devoted myself into proving
+the correctness of Bellman-Ford algorithm.
+
+\subsection{Specification}
+
+Proving the algorithm first starts by providing the specification of
+the algorithm. It should be minimal yet comprehensive to define the
+behavior of algorithm and should be clearly distinguished from the
+proofs. Shown below in Algorithm \ref{alg:why3graph} is a definition
+of graph representation that I used for proving Bellman-Ford
+algorithm.
+
+\begin{algorithm}
+\caption{Graph representation in Why3 syntax}\label{alg:why3graph}
+\begin{why3}
+theory Graph
+  use export set.Fset (* theory concerning finite sets *)
+
+  type vertex
+  constant vertices : set vertex
+  constant edges: set (vertex, vertex)
+  function weight vertex vertex : int
+
+  constant s : vertex (* source vertex *)
+  axiom s_in_graph: mem s vertices
+
+  axiom edges_def:
+    forall x y: vertex. mem (x, y) edges ->
+    (mem x vertices /\ mem y vertices)
+end
+\end{why3}
+\end{algorithm}
+
+\texttt{Graph} is a theory that encapsulates the all logical
+characteristics of my graph data structure. As you can easily
+understand, it defines \texttt{vertex} type for the vertex
+representation, and \texttt{vertices} and \texttt{edges} provide
+storage of actual graph structure. However, in the proof, their values
+are never determined and assumed to take all possible values that
+satisfy other constraints. For example, due to the axiom
+\texttt{s\_in\_graph}, \texttt{s} can take any one element in
+\texttt{vertices}. In the same way, \texttt{edges\_def} restricts any
+element in \texttt{edges} should be a pair of elements that both
+belongs to \texttt{vertices}. 
+
+Given the structure of the graph, I now introduce the notion of the
+path between two vertices, shown in Algorithm \ref{alg:why3path}. The
+predicate \texttt{path u v n d} means that the path of \texttt{d}
+steps exists from \texttt{u} to \texttt{v} with \texttt{n} length. It
+is inductively defined; the empty case is that all the vertices can
+reach themselves without any step, thus no length. Then as a successor
+case, path from \texttt{u} to \texttt{v} is extended by using an edge
+from \texttt{v} to \texttt{w}, becoming a path from \texttt{u} to
+\texttt{w}.
+
+In the needs of shortest path and reachability property about paths, I
+also defined two more predicates. \texttt{shortest\_path}.
+
+\begin{algorithm}
+\caption{Difinition of path}\label{alg:why3path}
+\begin{why3}
+theory Path
+  use import Graph
+
+  inductive path vertex vertex int int =
+    | path_empty:
+        forall v: vertex. path v v 0 0
+    | path_succ:
+        forall v1 v2: vertex, n d: int. path v1 v2 n d ->
+        forall v3: vertex. mem (v2, v3) edges ->
+        path v1 v3 (n + (weight v2 v3)) (d + 1)
+
+  predicate shortest_path (v1 v2: vertex) (n d: int) =
+    (path v1 v2 n d) /\
+    (forall n' d': int. n' < n -> not (path v1 v2 n' d'))
+
+  predicate no_path (v1 v2: vertex) =
+    forall n: int. not (path v1 v2 n)
+end
+\end{why3}
+\end{algorithm}
+
+
+
+\section{Discussions}
+
+
+\section{Conclusion}
+
+
+
+\bibliographystyle{plain}
+\bibliography{./biblio}
+
+\end{document}
