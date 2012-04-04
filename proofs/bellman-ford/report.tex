@@ -92,9 +92,9 @@ literate=%
 
 This document reports 
 
-\section{Contribution to the Ocamlgraph}
+\section{Contribution to the ocamlgraph}
 
-Ocamlgraph \cite{conchon07tfp} is the software library for OCaml
+ocamlgraph \cite{conchon07tfp} is the software library for OCaml
 language that provides the graph data structure and discrete
 algorithms applicable on it. It also includes several implementations
 of graph representation as built-in, that can be chosen in accordance
@@ -107,11 +107,11 @@ graph. On the other hand, one can also choose the imperative
 implementation of graph, which addition or removal of vertex and edges
 take place in the same memory location. Finally, one can arbitrarily
 add the own graph implementations that satisfy the interface
-requirement of Ocamlgraph. The algorithms of Ocamlgraph can be
+requirement of ocamlgraph. The algorithms of ocamlgraph can be
 performed any choice of them without any knowledge about the
 implementation detail.
 
-Ocamlgraph also contains several algorithms to perform on those graph
+ocamlgraph also contains several algorithms to perform on those graph
 data structure. For instance, Dijkstra's algorithm computes the
 shortest path between given vertices $v_1$ and $v_2$ over any graph
 with the time complexity of $O((V+E)\log(V))$. Another example is the
@@ -122,7 +122,7 @@ mapping from vertex to the identifier which the vertex belongs to.
 \subsection {Implementation of the Bellman-Ford algorithm}
 
 During the internship, I contributed to the enrichment of the
-algorithms of Ocamlgraph, and added the implementation of Bellman-Ford
+algorithms of ocamlgraph, and added the implementation of Bellman-Ford
 algorithm. It is the algorithm that also computes the shortest path
 from $v_1$ to $v_2$, but allows the graph to have a negative weight on
 the edge unlike the Dijkstra's algorithm. After the termination, it
@@ -131,11 +131,12 @@ shortest path distance from given $s$ to every $v$. In case that the
 graph contains a negative length cycle, the edges in which sum up to
 below zero, the algorithm reports the existence of such the cycle.
 
-The algorithm maintains the labels that are given on every node in
-graph $G$. It is represented as the pair $(\pi,d)$ for every node $v$,
-respectively denoting the predecessor in the shortest path tree, and
-the shortest path distance from $s$ after algorithm termination. It is
-first initialized as $(nil,\infty)$ for all nodes except $s$ having
+First I briefly describe the mechanism of the algorithm. It maintains
+the labels that are given on every node in graph $G$. The label is
+represented as the pair $(\pi,d)$ for every node $v$, respectively
+denoting the predecessor in the shortest path tree, and the shortest
+path distance from $s$ after algorithm termination. It is first
+initialized as $(nil,\infty)$ for all nodes except $s$ having
 $(nil,0)$. Algorithm \ref{alg:init} shows the operation \cite{algo}.
 
 \newcommand{\initBF}{\ensuremath{\mbox{\sc Initialize-Single-Source}}}
@@ -217,7 +218,7 @@ The time complexity of this algorithm is $O(|E|\cdot|V|)$.
 \end{algorithmic}
 \end{algorithm}
 
-For the purporse of the implementation for Ocamlgraph, the implemented
+For the purporse of the implementation for ocamlgraph, the implemented
 algorithm is provided as a functor that receives the module type for
 graph and weigt on every edge. Making use of the record polymorphism
 in OCaml language, I introduced the minimum definition of graph data
@@ -297,30 +298,31 @@ end
 I implemented three methods in this module as listed below.
 
 \begin{itemize}
-\item \emph{all\_shortest\_paths} receives a graph $G$ and the source
-  vertex $s\in V$, and returns a hashtable which maps a vertex $v\in
-  V$ to the total weight of the shortest path from $s$ to $v$. When
-  there exists a negative length cycle, it raises an exception.
+\item \texttt{all\_shortest\_paths} receives a graph $G$ and the
+  source vertex $s\in V$, and returns a hashtable which maps a vertex
+  $v\in V$ to the total weight of the shortest path from $s$ to
+  $v$. When there exists a negative length cycle, it raises an
+  exception.
 
-\item \emph{find\_negative\_cycle\_from} also receives $G$ and $s$, and
-  looks for a negative length cycle reachable from $s$. When found, it
-  returns a list of edges that involve in such a cycle. Otherwise, it
-  raises an exception.
+\item \texttt{find\_negative\_cycle\_from} also receives $G$ and $s$,
+  and looks for a negative length cycle reachable from $s$. When
+  found, it returns a list of edges that involve in such a
+  cycle. Otherwise, it raises an exception.
 
-\item \emph{find\_negative\_cycle} receives only $G$. It looks for any
-  negative cycle in the graph, and when found, returns one of
+\item \texttt{find\_negative\_cycle} receives only $G$. It looks for
+  any negative cycle in the graph, and when found, returns one of
   them. Otherwise, it raises an exception.
 \end{itemize}
 
 The first two methods works as just the same except for the opposite
 behavior on raising exception.  They are both provided for the
-convenience of Ocamlgraph users.
+convenience of ocamlgraph users.
 
-The last method \emph{find\_negative\_cycle} is slightly more
+The last method \texttt{find\_negative\_cycle} is slightly more
 complex. It decompose the graph into strongly connected components,
-and perform \emph{find\_negative\_cycle\_from} from one of the vertex in
-each components. In this way, we can traverse the graph to all
-vertices without giving such a vertex as $s$.
+and perform \texttt{find\_negative\_cycle\_from} from one of the
+vertex in each components. In this way, we can traverse the graph to
+all vertices without giving such a vertex as $s$.
 
 However, this implementation is very naive and there is a room for
 improvement. For example, just look for the cycle in each strongly
@@ -332,9 +334,9 @@ The optimization for this method is left for the future work.
 
 \subsection{Incremental graph builder without negative length cycle}
 
-As stated in the first, Ocamlgraph allows users to implement any
+As stated in the first, ocamlgraph allows users to implement any
 arbitrarily data structure that goes along the built-in algorithms. So
-as for the other contribution on Ocamlgraph library, I added the new
+as for the other contribution on ocamlgraph library, I added the new
 graph implementation that ensures the graph is free of negative length
 cycle. This graph module helps users to immediately find such a cycle
 and prevent some algorithms from being unable to compute the result
@@ -342,10 +344,10 @@ and prevent some algorithms from being unable to compute the result
 
 Algorithm \ref{alg:nng} shows the functor signature for persistent
 graph data structure. Similar to the module BellmanFord, it receives
-the graph and weight module types. Note that \emph{Sig.P} is the
+the graph and weight module types. Note that \texttt{Sig.P} is the
 module type that encapsulate the persistent graph data structure. This
 functor returns the module that include all operations applicable on
-\emph{Sig.P}.
+\texttt{Sig.P}.
 
 \begin{algorithm}
 \caption{Signature for persistent graph without negative length cycle}\label{alg:nng}
@@ -362,9 +364,9 @@ end
 \end{algorithm}
 
 Additionally, as the main feature of this module, it raises
-\emph{Negative\_cycle} exception whenever the user operation is about
-to introduce a negative length cycle. As a result, such operation is
-prohibited over this graph.
+\texttt{Negative\_cycle} exception whenever the user operation is
+about to introduce a negative length cycle. As a result, such
+operation is prohibited over this graph.
 
 The implementation of this graph $G$ involves in maintaining the set
 of top ancestors in the graph, and distances from them to all
@@ -457,9 +459,9 @@ the correctness of Bellman-Ford algorithm.
 Proving the algorithm first starts by providing the specification of
 the algorithm. It should be minimal yet comprehensive to define the
 behavior of algorithm and should be clearly distinguished from the
-proofs. Shown below in Algorithm \ref{alg:why3graph} is a definition
-of graph representation that I used for proving Bellman-Ford
-algorithm.
+proofs. First, shown below in Algorithm \ref{alg:why3graph} is a
+definition of graph representation that I used for proving
+Bellman-Ford algorithm.
 
 \begin{algorithm}
 \caption{Graph representation in Why3 syntax}\label{alg:why3graph}
@@ -486,15 +488,39 @@ end
 characteristics of my graph data structure. As you can easily
 understand, it defines \texttt{vertex} type for the vertex
 representation, and \texttt{vertices} and \texttt{edges} provide
-storage of actual graph structure. However, in the proof, their values
-are never determined and assumed to take all possible values that
-satisfy other constraints. For example, due to the axiom
-\texttt{s\_in\_graph}, \texttt{s} can take any one element in
-\texttt{vertices}. In the same way, \texttt{edges\_def} restricts any
-element in \texttt{edges} should be a pair of elements that both
-belongs to \texttt{vertices}. 
+storage of actual graph structure. However, in the proof, their solid
+values are never to be determined and instead, assumed to take all
+possible values that satisfy other constraints. For example, due to
+the axiom \texttt{s\_in\_graph}, \texttt{s} can take any one element
+in \texttt{vertices}. In the same way, \texttt{edges\_def} restricts
+any element in \texttt{edges} should be a pair of elements that both
+belongs to \texttt{vertices}. As a whole, \texttt{Graph} has an
+ability to express any graph for the algorithm.
 
-Given the structure of the graph, I now introduce the notion of the
+For the next, having the definition of the graph, I define the
+interface of the algorithm. In this case, it is needed to slightly
+modify the structure from the pusedo-code that was introduced in the
+earlier section. Because we already have the interface to access the
+graph structure defined previously, we can omit graph-related
+parameters for simplicity. As a result, the algorithm now receives
+nothing and returns a mapping from each vertex to the shortest path
+distance. Note that for the purpose to handle $\infty$ as a distance
+value, an algebraic datatype \texttt{dist} is defined. By using it,
+the return type of the algorithm can be then expressed as \texttt{map
+  vertex dist} as in Algorithm \ref{alg:why3int}. In case the
+algorithm detects a negative cycle, it raises \texttt{Negative\_cycle}
+exception.
+
+\begin{algorithm}
+\caption{Interface definition of Bellman-Ford algorithm}\label{alg:why3int}
+\begin{why3}
+type dist = Finite int | Infinite
+exception Negative_cycle
+val bellman_ford : unit -> map vertex dist
+\end{why3}
+\end{algorithm}
+
+Given the structure of the graph, I then introduce the notion of the
 path between two vertices, shown in Algorithm \ref{alg:why3path}. The
 predicate \texttt{path u v n d} means that the path of \texttt{d}
 steps exists from \texttt{u} to \texttt{v} with \texttt{n} length. It
@@ -504,8 +530,25 @@ case, path from \texttt{u} to \texttt{v} is extended by using an edge
 from \texttt{v} to \texttt{w}, becoming a path from \texttt{u} to
 \texttt{w}.
 
-In the needs of shortest path and reachability property about paths, I
-also defined two more predicates. \texttt{shortest\_path}.
+In the needs of formalizing the shortest path and vertex reachability,
+I define two more predicates by using \texttt{path} above. They will
+be used in formalizing the postcondition when the algorithm terminates
+without detecting a negative cycle.
+
+\begin{itemize}
+
+\item \texttt{shortest\_path u v n d} predicate means that the given
+  path \texttt{path u v n d} exists and it's the shortest in length
+  from \texttt{v$_1$} to \texttt{v$_2$}. After the termination, each
+  vertex \texttt{v} reachable from \texttt{s} should be given the
+  length of its shortest path as \texttt{n}. It is equivalent to
+  \texttt{path s v n d} with some \texttt{d}.
+
+\item \texttt{no\_path v$_1$ v$_2$} predicate means that there exists
+  no path from \texttt{v$_1$} to \texttt{v$_2$}. It is equivalent to
+  that \texttt{v$_2$} is not reachable from \texttt{v$_1$}.
+
+\end{itemize}
 
 \begin{algorithm}
 \caption{Difinition of path}\label{alg:why3path}
@@ -526,10 +569,32 @@ theory Path
     (forall n' d': int. n' < n -> not (path v1 v2 n' d'))
 
   predicate no_path (v1 v2: vertex) =
-    forall n: int. not (path v1 v2 n)
+    forall n d: int. not (path v1 v2 n d)
 end
 \end{why3}
 \end{algorithm}
+
+Finally the algorithm itself is formalized in Algorithm \ref{alg:why3alg}.
+
+\begin{algorithm}
+\caption{Specification of the algorithm}\label{alg:why3alg}
+\begin{why3}
+let bellman_ford () : map vertex dist =
+  { (* nothing *) }
+  ... (* implementation comes here *)
+  { forall v: vertex. mem v vertices ->
+    match result[v] with
+    | Infinite -> no_path s v
+    | Finite n -> shortest_path s v n
+    end }
+  | Negative_cycle -> (* exception case *)
+  { exists v: vertex. mem v vertices /\
+    exists n: int. n < 0 /\ path v v n }
+\end{why3}
+\end{algorithm}
+
+
+
 
 
 
