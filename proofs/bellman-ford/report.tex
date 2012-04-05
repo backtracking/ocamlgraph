@@ -8,6 +8,7 @@
 \usepackage{amssymb,amsmath,amsthm}
 \usepackage{color}
 \usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{graphicx}
 
 \title{Internship report at LRI}
 \author{Yuto Takei \\ The University of Tokyo }
@@ -39,7 +40,7 @@ literate=%
 {
 basicstyle=\ttfamily,
 keywordstyle=\color{blue},
-morekeywords=[1]{inductive,predicate,function,goal,type,use,import,theory,end,in,axiom,lemma,export,forall,constant,module,let,exception,match,with,exists,val,unit},%
+morekeywords=[1]{inductive,predicate,function,goal,type,use,import,theory,end,in,axiom,lemma,export,forall,constant,module,let,exception,match,with,exists,val,for,to,while,do,done,invariant,variant},%
 %keywordstyle=[1]{\color{red}},%
 morekeywords=[2]{true,false},%
 %keywordstyle=[2]{\color{blue}},%
@@ -131,13 +132,14 @@ shortest path distance from given $s$ to every $v$. In case that the
 graph contains a negative length cycle, the edges in which sum up to
 below zero, the algorithm reports the existence of such the cycle.
 
-First I briefly describe the mechanism of the algorithm. It maintains
-the labels that are given on every node in graph $G$. The label is
-represented as the pair $(\pi,d)$ for every node $v$, respectively
-denoting the predecessor in the shortest path tree, and the shortest
-path distance from $s$ after algorithm termination. It is first
-initialized as $(nil,\infty)$ for all nodes except $s$ having
-$(nil,0)$. Algorithm \ref{alg:init} shows the operation \cite{algo}.
+First I briefly describe the mechanism of the algorithm according to
+the literature \cite{algo}. It maintains the labels that are given on
+every node in graph $G$. The label is represented as the pair
+$(\pi,d)$ for every node $v$, respectively denoting the predecessor in
+the shortest path tree, and the shortest path distance from $s$ after
+algorithm termination. It is first initialized as $(nil,\infty)$ for
+all nodes except $s$ having $(nil,0)$. Algorithm \ref{alg:init} shows
+the operation.
 
 \newcommand{\initBF}{\ensuremath{\mbox{\sc Initialize-Single-Source}}}
 \begin{algorithm}
@@ -153,9 +155,9 @@ $(nil,0)$. Algorithm \ref{alg:init} shows the operation \cite{algo}.
 
 The fundamental part of the algorithm is to make use of every edges to
 improve the distance given for vertices. This operation is called
-relax, as shown in Algorithm \ref{alg:relax} \cite{algo}. It tests
-$(u,v)$ is interesting for reducing the known distance from $s$ to $v$
-at the moment of execution.
+relax, as shown in Algorithm \ref{alg:relax}. It tests $(u,v)$ is
+interesting for reducing the known distance from $s$ to $v$ at the
+moment of execution.
 
 \newcommand{\relaxBF}{\ensuremath{\mbox{\sc Relax}}}
 \begin{algorithm}
@@ -169,9 +171,8 @@ at the moment of execution.
 \end{algorithm}
 
 Finally, we show the complete psuedo-code for the Bellman-Ford
-algorithm in Algorithm \ref{alg:bf} \cite{algo}. We firstly initialize
-the labels by \initBF, and iterate \relaxBF over all edges for $|V|-1$
-times.
+algorithm in Algorithm \ref{alg:bf}. We firstly initialize the labels
+by \initBF, and iterate \relaxBF over all edges for $|V|-1$ times.
 
 This upper bound is given according to the maximum possible depth of
 the shortest path tree. For the relation to the next section, I show
@@ -218,14 +219,17 @@ The time complexity of this algorithm is $O(|E|\cdot|V|)$.
 \end{algorithmic}
 \end{algorithm}
 
-For the purporse of the implementation for ocamlgraph, the implemented
-algorithm is provided as a functor that receives the module type for
-graph and weigt on every edge. Making use of the record polymorphism
-in OCaml language, I introduced the minimum definition of graph data
-structure that the algorithm requires (Algorithm \ref{alg:graph}).
+For the purporse of the implementation for ocamlgraph, my
+implementation is provided as a functor that receives the module type
+for graph and weigt on every edge. Making use of the record
+polymorphism in OCaml language, I introduced the minimum definition of
+graph data structure that the algorithm requires (Listing
+\ref{lst:graph}).
 
+\floatname{algorithm}{Listing}
+\setcounter{algorithm}{0}
 \begin{algorithm}
-\caption{Minimum required interface of the graph}\label{alg:graph}
+\caption{Minimum required interface of the graph}\label{lst:graph}
 \begin{ocaml}
 module type G = sig
   type t
@@ -253,12 +257,12 @@ occurs anymore, one can exit the relaxation loop before reaches to the
 terminal. In most cases, this largely contributes to the optimization
 of the algorithm.
 
-As for the weight for edges, it is given as in Algorithm
-\ref{alg:weight}. The weight can be any type that is a monoid with
+As for the weight for edges, it is given as in Listing
+\ref{lst:weight}. The weight can be any type that is a monoid with
 total order.
 
 \begin{algorithm}
-\caption{Minimum definition of the weight}\label{alg:weight}
+\caption{Minimum definition of the weight}\label{lst:weight}
 \begin{ocaml}
 module type WEIGHT = sig
   type label
@@ -272,13 +276,13 @@ end
 \end{algorithm}
 
 By making use of \texttt{G} and \texttt{WEIGHT} module type, I now
-introduce the functor signature for Bellman-Ford algorithm in
-\ref{alg:bfsig}. The pair of \texttt{G} and \texttt{WEIGHT} expresses
+introduce the functor signature for Bellman-Ford algorithm in Listing
+\ref{lst:bfsig}. The pair of \texttt{G} and \texttt{WEIGHT} expresses
 weighted directed graph. The algorithm is instanciated by receiving it
 as a functor parameter.
 
 \begin{algorithm}
-\caption{Module interface of Bellman-Ford algorithm}\label{alg:bfsig}
+\caption{Module interface of Bellman-Ford algorithm}\label{lst:bfsig}
 \begin{ocaml}
 module BellmanFord
   (G: G)
@@ -342,15 +346,15 @@ cycle. This graph module helps users to immediately find such a cycle
 and prevent some algorithms from being unable to compute the result
 (e.g. shortest paths).
 
-Algorithm \ref{alg:nng} shows the functor signature for persistent
-graph data structure. Similar to the module BellmanFord, it receives
-the graph and weight module types. Note that \texttt{Sig.P} is the
-module type that encapsulate the persistent graph data structure. This
+Listing \ref{lst:nng} shows the functor signature for persistent graph
+data structure. Similar to the module BellmanFord, it receives the
+graph and weight module types. Note that \texttt{Sig.P} is the module
+type that encapsulate the persistent graph data structure. This
 functor returns the module that include all operations applicable on
 \texttt{Sig.P}.
 
 \begin{algorithm}
-\caption{Signature for persistent graph without negative length cycle}\label{alg:nng}
+\caption{Signature for persistent graph without negative length cycle}\label{lst:nng}
 \begin{ocaml}
 module Persistent
   (G: Sig.P)
@@ -386,6 +390,8 @@ moment, we also set $d[v\to v]\leftarrow 0$, and for other vertices
 $x$, set $d[v\to x]\leftarrow \infty$. (see Algorithm
 \ref{alg:verNng})
 
+\floatname{algorithm}{Algorithm}
+\setcounter{algorithm}{3}
 \begin{algorithm}
 \caption{$\ensuremath{\mbox{\sc Add-Vertex}}(G,S,d,v)$}\label{alg:verNng}
 \begin{algorithmic}[1]
@@ -451,20 +457,22 @@ solve in the course of verification and provides a way to split into
 smaller goals. Those smaller goals are then transformed into several
 formats so that different SMT provers can try to solve them.
 
-During my latter half of the internship, I devoted myself into proving
-the correctness of Bellman-Ford algorithm.
+During my latter half of the internship, I devoted myself to proving
+the correctness of Bellman-Ford algorithm by using Why3.
 
 \subsection{Specification}
 
 Proving the algorithm first starts by providing the specification of
 the algorithm. It should be minimal yet comprehensive to define the
 behavior of algorithm and should be clearly distinguished from the
-proofs. First, shown below in Algorithm \ref{alg:why3graph} is a
+proofs. First, shown below in Listing \ref{lst:why3graph} is a
 definition of graph representation that I used for proving
 Bellman-Ford algorithm.
 
+\floatname{algorithm}{Listing}
+\setcounter{algorithm}{4}
 \begin{algorithm}
-\caption{Graph representation in Why3 syntax}\label{alg:why3graph}
+\caption{Graph representation in Why3 syntax}\label{lst:why3graph}
 \begin{why3}
 theory Graph
   use export set.Fset (* theory concerning finite sets *)
@@ -507,12 +515,12 @@ nothing and returns a mapping from each vertex to the shortest path
 distance. Note that for the purpose to handle $\infty$ as a distance
 value, an algebraic datatype \texttt{dist} is defined. By using it,
 the return type of the algorithm can be then expressed as \texttt{map
-  vertex dist} as in Algorithm \ref{alg:why3int}. In case the
-algorithm detects a negative cycle, it raises \texttt{Negative\_cycle}
+  vertex dist} as in Listing \ref{lst:why3int}. In case the algorithm
+detects a negative cycle, it raises \texttt{Negative\_cycle}
 exception.
 
 \begin{algorithm}
-\caption{Interface definition of Bellman-Ford algorithm}\label{alg:why3int}
+\caption{Interface definition of Bellman-Ford algorithm}\label{lst:why3int}
 \begin{why3}
 type dist = Finite int | Infinite
 exception Negative_cycle
@@ -521,7 +529,7 @@ val bellman_ford : unit -> map vertex dist
 \end{algorithm}
 
 Given the structure of the graph, I then introduce the notion of the
-path between two vertices, shown in Algorithm \ref{alg:why3path}. The
+path between two vertices, shown in Listing \ref{lst:why3path}. The
 predicate \texttt{path u v n d} means that the path of \texttt{d}
 steps exists from \texttt{u} to \texttt{v} with \texttt{n} length. It
 is inductively defined; the empty case is that all the vertices can
@@ -530,28 +538,8 @@ case, path from \texttt{u} to \texttt{v} is extended by using an edge
 from \texttt{v} to \texttt{w}, becoming a path from \texttt{u} to
 \texttt{w}.
 
-In the needs of formalizing the shortest path and vertex reachability,
-I define two more predicates by using \texttt{path} above. They will
-be used in formalizing the postcondition when the algorithm terminates
-without detecting a negative cycle.
-
-\begin{itemize}
-
-\item \texttt{shortest\_path u v n d} predicate means that the given
-  path \texttt{path u v n d} exists and it's the shortest in length
-  from \texttt{v$_1$} to \texttt{v$_2$}. After the termination, each
-  vertex \texttt{v} reachable from \texttt{s} should be given the
-  length of its shortest path as \texttt{n}. It is equivalent to
-  \texttt{path s v n d} with some \texttt{d}.
-
-\item \texttt{no\_path v$_1$ v$_2$} predicate means that there exists
-  no path from \texttt{v$_1$} to \texttt{v$_2$}. It is equivalent to
-  that \texttt{v$_2$} is not reachable from \texttt{v$_1$}.
-
-\end{itemize}
-
 \begin{algorithm}
-\caption{Difinition of path}\label{alg:why3path}
+\caption{Difinition of path}\label{lst:why3path}
 \begin{why3}
 theory Path
   use import Graph
@@ -574,10 +562,38 @@ end
 \end{why3}
 \end{algorithm}
 
-Finally the algorithm itself is formalized in Algorithm \ref{alg:why3alg}.
+In the needs of formalizing the shortest path and vertex reachability,
+I define two more predicates by using \texttt{path} above. They will
+be used in formalizing the postcondition when the algorithm terminates
+without detecting a negative cycle.
+
+\begin{itemize}
+
+\item \texttt{shortest\_path u v n d} predicate means that the given
+  path \texttt{path u v n d} exists and it's the shortest in length
+  from \texttt{v$_1$} to \texttt{v$_2$}. After the termination, each
+  vertex \texttt{v} reachable from \texttt{s} should be given the
+  length of its shortest path as \texttt{n}. It is equivalent to
+  \texttt{path s v n d} with some \texttt{d}.
+
+\item \texttt{no\_path v$_1$ v$_2$} predicate means that there exists
+  no path from \texttt{v$_1$} to \texttt{v$_2$}. It is equivalent to
+  that \texttt{v$_2$} is not reachable from \texttt{v$_1$}.
+
+\end{itemize}
+
+Finally the algorithm itself is in Why3 syntax as in Listing
+\ref{lst:why3alg}. Note that the syntax is very much alike with the
+one of OCaml. The difference is that you describe the precondition and
+the postcondition for the function. In this case, since the function
+\texttt{bellman\_ford} receives nothing, it has no precondition. On
+the other hand, the return value should contain the correct mapping
+from each vertex to the distance when the function terminates without
+\texttt{Negative\_cycle} exception. Otherwise, there should exists the
+vertex which involves in the negative cycle.
 
 \begin{algorithm}
-\caption{Specification of the algorithm}\label{alg:why3alg}
+\caption{Specification of the algorithm}\label{lst:why3alg}
 \begin{why3}
 let bellman_ford () : map vertex dist =
   { (* nothing *) }
@@ -593,7 +609,73 @@ let bellman_ford () : map vertex dist =
 \end{why3}
 \end{algorithm}
 
+\subsection{Proof}
 
+Once you finish the specification, the proof will be automatically
+conducted by Why3. It provides a graphical user interface (GUI) that
+allows users to interactively choose appropriate SMT solvers for each
+goal, split a goal into smaller propositions, expand the predicate
+definitions in the goal inline, or launch Coq for unsolvable goals by
+SMT solvers. Figure \ref{fig:why3ide} illustrates the example screen
+of Why3 IDE.
+
+\begin{figure}[h]
+\centering \includegraphics[width=\textwidth]{why3.png}
+\label{fig:why3ide}
+\caption{Graphical user interface of Why3}
+\end{figure}
+
+I divided the correctness of the Bellman-Ford algorithm into following
+four properties to be preserved.
+
+\begin{enumerate}
+\item The algorithm must terminate.
+\item Non-reachable vertices from \texttt{s} must have infinity length
+  after the termination.
+\item Other vertices must have the length of the shortest path from
+  \texttt{s} after the termination, if no negative length cycle exists
+  in the graph.
+\item If and only if there is at least one negative length cycle in
+  the graph, the algorithm must terminate with exception.
+\end{enumerate}
+
+During the internship, I successfuly proved the first two
+properties. The other two are left for the future work.
+
+First, we start by the termination property. Why3 requires loops and
+recursive functions to have an integral expression as a variant. The
+expression should strictly descrease at each iteration, and should
+stay positive except for the very last iteration. This guarantees that
+the variant will finally converge at zero, giving an upper bound for
+the number of iterations.
+
+For example, Line 1-6 in Algorithm \ref{alg:bf} are translated into
+Why3 syntax as shown in Listing \ref{lst:why3term}. The inner
+\texttt{while} loop got the number of edges to be processed as its
+loop variant. It strictly descreases every time the iteration
+proceeds. The outer \texttt{for} loop is more obvious and it is not
+neccessary to add the redundant annotation.
+
+\begin{algorithm}
+\caption{Variants given for loop termination}\label{lst:why3term}
+\begin{why3}
+let m = ref (initialize_single_source s) in
+for i = 1 to cardinal vertices - 1 do
+  let es = ref edges in
+  while not (Bag.is_empty es) do
+    variant { cardinal !es }
+
+    let (u, v) = Bag.pop es in
+    relax m u v
+  done
+done; (* code continues *)
+\end{why3}
+\end{algorithm}
+
+
+In the Why3 proof session, users are expected to involve in giving an
+appropriate annotations because SMT solvers cannot gain enough
+premises to prove the goal without any annotations.
 
 
 
