@@ -59,164 +59,7 @@ theory Graph
     (* then there exists a nagtive cycle *)
     exists u: vertex. negative_cycle u
 
-(*
-  lemma path_pred_existence:
-    forall v1 v3: vertex, n d: int. d >= 0 -> path v1 v3 n (d + 1) ->
-    exists v2: vertex. mem (v2, v3) edges /\
-    path v1 v2 (n - (weight v2 v3)) d
-
-  predicate shortest_path (v1 v2: vertex) (n d: int) =
-    (path v1 v2 n d) /\
-    (forall n' d': int. n' < n -> not (path v1 v2 n' d'))
-
-  lemma shortest_path_empty:
-    forall v: vertex. mem v vertices ->
-    (forall n d: int. n < 0 -> not (path v v n d)) ->
-    shortest_path v v 0 0
-*)
-
-(*
-  I don't think this can be proved right now.
-  lemma shortest_path_pred:
-    forall v: vertex. mem v vertices ->
-    forall n d: int. shortest_path s v n d ->
-    exists u: vertex. mem (u, v) edges /\
-    shortest_path s u (n - weight u v) (d - 1)
-
-  lemma shortest_path_max_depth:
-    forall d: int. d < 0 \/ d >= cardinal vertices ->
-    forall u v: vertex, n: int. not shortest_path u v n d
-*)
-
-(*
-  predicate no_path (v1 v2: vertex) =
-    forall n d: int. not (path v1 v2 n d)
-
-  lemma no_path_not_same:
-    forall v: vertex. not (no_path v v)
-
-  lemma path_trans:
-    forall v1 v2 v3: vertex, n1 n2 d1 d2: int.
-    path v1 v2 n1 d1 -> path v2 v3 n2 d2 ->
-    path v1 v3 (n1 + n2) (d1 + d2)
-
-  lemma reach_less_than_n:
-    forall v1 v2: vertex. mem v1 vertices ->
-    forall d n: int. path v1 v2 n d ->
-    exists d' n': int. d' < cardinal vertices /\ path v1 v2 n' d'
-
-  lemma reach_most_n:
-    forall v1 v2: vertex. mem v1 vertices /\ mem v2 vertices ->
-    (forall n d: int. 0 <= d < cardinal vertices ->
-      not (path v1 v2 n d)) ->
-    no_path v1 v2
-
-  predicate negcycle =
-    exists v: vertex. mem v vertices /\
-    exists n d: int. n < 0 /\ path v v n d
-
-  lemma shortest_path_unique_distance:
-    forall v: vertex, n d: int.
-    shortest_path s v n d ->
-    forall n' d': int. n <> n' -> not (shortest_path s v n' d')
-
-  lemma no_path_xor_shortest_path_exists:
-    not negcycle -> forall v: vertex. mem v vertices ->
-    (no_path s v <-> not (exists n d: int. shortest_path s v n d))
-*)
-
 end
-(*
-theory SimplePath
-
-  use import list.List
-  use import list.Length
-  use list.Mem
-  use import list.Distinct
-  use export Graph
-
-  inductive path_list (s t: vertex) (l: list vertex) =
-    | path_list_empty:
-        forall v: vertex. path_list v v Nil
-    | path_list_succ:
-        forall s v1: vertex, l: list vertex. path_list s (Cons v1 l) ->
-        forall v2: vertex. mem (v1, v2) edges ->
-        path_list s (Cons v2 (Cons v1 l))
-
-  inductive simple_path (s: vertex) (l: list vertex) =
-    | simple_zero:
-        forall v: vertex. simple_path v Nil
-    | simple_succ:
-        forall s v1: vertex, l: list vertex. simple_path s (Cons v1 l) ->
-        forall v2: vertex. mem (v1, v2) edges -> s <> v2 ->
-        not (Mem.mem v2 l) -> simple_path s (Cons v2 (Cons v1 l))
-
-  function sum (l: list vertex) : int =
-    match l with
-      | Nil -> 0
-      | Cons v2 rest ->
-        match rest with
-        | Nil -> 0
-        | Cons v1 _ -> (weight v1 v2) + (sum rest)
-        end
-    end
-
-  lemma simple_path_distinct:
-    forall s: vertex, l: list vertex. simple_path s l ->
-    distinct l /\ not Mem.mem s l
-
-  lemma simple_path_less_than_n:
-    forall s: vertex, l: list vertex. simple_path s l ->
-    length l < cardinal vertices
-
-  lemma simple_to_path:
-    forall s: vertex, l: list vertex. simple_path s l -> path_list s l
-
-  lemma path_to_simple_empty:
-    forall s v: vertex, l: list vertex. path_list s (Cons s l) ->
-    simple_path s (Cons s Nil)
-
-  lemma path_to_simple_succ:
-    forall s v: vertex, l: list vertex. path_list s (Cons v l) ->
-    exists l': list vertex. simple_path s (Cons v l')
-
-end
-*)
-
-(*
-theory FSetEx
-
-  use export set.Fset
-
-  lemma set_empty:
-    forall a: set 'a. is_empty a <-> a = empty
-
-  lemma set_union_exchange:
-    forall a b: set 'a. union a b = union b a
-
-  lemma set_inter_exchange:
-    forall a b: set 'a. inter a b = inter b a
-
-  lemma set_inter_choice:
-    forall a b: set 'a, e: 'a. inter a b = empty ->
-    mem e a -> not (mem e b)
-
-  lemma set_preserve_union:
-    forall a b: set 'a, e: 'a. mem e a ->
-    union (remove e a) (add e b) = union a b
-
-  lemma set_preserve_inter:
-    forall a b: set 'a, e: 'a. mem e a /\ not (mem e b) ->
-    inter (remove e a) (add e b) = inter a b
-
-  lemma set_empty_union:
-    forall a: set 'a. union a empty = a
-
-  lemma set_empty_inter:
-    forall a: set 'a. inter a empty = empty
-
-end
-*)
 
 module BellmanFord
 
@@ -231,13 +74,6 @@ module BellmanFord
 
   function initialize_single_source (s: vertex) : distmap =
     (const D.Infinite)[s <- D.Finite 0]
-
-(*
-  predicate path_ends_with (v1 v2: vertex) (n d: int)
-              (via: set (vertex, vertex)) =
-    exists u: vertex. mem (u, v2) via /\
-    path v1 u (n - weight u v2) (d - 1)
-*)
 
   (* [inv1 m pass via] means that we already performed [pass-1] steps
      of the main loop, and, in step [pass], we already processed edges
@@ -267,24 +103,10 @@ module BellmanFord
     forall u v: vertex. mem (u, v) via ->
     D.le m[v] (D.add m[u] (D.Finite (weight u v)))
 
-(*
-  lemma inv1_next:
-    forall m: distmap, d: int. 0 <= d < cardinal vertices ->
-    inv1 m d edges -> inv1 m (d + 1) empty
-
-  lemma inv2_shortest:
-    forall v: vertex. mem v vertices -> forall n: int.
-    (exists d: int. 0 <= d < cardinal vertices /\ path s v n d) /\
-    (forall d': int. 0 <= d' < cardinal vertices ->
-      forall n': int. path s v n' d' -> n <= n') /\
-    (forall n' d': int. path_ends_with s v n' d' edges -> n <= n') ->
-    exists d: int. shortest_path s v n d
-
-  lemma path_ends_with_edge_shortest_path:
-    forall v: vertex, n: int.
-    (forall n' d': int. path_ends_with s v n' d' edges -> n <= n') ->
-    (exists d: int. shortest_path s v n d)
-*)
+  (* key lemma for non-existence of a negative cycle *)
+  lemma key_lemma_2:
+     forall m: distmap. inv2 m edges ->
+     forall v: vertex. not (negative_cycle v)
 
   let relax (m: ref distmap) (u v: vertex) (pass: int)
             (via: set (vertex, vertex)) =
@@ -294,7 +116,7 @@ module BellmanFord
     if D.lt n !m[v] then m := !m[v <- n]
     { inv1 !m pass (add (u, v) via) }
 
-  exception NegativeCycle (* list vertex *)
+  exception NegativeCycle
 
   let bellman_ford () =
     { }
@@ -312,51 +134,12 @@ module BellmanFord
       assert { inv1 !m i edges }
     done;
     assert { inv1 !m (cardinal vertices) empty };
-    (*
-    assert { inv2 !m empty };
-    *)
     let es = Bag.create edges in
     while not (Bag.is_empty es) do
       invariant { subset !es edges /\ inv2 !m (diff edges !es) }
       variant { cardinal !es }
       let (u, v) = Bag.pop es in
-(*
-      assert {
-        let pass = cardinal vertices in
-        mem v vertices ->
-        match !m[v] with
-          | Finite n ->
-            (exists d: int. 0 <= d < pass /\ path s v n d) /\
-            (forall d': int. 0 <= d' < pass ->
-              forall n': int. path s v n' d' -> n <= n')
-          | Infinite ->
-            (forall d: int. 0 <= d < pass ->
-              forall n: int. not (path s v n d))
-        end
-      };
-*)
       if D.lt (D.add !m[u] (D.Finite (weight u v))) !m[v] then begin
-(*
-        assert {
-          match !m[v] with
-          | Infinite -> false
-          | Finite dv ->
-        match !m[u] with
-            | Infinite -> false
-            | Finite du ->
-              (path s u du (cardinal vertices)) /\
-                (forall n' d': int. n' < du ->
-                  not (path s u n' (cardinal vertices))) /\
-              (path s v dv (cardinal vertices)) /\
-                (forall n' d': int. n' < dv ->
-                  not (path s v n' (cardinal vertices))) /\
-              (path s v dv (cardinal vertices + 1)) /\
-                not (forall n' d': int. n' < dv ->
-                  not (path s v n' (cardinal vertices + 1)))
-            end
-          end
-        };
-*)
         raise NegativeCycle
       end
     done;
