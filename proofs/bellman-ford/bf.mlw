@@ -48,7 +48,17 @@ theory Graph
     (exists l1: list vertex. path s l1 v) /\
     (exists l2: list vertex. path v l2 v /\ path_weight l2 v < 0)
 
-  (* key lemma for existence of a negative cycle *)
+  (* key lemma for existence of a negative cycle
+
+     Proof: by induction on the (list) length of the shorter path l
+       If length l < cardinal vertices, then it contradicts hypothesis 1
+       thus length l >= cardinal vertices and thus the path contains a cycle
+             s ----> n ----> n ----> v
+       If the weight of the cycle n--->n is negative, we are done.
+       Otherwise, we can remove this cycle from the path and we get
+       an even shorter path, with a stricltly shorter (list) length,
+       thus we can apply the induction hypothesis.                     Qed.
+   *)
   lemma key_lemma_1:
     forall v: vertex, n: int.
     (* if any simple path has weight at least n *)
@@ -68,7 +78,7 @@ module BellmanFord
   use int.IntInf as D
 
   use import module ref.Ref
-  use module bag.Bag
+  use module impset.Impset as S
 
   type distmap = map vertex D.t
 
@@ -103,7 +113,16 @@ module BellmanFord
     forall u v: vertex. mem (u, v) via ->
     D.le m[v] (D.add m[u] (D.Finite (weight u v)))
 
-  (* key lemma for non-existence of a negative cycle *)
+  (* key lemma for non-existence of a negative cycle
+
+     Proof: let us assume a negative cycle reachable from s, that is
+         s --...--> x0 --w1--> x1 --w2--> x2 ... xn-1 --wn--> x0
+       with w1+w2+...+wn < 0.
+       Let di be the distance from s to xi as given by map m.
+       By [inv2 m edges] we have di-1 + wi >= di for all i.
+       Summing all such inequalities over the cycle, we get
+            w1+w2+...+wn >= 0
+       hence a contradiction.                                  Qed. *)
   lemma key_lemma_2:
      forall m: distmap. inv2 m edges ->
      forall v: vertex. not (negative_cycle v)
@@ -123,22 +142,22 @@ module BellmanFord
     let m = ref (initialize_single_source s) in
     for i = 1 to cardinal vertices - 1 do
       invariant { inv1 !m i empty }
-      let es = Bag.create edges in
-      while not (Bag.is_empty es) do
+      let es = S.create edges in
+      while not (S.is_empty es) do
         invariant { subset !es edges /\ inv1 !m i (diff edges !es) }
         variant   { cardinal !es }
         let via = diff edges !es in (* ghost *)
-        let (u, v) = Bag.pop es in
+        let (u, v) = S.pop es in
         relax m u v i via
       done;
       assert { inv1 !m i edges }
     done;
     assert { inv1 !m (cardinal vertices) empty };
-    let es = Bag.create edges in
-    while not (Bag.is_empty es) do
+    let es = S.create edges in
+    while not (S.is_empty es) do
       invariant { subset !es edges /\ inv2 !m (diff edges !es) }
       variant { cardinal !es }
-      let (u, v) = Bag.pop es in
+      let (u, v) = S.pop es in
       if D.lt (D.add !m[u] (D.Finite (weight u v))) !m[v] then begin
         raise NegativeCycle
       end
