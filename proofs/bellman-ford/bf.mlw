@@ -12,7 +12,7 @@ theory Graph
 
   (* the graph is defined by a set of vertices and a set of edges *)
   type vertex
-  constant vertices : set vertex
+  constant vertices: set vertex
   constant edges: set (vertex, vertex)
 
   predicate edge (x y: vertex) = mem (x,y) edges
@@ -23,7 +23,7 @@ theory Graph
     mem (x, y) edges -> mem x vertices /\ mem y vertices
 
   (* a single source vertex s is given *)
-  constant s : vertex
+  constant s: vertex
   axiom s_in_graph: mem s vertices
 
   (* hence vertices is non empty *)
