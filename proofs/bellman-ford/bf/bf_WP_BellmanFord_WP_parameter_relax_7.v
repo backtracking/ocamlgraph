@@ -169,6 +169,20 @@ Axiom cardinal_remove : forall (a:Type), forall (x:a), forall (s:(set1 a)),
 Axiom cardinal_subset : forall (a:Type), forall (s1:(set1 a)) (s2:(set1 a)),
   (subset s1 s2) -> ((cardinal s1) <= (cardinal s2))%Z.
 
+Axiom cardinal1 : forall (a:Type), forall (s:(set1 a)),
+  ((cardinal s) = 1%Z) -> forall (x:a), (mem x s) -> (x = (choose s)).
+
+Parameter nth: forall (a:Type), Z -> (set1 a) -> a.
+Implicit Arguments nth.
+
+Axiom nth_injective : forall (a:Type), forall (s:(set1 a)) (i:Z) (j:Z),
+  ((0%Z <= i)%Z /\ (i <  (cardinal s))%Z) -> (((0%Z <= j)%Z /\
+  (j <  (cardinal s))%Z) -> (((nth i s) = (nth j s)) -> (i = j))).
+
+Axiom nth_surjective : forall (a:Type), forall (s:(set1 a)) (x:a), (mem x
+  s) -> exists i:Z, ((0%Z <= i)%Z /\ (i <  (cardinal s))%Z) -> (x = (nth i
+  s)).
+
 Parameter vertex : Type.
 
 Parameter vertices: (set1 vertex).
@@ -232,6 +246,11 @@ Axiom path_right_extension : forall (x:vertex) (y:vertex) (z:vertex) (l:(list
   vertex)), (path x l y) -> ((edge y z) -> (path x (infix_plpl l (Cons y
   (Nil :(list vertex)))) z)).
 
+Axiom path_right_inversion : forall (x:vertex) (z:vertex) (l:(list vertex)),
+  (path x l z) -> (((x = z) /\ (l = (Nil :(list vertex)))) \/
+  exists y:vertex, exists lqt:(list vertex), (path x lqt y) /\ ((edge y z) /\
+  (l = (infix_plpl lqt (Cons y (Nil :(list vertex))))))).
+
 Axiom path_trans : forall (x:vertex) (y:vertex) (z:vertex) (l1:(list vertex))
   (l2:(list vertex)), (path x l1 y) -> ((path y l2 z) -> (path x
   (infix_plpl l1 l2) z)).
@@ -261,6 +280,16 @@ Axiom path_in_vertices : forall (v1:vertex) (v2:vertex) (l:(list vertex)),
 Axiom simple_path : forall (v:vertex) (l:(list vertex)), (path s l v) ->
   exists lqt:(list vertex), (path s lqt v) /\
   ((length lqt) <  (cardinal vertices))%Z.
+
+(* Why3 assumption *)
+Definition negative_cycle(v:vertex): Prop := (mem v vertices) /\
+  ((exists l1:(list vertex), (path s l1 v)) /\ exists l2:(list vertex),
+  (path v l2 v) /\ ((path_weight l2 v) <  0%Z)%Z).
+
+Axiom key_lemma_1 : forall (v:vertex) (n:Z), (forall (l:(list vertex)),
+  (path s l v) -> (((length l) <  (cardinal vertices))%Z ->
+  (n <= (path_weight l v))%Z)) -> ((exists l:(list vertex), (path s l v) /\
+  ((path_weight l v) <  n)%Z) -> exists u:vertex, (negative_cycle u)).
 
 (* Why3 assumption *)
 Inductive t  :=
@@ -330,7 +359,7 @@ Definition inv1(m:(map vertex t)) (pass:Z) (via:(set1 (vertex*
       u) + (weight u v))%Z)%Z)))
   | Infinite => (forall (l:(list vertex)), (path s l v) ->
       (pass <= (length l))%Z) /\ forall (u:vertex), (mem (u, v) via) ->
-      ((get m u) = Infinite)
+      forall (lu:(list vertex)), (path s lu u) -> (pass <= (length lu))%Z
   end.
 
 (* Why3 assumption *)
@@ -338,7 +367,11 @@ Definition inv2(m:(map vertex t)) (via:(set1 (vertex* vertex)%type)): Prop :=
   forall (u:vertex) (v:vertex), (mem (u, v) via) -> (le (get m v)
   (add1 (get m u) (Finite (weight u v)))).
 
+Axiom key_lemma_2 : forall (m:(map vertex t)), (inv2 m edges) ->
+  forall (v:vertex), ~ (negative_cycle v).
+
 Require Import Why3.
+Ltac ae := why3 "alt-ergo".
 Require Import Classical.
 
 (* Why3 goal *)
@@ -356,7 +389,7 @@ Theorem WP_parameter_relax : forall (u:vertex), forall (v:vertex),
       u1) + (weight u1 v1))%Z)%Z)))
   | Infinite => (forall (l:(list vertex)), (path s l v1) ->
       (pass <= (length l))%Z) /\ forall (u1:vertex), (mem (u1, v1) via) ->
-      ((get m u1) = Infinite)
+      forall (lu:(list vertex)), (path s lu u1) -> (pass <= (length lu))%Z
   end))) -> (match (get m
   u) with
   | Infinite => False

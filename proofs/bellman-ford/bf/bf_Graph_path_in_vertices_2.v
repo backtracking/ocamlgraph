@@ -4,6 +4,30 @@ Require Import ZArith.
 Require Import Rbase.
 Require int.Int.
 
+(* Why3 assumption *)
+Inductive list (a:Type) :=
+  | Nil : list a
+  | Cons : a -> (list a) -> list a.
+Set Contextual Implicit.
+Implicit Arguments Nil.
+Unset Contextual Implicit.
+Implicit Arguments Cons.
+
+(* Why3 assumption *)
+Set Implicit Arguments.
+Fixpoint length (a:Type)(l:(list a)) {struct l}: Z :=
+  match l with
+  | Nil => 0%Z
+  | (Cons _ r) => (1%Z + (length r))%Z
+  end.
+Unset Implicit Arguments.
+
+Axiom Length_nonnegative : forall (a:Type), forall (l:(list a)),
+  (0%Z <= (length l))%Z.
+
+Axiom Length_nil : forall (a:Type), forall (l:(list a)),
+  ((length l) = 0%Z) <-> (l = (Nil :(list a))).
+
 Parameter set : forall (a:Type), Type.
 
 Parameter mem: forall (a:Type), a -> (set a) -> Prop.
@@ -103,6 +127,20 @@ Axiom cardinal_remove : forall (a:Type), forall (x:a), forall (s:(set a)),
 Axiom cardinal_subset : forall (a:Type), forall (s1:(set a)) (s2:(set a)),
   (subset s1 s2) -> ((cardinal s1) <= (cardinal s2))%Z.
 
+Axiom cardinal1 : forall (a:Type), forall (s:(set a)),
+  ((cardinal s) = 1%Z) -> forall (x:a), (mem x s) -> (x = (choose s)).
+
+Parameter nth: forall (a:Type), Z -> (set a) -> a.
+Implicit Arguments nth.
+
+Axiom nth_injective : forall (a:Type), forall (s:(set a)) (i:Z) (j:Z),
+  ((0%Z <= i)%Z /\ (i <  (cardinal s))%Z) -> (((0%Z <= j)%Z /\
+  (j <  (cardinal s))%Z) -> (((nth i s) = (nth j s)) -> (i = j))).
+
+Axiom nth_surjective : forall (a:Type), forall (s:(set a)) (x:a), (mem x
+  s) -> exists i:Z, ((0%Z <= i)%Z /\ (i <  (cardinal s))%Z) -> (x = (nth i
+  s)).
+
 Parameter vertex : Type.
 
 Parameter vertices: (set vertex).
@@ -122,15 +160,6 @@ Axiom s_in_graph : (mem s vertices).
 Axiom vertices_cardinal_pos : (0%Z <  (cardinal vertices))%Z.
 
 (* Why3 assumption *)
-Inductive list (a:Type) :=
-  | Nil : list a
-  | Cons : a -> (list a) -> list a.
-Set Contextual Implicit.
-Implicit Arguments Nil.
-Unset Contextual Implicit.
-Implicit Arguments Cons.
-
-(* Why3 assumption *)
 Set Implicit Arguments.
 Fixpoint infix_plpl (a:Type)(l1:(list a)) (l2:(list a)) {struct l1}: (list
   a) :=
@@ -146,21 +175,6 @@ Axiom Append_assoc : forall (a:Type), forall (l1:(list a)) (l2:(list a))
 
 Axiom Append_l_nil : forall (a:Type), forall (l:(list a)), ((infix_plpl l
   (Nil :(list a))) = l).
-
-(* Why3 assumption *)
-Set Implicit Arguments.
-Fixpoint length (a:Type)(l:(list a)) {struct l}: Z :=
-  match l with
-  | Nil => 0%Z
-  | (Cons _ r) => (1%Z + (length r))%Z
-  end.
-Unset Implicit Arguments.
-
-Axiom Length_nonnegative : forall (a:Type), forall (l:(list a)),
-  (0%Z <= (length l))%Z.
-
-Axiom Length_nil : forall (a:Type), forall (l:(list a)),
-  ((length l) = 0%Z) <-> (l = (Nil :(list a))).
 
 Axiom Append_length : forall (a:Type), forall (l1:(list a)) (l2:(list a)),
   ((length (infix_plpl l1 l2)) = ((length l1) + (length l2))%Z).
@@ -190,12 +204,33 @@ Axiom path_right_extension : forall (x:vertex) (y:vertex) (z:vertex) (l:(list
   vertex)), (path x l y) -> ((edge y z) -> (path x (infix_plpl l (Cons y
   (Nil :(list vertex)))) z)).
 
+Axiom path_right_inversion : forall (x:vertex) (z:vertex) (l:(list vertex)),
+  (path x l z) -> (((x = z) /\ (l = (Nil :(list vertex)))) \/
+  exists y:vertex, exists lqt:(list vertex), (path x lqt y) /\ ((edge y z) /\
+  (l = (infix_plpl lqt (Cons y (Nil :(list vertex))))))).
+
 Axiom path_trans : forall (x:vertex) (y:vertex) (z:vertex) (l1:(list vertex))
   (l2:(list vertex)), (path x l1 y) -> ((path y l2 z) -> (path x
   (infix_plpl l1 l2) z)).
 
 Axiom empty_path : forall (x:vertex) (y:vertex), (path x (Nil :(list vertex))
   y) -> (x = y).
+
+Parameter weight: vertex -> vertex -> Z.
+
+(* Why3 assumption *)
+Set Implicit Arguments.
+Fixpoint path_weight(l:(list vertex)) (dst:vertex) {struct l}: Z :=
+  match l with
+  | Nil => 0%Z
+  | (Cons x Nil) => (weight x dst)
+  | (Cons x ((Cons y _) as r)) => ((weight x y) + (path_weight r dst))%Z
+  end.
+Unset Implicit Arguments.
+
+Axiom path_weight_right_extension : forall (x:vertex) (y:vertex) (l:(list
+  vertex)), ((path_weight (infix_plpl l (Cons x (Nil :(list vertex))))
+  y) = ((path_weight l x) + (weight x y))%Z).
 
 (* Why3 goal *)
 Theorem path_in_vertices : forall (v1:vertex) (v2:vertex) (l:(list vertex)),

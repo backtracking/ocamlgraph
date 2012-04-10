@@ -172,6 +172,17 @@ Axiom cardinal_subset : forall (a:Type), forall (s1:(set1 a)) (s2:(set1 a)),
 Axiom cardinal1 : forall (a:Type), forall (s:(set1 a)),
   ((cardinal s) = 1%Z) -> forall (x:a), (mem x s) -> (x = (choose s)).
 
+Parameter nth: forall (a:Type), Z -> (set1 a) -> a.
+Implicit Arguments nth.
+
+Axiom nth_injective : forall (a:Type), forall (s:(set1 a)) (i:Z) (j:Z),
+  ((0%Z <= i)%Z /\ (i <  (cardinal s))%Z) -> (((0%Z <= j)%Z /\
+  (j <  (cardinal s))%Z) -> (((nth i s) = (nth j s)) -> (i = j))).
+
+Axiom nth_surjective : forall (a:Type), forall (s:(set1 a)) (x:a), (mem x
+  s) -> exists i:Z, ((0%Z <= i)%Z /\ (i <  (cardinal s))%Z) -> (x = (nth i
+  s)).
+
 Parameter vertex : Type.
 
 Parameter vertices: (set1 vertex).
@@ -356,7 +367,11 @@ Definition inv2(m:(map vertex t)) (via:(set1 (vertex* vertex)%type)): Prop :=
   forall (u:vertex) (v:vertex), (mem (u, v) via) -> (le (get m v)
   (add1 (get m u) (Finite (weight u v)))).
 
+Axiom key_lemma_2 : forall (m:(map vertex t)), (inv2 m edges) ->
+  forall (v:vertex), ~ (negative_cycle v).
+
 Require Import Why3.
+Ltac ae := why3 "alt-ergo".
 
 (* Why3 goal *)
 Theorem WP_parameter_bellman_ford : ((1%Z <  ((cardinal vertices) - 1%Z)%Z)%Z \/

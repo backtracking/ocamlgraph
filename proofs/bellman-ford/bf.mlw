@@ -124,7 +124,7 @@ module BellmanFord
             w1+w2+...+wn >= 0
        hence a contradiction.                                  Qed. *)
   lemma key_lemma_2:
-     forall m: distmap. inv2 m edges ->
+     forall m: distmap. inv1 m (cardinal vertices) empty -> inv2 m edges ->
      forall v: vertex. not (negative_cycle v)
 
   let relax (m: ref distmap) (u v: vertex) (pass: int)
