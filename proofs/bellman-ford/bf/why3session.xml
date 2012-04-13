@@ -75,37 +75,16 @@
     locfile="bf/../bf.mlw"
     loclnum="48" loccnumb="8" loccnume="19"
     sum="99d323cdfb5fc3e879aacbe1060935f6"
-    proved="false"
+    proved="true"
     expanded="true"
     shape="ainfix &lt;alengthV2acardinalaverticesAapathasV2V0EIapathasV1V0F">
-    <proof
-     prover="0"
-     timelimit="10"
-     obsolete="true"
-     archived="false">
-     <result status="timeout" time="10.04"/>
-    </proof>
     <proof
      prover="2"
      timelimit="10"
      edited="bf_Graph_simple_path_1.v"
-     obsolete="true"
-     archived="false"><undone/>
-     
-    </proof>
-    <proof
-     prover="1"
-     timelimit="10"
-     obsolete="true"
+     obsolete="false"
      archived="false">
-     <result status="timeout" time="10.10"/>
-    </proof>
-    <proof
-     prover="3"
-     timelimit="10"
-     obsolete="true"
-     archived="false">
-     <result status="timeout" time="10.08"/>
+     <result status="valid" time="1.56"/>
     </proof>
    </goal>
    <goal

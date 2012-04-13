@@ -256,13 +256,48 @@ Require Import Why3. Ltac ae := why3 "alt-ergo".
 Theorem simple_path : forall (v:vertex) (l:(list vertex)), (path s l v) ->
   exists lqt:(list vertex), (path s lqt v) /\
   ((length lqt) <  (cardinal vertices))%Z.
-intros v l hpath.
+intros v l.
+cut (length l <= length l)%Z. 2: omega.
+cut (0 <= length l)%Z. 2: apply Length_nonnegative.
+generalize (length l) at 1 3.
+intros z hz; generalize l; clear l.
+pattern z; apply Z_lt_induction; auto.
+clear z hz; intros z IH l hz hpath.
 assert (case: (length l < cardinal vertices \/
                cardinal vertices <= length l)%Z) by omega.
 destruct case.
 exists l; auto.
-destruct (long_path_decomposition l v hpath H).
+destruct (long_path_decomposition l v hpath H) as
+  [(l1, (l2, eq)) | (u, (l1, (l2, (l3, eq))))].
+assert (path s l1 v) by ae.
+assert (0 <= length l1 < z)%Z.
+  split. apply Length_nonnegative.
+  assert (length l = length l1 + 1 + length l2)%Z.
+  subst l. rewrite Append_length. ae.
+  assert (0 <= length l2)%Z by apply Length_nonnegative.
+  omega.
+apply (IH (length l1) H1 l1); auto. omega.
 
+assert (path s (infix_plpl l1 (Cons u l3)) v).
+  rewrite eq in hpath.
+  destruct (path_decomposition _ _ _ _ _ hpath).
+  replace (Cons u (infix_plpl l2 (Cons u l3)))
+     with (infix_plpl (Cons u l2) (Cons u l3)) in H1 by ae.
+  destruct (path_decomposition _ _ _ _ _ H1).
+  ae.
+assert (0 <= length (infix_plpl l1 (Cons u l3)) < z)%Z.
+  split. apply Length_nonnegative.
+  rewrite Append_length. 
+  assert (length l = length l1 + 1 + length l2 + 1 + length l3)%Z.
+  rewrite eq.
+  rewrite Append_length. 
+  replace (Cons u (infix_plpl l2 (Cons u l3)))
+     with (infix_plpl (Cons u l2) (Cons u l3))by ae.
+  rewrite Append_length. ae.
+  assert (0 <= length l2)%Z by apply Length_nonnegative. ae.
+apply (IH (length (infix_plpl l1 (Cons u l3))) H1 (infix_plpl l1 (Cons u l3))).
+omega.
+assumption.
 Qed.
 
 

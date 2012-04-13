@@ -37,7 +37,23 @@ theory Graph
     forall v1 v2: vertex, l: list vertex.
     mem v1 vertices -> path v1 l v2 -> mem v2 vertices
 
-  (* simple path *)
+  (* A key idea behind Bellman-Ford's correctness is that of simple path:
+     if there is a path from s to v, there is a path with less than
+     |V| edges. We formulate this in a slightly more precise way: if there
+     a path from s to v with at least |V| edges, then there must be a duplicate
+     vertex along this path. There is a subtlety here: since the last vertex
+     of a path is not part of the vertex list, we distinguish the case where
+     the duplicate vertex is the final vertex v.
+
+     Proof: Assume [path s l v] with length l >= |V|.
+       Consider the function f mapping i in {0..|V|} to the i-th element
+       of the list l ++ [v]. Since all elements of the
+       path (those in l and v) belong to V, then by the pigeon hole principle,
+       f cannot be injective from 0..|V| to V. Thus there exist two distinct
+       i and j in 0..|V| such that f(i)=f(j), which means that
+              l ++ [v] = l1 ++ [u] ++ l2 ++ [u] ++ l3
+       Two cases depending on l3=[] (and thus u=v) conclude the proof. Qed.
+  *)
   lemma long_path_decomposition:
     forall l: list vertex, v: vertex.
     path s l v -> length l >= cardinal vertices ->
