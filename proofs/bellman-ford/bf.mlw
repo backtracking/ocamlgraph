@@ -38,6 +38,13 @@ theory Graph
     mem v1 vertices -> path v1 l v2 -> mem v2 vertices
 
   (* simple path *)
+  lemma long_path_decomposition:
+    forall l: list vertex, v: vertex.
+    path s l v -> length l >= cardinal vertices ->
+       (exists l1 l2: list vertex. l = l1 ++ Cons v l2)
+    \/ (exists n: vertex, l1 l2 l3: list vertex.
+          l = l1 ++ Cons n (l2 ++ Cons n l3))
+
   lemma simple_path:
     forall v: vertex, l: list vertex. path s l v ->
     exists l': list vertex. path s l' v /\ length l' < cardinal vertices

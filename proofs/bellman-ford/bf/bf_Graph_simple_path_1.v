@@ -250,100 +250,19 @@ Axiom long_path_decomposition : forall (l:(list vertex)) (v:vertex), (path s
   exists l3:(list vertex), (l = (infix_plpl l1 (Cons n (infix_plpl l2 (Cons n
   l3))))))).
 
-Axiom simple_path : forall (v:vertex) (l:(list vertex)), (path s l v) ->
-  exists lqt:(list vertex), (path s lqt v) /\
-  ((length lqt) <  (cardinal vertices))%Z.
-
-(* Why3 assumption *)
-Definition negative_cycle(v:vertex): Prop := (mem v vertices) /\
-  ((exists l1:(list vertex), (path s l1 v)) /\ exists l2:(list vertex),
-  (path v l2 v) /\ ((path_weight l2 v) <  0%Z)%Z).
-
 Require Import Why3. Ltac ae := why3 "alt-ergo".
 
 (* Why3 goal *)
-Theorem key_lemma_1 : forall (v:vertex) (n:Z), (forall (l:(list vertex)),
-  (path s l v) -> (((length l) <  (cardinal vertices))%Z ->
-  (n <= (path_weight l v))%Z)) -> ((exists l:(list vertex), (path s l v) /\
-  ((path_weight l v) <  n)%Z) -> exists u:vertex, (negative_cycle u)).
-intros v n hpath.
-intros (ln, (pathln, lnneg)).
-generalize pathln lnneg; clear pathln lnneg.
-cut (length ln <= length ln)%Z. 2: omega.
-cut (0 <= length ln)%Z. 2: apply Length_nonnegative.
-generalize (length ln) at 1 3.
-intros z hz; generalize ln. clear ln.
-pattern z; apply Z_lt_induction; auto.
-clear z hz; intros z IH.
-intros ln hlen pathln lnneg.
-assert (h: (cardinal vertices <= length ln)%Z) by ae.
-destruct (long_path_decomposition ln v pathln h) as
-  [(l1, (l2, eq)) | (u, (l1, (l2, (l3, eq))))].
-(* s --> v --> v *)
-rewrite eq in pathln.
-generalize (path_decomposition _ _ _ _ _ pathln).
-intros (h1, pathuv).
-assert (case: (path_weight (Cons v l2) v < 0 \/
-              (path_weight (Cons v l2) v >= 0))%Z) by omega.
+Theorem simple_path : forall (v:vertex) (l:(list vertex)), (path s l v) ->
+  exists lqt:(list vertex), (path s lqt v) /\
+  ((length lqt) <  (cardinal vertices))%Z.
+intros v l hpath.
+assert (case: (length l < cardinal vertices \/
+               cardinal vertices <= length l)%Z) by omega.
 destruct case.
-exists v; ae.
-assert (hpath': path s l1 v) by ae.
-assert (length ln = length l1 + 1 + length l2)%Z.
-  rewrite eq. rewrite Append_length. ae.
-assert (0 <= length l2)%Z.
-  apply Length_nonnegative.
-assert (smaller: (0 <= length l1 < z)%Z).
-  split. apply Length_nonnegative. omega.
-apply (IH (length l1) smaller l1); auto.
-omega.
-clear H0 H1 smaller IH hpath.
-assert (path_weight ln v =
-        path_weight l1 v + path_weight (Cons v l2) v)%Z.
-  rewrite eq.
-  rewrite path_weight_decomposition. ae.
-ae.
-(* s --> u --> u --> v *)
-rewrite eq in pathln.
-generalize (path_decomposition _ _ _ _ _ pathln).
-intros (h1, pathuv).
-replace (Cons u (infix_plpl l2 (Cons u l3)))
-   with (infix_plpl (Cons u l2) (Cons u l3)) in pathuv by ae.
-generalize (path_decomposition _ _ _ _ _ pathuv).
-intros (h2, pathuv2).
-assert (case: (path_weight (Cons u l2) u < 0 \/
-              (path_weight (Cons u l2) u >= 0))%Z) by omega.
-destruct case.
-exists u; ae.
-pose (l' := (infix_plpl l1 (Cons u l3))).
-assert (hpath': path s l' v) by ae.
-assert (length ln = length l1 + 1 + length l2 + 1 + length l3)%Z.
-  rewrite eq.
-  repeat rewrite Append_length.
-  replace (length (Cons u (infix_plpl l2 (Cons u l3))))
-            with (1 + length (infix_plpl l2 (Cons u l3)))%Z by ae.
-  rewrite Append_length. ae.
-assert (length l' = length l1 + 1 + length l3)%Z.
-  subst l'.
-  rewrite Append_length.
-  ae.
-assert (0 <= length l2)%Z.
-  apply Length_nonnegative.
-assert (smaller: (0 <= length l' < z)%Z).
-  split. apply Length_nonnegative. omega.
-apply (IH (length l') smaller l'); auto.
-omega.
-clear H0 H1 H2 smaller IH hpath.
-assert (path_weight ln v =
-        path_weight l1 u + path_weight (Cons u l2) u +
-        path_weight (Cons u l3) v)%Z.
-  rewrite eq.
-  rewrite path_weight_decomposition.
-  replace (Cons u (infix_plpl l2 (Cons u l3)))
-   with (infix_plpl (Cons u l2) (Cons u l3)) by ae.
-  rewrite path_weight_decomposition. ae.
-assert (path_weight l' v = path_weight l1 u + path_weight (Cons u l3) v)%Z.
-  ae.
-omega.
+exists l; auto.
+destruct (long_path_decomposition l v hpath H).
+
 Qed.
 
 
