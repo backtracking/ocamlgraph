@@ -41,7 +41,7 @@
      timelimit="10"
      obsolete="false"
      archived="false">
-     <result status="valid" time="0.00"/>
+     <result status="valid" time="0.02"/>
     </proof>
    </goal>
    <goal
@@ -64,7 +64,7 @@
    <goal
     name="long_path_decomposition"
     locfile="bf/../bf.mlw"
-    loclnum="41" loccnumb="8" loccnume="31"
+    loclnum="57" loccnumb="8" loccnume="31"
     sum="1de7cbe11a1b006ea27e3607faa4d566"
     proved="false"
     expanded="false"
@@ -73,10 +73,10 @@
    <goal
     name="simple_path"
     locfile="bf/../bf.mlw"
-    loclnum="48" loccnumb="8" loccnume="19"
+    loclnum="64" loccnumb="8" loccnume="19"
     sum="99d323cdfb5fc3e879aacbe1060935f6"
     proved="true"
-    expanded="true"
+    expanded="false"
     shape="ainfix &lt;alengthV2acardinalaverticesAapathasV2V0EIapathasV1V0F">
     <proof
      prover="2"
@@ -84,16 +84,16 @@
      edited="bf_Graph_simple_path_1.v"
      obsolete="false"
      archived="false">
-     <result status="valid" time="1.56"/>
+     <result status="valid" time="1.93"/>
     </proof>
    </goal>
    <goal
     name="key_lemma_1"
     locfile="bf/../bf.mlw"
-    loclnum="69" loccnumb="8" loccnume="19"
+    loclnum="85" loccnumb="8" loccnume="19"
     sum="a86b796dcf7b5225ce2986154fde9407"
     proved="true"
-    expanded="true"
+    expanded="false"
     shape="anegative_cycleV2EIainfix &lt;apath_weightV3V0V1AapathasV3V0EIainfix &gt;=apath_weightV4V0V1Iainfix &lt;alengthV4acardinalaverticesIapathasV4V0FF">
     <proof
      prover="2"
@@ -101,20 +101,20 @@
      edited="bf_Graph_key_lemma_1_1.v"
      obsolete="false"
      archived="false">
-     <result status="valid" time="3.24"/>
+     <result status="valid" time="3.89"/>
     </proof>
    </goal>
   </theory>
   <theory
    name="WP BellmanFord"
    locfile="bf/../bf.mlw"
-   loclnum="81" loccnumb="7" loccnume="18"
+   loclnum="97" loccnumb="7" loccnume="18"
    verified="true"
-   expanded="true">
+   expanded="false">
    <goal
     name="key_lemma_2"
     locfile="bf/../bf.mlw"
-    loclnum="133" loccnumb="8" loccnume="19"
+    loclnum="149" loccnumb="8" loccnume="19"
     sum="2fd427064787b35abc0befb17e1ef558"
     proved="true"
     expanded="false"
@@ -125,58 +125,58 @@
      edited="bf_WP_BellmanFord_key_lemma_2_1.v"
      obsolete="false"
      archived="false">
-     <result status="valid" time="11.03"/>
+     <result status="valid" time="10.48"/>
     </proof>
    </goal>
    <goal
     name="WP_parameter relax"
     locfile="bf/../bf.mlw"
-    loclnum="137" loccnumb="6" loccnume="11"
+    loclnum="153" loccnumb="6" loccnume="11"
     expl="parameter relax"
     sum="a473f8740b1ae7d727cf4e50e6975e8f"
     proved="true"
-    expanded="true"
+    expanded="false"
     shape="iCagetV4V0aInfinitefaFiniteVCagetV4V1aInfinitetaFiniteVainfix &lt;ainfix +V5aweightV0V1V6ainv1V7V2aaddaTuple2V0V1V3Iainfix =V7asetV4V1CagetV4V0aInfiniteaInfiniteaFiniteVaFiniteainfix +V8aweightV0V1Fainv1V4V2aaddaTuple2V0V1V3Iainv1V4V2V3AamemaTuple2V0V1V3NAamemaTuple2V0V1aedgesAainfix &lt;=c1V2FFFFF">
     <label
      name="expl:parameter relax"/>
     <transf
      name="split_goal"
      proved="true"
-     expanded="true">
+     expanded="false">
      <goal
       name="WP_parameter relax.1"
       locfile="bf/../bf.mlw"
-      loclnum="137" loccnumb="6" loccnume="11"
+      loclnum="153" loccnumb="6" loccnume="11"
       expl="normal postcondition"
       sum="69f724dcf2e854308a08c48047db32a4"
       proved="true"
-      expanded="true"
+      expanded="false"
       shape="ainv1V5V2aaddaTuple2V0V1V3Iainfix =V5asetV4V1CagetV4V0aInfiniteaInfiniteaFiniteVaFiniteainfix +V6aweightV0V1FICagetV4V0aInfinitefaFiniteVCagetV4V1aInfinitetaFiniteVainfix &lt;ainfix +V7aweightV0V1V8Iainv1V4V2V3AamemaTuple2V0V1V3NAamemaTuple2V0V1aedgesAainfix &lt;=c1V2FFFFF">
       <label
        name="expl:parameter relax"/>
       <transf
        name="inline_goal"
        proved="true"
-       expanded="true">
+       expanded="false">
        <goal
         name="WP_parameter relax.1.1"
         locfile="bf/../bf.mlw"
-        loclnum="137" loccnumb="6" loccnume="11"
+        loclnum="153" loccnumb="6" loccnume="11"
         expl="normal postcondition"
         sum="6a7c2b006be5aa64afe00ce50cba82e9"
         proved="true"
-        expanded="true"
+        expanded="false"
         shape="Camixfix []V5V6aFiniteVainfix &gt;=ainfix +apath_weightV9V8aweightV8V6V7IamemaTuple2V8V6aaddaTuple2V0V1V3Iainfix &lt;alengthV9V2IapathasV9V8FAainfix &gt;=apath_weightV10V6V7Iainfix &lt;alengthV10V2IapathasV10V6FAainfix =apath_weightV11V6V7AapathasV11V6EaInfiniteainfix &gt;=alengthV13V2IapathasV13V12FIamemaTuple2V12V6aaddaTuple2V0V1V3FAainfix &gt;=alengthV14V2IapathasV14V6FIamemV6averticesFIainfix =V5asetV4V1CagetV4V0aInfiniteaInfiniteaFiniteVaFiniteainfix +V15aweightV0V1FICagetV4V0aInfinitefaFiniteVCagetV4V1aInfinitetaFiniteVainfix &lt;ainfix +V16aweightV0V1V17ICamixfix []V4V18aFiniteVainfix &gt;=ainfix +apath_weightV21V20aweightV20V18V19IamemaTuple2V20V18V3Iainfix &lt;alengthV21V2IapathasV21V20FAainfix &gt;=apath_weightV22V18V19Iainfix &lt;alengthV22V2IapathasV22V18FAainfix =apath_weightV23V18V19AapathasV23V18EaInfiniteainfix &gt;=alengthV25V2IapathasV25V24FIamemaTuple2V24V18V3FAainfix &gt;=alengthV26V2IapathasV26V18FIamemV18averticesFAamemaTuple2V0V1V3NAamemaTuple2V0V1aedgesAainfix =c1V2Oainfix &lt;c1V2FFFFF">
         <label
          name="expl:parameter relax"/>
         <transf
          name="split_goal"
          proved="true"
-         expanded="true">
+         expanded="false">
          <goal
           name="WP_parameter relax.1.1.1"
           locfile="bf/../bf.mlw"
-          loclnum="137" loccnumb="6" loccnume="11"
+          loclnum="153" loccnumb="6" loccnume="11"
           expl="normal postcondition"
           sum="a6297bcf6a78e4e40b3358a5604a4a26"
           proved="true"
@@ -190,13 +190,13 @@
            edited="bf_WP_BellmanFord_WP_parameter_relax_7.v"
            obsolete="false"
            archived="false">
-           <result status="valid" time="1.72"/>
+           <result status="valid" time="2.02"/>
           </proof>
          </goal>
          <goal
           name="WP_parameter relax.1.1.2"
           locfile="bf/../bf.mlw"
-          loclnum="137" loccnumb="6" loccnume="11"
+          loclnum="153" loccnumb="6" loccnume="11"
           expl="normal postcondition"
           sum="05b3de7771f7ff1a935170a4f055ceaa"
           proved="true"
@@ -209,20 +209,20 @@
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="0.24"/>
+           <result status="valid" time="0.23"/>
           </proof>
           <proof
            prover="3"
            timelimit="28"
            obsolete="false"
            archived="false">
-           <result status="valid" time="8.10"/>
+           <result status="valid" time="7.91"/>
           </proof>
          </goal>
          <goal
           name="WP_parameter relax.1.1.3"
           locfile="bf/../bf.mlw"
-          loclnum="137" loccnumb="6" loccnume="11"
+          loclnum="153" loccnumb="6" loccnume="11"
           expl="normal postcondition"
           sum="e6c3d5aab111a7290ead29dfe1415204"
           proved="true"
@@ -235,7 +235,7 @@
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="0.84"/>
+           <result status="valid" time="0.86"/>
           </proof>
           <proof
            prover="3"
@@ -248,7 +248,7 @@
          <goal
           name="WP_parameter relax.1.1.4"
           locfile="bf/../bf.mlw"
-          loclnum="137" loccnumb="6" loccnume="11"
+          loclnum="153" loccnumb="6" loccnume="11"
           expl="normal postcondition"
           sum="2e75cbbef659b8e380685e551d4cf8ff"
           proved="true"
@@ -261,27 +261,27 @@
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="4.86"/>
+           <result status="valid" time="4.90"/>
           </proof>
           <proof
            prover="1"
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="0.38"/>
+           <result status="valid" time="0.61"/>
           </proof>
           <proof
            prover="3"
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="5.26"/>
+           <result status="valid" time="5.38"/>
           </proof>
          </goal>
          <goal
           name="WP_parameter relax.1.1.5"
           locfile="bf/../bf.mlw"
-          loclnum="137" loccnumb="6" loccnume="11"
+          loclnum="153" loccnumb="6" loccnume="11"
           expl="normal postcondition"
           sum="68c32f92d04598435df24da7a6446f27"
           proved="true"
@@ -294,7 +294,7 @@
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="0.69"/>
+           <result status="valid" time="0.71"/>
           </proof>
          </goal>
         </transf>
@@ -304,37 +304,37 @@
      <goal
       name="WP_parameter relax.2"
       locfile="bf/../bf.mlw"
-      loclnum="137" loccnumb="6" loccnume="11"
+      loclnum="153" loccnumb="6" loccnume="11"
       expl="normal postcondition"
       sum="c78bae1b8f3927987677eabcdf7fb4f3"
       proved="true"
-      expanded="true"
+      expanded="false"
       shape="ainv1V4V2aaddaTuple2V0V1V3ICagetV4V0aInfinitefaFiniteVCagetV4V1aInfinitetaFiniteVainfix &lt;ainfix +V5aweightV0V1V6NIainv1V4V2V3AamemaTuple2V0V1V3NAamemaTuple2V0V1aedgesAainfix &lt;=c1V2FFFFF">
       <label
        name="expl:parameter relax"/>
       <transf
        name="inline_goal"
        proved="true"
-       expanded="true">
+       expanded="false">
        <goal
         name="WP_parameter relax.2.1"
         locfile="bf/../bf.mlw"
-        loclnum="137" loccnumb="6" loccnume="11"
+        loclnum="153" loccnumb="6" loccnume="11"
         expl="normal postcondition"
         sum="fb638ddf822f3a454b6005af8b81d7f1"
         proved="true"
-        expanded="true"
+        expanded="false"
         shape="Camixfix []V4V5aFiniteVainfix &gt;=ainfix +apath_weightV8V7aweightV7V5V6IamemaTuple2V7V5aaddaTuple2V0V1V3Iainfix &lt;alengthV8V2IapathasV8V7FAainfix &gt;=apath_weightV9V5V6Iainfix &lt;alengthV9V2IapathasV9V5FAainfix =apath_weightV10V5V6AapathasV10V5EaInfiniteainfix &gt;=alengthV12V2IapathasV12V11FIamemaTuple2V11V5aaddaTuple2V0V1V3FAainfix &gt;=alengthV13V2IapathasV13V5FIamemV5averticesFICagetV4V0aInfinitefaFiniteVCagetV4V1aInfinitetaFiniteVainfix &lt;ainfix +V14aweightV0V1V15NICamixfix []V4V16aFiniteVainfix &gt;=ainfix +apath_weightV19V18aweightV18V16V17IamemaTuple2V18V16V3Iainfix &lt;alengthV19V2IapathasV19V18FAainfix &gt;=apath_weightV20V16V17Iainfix &lt;alengthV20V2IapathasV20V16FAainfix =apath_weightV21V16V17AapathasV21V16EaInfiniteainfix &gt;=alengthV23V2IapathasV23V22FIamemaTuple2V22V16V3FAainfix &gt;=alengthV24V2IapathasV24V16FIamemV16averticesFAamemaTuple2V0V1V3NAamemaTuple2V0V1aedgesAainfix =c1V2Oainfix &lt;c1V2FFFFF">
         <label
          name="expl:parameter relax"/>
         <transf
          name="split_goal"
          proved="true"
-         expanded="true">
+         expanded="false">
          <goal
           name="WP_parameter relax.2.1.1"
           locfile="bf/../bf.mlw"
-          loclnum="137" loccnumb="6" loccnume="11"
+          loclnum="153" loccnumb="6" loccnume="11"
           expl="normal postcondition"
           sum="866ed65d334ce53c95e88d542d6fe5dc"
           proved="true"
@@ -347,14 +347,14 @@
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="0.48"/>
+           <result status="valid" time="0.46"/>
           </proof>
           <proof
            prover="1"
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="0.13"/>
+           <result status="valid" time="0.12"/>
           </proof>
           <proof
            prover="3"
@@ -367,7 +367,7 @@
          <goal
           name="WP_parameter relax.2.1.2"
           locfile="bf/../bf.mlw"
-          loclnum="137" loccnumb="6" loccnume="11"
+          loclnum="153" loccnumb="6" loccnume="11"
           expl="normal postcondition"
           sum="dff1fb24e840ecbb70066653fd825c4b"
           proved="true"
@@ -380,7 +380,7 @@
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="2.32"/>
+           <result status="valid" time="2.33"/>
           </proof>
           <proof
            prover="1"
@@ -394,13 +394,13 @@
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="3.02"/>
+           <result status="valid" time="3.12"/>
           </proof>
          </goal>
          <goal
           name="WP_parameter relax.2.1.3"
           locfile="bf/../bf.mlw"
-          loclnum="137" loccnumb="6" loccnume="11"
+          loclnum="153" loccnumb="6" loccnume="11"
           expl="normal postcondition"
           sum="9ea06a3d35395f9f101b4128cf9339d1"
           proved="true"
@@ -413,20 +413,20 @@
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="0.65"/>
+           <result status="valid" time="0.67"/>
           </proof>
           <proof
            prover="3"
            timelimit="32"
            obsolete="false"
            archived="false">
-           <result status="valid" time="5.43"/>
+           <result status="valid" time="5.58"/>
           </proof>
          </goal>
          <goal
           name="WP_parameter relax.2.1.4"
           locfile="bf/../bf.mlw"
-          loclnum="137" loccnumb="6" loccnume="11"
+          loclnum="153" loccnumb="6" loccnume="11"
           expl="normal postcondition"
           sum="f5bd32cac23e3f666361d764eaae032b"
           proved="true"
@@ -439,27 +439,27 @@
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="3.09"/>
+           <result status="valid" time="3.12"/>
           </proof>
           <proof
            prover="1"
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="0.07"/>
+           <result status="valid" time="0.08"/>
           </proof>
           <proof
            prover="3"
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="2.08"/>
+           <result status="valid" time="2.12"/>
           </proof>
          </goal>
          <goal
           name="WP_parameter relax.2.1.5"
           locfile="bf/../bf.mlw"
-          loclnum="137" loccnumb="6" loccnume="11"
+          loclnum="153" loccnumb="6" loccnume="11"
           expl="normal postcondition"
           sum="f31cc2c44788bba46489729230f3e445"
           proved="true"
@@ -472,14 +472,14 @@
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="0.13"/>
+           <result status="valid" time="0.14"/>
           </proof>
           <proof
            prover="3"
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="2.02"/>
+           <result status="valid" time="2.11"/>
           </proof>
          </goal>
         </transf>
@@ -491,22 +491,22 @@
    <goal
     name="WP_parameter bellman_ford"
     locfile="bf/../bf.mlw"
-    loclnum="147" loccnumb="6" loccnume="18"
+    loclnum="163" loccnumb="6" loccnume="18"
     expl="parameter bellman_ford"
     sum="d07846a49005ca48c59ac6db05701fe4"
     proved="true"
-    expanded="true"
+    expanded="false"
     shape="iainfix =V3aTrueNLaTuple2V5V6iCagetV0V5aInfinitefaFiniteVCagetV0V6aInfinitetaFiniteVainfix &lt;ainfix +V8aweightV5V6V9anegative_cycleV10Eainfix &lt;acardinalV4acardinalV2Aainfix &lt;=c0acardinalV2Aainv2V0adiffaedgesV4AasubsetV4aedgesIainfix =V4aremoveV7V2AamemV7V2FFAais_emptyV2NCagetV0V11aFiniteVainfix &gt;=apath_weightV13V11V12IapathasV13V11FAainfix =apath_weightV14V11V12AapathasV14V11EaInfiniteapathasV15V11NFIamemV11averticesFAainv2V0aedgesIais_emptyV2qainfix =V3aTrueFIainv2V0adiffaedgesV2AasubsetV2aedgesFAainv2V0adiffaedgesV1AasubsetV1aedgesIainfix =V1aedgesFAainv1V0acardinalaverticesaemptyIainv1V0ainfix +ainfix -acardinalaverticesc1c1aemptyAiainfix =V20aTrueNLaTuple2V22V23ainfix &lt;acardinalV21acardinalV18Aainfix &lt;=c0acardinalV18Aainv1V25V16adiffaedgesV21AasubsetV21aedgesIainv1V25V16aaddaTuple2V22V23adiffaedgesV18FAainv1V19V16adiffaedgesV18AamemaTuple2V22V23adiffaedgesV18NAamemaTuple2V22V23aedgesAainfix &lt;=c1V16Iainfix =V21aremoveV24V18AamemV24V18FFAais_emptyV18Nainv1V19ainfix +V16c1aemptyAainv1V19V16aedgesIais_emptyV18qainfix =V20aTrueFIainv1V19V16adiffaedgesV18AasubsetV18aedgesFFAainv1V0V16adiffaedgesV17AasubsetV17aedgesIainfix =V17aedgesFIainv1V0V16aemptyIainfix &lt;=V16ainfix -acardinalaverticesc1Aainfix &lt;=c1V16FFAainv1ainitialize_single_sourceasc1aemptyIainfix &lt;=c1ainfix -acardinalaverticesc1Aiainfix =V28aTrueNLaTuple2V30V31iCagetainitialize_single_sourceasV30aInfinitefaFiniteVCagetainitialize_single_sourceasV31aInfinitetaFiniteVainfix &lt;ainfix +V33aweightV30V31V34anegative_cycleV35Eainfix &lt;acardinalV29acardinalV27Aainfix &lt;=c0acardinalV27Aainv2ainitialize_single_sourceasadiffaedgesV29AasubsetV29aedgesIainfix =V29aremoveV32V27AamemV32V27FFAais_emptyV27NCagetainitialize_single_sourceasV36aFiniteVainfix &gt;=apath_weightV38V36V37IapathasV38V36FAainfix =apath_weightV39V36V37AapathasV39V36EaInfiniteapathasV40V36NFIamemV36averticesFAainv2ainitialize_single_sourceasaedgesIais_emptyV27qainfix =V28aTrueFIainv2ainitialize_single_sourceasadiffaedgesV27AasubsetV27aedgesFAainv2ainitialize_single_sourceasadiffaedgesV26AasubsetV26aedgesIainfix =V26aedgesFAainv1ainitialize_single_sourceasacardinalaverticesaemptyIainfix &gt;c1ainfix -acardinalaverticesc1">
     <label
      name="expl:parameter bellman_ford"/>
     <transf
      name="split_goal"
      proved="true"
-     expanded="true">
+     expanded="false">
      <goal
       name="WP_parameter bellman_ford.1"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="assertion"
       sum="cd878e0cbbd9c77181536465db7a092b"
       proved="true"
@@ -519,13 +519,13 @@
        timelimit="15"
        obsolete="false"
        archived="false">
-       <result status="valid" time="1.39"/>
+       <result status="valid" time="1.43"/>
       </proof>
      </goal>
      <goal
       name="WP_parameter bellman_ford.2"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="loop invariant init"
       sum="a23915630d08ad6c18496defea6ee409"
       proved="true"
@@ -538,13 +538,13 @@
        timelimit="10"
        obsolete="false"
        archived="false">
-       <result status="valid" time="0.07"/>
+       <result status="valid" time="0.08"/>
       </proof>
      </goal>
      <goal
       name="WP_parameter bellman_ford.3"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="precondition"
       sum="eec8840eec4572a93f1872d3c3e72572"
       proved="true"
@@ -557,13 +557,13 @@
        timelimit="10"
        obsolete="false"
        archived="false">
-       <result status="valid" time="0.01"/>
+       <result status="valid" time="0.02"/>
       </proof>
      </goal>
      <goal
       name="WP_parameter bellman_ford.4"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="exceptional postcondition"
       sum="b09435b1aefb683e7fb354db19e4ebdf"
       proved="true"
@@ -577,28 +577,28 @@
        edited="bf_WP_BellmanFord_WP_parameter_bellman_ford_20.v"
        obsolete="false"
        archived="false">
-       <result status="valid" time="1.67"/>
+       <result status="valid" time="1.99"/>
       </proof>
      </goal>
      <goal
       name="WP_parameter bellman_ford.5"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="loop invariant preservation"
       sum="3dba4dc062a045fa74b0c544112e85ff"
       proved="true"
-      expanded="true"
+      expanded="false"
       shape="LaTuple2V4V5ainv2ainitialize_single_sourceasadiffaedgesV3AasubsetV3aedgesICagetainitialize_single_sourceasV4aInfinitefaFiniteVCagetainitialize_single_sourceasV5aInfinitetaFiniteVainfix &lt;ainfix +V7aweightV4V5V8NIainfix =V3aremoveV6V1AamemV6V1FFIais_emptyV1NIainfix =V2aTrueNIais_emptyV1qainfix =V2aTrueFIainv2ainitialize_single_sourceasadiffaedgesV1AasubsetV1aedgesFIainfix =V0aedgesFIainv1ainitialize_single_sourceasacardinalaverticesaemptyIainfix &gt;c1ainfix -acardinalaverticesc1">
       <label
        name="expl:parameter bellman_ford"/>
       <transf
        name="split_goal"
        proved="true"
-       expanded="true">
+       expanded="false">
        <goal
         name="WP_parameter bellman_ford.5.1"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="parameter bellman_ford"
         sum="ea54e1d9f9fb0b9623c5f376acdd9349"
         proved="true"
@@ -611,13 +611,13 @@
          timelimit="15"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.00"/>
+         <result status="valid" time="0.03"/>
         </proof>
        </goal>
        <goal
         name="WP_parameter bellman_ford.5.2"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="parameter bellman_ford"
         sum="a1eaa8683e7856dbe4eb812c185657c3"
         proved="true"
@@ -630,7 +630,7 @@
          timelimit="71"
          obsolete="false"
          archived="false">
-         <result status="valid" time="35.00"/>
+         <result status="valid" time="35.39"/>
         </proof>
        </goal>
       </transf>
@@ -638,7 +638,7 @@
      <goal
       name="WP_parameter bellman_ford.6"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="loop variant decreases"
       sum="2a00d5c885e73a0a299eef10d5524fc0"
       proved="true"
@@ -651,28 +651,28 @@
        timelimit="10"
        obsolete="false"
        archived="false">
-       <result status="valid" time="0.04"/>
+       <result status="valid" time="0.03"/>
       </proof>
      </goal>
      <goal
       name="WP_parameter bellman_ford.7"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="assertion"
       sum="f412b7fa3bfb976a83eff8e00328a2c3"
       proved="true"
-      expanded="true"
+      expanded="false"
       shape="ainv2ainitialize_single_sourceasaedgesIainfix =V2aTrueNNIais_emptyV1qainfix =V2aTrueFIainv2ainitialize_single_sourceasadiffaedgesV1AasubsetV1aedgesFIainfix =V0aedgesFIainv1ainitialize_single_sourceasacardinalaverticesaemptyIainfix &gt;c1ainfix -acardinalaverticesc1">
       <label
        name="expl:parameter bellman_ford"/>
       <transf
        name="inline_goal"
        proved="true"
-       expanded="true">
+       expanded="false">
        <goal
         name="WP_parameter bellman_ford.7.1"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="assertion"
         sum="82c8286a6ed542e6936fe583c23161f2"
         proved="true"
@@ -685,14 +685,14 @@
          timelimit="29"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.96"/>
+         <result status="valid" time="0.94"/>
         </proof>
         <proof
          prover="1"
          timelimit="5"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.44"/>
+         <result status="valid" time="0.55"/>
         </proof>
        </goal>
       </transf>
@@ -700,22 +700,22 @@
      <goal
       name="WP_parameter bellman_ford.8"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="normal postcondition"
       sum="615c524acd3bedf209d7c4401f764f6b"
       proved="true"
-      expanded="true"
+      expanded="false"
       shape="Cagetainitialize_single_sourceasV3aFiniteVainfix &gt;=apath_weightV5V3V4IapathasV5V3FAainfix =apath_weightV6V3V4AapathasV6V3EaInfiniteapathasV7V3NFIamemV3averticesFIainv2ainitialize_single_sourceasaedgesIainfix =V2aTrueNNIais_emptyV1qainfix =V2aTrueFIainv2ainitialize_single_sourceasadiffaedgesV1AasubsetV1aedgesFIainfix =V0aedgesFIainv1ainitialize_single_sourceasacardinalaverticesaemptyIainfix &gt;c1ainfix -acardinalaverticesc1">
       <label
        name="expl:parameter bellman_ford"/>
       <transf
        name="split_goal"
        proved="true"
-       expanded="true">
+       expanded="false">
        <goal
         name="WP_parameter bellman_ford.8.1"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="normal postcondition"
         sum="0d13f59cc0a3700212f0ecbdc242f44b"
         proved="true"
@@ -734,7 +734,7 @@
        <goal
         name="WP_parameter bellman_ford.8.2"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="normal postcondition"
         sum="3a97f505e1886e7333af4cf0959dcfe3"
         proved="true"
@@ -747,13 +747,13 @@
          timelimit="30"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.08"/>
+         <result status="valid" time="0.07"/>
         </proof>
        </goal>
        <goal
         name="WP_parameter bellman_ford.8.3"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="normal postcondition"
         sum="f7bed8af2b100ff1e02a55bcbe65dc2f"
         proved="true"
@@ -766,21 +766,21 @@
          timelimit="15"
          obsolete="false"
          archived="false">
-         <result status="valid" time="3.92"/>
+         <result status="valid" time="3.95"/>
         </proof>
         <proof
          prover="1"
          timelimit="15"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.06"/>
+         <result status="valid" time="0.04"/>
         </proof>
         <proof
          prover="3"
          timelimit="15"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.06"/>
+         <result status="valid" time="0.05"/>
         </proof>
        </goal>
       </transf>
@@ -788,22 +788,22 @@
      <goal
       name="WP_parameter bellman_ford.9"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="for loop initialization"
       sum="becd662a4002273403313afef2ec3a82"
       proved="true"
-      expanded="true"
+      expanded="false"
       shape="ainv1ainitialize_single_sourceasc1aemptyIainfix &lt;=c1ainfix -acardinalaverticesc1">
       <label
        name="expl:parameter bellman_ford"/>
       <transf
        name="split_goal"
        proved="true"
-       expanded="true">
+       expanded="false">
        <goal
         name="WP_parameter bellman_ford.9.1"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="for loop initialization"
         sum="becd662a4002273403313afef2ec3a82"
         proved="true"
@@ -816,7 +816,7 @@
          timelimit="15"
          obsolete="false"
          archived="false">
-         <result status="valid" time="5.13"/>
+         <result status="valid" time="1.63"/>
         </proof>
        </goal>
       </transf>
@@ -824,37 +824,37 @@
      <goal
       name="WP_parameter bellman_ford.10"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="for loop preservation"
       sum="5c22e7e8e5cbf78100caf78432ed546e"
       proved="true"
-      expanded="true"
+      expanded="false"
       shape="iainfix =V5aTrueNLaTuple2V7V8ainfix &lt;acardinalV6acardinalV3Aainfix &lt;=c0acardinalV3Aainv1V10V1adiffaedgesV6AasubsetV6aedgesIainv1V10V1aaddaTuple2V7V8adiffaedgesV3FAainv1V4V1adiffaedgesV3AamemaTuple2V7V8adiffaedgesV3NAamemaTuple2V7V8aedgesAainfix &lt;=c1V1Iainfix =V6aremoveV9V3AamemV9V3FFAais_emptyV3Nainv1V4ainfix +V1c1aemptyAainv1V4V1aedgesIais_emptyV3qainfix =V5aTrueFIainv1V4V1adiffaedgesV3AasubsetV3aedgesFFAainv1V0V1adiffaedgesV2AasubsetV2aedgesIainfix =V2aedgesFIainv1V0V1aemptyIainfix &lt;=V1ainfix -acardinalaverticesc1Aainfix &lt;=c1V1FFIainfix &lt;=c1ainfix -acardinalaverticesc1">
       <label
        name="expl:parameter bellman_ford"/>
       <transf
        name="split_goal"
        proved="true"
-       expanded="true">
+       expanded="false">
        <goal
         name="WP_parameter bellman_ford.10.1"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="for loop preservation"
         sum="a2d9d300c3a21e0023e80f2c82831d32"
         proved="true"
-        expanded="true"
+        expanded="false"
         shape="ainv1V0V1adiffaedgesV2AasubsetV2aedgesIainfix =V2aedgesFIainv1V0V1aemptyIainfix &lt;=V1ainfix -acardinalaverticesc1Aainfix &lt;=c1V1FFIainfix &lt;=c1ainfix -acardinalaverticesc1">
         <label
          name="expl:parameter bellman_ford"/>
         <transf
          name="split_goal"
          proved="true"
-         expanded="true">
+         expanded="false">
          <goal
           name="WP_parameter bellman_ford.10.1.1"
           locfile="bf/../bf.mlw"
-          loclnum="147" loccnumb="6" loccnume="18"
+          loclnum="163" loccnumb="6" loccnume="18"
           expl="for loop preservation"
           sum="a7674b85677862a1e8c2ef89e45b1b53"
           proved="true"
@@ -867,13 +867,13 @@
            timelimit="30"
            obsolete="false"
            archived="false">
-           <result status="valid" time="0.03"/>
+           <result status="valid" time="0.01"/>
           </proof>
          </goal>
          <goal
           name="WP_parameter bellman_ford.10.1.2"
           locfile="bf/../bf.mlw"
-          loclnum="147" loccnumb="6" loccnume="18"
+          loclnum="163" loccnumb="6" loccnume="18"
           expl="for loop preservation"
           sum="a92b6836ec17c4f2919196d64489c0df"
           proved="true"
@@ -886,7 +886,7 @@
            timelimit="30"
            obsolete="false"
            archived="false">
-           <result status="valid" time="0.23"/>
+           <result status="valid" time="0.20"/>
           </proof>
          </goal>
         </transf>
@@ -894,7 +894,7 @@
        <goal
         name="WP_parameter bellman_ford.10.2"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="for loop preservation"
         sum="21cb128841132f8fbb1220d0ccc99c05"
         proved="true"
@@ -907,13 +907,13 @@
          timelimit="10"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.02"/>
+         <result status="valid" time="0.01"/>
         </proof>
        </goal>
        <goal
         name="WP_parameter bellman_ford.10.3"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="for loop preservation"
         sum="0d04af5d152abef7f9c31d8eabfeee22"
         proved="true"
@@ -926,28 +926,28 @@
          timelimit="10"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.02"/>
+         <result status="valid" time="0.03"/>
         </proof>
        </goal>
        <goal
         name="WP_parameter bellman_ford.10.4"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="for loop preservation"
         sum="5b7be7d3c2b8371f734d25ba9bf36200"
         proved="true"
-        expanded="true"
+        expanded="false"
         shape="LaTuple2V7V8ainv1V10V1adiffaedgesV6AasubsetV6aedgesIainv1V10V1aaddaTuple2V7V8adiffaedgesV3FIainv1V4V1adiffaedgesV3AamemaTuple2V7V8adiffaedgesV3NAamemaTuple2V7V8aedgesAainfix &lt;=c1V1Iainfix =V6aremoveV9V3AamemV9V3FFIais_emptyV3NIainfix =V5aTrueNIais_emptyV3qainfix =V5aTrueFIainv1V4V1adiffaedgesV3AasubsetV3aedgesFFIainfix =V2aedgesFIainv1V0V1aemptyIainfix &lt;=V1ainfix -acardinalaverticesc1Aainfix &lt;=c1V1FFIainfix &lt;=c1ainfix -acardinalaverticesc1">
         <label
          name="expl:parameter bellman_ford"/>
         <transf
          name="split_goal"
          proved="true"
-         expanded="true">
+         expanded="false">
          <goal
           name="WP_parameter bellman_ford.10.4.1"
           locfile="bf/../bf.mlw"
-          loclnum="147" loccnumb="6" loccnume="18"
+          loclnum="163" loccnumb="6" loccnume="18"
           expl="for loop preservation"
           sum="a357b42cbed47f792d0b29b0ab8b100d"
           proved="true"
@@ -960,43 +960,43 @@
            timelimit="15"
            obsolete="false"
            archived="false">
-           <result status="valid" time="0.02"/>
+           <result status="valid" time="0.03"/>
           </proof>
          </goal>
          <goal
           name="WP_parameter bellman_ford.10.4.2"
           locfile="bf/../bf.mlw"
-          loclnum="147" loccnumb="6" loccnume="18"
+          loclnum="163" loccnumb="6" loccnume="18"
           expl="for loop preservation"
           sum="1f71bb220bdece2f724a7168bfe5a411"
           proved="true"
-          expanded="true"
+          expanded="false"
           shape="LaTuple2V7V8ainv1V10V1adiffaedgesV6Iainv1V10V1aaddaTuple2V7V8adiffaedgesV3FIainv1V4V1adiffaedgesV3AamemaTuple2V7V8adiffaedgesV3NAamemaTuple2V7V8aedgesAainfix &lt;=c1V1Iainfix =V6aremoveV9V3AamemV9V3FFIais_emptyV3NIainfix =V5aTrueNIais_emptyV3qainfix =V5aTrueFIainv1V4V1adiffaedgesV3AasubsetV3aedgesFFIainfix =V2aedgesFIainv1V0V1aemptyIainfix &lt;=V1ainfix -acardinalaverticesc1Aainfix &lt;=c1V1FFIainfix &lt;=c1ainfix -acardinalaverticesc1">
           <label
            name="expl:parameter bellman_ford"/>
           <transf
            name="inline_goal"
            proved="true"
-           expanded="true">
+           expanded="false">
            <goal
             name="WP_parameter bellman_ford.10.4.2.1"
             locfile="bf/../bf.mlw"
-            loclnum="147" loccnumb="6" loccnume="18"
+            loclnum="163" loccnumb="6" loccnume="18"
             expl="for loop preservation"
             sum="f8d9bcf6ae9c8ddd0ebf4f211744af57"
             proved="true"
-            expanded="true"
+            expanded="false"
             shape="LaTuple2V7V8Camixfix []V10V11aFiniteVainfix &gt;=ainfix +apath_weightV14V13aweightV13V11V12IamemaTuple2V13V11adiffaedgesV6Iainfix &lt;alengthV14V1IapathasV14V13FAainfix &gt;=apath_weightV15V11V12Iainfix &lt;alengthV15V1IapathasV15V11FAainfix =apath_weightV16V11V12AapathasV16V11EaInfiniteainfix &gt;=alengthV18V1IapathasV18V17FIamemaTuple2V17V11adiffaedgesV6FAainfix &gt;=alengthV19V1IapathasV19V11FIamemV11averticesFICamixfix []V10V20aFiniteVainfix &gt;=ainfix +apath_weightV23V22aweightV22V20V21IamemaTuple2V22V20aaddaTuple2V7V8adiffaedgesV3Iainfix &lt;alengthV23V1IapathasV23V22FAainfix &gt;=apath_weightV24V20V21Iainfix &lt;alengthV24V1IapathasV24V20FAainfix =apath_weightV25V20V21AapathasV25V20EaInfiniteainfix &gt;=alengthV27V1IapathasV27V26FIamemaTuple2V26V20aaddaTuple2V7V8adiffaedgesV3FAainfix &gt;=alengthV28V1IapathasV28V20FIamemV20averticesFFICamixfix []V4V29aFiniteVainfix &gt;=ainfix +apath_weightV32V31aweightV31V29V30IamemaTuple2V31V29adiffaedgesV3Iainfix &lt;alengthV32V1IapathasV32V31FAainfix &gt;=apath_weightV33V29V30Iainfix &lt;alengthV33V1IapathasV33V29FAainfix =apath_weightV34V29V30AapathasV34V29EaInfiniteainfix &gt;=alengthV36V1IapathasV36V35FIamemaTuple2V35V29adiffaedgesV3FAainfix &gt;=alengthV37V1IapathasV37V29FIamemV29averticesFAamemaTuple2V7V8adiffaedgesV3NAamemaTuple2V7V8aedgesAainfix =c1V1Oainfix &lt;c1V1Iainfix =V6aremoveV9V3AamemV9V3FFIamemV38V3NFNIainfix =V5aTrueNIamemV39V3NFqainfix =V5aTrueFICamixfix []V4V40aFiniteVainfix &gt;=ainfix +apath_weightV43V42aweightV42V40V41IamemaTuple2V42V40adiffaedgesV3Iainfix &lt;alengthV43V1IapathasV43V42FAainfix &gt;=apath_weightV44V40V41Iainfix &lt;alengthV44V1IapathasV44V40FAainfix =apath_weightV45V40V41AapathasV45V40EaInfiniteainfix &gt;=alengthV47V1IapathasV47V46FIamemaTuple2V46V40adiffaedgesV3FAainfix &gt;=alengthV48V1IapathasV48V40FIamemV40averticesFAamemV49aedgesIamemV49V3FFFIainfix =V2aedgesFICamixfix []V0V50aFiniteVainfix &gt;=ainfix +apath_weightV53V52aweightV52V50V51IamemaTuple2V52V50aemptyIainfix &lt;alengthV53V1IapathasV53V52FAainfix &gt;=apath_weightV54V50V51Iainfix &lt;alengthV54V1IapathasV54V50FAainfix =apath_weightV55V50V51AapathasV55V50EaInfiniteainfix &gt;=alengthV57V1IapathasV57V56FIamemaTuple2V56V50aemptyFAainfix &gt;=alengthV58V1IapathasV58V50FIamemV50averticesFIainfix =V1ainfix -acardinalaverticesc1Oainfix &lt;V1ainfix -acardinalaverticesc1Aainfix =c1V1Oainfix &lt;c1V1FFIainfix =c1ainfix -acardinalaverticesc1Oainfix &lt;c1ainfix -acardinalaverticesc1">
             <label
              name="expl:parameter bellman_ford"/>
             <transf
              name="split_goal"
              proved="true"
-             expanded="true">
+             expanded="false">
              <goal
               name="WP_parameter bellman_ford.10.4.2.1.1"
               locfile="bf/../bf.mlw"
-              loclnum="147" loccnumb="6" loccnume="18"
+              loclnum="163" loccnumb="6" loccnume="18"
               expl="for loop preservation"
               sum="e8f242ddfe477242d6fee26e737b6d52"
               proved="true"
@@ -1009,13 +1009,13 @@
                timelimit="15"
                obsolete="false"
                archived="false">
-               <result status="valid" time="0.33"/>
+               <result status="valid" time="0.34"/>
               </proof>
              </goal>
              <goal
               name="WP_parameter bellman_ford.10.4.2.1.2"
               locfile="bf/../bf.mlw"
-              loclnum="147" loccnumb="6" loccnume="18"
+              loclnum="163" loccnumb="6" loccnume="18"
               expl="for loop preservation"
               sum="b9959976231b2a0039b85d1f0f0a570b"
               proved="true"
@@ -1028,13 +1028,13 @@
                timelimit="15"
                obsolete="false"
                archived="false">
-               <result status="valid" time="0.66"/>
+               <result status="valid" time="0.67"/>
               </proof>
              </goal>
              <goal
               name="WP_parameter bellman_ford.10.4.2.1.3"
               locfile="bf/../bf.mlw"
-              loclnum="147" loccnumb="6" loccnume="18"
+              loclnum="163" loccnumb="6" loccnume="18"
               expl="for loop preservation"
               sum="4467c1ef67ed4e2b6979cb5af93b99f9"
               proved="true"
@@ -1047,13 +1047,13 @@
                timelimit="23"
                obsolete="false"
                archived="false">
-               <result status="valid" time="11.00"/>
+               <result status="valid" time="11.94"/>
               </proof>
              </goal>
              <goal
               name="WP_parameter bellman_ford.10.4.2.1.4"
               locfile="bf/../bf.mlw"
-              loclnum="147" loccnumb="6" loccnume="18"
+              loclnum="163" loccnumb="6" loccnume="18"
               expl="for loop preservation"
               sum="75ce108929c8db16dc55150dd651ed47"
               proved="true"
@@ -1066,13 +1066,13 @@
                timelimit="15"
                obsolete="false"
                archived="false">
-               <result status="valid" time="0.14"/>
+               <result status="valid" time="0.13"/>
               </proof>
              </goal>
              <goal
               name="WP_parameter bellman_ford.10.4.2.1.5"
               locfile="bf/../bf.mlw"
-              loclnum="147" loccnumb="6" loccnume="18"
+              loclnum="163" loccnumb="6" loccnume="18"
               expl="for loop preservation"
               sum="a6c8d2edc0d1a86d9286288b9545b1dd"
               proved="true"
@@ -1085,7 +1085,7 @@
                timelimit="15"
                obsolete="false"
                archived="false">
-               <result status="valid" time="6.19"/>
+               <result status="valid" time="6.57"/>
               </proof>
              </goal>
             </transf>
@@ -1097,7 +1097,7 @@
        <goal
         name="WP_parameter bellman_ford.10.5"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="for loop preservation"
         sum="4fd7346b327b05290a0f2c5118aeb9d1"
         proved="true"
@@ -1116,7 +1116,7 @@
        <goal
         name="WP_parameter bellman_ford.10.6"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="for loop preservation"
         sum="bf4b6b46cc7fc1db6df93b15c06411cc"
         proved="true"
@@ -1129,43 +1129,43 @@
          timelimit="76"
          obsolete="false"
          archived="false">
-         <result status="valid" time="35.53"/>
+         <result status="valid" time="35.74"/>
         </proof>
        </goal>
        <goal
         name="WP_parameter bellman_ford.10.7"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="for loop preservation"
         sum="af926a8ba8e8ffcc71a3b5e9be6d479b"
         proved="true"
-        expanded="true"
+        expanded="false"
         shape="ainv1V4ainfix +V1c1aemptyIainv1V4V1aedgesIainfix =V5aTrueNNIais_emptyV3qainfix =V5aTrueFIainv1V4V1adiffaedgesV3AasubsetV3aedgesFFIainfix =V2aedgesFIainv1V0V1aemptyIainfix &lt;=V1ainfix -acardinalaverticesc1Aainfix &lt;=c1V1FFIainfix &lt;=c1ainfix -acardinalaverticesc1">
         <label
          name="expl:parameter bellman_ford"/>
         <transf
          name="inline_goal"
          proved="true"
-         expanded="true">
+         expanded="false">
          <goal
           name="WP_parameter bellman_ford.10.7.1"
           locfile="bf/../bf.mlw"
-          loclnum="147" loccnumb="6" loccnume="18"
+          loclnum="163" loccnumb="6" loccnume="18"
           expl="for loop preservation"
           sum="97aa9384c6850ce86f312c6e59d71adf"
           proved="true"
-          expanded="true"
+          expanded="false"
           shape="Camixfix []V4V6aFiniteVainfix &gt;=ainfix +apath_weightV9V8aweightV8V6V7IamemaTuple2V8V6aemptyIainfix &lt;alengthV9ainfix +V1c1IapathasV9V8FAainfix &gt;=apath_weightV10V6V7Iainfix &lt;alengthV10ainfix +V1c1IapathasV10V6FAainfix =apath_weightV11V6V7AapathasV11V6EaInfiniteainfix &gt;=alengthV13ainfix +V1c1IapathasV13V12FIamemaTuple2V12V6aemptyFAainfix &gt;=alengthV14ainfix +V1c1IapathasV14V6FIamemV6averticesFICamixfix []V4V15aFiniteVainfix &gt;=ainfix +apath_weightV18V17aweightV17V15V16IamemaTuple2V17V15aedgesIainfix &lt;alengthV18V1IapathasV18V17FAainfix &gt;=apath_weightV19V15V16Iainfix &lt;alengthV19V1IapathasV19V15FAainfix =apath_weightV20V15V16AapathasV20V15EaInfiniteainfix &gt;=alengthV22V1IapathasV22V21FIamemaTuple2V21V15aedgesFAainfix &gt;=alengthV23V1IapathasV23V15FIamemV15averticesFIainfix =V5aTrueNNIamemV24V3NFqainfix =V5aTrueFICamixfix []V4V25aFiniteVainfix &gt;=ainfix +apath_weightV28V27aweightV27V25V26IamemaTuple2V27V25adiffaedgesV3Iainfix &lt;alengthV28V1IapathasV28V27FAainfix &gt;=apath_weightV29V25V26Iainfix &lt;alengthV29V1IapathasV29V25FAainfix =apath_weightV30V25V26AapathasV30V25EaInfiniteainfix &gt;=alengthV32V1IapathasV32V31FIamemaTuple2V31V25adiffaedgesV3FAainfix &gt;=alengthV33V1IapathasV33V25FIamemV25averticesFAamemV34aedgesIamemV34V3FFFIainfix =V2aedgesFICamixfix []V0V35aFiniteVainfix &gt;=ainfix +apath_weightV38V37aweightV37V35V36IamemaTuple2V37V35aemptyIainfix &lt;alengthV38V1IapathasV38V37FAainfix &gt;=apath_weightV39V35V36Iainfix &lt;alengthV39V1IapathasV39V35FAainfix =apath_weightV40V35V36AapathasV40V35EaInfiniteainfix &gt;=alengthV42V1IapathasV42V41FIamemaTuple2V41V35aemptyFAainfix &gt;=alengthV43V1IapathasV43V35FIamemV35averticesFIainfix =V1ainfix -acardinalaverticesc1Oainfix &lt;V1ainfix -acardinalaverticesc1Aainfix =c1V1Oainfix &lt;c1V1FFIainfix =c1ainfix -acardinalaverticesc1Oainfix &lt;c1ainfix -acardinalaverticesc1">
           <label
            name="expl:parameter bellman_ford"/>
           <transf
            name="split_goal"
            proved="true"
-           expanded="true">
+           expanded="false">
            <goal
             name="WP_parameter bellman_ford.10.7.1.1"
             locfile="bf/../bf.mlw"
-            loclnum="147" loccnumb="6" loccnume="18"
+            loclnum="163" loccnumb="6" loccnume="18"
             expl="for loop preservation"
             sum="49150d79ea8ad3272ba9cadd9f240100"
             proved="true"
@@ -1178,13 +1178,13 @@
              timelimit="15"
              obsolete="false"
              archived="false">
-             <result status="valid" time="1.90"/>
+             <result status="valid" time="1.91"/>
             </proof>
            </goal>
            <goal
             name="WP_parameter bellman_ford.10.7.1.2"
             locfile="bf/../bf.mlw"
-            loclnum="147" loccnumb="6" loccnume="18"
+            loclnum="163" loccnumb="6" loccnume="18"
             expl="for loop preservation"
             sum="4a90aa8acf842bf5927ef38772b69239"
             proved="true"
@@ -1198,13 +1198,13 @@
              edited="bf_WP_BellmanFord_WP_parameter_bellman_ford_17.v"
              obsolete="false"
              archived="false">
-             <result status="valid" time="1.26"/>
+             <result status="valid" time="5.79"/>
             </proof>
            </goal>
            <goal
             name="WP_parameter bellman_ford.10.7.1.3"
             locfile="bf/../bf.mlw"
-            loclnum="147" loccnumb="6" loccnume="18"
+            loclnum="163" loccnumb="6" loccnume="18"
             expl="for loop preservation"
             sum="7bc9d10590700fb099f70ca6104d3fb7"
             proved="true"
@@ -1217,13 +1217,13 @@
              timelimit="15"
              obsolete="false"
              archived="false">
-             <result status="valid" time="0.07"/>
+             <result status="valid" time="0.05"/>
             </proof>
            </goal>
            <goal
             name="WP_parameter bellman_ford.10.7.1.4"
             locfile="bf/../bf.mlw"
-            loclnum="147" loccnumb="6" loccnume="18"
+            loclnum="163" loccnumb="6" loccnume="18"
             expl="for loop preservation"
             sum="bac5a71d89f1b6f79962c0237b35b70b"
             proved="true"
@@ -1237,13 +1237,13 @@
              edited="bf_WP_BellmanFord_WP_parameter_bellman_ford_18.v"
              obsolete="false"
              archived="false">
-             <result status="valid" time="6.02"/>
+             <result status="valid" time="7.59"/>
             </proof>
            </goal>
            <goal
             name="WP_parameter bellman_ford.10.7.1.5"
             locfile="bf/../bf.mlw"
-            loclnum="147" loccnumb="6" loccnume="18"
+            loclnum="163" loccnumb="6" loccnume="18"
             expl="for loop preservation"
             sum="b820537e46f91acf6bd340a6d216ab5d"
             proved="true"
@@ -1256,7 +1256,7 @@
              timelimit="15"
              obsolete="false"
              archived="false">
-             <result status="valid" time="0.06"/>
+             <result status="valid" time="0.05"/>
             </proof>
            </goal>
           </transf>
@@ -1268,7 +1268,7 @@
      <goal
       name="WP_parameter bellman_ford.11"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="assertion"
       sum="59a07486c076e83972aa0342db3e7d66"
       proved="true"
@@ -1281,13 +1281,13 @@
        timelimit="15"
        obsolete="false"
        archived="false">
-       <result status="valid" time="0.01"/>
+       <result status="valid" time="0.00"/>
       </proof>
      </goal>
      <goal
       name="WP_parameter bellman_ford.12"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="loop invariant init"
       sum="fd730a3e37246842e7d8d860e96c53b5"
       proved="true"
@@ -1306,7 +1306,7 @@
      <goal
       name="WP_parameter bellman_ford.13"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="precondition"
       sum="af36a1a3f97b637404b4847279d9dc6f"
       proved="true"
@@ -1319,13 +1319,13 @@
        timelimit="10"
        obsolete="false"
        archived="false">
-       <result status="valid" time="0.02"/>
+       <result status="valid" time="0.01"/>
       </proof>
      </goal>
      <goal
       name="WP_parameter bellman_ford.14"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="exceptional postcondition"
       sum="054d7406a5ec34fe5b9a002594b0dae6"
       proved="true"
@@ -1335,32 +1335,32 @@
        name="expl:parameter bellman_ford"/>
       <proof
        prover="2"
-       timelimit="100"
+       timelimit="10"
        edited="bf_WP_BellmanFord_WP_parameter_bellman_ford_15.v"
        obsolete="false"
        archived="false">
-       <result status="valid" time="8.07"/>
+       <result status="valid" time="6.56"/>
       </proof>
      </goal>
      <goal
       name="WP_parameter bellman_ford.15"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="loop invariant preservation"
       sum="2ed1999cc3ac03c107fb98db3ebe25e0"
       proved="true"
-      expanded="true"
+      expanded="false"
       shape="LaTuple2V5V6ainv2V0adiffaedgesV4AasubsetV4aedgesICagetV0V5aInfinitefaFiniteVCagetV0V6aInfinitetaFiniteVainfix &lt;ainfix +V8aweightV5V6V9NIainfix =V4aremoveV7V2AamemV7V2FFIais_emptyV2NIainfix =V3aTrueNIais_emptyV2qainfix =V3aTrueFIainv2V0adiffaedgesV2AasubsetV2aedgesFIainfix =V1aedgesFIainv1V0acardinalaverticesaemptyIainv1V0ainfix +ainfix -acardinalaverticesc1c1aemptyFIainfix &lt;=c1ainfix -acardinalaverticesc1">
       <label
        name="expl:parameter bellman_ford"/>
       <transf
        name="split_goal"
        proved="true"
-       expanded="true">
+       expanded="false">
        <goal
         name="WP_parameter bellman_ford.15.1"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="parameter bellman_ford"
         sum="fe84c17cf73f85e8ffa110bb133b7a86"
         proved="true"
@@ -1373,13 +1373,13 @@
          timelimit="15"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.01"/>
+         <result status="valid" time="0.02"/>
         </proof>
        </goal>
        <goal
         name="WP_parameter bellman_ford.15.2"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="parameter bellman_ford"
         sum="946c029a3f35d7480f28b083a506cdb1"
         proved="true"
@@ -1389,10 +1389,10 @@
          name="expl:parameter bellman_ford"/>
         <proof
          prover="0"
-         timelimit="27"
+         timelimit="28"
          obsolete="false"
          archived="false">
-         <result status="valid" time="13.56"/>
+         <result status="valid" time="13.48"/>
         </proof>
        </goal>
       </transf>
@@ -1400,7 +1400,7 @@
      <goal
       name="WP_parameter bellman_ford.16"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="loop variant decreases"
       sum="f024d3c724988fb6a3f7ce4859b84a2b"
       proved="true"
@@ -1413,13 +1413,13 @@
        timelimit="10"
        obsolete="false"
        archived="false">
-       <result status="valid" time="0.05"/>
+       <result status="valid" time="0.04"/>
       </proof>
      </goal>
      <goal
       name="WP_parameter bellman_ford.17"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="assertion"
       sum="adeff4899fc491000effac9e20de5aee"
       proved="true"
@@ -1432,28 +1432,28 @@
        timelimit="15"
        obsolete="false"
        archived="false">
-       <result status="valid" time="0.25"/>
+       <result status="valid" time="0.24"/>
       </proof>
      </goal>
      <goal
       name="WP_parameter bellman_ford.18"
       locfile="bf/../bf.mlw"
-      loclnum="147" loccnumb="6" loccnume="18"
+      loclnum="163" loccnumb="6" loccnume="18"
       expl="normal postcondition"
       sum="f923a7a14e736780c8fb80c71b8126a9"
       proved="true"
-      expanded="true"
+      expanded="false"
       shape="CagetV0V4aFiniteVainfix &gt;=apath_weightV6V4V5IapathasV6V4FAainfix =apath_weightV7V4V5AapathasV7V4EaInfiniteapathasV8V4NFIamemV4averticesFIainv2V0aedgesIainfix =V3aTrueNNIais_emptyV2qainfix =V3aTrueFIainv2V0adiffaedgesV2AasubsetV2aedgesFIainfix =V1aedgesFIainv1V0acardinalaverticesaemptyIainv1V0ainfix +ainfix -acardinalaverticesc1c1aemptyFIainfix &lt;=c1ainfix -acardinalaverticesc1">
       <label
        name="expl:parameter bellman_ford"/>
       <transf
        name="split_goal"
        proved="true"
-       expanded="true">
+       expanded="false">
        <goal
         name="WP_parameter bellman_ford.18.1"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="normal postcondition"
         sum="f97754e7dc9c470be3b1769683425358"
         proved="true"
@@ -1466,7 +1466,7 @@
          timelimit="15"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.35"/>
+         <result status="valid" time="0.36"/>
         </proof>
         <proof
          prover="1"
@@ -1480,13 +1480,13 @@
          timelimit="15"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.06"/>
+         <result status="valid" time="0.05"/>
         </proof>
        </goal>
        <goal
         name="WP_parameter bellman_ford.18.2"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="normal postcondition"
         sum="2b4ff7d7ed4f37d09c23508e76c55cd4"
         proved="true"
@@ -1500,13 +1500,13 @@
          edited="bf_WP_BellmanFord_WP_parameter_bellman_ford_19.v"
          obsolete="false"
          archived="false">
-         <result status="valid" time="1.15"/>
+         <result status="valid" time="1.20"/>
         </proof>
        </goal>
        <goal
         name="WP_parameter bellman_ford.18.3"
         locfile="bf/../bf.mlw"
-        loclnum="147" loccnumb="6" loccnume="18"
+        loclnum="163" loccnumb="6" loccnume="18"
         expl="normal postcondition"
         sum="b3b553765824cfcda382818153314aa9"
         proved="true"
@@ -1519,21 +1519,21 @@
          timelimit="15"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.16"/>
+         <result status="valid" time="0.14"/>
         </proof>
         <proof
          prover="1"
          timelimit="15"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.10"/>
+         <result status="valid" time="0.08"/>
         </proof>
         <proof
          prover="3"
          timelimit="15"
          obsolete="false"
          archived="false">
-         <result status="valid" time="0.07"/>
+         <result status="valid" time="0.05"/>
         </proof>
        </goal>
       </transf>

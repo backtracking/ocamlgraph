@@ -274,8 +274,7 @@ assert (0 <= length l1 < z)%Z.
   split. apply Length_nonnegative.
   assert (length l = length l1 + 1 + length l2)%Z.
   subst l. rewrite Append_length. ae.
-  assert (0 <= length l2)%Z by apply Length_nonnegative.
-  omega.
+  ae.
 apply (IH (length l1) H1 l1); auto. omega.
 
 assert (path s (infix_plpl l1 (Cons u l3)) v).

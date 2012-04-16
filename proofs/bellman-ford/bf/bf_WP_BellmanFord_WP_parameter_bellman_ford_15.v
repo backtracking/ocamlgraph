@@ -258,6 +258,10 @@ Axiom path_trans : forall (x:vertex) (y:vertex) (z:vertex) (l1:(list vertex))
 Axiom empty_path : forall (x:vertex) (y:vertex), (path x (Nil :(list vertex))
   y) -> (x = y).
 
+Axiom path_decomposition : forall (x:vertex) (y:vertex) (z:vertex) (l1:(list
+  vertex)) (l2:(list vertex)), (path x (infix_plpl l1 (Cons y l2)) z) ->
+  ((path x l1 y) /\ (path y (Cons y l2) z)).
+
 Parameter weight: vertex -> vertex -> Z.
 
 (* Why3 assumption *)
@@ -274,8 +278,19 @@ Axiom path_weight_right_extension : forall (x:vertex) (y:vertex) (l:(list
   vertex)), ((path_weight (infix_plpl l (Cons x (Nil :(list vertex))))
   y) = ((path_weight l x) + (weight x y))%Z).
 
+Axiom path_weight_decomposition : forall (y:vertex) (z:vertex) (l1:(list
+  vertex)) (l2:(list vertex)), ((path_weight (infix_plpl l1 (Cons y l2))
+  z) = ((path_weight l1 y) + (path_weight (Cons y l2) z))%Z).
+
 Axiom path_in_vertices : forall (v1:vertex) (v2:vertex) (l:(list vertex)),
   (mem v1 vertices) -> ((path v1 l v2) -> (mem v2 vertices)).
+
+Axiom long_path_decomposition : forall (l:(list vertex)) (v:vertex), (path s
+  l v) -> (((cardinal vertices) <= (length l))%Z -> ((exists l1:(list
+  vertex), (exists l2:(list vertex), (l = (infix_plpl l1 (Cons v l2))))) \/
+  exists n:vertex, exists l1:(list vertex), exists l2:(list vertex),
+  exists l3:(list vertex), (l = (infix_plpl l1 (Cons n (infix_plpl l2 (Cons n
+  l3))))))).
 
 Axiom simple_path : forall (v:vertex) (l:(list vertex)), (path s l v) ->
   exists lqt:(list vertex), (path s lqt v) /\
@@ -367,8 +382,9 @@ Definition inv2(m:(map vertex t)) (via:(set1 (vertex* vertex)%type)): Prop :=
   forall (u:vertex) (v:vertex), (mem (u, v) via) -> (le (get m v)
   (add1 (get m u) (Finite (weight u v)))).
 
-Axiom key_lemma_2 : forall (m:(map vertex t)), (inv2 m edges) ->
-  forall (v:vertex), ~ (negative_cycle v).
+Axiom key_lemma_2 : forall (m:(map vertex t)), (inv1 m (cardinal vertices)
+  (empty :(set1 (vertex* vertex)%type))) -> ((inv2 m edges) ->
+  forall (v:vertex), ~ (negative_cycle v)).
 
 Require Import Why3.
 Ltac ae := why3 "alt-ergo".
@@ -401,7 +417,7 @@ intros (h4, h5).
 destruct (get m u) as [] _eqn. 2: intuition.
 destruct (get m v) as [] _eqn.
 intros hlt. apply key_lemma_1 with v z0.
-ae.
+why3 "z3-3".
 assert (hu: exists lu: list vertex, path s lu u /\ path_weight lu u = z) by ae.
 destruct hu as (lu, (hu1, hu2)).
 exists (infix_plpl lu (Cons u Nil)); ae.
