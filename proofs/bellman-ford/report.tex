@@ -71,8 +71,6 @@ literate=%
 {not(}{$\lnot$(}{1}%
 {->}{$\rightarrow$}{2}%
 {<->}{$\leftrightarrow$}{2}%
-%
-%
 }
 
 \lstnewenvironment{why3}{\lstset{language=Why3}}{}
@@ -93,7 +91,7 @@ literate=%
 
 This document reports 
 
-\section{Contribution to the ocamlgraph}
+\section{Contribution to ocamlgraph}
 
 ocamlgraph \cite{conchon07tfp} is the software library for OCaml
 language that provides the graph data structure and discrete
@@ -619,10 +617,9 @@ definitions in the goal inline, or launch Coq for unsolvable goals by
 SMT solvers. Figure \ref{fig:why3ide} illustrates the example screen
 of Why3 IDE.
 
-\begin{figure}[h]
-\centering \includegraphics[width=\textwidth]{why3.png}
-\label{fig:why3ide}
-\caption{Graphical user interface of Why3}
+\begin{figure}[h]\centering
+\includegraphics[width=\textwidth]{why3.png}
+\caption{Graphical user interface of Why3}\label{fig:why3ide}
 \end{figure}
 
 I divided the correctness of the Bellman-Ford algorithm into following
@@ -639,15 +636,32 @@ four properties to be preserved.
   the graph, the algorithm must terminate with exception.
 \end{enumerate}
 
-During the internship, I successfuly proved the first two
-properties. The other two are left for the future work.
+During the internship, I successfuly proved the first two properties,
+which will be described in this report. The other two are left for the
+future work.
 
-First, we start by the termination property. Why3 requires loops and
-recursive functions to have an integral expression as a variant. The
-expression should strictly descrease at each iteration, and should
-stay positive except for the very last iteration. This guarantees that
-the variant will finally converge at zero, giving an upper bound for
-the number of iterations.
+\paragraph{Termination} First, we start by the termination property. Why3
+requires loops and recursive functions to have an integral expression
+as a variant. The expression should strictly descrease at each
+iteration, and should stay positive except for the very last
+iteration. This guarantees that the variant will finally converge to
+zero in the finite number of steps, giving an upper bound for the
+number of iterations.
+ 
+\begin{algorithm}
+\caption{Variants given for the loop termination}\label{lst:why3term}
+\begin{why3}
+let m = ref (initialize_single_source s) in
+for i = 1 to cardinal vertices - 1 do
+  let es = ref edges in
+  while not (Bag.is_empty es) do
+    variant { cardinal !es }
+    let (u, v) = Bag.pop es in
+    relax m u v
+  done
+done; (* code continues *)
+\end{why3}
+\end{algorithm}
 
 For example, Line 1-6 in Algorithm \ref{alg:bf} are translated into
 Why3 syntax as shown in Listing \ref{lst:why3term}. The inner
@@ -656,36 +670,67 @@ loop variant. It strictly descreases every time the iteration
 proceeds. The outer \texttt{for} loop is more obvious and it is not
 neccessary to add the redundant annotation.
 
-\begin{algorithm}
-\caption{Variants given for loop termination}\label{lst:why3term}
-\begin{why3}
-let m = ref (initialize_single_source s) in
-for i = 1 to cardinal vertices - 1 do
-  let es = ref edges in
-  while not (Bag.is_empty es) do
-    variant { cardinal !es }
+In the same manner, we can add the variant for the loop at Line 7-11
+in Algorithm \ref{alg:bf}. After giving the variants for loops, we
+launch Why3 IDE to try prove the termination as illustrated in Figure
+\ref{fig:why3term}.
 
-    let (u, v) = Bag.pop es in
-    relax m u v
-  done
-done; (* code continues *)
+\begin{figure}[h]\centering
+\includegraphics[width=0.6\textwidth]{termination.png}
+\caption{Proof session of algorithm termination}\label{fig:why3term}
+\end{figure}
+
+\paragraph{Non-reachable vertices} For next, we prove the property that the
+vertices which have infinite length after algorithm termination must
+be not reachable from \texttt{s}, i.e., no path exists from \texttt{s}
+to them.
+
+Generally speaking, users are expected to involve in giving
+appropriate annotations in Why3 proof session because SMT solvers
+cannot infer enough premises to prove the goal without them. The
+annotations include invariants for loops, precondition and
+postcondition for referring functions, and assertions at arbitrarily
+point of execution.
+
+In order to prove this property, we must note that the vertices which
+can be reached by any paths with $d$ steps will be labeled with the
+finite distance no later than $d$-th iteration of outer loop for
+relaxation. Additionally relaxation of edges from vertices with finite
+distance will let the destination vertices of such edges have the
+finite distance as well. This shows that if a vertex $v$ with infinite
+distance at $d$-th iteration after relaxation of some edges $E'
+\subset E$, then there is no path from $s$ to $v$ with $d$ steps and
+vertices $V'=\{u\in V\vert (u,v)\in E'\}$ have infinite distance.
+
+The invariant in Why3 syntax is illustrated as in Listing
+\ref{lst:why3inv}. \texttt{m}, \texttt{pass} and \texttt{via} in
+parameters respectively represent the distant mapping at the moment,
+the iteration count, and the edges that are already processed during
+the current iteration.
+
+\begin{algorithm}
+\caption{Invariant for the property about non-reachable vertices}\label{lst:why3inv}
+\begin{why3}
+predicate inv (m: distmap) (pass: int) (via: set (vertex, vertex)) =
+  forall v: vertex. mem v vertices ->
+  match m[v] with
+    | Finite n -> true
+    | Infinite ->
+      (forall d: int. 0 <= d < pass ->
+        forall n: int. not (path s v n d)) /\
+      (forall u: vertex. mem (u, v) via ->
+        forall d: int. 0 <= d < pass ->
+        forall n: int. not (path s u n d))
+  end
 \end{why3}
 \end{algorithm}
-
-
-In the Why3 proof session, users are expected to involve in giving an
-appropriate annotations because SMT solvers cannot gain enough
-premises to prove the goal without any annotations.
-
-
-
 
 \section{Discussions}
 
 
 \section{Conclusion}
 
-
+\pagestyle{empty}
 
 \bibliographystyle{plain}
 \bibliography{./biblio}
