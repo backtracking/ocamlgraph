@@ -1,4 +1,8 @@
 
+version 1.8.2, May 12, 2012
+---------------------------
+ o new module [Path.BellmanFord] implementing Bellman-Ford algorithm
+   (contributed by Yuto Takei)
  o new module Contraction implementing edge contraction
    (contributed by Markus W. Weissmann)
  o Gmap: new function [filter_map] (contributed by Markus W. Weissmann)

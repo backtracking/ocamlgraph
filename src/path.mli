@@ -69,29 +69,32 @@ sig
 
 end
 
+(* The following module is a contribution of Yuto Takei (University of Tokyo) *)
 
 module BellmanFord
   (G: G)
   (W: WEIGHT with type label = G.E.label) :
 sig
 
-  module H : Hashtbl.S with type key = G.V.t (* and 'a t = W *)
+  module H : Hashtbl.S with type key = G.V.t
 
   exception NegativeCycle of G.E.t list
 
   val all_shortest_paths : G.t -> G.V.t -> W.t H.t
-    (** [shortest_path g vs] computes the distances of shortest paths from
-        vertex [vs] to all other vertices in graph [g]. They are returned as a
-        hash table mapping each vertex reachable from [vs] to its distance from [vs].
-        If [g] contains a negative-length cycle reachable from [vs],
-        raises [NegativeCycle l] where [l] is such a cycle.
+    (** [shortest_path g vs] computes the distances of shortest paths
+        from vertex [vs] to all other vertices in graph [g]. They are
+        returned as a hash table mapping each vertex reachable from
+        [vs] to its distance from [vs].  If [g] contains a
+        negative-length cycle reachable from [vs], raises
+        [NegativeCycle l] where [l] is such a cycle.
 
         Complexity: at most O(VE) *)
 
   val find_negative_cycle_from: G.t -> G.V.t -> G.E.t list
-    (** [find_negative_cycle_from g vs] looks for a negative-length cycle in graph [g]
-        that is reachable from vertex [vs] and returns it as a list of edges.
-        If no such a cycle exists, raises [Not_found].
+    (** [find_negative_cycle_from g vs] looks for a negative-length
+        cycle in graph [g] that is reachable from vertex [vs] and
+        returns it as a list of edges.  If no such a cycle exists,
+        raises [Not_found].
 
         Complexity: at most O(VE). *)
 

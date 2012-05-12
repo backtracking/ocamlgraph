@@ -100,6 +100,7 @@ struct
 
 end
 
+(* The following module is a contribution of Yuto Takei (University of Tokyo) *)
 
 module BellmanFord
   (G: G)
@@ -116,7 +117,6 @@ struct
     let dist = H.create 97 in
     H.add dist vs W.zero;
     let admissible = H.create 97 in
-
     let build_cycle_from x0 =
       let rec traverse_parent x ret =
 	let e = H.find admissible x in
@@ -138,7 +138,6 @@ struct
       in
       visit x0
     in
-
     let rec relax i =
       let update = G.fold_edges_e
         (fun e x ->
