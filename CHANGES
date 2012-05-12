@@ -1,6 +1,9 @@
 
+ o new module Contraction implementing edge contraction
+   (contributed by Markus W. Weissmann)
+ o Gmap: new function [filter_map] (contributed by Markus W. Weissmann)
  o Topological: fix bug when a cycle depends on another cycle. That breaks
-   compatibility: the input graph must implement Sig.COMPARABLE instead of 
+   compatibility: the input graph must implement Sig.COMPARABLE instead of
    Sig.HASHABLE
  o new module Topological.Make_stable to iterate over a graph in a **stable**
    topological order. Stable means that the provided ordering only depends on
