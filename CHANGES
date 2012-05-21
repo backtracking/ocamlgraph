@@ -1,4 +1,7 @@
 
+ o new module [Dominator] to compute dominators
+   (contributed by David Brumley and Ivan Jager)
+
 version 1.8.2, May 12, 2012
 ---------------------------
  o new module [Path.BellmanFord] implementing Bellman-Ford algorithm
