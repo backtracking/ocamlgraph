@@ -87,12 +87,12 @@ struct
   (** Fold over the nodes.
       Function [f] is applied in reverse-topologicalish order. *)
   let pseudo_topological_fold f x nodes succ =
-    let found = Hashtbl.create 57 in
+    let found = H.create 57 in
     let rec visit x n =
-	if Hashtbl.mem found n
+	if H.mem found n
 	then (* black or gray *) x
 	else  (* white *)
-	  let () = Hashtbl.add found n () in
+	  let () = H.add found n () in
 	  let x = List.fold_left visit x (succ n) in
 	    f n x
     in
@@ -249,7 +249,7 @@ struct
   *)
   let dominators_to_dom_tree cfg ?(pred=G.pred) dominators =
     let idoms = dominators_to_idoms dominators in
-    let tree = Hashtbl.create 9999 in
+    let tree = H.create 9999 in
     let () =
       G.iter_vertex
 	(fun y ->
@@ -258,18 +258,18 @@ struct
 		 (* a node that is not reachable from start has no
 		    idom *)
 		 if S.is_empty (dominators x) then () else
-		   Hashtbl.add tree x y
+		   H.add tree x y
 	       )
 	     | _ -> (
 		 S.iter
-		   (fun x -> if idoms x y then Hashtbl.add tree x y)
+		   (fun x -> if idoms x y then H.add tree x y)
 		   (dominators y)
 	       )
 	)
 	cfg
     in
       (* FIXME: maybe faster to convert eagerly *)
-      fun x -> set_of_list(Hashtbl.find_all tree x)
+      fun x -> set_of_list(H.find_all tree x)
 
   (** Computes a dominator tree (function from x to a list of nodes immediately
       dominated by x) for the given CFG and idom function. *)
@@ -297,17 +297,17 @@ struct
   let compute_dom_frontier cfg (dom_tree:dom_tree) (idom:idom) =
     let children = dom_tree in
     let idoms = idom_to_idoms idom in
-    let df_cache = Hashtbl.create 57 in
+    let df_cache = H.create 57 in
     let df_local n =
       (* The successors of n that are not strictly dominated by n *)
       List.filter (fun y -> not((idoms n y))) (G.succ cfg n)
     in
     let rec df n =
-      try Hashtbl.find df_cache n
+      try H.find df_cache n
       with Not_found ->
 	let s = df_local n in
 	let res = add_df_ups s n in
-	let () = Hashtbl.add df_cache n res in
+	let () = H.add df_cache n res in
 	  res
     and add_df_ups s n =
       List.fold_left
