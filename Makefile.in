@@ -269,14 +269,20 @@ test: $(CMA) tests/test.ml
 test-bf: $(CMA) tests/test_bf.ml
 	ocaml unix.cma graphics.cma $^
 
-bin/test_bf.byte: $(CMA) tests/test_bf.ml
-	$(OCAMLC) -g -o $@ unix.cma graphics.cma $^
+nonneg: $(CMA) tests/nonneg.ml
+	ocaml unix.cma graphics.cma $^
 
 bin/test.byte: $(CMA) tests/test.cmo
 	$(OCAMLC) -g -unsafe -o $@ unix.cma graphics.cma $^
 
 bin/test.opt: $(CMXA) tests/test.cmx
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa graphics.cmxa $^
+
+bin/test_bf.byte: $(CMA) tests/test_bf.ml
+	$(OCAMLC) -g -o $@ unix.cma graphics.cma $^
+
+bin/nonneg.byte: $(CMA) tests/nonneg.ml
+	$(OCAMLC) -g -o $@ unix.cma graphics.cma $^
 
 bench: bin/bench.$(OCAMLBEST)
 	bin/bench.opt

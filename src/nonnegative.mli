@@ -45,6 +45,17 @@ module type WEIGHT = sig
     (** Neutral element for {!add}. *)
 end
 
+module Imperative
+  (G: Sig.IM)
+  (W: WEIGHT with type label = G.E.label) : sig
+
+  include Sig.IM with module V = G.V and module E = G.E
+
+  exception Negative_cycle of G.E.t list
+
+end
+
+
 (** Persistent graphs with negative-cycle prevention *)
 module Persistent
   (G: Sig.P)

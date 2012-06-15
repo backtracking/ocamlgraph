@@ -101,7 +101,7 @@ struct
     let default_vertex_attributes _ = []
     let vertex_attributes _ = []
     let default_edge_attributes _ = []
-    let edge_attributes _ = []
+    let edge_attributes e = [ `Label (string_of_int (E.label e) ) ]
     let get_subgraph _ = None
   end
   module Dot_ = Graphviz.Dot(Display)
@@ -176,8 +176,23 @@ module I = struct
   let default = 0
 end
 
+module IW = struct
+  type label = I.t
+  type t = int
+
+  module M = Map.Make(I)
+  let map = M.empty
+
+  let weight lbl = lbl
+  let compare : t -> t -> int = Pervasives.compare
+  let add = (+)
+  let zero = 0
+end
+
 module Digraph = Generic(Imperative.Digraph.AbstractLabeled(I)(I))
 
 module Graph = Generic(Imperative.Graph.AbstractLabeled(I)(I))
 
+module NonnegDigraph = Generic(Nonnegative.Imperative(Imperative.Digraph.AbstractLabeled(I)(I))(IW))
 
+module NonnegGraph = Generic(Nonnegative.Imperative(Imperative.Graph.AbstractLabeled(I)(I))(IW))

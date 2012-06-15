@@ -29,4 +29,5 @@ module Digraph : Sig_pack.S
     integer. *)
 module Graph : Sig_pack.S
 
-
+module NonnegDigraph : Sig_pack.S
+module NonnegGraph : Sig_pack.S
