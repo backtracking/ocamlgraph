@@ -1,4 +1,5 @@
 
+ o support of lablgtk2 installed with findlib (contributed by B. Monate)
  o new module [Dominator] to compute dominators
    (contributed by David Brumley and Ivan Jager)
 

@@ -148,10 +148,31 @@ else
 fi
 
 # checking for lablgtk2 and lablgnomecanvas
-AC_CHECK_FILE($OCAMLLIB/lablgtk2/lablgtk.$SUFFIX,LABLGTK2=yes,LABLGTK2=no)
+
+# lablgtk2 now uses ocamlfind while older version uses  `ocamlc -where `
+# its installation path is not the same
+if test "$OCAMLFIND" = "" ; then
+  LABLGTK_PATH=+lablgtk2
+  LABLGTKPATH_FOR_CONFIGURE=$OCAMLLIB/lablgtk2
+else
+  LABLGTK_PATH=`ocamlfind query lablgtk2 | tr -d '\\r\\n'`
+  if test "$LABLGTK_PATH" = "" ; then
+     LABLGTK_PATH=+lablgtk2
+     LABLGTKPATH_FOR_CONFIGURE=$OCAMLLIB/lablgtk2
+  else
+     LABLGTKPATH_FOR_CONFIGURE=$LABLGTK_PATH
+  fi
+fi
+
+AC_CHECK_FILE($LABLGTKPATH_FOR_CONFIGURE/lablgtk.$SUFFIX,
+  LABLGTK2=yes,
+  LABLGTK2=no)
+
 if test "$LABLGTK2" = yes ; then
-  INCLUDEGTK2="-I +lablgtk2"
-  AC_CHECK_FILE($OCAMLLIB/lablgtk2/lablgnomecanvas.$SUFFIX,LABLGNOMECANVAS=yes,LABLGNOMECANVAS=no)
+  INCLUDEGTK2="-I $LABLGTK_PATH"
+  AC_CHECK_FILE($LABLGTKPATH_FOR_CONFIGURE/lablgnomecanvas.$SUFFIX,
+    LABLGNOMECANVAS=yes,
+    LABLGNOMECANVAS=no)
 else
   LABLGTK2=no
   LABLGNOMECANVAS=no

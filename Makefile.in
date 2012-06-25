@@ -398,7 +398,7 @@ $(NAME).tex: $(DOC_SRC)
 	$(OCAMLWEB) -o $@ $^
 
 wc:
-	ocamlwc -p $(SRCDIRC)/*.mli $(SRCDIRC)/*.ml
+	ocamlwc -p $(SRCDIR)/*.mli $(SRCDIR)/*.ml
 
 # file headers
 ##############
