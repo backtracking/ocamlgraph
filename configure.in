@@ -140,6 +140,17 @@ fi
 AC_CHECK_PROG(OCAMLWEB,ocamlweb,ocamlweb,true)
 
 AC_CHECK_PROG(OCAMLFIND,ocamlfind,ocamlfind)
+if test "$OCAMLFIND" = "" ; then
+   echo "No ocamlfind detected"
+else
+   OCAMLLIB_BY_FINDLIB=`ocamlfind query stdlib | tr -d '\\r'`
+   if test "$OCAMLLIB_BY_FINDLIB" = "$OCAMLLIB" ; then
+      echo "OCamlfind detected and enabled"
+   else
+      echo "OCamlfind detected but disabled. Standard libraries differ."
+      OCAMLFIND=""
+   fi
+fi
 
 if test "$OCAMLBEST" = "opt"; then
   SUFFIX=cmxa;
@@ -156,7 +167,7 @@ if test "$OCAMLFIND" = "" ; then
   LABLGTKPATH_FOR_CONFIGURE=$OCAMLLIB/lablgtk2
 else
   LABLGTK_PATH=`ocamlfind query lablgtk2 | tr -d '\\r\\n'`
-  if test "$LABLGTK_PATH" = "" ; then
+  if test "$LABLGTK_PATH" = "" -o "$LABLGTK_PATH"="$OCAMLLIB/lablgtk2" ; then
      LABLGTK_PATH=+lablgtk2
      LABLGTKPATH_FOR_CONFIGURE=$OCAMLLIB/lablgtk2
   else
