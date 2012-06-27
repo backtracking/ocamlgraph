@@ -159,6 +159,7 @@ else
 fi
 
 # checking for lablgtk2 and lablgnomecanvas
+###########################################
 
 # lablgtk2 now uses ocamlfind while older version uses  `ocamlc -where `
 # its installation path is not the same
@@ -167,7 +168,8 @@ if test "$OCAMLFIND" = "" ; then
   LABLGTKPATH_FOR_CONFIGURE=$OCAMLLIB/lablgtk2
 else
   LABLGTK_PATH=`ocamlfind query lablgtk2 | tr -d '\\r\\n'`
-  if test "$LABLGTK_PATH" = "" -o "$LABLGTK_PATH"="$OCAMLLIB/lablgtk2" ; then
+  if test "$LABLGTK_PATH" = ""  -o "$LABLGTK_PATH" -ef "$OCAMLLIB/lablgtk2" ; \
+  then
      LABLGTK_PATH=+lablgtk2
      LABLGTKPATH_FOR_CONFIGURE=$OCAMLLIB/lablgtk2
   else
