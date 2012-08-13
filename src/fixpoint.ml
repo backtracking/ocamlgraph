@@ -15,7 +15,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* Copyright (c) 2010 - 2011 Technische Universitaet Muenchen
+(* Copyright (c) 2010 - 2012 Technische Universitaet Muenchen
  * Markus W. Weissmann <markus.weissmann@in.tum.de>
  * All rights reserved. *)
 
@@ -29,14 +29,14 @@ type direction = Forward | Backward
 
 module type Analysis = sig
   type data
-  type label
+  type edge
   type vertex
-  type cfg
+  type g
 
   val direction : direction
   val join : data -> data -> data
   val equal : data -> data -> bool
-  val analyze : label -> data -> data
+  val analyze : edge -> data -> data
 end
 
 (** Minimal graph signature for work list algorithm *)
@@ -45,8 +45,6 @@ module type G = sig
   module V : Sig.COMPARABLE
   module E : sig
     type t
-    type label
-    val label : t -> label
     val dst : t -> V.t
     val src : t -> V.t
   end
@@ -60,19 +58,19 @@ end
 
 module Make
   (G : G)
-  (A : Analysis with type cfg = G.t with type label = G.E.label
+  (A : Analysis with type g = G.t with type edge = G.E.t
 with type vertex = G.V.t) =
 struct
 
   module M = Map.Make(G.V)
   module N = Set.Make(G.V)
 
-  let analyze initial cfg =
+  let analyze initial g =
     let (nodes, data) =
       G.fold_vertex
         (fun vertex (n, m) ->
            (N.add vertex n, M.add vertex (initial vertex) m))
-        cfg (N.empty, M.empty)
+        g (N.empty, M.empty)
     in
     (* generate an associative map to quickly find the incoming
      * (outgoing) edges of a node during the anaysis store a pair of
@@ -82,18 +80,18 @@ struct
       let add = match A.direction with
         | Forward ->
             (fun n ->
-               let preds = G.pred_e cfg n in
+               let preds = G.pred_e g n in
                List.map
-                 (fun edge -> (A.analyze (G.E.label edge), G.E.src edge))
+                 (fun edge -> (A.analyze edge, G.E.src edge))
                  preds)
         | Backward ->
             (fun n ->
-               let succs = G.succ_e cfg n in
+               let succs = G.succ_e g n in
                List.map
-                 (fun edge -> (A.analyze (G.E.label edge), G.E.dst edge))
+                 (fun edge -> (A.analyze edge, G.E.dst edge))
                  succs)
       in
-      G.fold_vertex (fun vertex m -> M.add vertex (add vertex) m) cfg M.empty
+      G.fold_vertex (fun vertex m -> M.add vertex (add vertex) m) g M.empty
     in
 
     let rec worklist (data : A.data M.t) (wl : N.t) =
@@ -139,7 +137,7 @@ struct
                 else Some (M.add node node_data' data)
               in
 
-              (new_node_data, G.succ cfg n)
+              (new_node_data, G.succ g n)
                 (* analyze all OUTGOING edges of all PREDECESSOR nodes
                    of the node to be processed *)
           | Backward ->
@@ -155,7 +153,7 @@ struct
                 else Some (M.add node node_data' data)
               in
 
-              (new_node_data, G.pred cfg n)
+              (new_node_data, G.pred g n)
         in
         (* analyze all successor nodes by analyzing all of their
            predecessor edges *)
