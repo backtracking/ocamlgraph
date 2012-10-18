@@ -35,6 +35,9 @@ module type S = sig
   val add_vertex : G.t -> G.V.t -> G.t
   val add_edge : G.t -> G.V.t -> G.V.t -> G.t
   val add_edge_e : G.t -> G.E.t -> G.t
+  val remove_vertex : G.t -> G.V.t -> G.t
+  val remove_edge : G.t -> G.V.t -> G.V.t -> G.t
+  val remove_edge_e : G.t -> G.E.t -> G.t
 end
 
 module type INT = S with type G.V.label = int

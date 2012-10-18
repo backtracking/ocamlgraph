@@ -1,4 +1,5 @@
 
+ o Builder.S now contains functions remove_*.
  o modified Fixpoint module so that it also works with unlabeled
    graphs (contributed by Markus W. Weissmann)
  o support of lablgtk2 installed with findlib (contributed by B. Monate)
