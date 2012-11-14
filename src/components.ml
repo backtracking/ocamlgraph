@@ -86,5 +86,4 @@ module Make(G: G) = struct
       g;
     Hashtbl.fold (fun _ v l -> !v :: l) tbl []
 
-
 end
