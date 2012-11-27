@@ -38,6 +38,25 @@ module Build(G: G)(Q: Q with type elt = G.V.t) = struct
   module H = Hashtbl.Make(G.V)
   module C = Path.Check(G)
 
+  (* in case of multiple cycles, choose one vertex in a cycle which
+     does not depend of any other. *)
+  let rec choose_independent_vertex checker = function
+    | [] -> assert false
+    | [ v ] -> v
+    | v :: l ->
+      (* choose [v] if each other vertex [v'] is in the same cycle
+	 (a path from v to v') or is in a separate component
+	 (no path from v' to v).
+	 So, if there is a path from v' to without any path from v to v',
+	 discard v. *)
+      if List.for_all
+	(fun v' -> C.check_path checker v v' || not (C.check_path checker v' v))
+	l 
+      then
+	v
+      else
+	choose_independent_vertex checker l
+
   let fold f g acc =
     let checker = C.create g in
     let degree = H.create 997 in
@@ -54,17 +73,10 @@ module Build(G: G)(Q: Q with type elt = G.V.t) = struct
 	in
 	match min with
 	| [] -> acc
-	| [ v ] -> push v; walk acc
-	| v :: l ->
-	  (* in case of multiple cycles, choose one vertex in a cycle which
-	     does not depend of any other. *)
-	  let v =
-	    List.fold_left
-	      (fun acc v' -> if C.check_path checker acc v' then acc else v')
-	      v
-	      l
-	  in
-	  push v; walk acc
+	| _ ->
+	  let v = choose_independent_vertex checker min in
+	  push v;
+	  walk acc
       else
 	let v = Q.pop todo in
 	let acc = f v acc in
