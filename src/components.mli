@@ -19,8 +19,6 @@
 
 (** Strongly connected components. *)
 
-open Util
-
 (** Minimal graph signature required by {!Make}.
     Sub-signature of {!Sig.G}. *)
 module type G = sig
@@ -42,7 +40,11 @@ module Make (G: G) : sig
 	number. In particular, [f u = f v] if and only if [u] and
 	[v] are in the same component. Another property of the
 	numbering is that components are numbered in a topological
-	order: if there is an arc from [u] to [v], then [f u >= f u] *)
+	order: if there is an arc from [u] to [v], then [f u >= f u]
+
+        Not tail-recursive.
+        Complexity: O(V+E)
+        The function returned has complexity O(1) *)
 
   val scc_array : G.t -> G.V.t list array
     (** [scc_array] computes the strongly connected components of [g].

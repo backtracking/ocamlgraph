@@ -1,6 +1,6 @@
 
- o Topological: fix bug in presence of disjoint cycles. 
- o new module [Graphml] to export graphs into the graphml format 
+ o Topological: fixed bug in presence of disjoint cycles; new implementation
+ o new module [Graphml] to export graphs into the graphml format
   (contributed by Pietro Abate)
  o Builder.S now contains functions remove_*.
  o modified Fixpoint module so that it also works with unlabeled

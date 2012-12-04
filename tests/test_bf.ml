@@ -37,4 +37,4 @@ let () =
   test false [              1, 1, 2; 2, 1, 0; 1, 1, 3; 3, 1, 4; 4, 1, 0 ];
   test false [ 0, (-10), 1; 1, 1, 2;          1, 1, 3; 3, 1, 4;         ];
 
-  printf "All test succeeded.\n"
+  printf "All tests succeeded.\n"

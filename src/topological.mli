@@ -18,7 +18,13 @@
 (** Topological order.
 
     This functor provides functions which allow iterating over a graph in
-    topological order. *)
+    topological order. Cycles in graphs are allowed. Specification is the
+    following:
+      if vertex [x] is visited before vertex [y]
+      then either there is a path from [x] to [y],
+           or there is no path from [y] to [x].
+    In the particular case of a DAG, this simplifies to:
+      if there is an edge from [x] to [y], then [x] is visited before [y]. *)
 
 (** Minimal graph signature to provide.
     Sub-signature of {!Sig.G}. *)
@@ -27,7 +33,6 @@ module type G = sig
   module V : Sig.COMPARABLE
   val iter_vertex : (V.t -> unit) -> t -> unit
   val iter_succ : (V.t -> unit) -> t -> V.t -> unit
-  val in_degree : t -> V.t -> int
 end
 
 (** Functor providing topological iterators over a graph. *)
@@ -39,7 +44,9 @@ module Make(G: G) : sig
       where [node] is the node being visited, and [accu] is the result of
       the [action]'s previous invocation, if any, and [seed] otherwise.
       If [g] contains cycles, the order is unspecified inside the cycles and
-      every node in the cycles will be presented exactly once. *)
+      every node in the cycles will be presented exactly once.
+
+      Not tail-recursive. Complexity: O(V+E) *)
 
   val iter : (G.V.t -> unit) -> G.t -> unit
     (** [iter action] calls [action node] repeatedly. Nodes are (again)
@@ -56,7 +63,7 @@ end
     property is not guaranteed by the functor {!Make}. The counterpart is a less
     efficient implementation: worst time complexity is O(E*V*ln(V)) instead of
     O(E*V) (with E = number of edges and V = number of vertices. *)
-module Make_stable(G: G): sig
+module Make_stable(G: sig include G  val in_degree : t -> V.t -> int end): sig
   val fold : (G.V.t -> 'a -> 'a) -> G.t -> 'a -> 'a
   val iter : (G.V.t -> unit) -> G.t -> unit
 end

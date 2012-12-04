@@ -270,8 +270,11 @@ test: $(CMA) tests/test.ml
 test-bf: $(CMA) tests/test_bf.ml
 	ocaml unix.cma graphics.cma $^
 
-test-ts: $(CMA) tests/test_topsort.ml
-	ocaml unix.cma graphics.cma $^
+bin/test-ts: $(CMXA) tests/test_topsort.ml
+	$(OCAMLOPT) -o $@ unix.cmxa $^
+
+test-ts: bin/test-ts
+	bin/test-ts 10
 
 nonneg: $(CMA) tests/nonneg.ml
 	ocaml unix.cma graphics.cma $^
@@ -297,8 +300,9 @@ bench: bin/bench.$(OCAMLBEST)
 bin/bench.opt: $(CMXA) tests/bench.ml
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa $^
 
-check: $(CMA) tests/check.ml
-	ocaml $^
+check: $(CMA) tests/check.ml bin/test-ts
+	ocaml $(CMA) tests/check.ml
+	bin/test-ts 10
 
 # Additional rules
 ##################

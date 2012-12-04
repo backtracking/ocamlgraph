@@ -364,6 +364,9 @@ module type S = sig
   module Topological : sig
     val fold : (V.t -> 'a -> 'a) -> t -> 'a -> 'a
     val iter : (V.t -> unit) -> t -> unit
+
+    val fold_stable : (V.t -> 'a -> 'a) -> t -> 'a -> 'a
+    val iter_stable : (V.t -> unit) -> t -> unit
   end
 
   val spanningtree : t -> E.t list

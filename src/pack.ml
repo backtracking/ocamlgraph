@@ -85,7 +85,12 @@ struct
 
   module PathCheck = Path.Check(G)
 
-  module Topological = Topological.Make(G)
+  module Topological = struct
+    include Topological.Make(G)
+    module S = Topological.Make_stable(G)
+    let fold_stable = S.fold
+    let iter_stable = S.iter
+  end
 
   module Int = struct
     type t = int
