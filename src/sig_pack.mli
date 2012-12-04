@@ -372,7 +372,7 @@ module type S = sig
   (** {2 Input / Output} *)
 
   val dot_output : t -> string -> unit
-    (** DOT output *)
+    (** DOT output in a file *)
 
   val display_with_gv : t -> unit
     (** Displays the given graph using the external tools "dot" and "gv"
@@ -381,6 +381,8 @@ module type S = sig
   val parse_gml_file : string -> t
   val parse_dot_file : string -> t
 
+  val print_gml : Format.formatter -> t -> unit
   val print_gml_file : t -> string -> unit
+  (* val print_graphml : Format.formatter -> t -> unit *)
 
 end

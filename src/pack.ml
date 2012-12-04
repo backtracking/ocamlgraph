@@ -160,11 +160,38 @@ struct
 	 let edge n = ["label", Gml.Int n]
        end)
 
+  let print_gml = GmlPrinter.print
   let print_gml_file g f =
     let c = open_out f in
     let fmt = formatter_of_out_channel c in
     fprintf fmt "%a@." GmlPrinter.print g;
     close_out c
+
+  let uid h find add =
+    let n = ref 0 in
+    fun x ->
+      try find h x with Not_found -> incr n; add h x !n; !n
+
+(*
+  module GraphmlPrinter =
+    Graphml.Print
+      (G)
+      (struct
+	 let node n = ["label", Gml.Int n]
+	 let edge n = ["label", Gml.Int n]
+         module Vhash = Hashtbl.Make(G.V)
+         let vertex_uid = uid (Vhash.create 17) Vhash.find Vhash.add
+         module Ehash = Hashtbl.Make(G.E)
+         let edge_uid = uid (Ehash.create 17) Ehash.find Ehash.add
+       end)
+
+  let print_gml = GmlPrinter.print
+  let print_gml_file g f =
+    let c = open_out f in
+    let fmt = formatter_of_out_channel c in
+    fprintf fmt "%a@." GmlPrinter.print g;
+    close_out c
+*)
 
 end
 
@@ -193,6 +220,3 @@ module Digraph = Generic(Imperative.Digraph.AbstractLabeled(I)(I))
 
 module Graph = Generic(Imperative.Graph.AbstractLabeled(I)(I))
 
-module NonnegDigraph = Generic(Nonnegative.Imperative(Imperative.Digraph.AbstractLabeled(I)(I))(IW))
-
-module NonnegGraph = Generic(Nonnegative.Imperative(Imperative.Graph.AbstractLabeled(I)(I))(IW))

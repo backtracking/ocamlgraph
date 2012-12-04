@@ -30,7 +30,7 @@ module type Q = sig
   val push: elt -> q -> unit
   val pop: q -> elt
   val is_empty: q -> bool
-  val choose: old:(elt list * int) -> elt * int -> elt list * int 
+  val choose: old:(elt list * int) -> elt * int -> elt list * int
 end
 
 module Build(G: G)(Q: Q with type elt = G.V.t) = struct
@@ -51,7 +51,7 @@ module Build(G: G)(Q: Q with type elt = G.V.t) = struct
 	 discard v. *)
       if List.for_all
 	(fun v' -> C.check_path checker v v' || not (C.check_path checker v' v))
-	l 
+	l
       then
 	v
       else
@@ -105,17 +105,17 @@ end
 
 let choose ~old (v, n) =
   let l, min = old in
-  if n = min then v :: l, n 
+  if n = min then v :: l, n
   else if n < min then [ v ], n
   else old
 
-module Make(G: G) = 
+module Make(G: G) =
   Build
     (G)
-    (struct 
-      include Queue 
-      type elt = G.V.t 
-      type q = G.V.t t 
+    (struct
+      include Queue
+      type elt = G.V.t
+      type q = G.V.t t
       let choose = choose
      end)
 
@@ -133,7 +133,7 @@ module Make_stable(G: G) =
         s := S.remove r !s;
         r
       let is_empty s = S.is_empty !s
-      let choose ~old new_ = 
+      let choose ~old new_ =
 	let l, n = choose ~old new_ in
 	List.sort G.V.compare l, n
      end)

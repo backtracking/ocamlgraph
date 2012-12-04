@@ -12,21 +12,30 @@
 (******************************************************************************)
 
 module type G = sig
-  include Sig.G
-  val vertex_properties : (string * string * string option) list
-  val edge_properties : (string * string * string option) list
-  val map_vertex : vertex -> (string * string) list
-  val map_edge : edge -> (string * string) list
-  val vertex_uid : vertex -> int
-  val edge_uid : edge -> int
-end
-
-module type S = sig
   type t
-  val fprintf : out_channel -> t -> unit
+  type vertex
+  module E : sig
+    type t
+    val src: t -> vertex
+    val dst : t -> vertex
+  end
+  val is_directed : bool
+  val iter_vertex : (vertex -> unit) -> t -> unit
+  val iter_edges_e : (E.t -> unit) -> t -> unit
 end
 
-module Printer(G: G) = struct
+module Print
+  (G: G)
+  (L : sig
+    val vertex_properties : (string * string * string option) list
+    val edge_properties : (string * string * string option) list
+    val map_vertex : G.vertex -> (string * string) list
+    val map_edge : G.E.t -> (string * string) list
+    val vertex_uid : G.vertex -> int
+    val edge_uid : G.E.t -> int
+  end)
+
+= struct
 
   type t = G.t
 
@@ -39,59 +48,59 @@ module Printer(G: G) = struct
   ;;
 
   let data_pp fmt (key,value) =
-    Printf.fprintf fmt "<data key=\"%s\">%s</data>" key value
+    Format.fprintf fmt "<data key=\"%s\">%s</data>" key value
 
-  let pp_type fmt t prop typ default = 
-    Printf.fprintf fmt "<key id=\"%s\" for=\"%s\" attr.name=\"%s\" attr.type=\"%s\">" t prop prop typ;
+  let pp_type fmt t prop typ default =
+    Format.fprintf fmt "<key id=\"%s\" for=\"%s\" attr.name=\"%s\" attr.type=\"%s\">" t prop prop typ;
     match default with
-    |None -> Printf.fprintf fmt "</key>\n"
-    |Some s -> begin 
-      Printf.fprintf fmt "\n <default>%s</default>\n" s;
-      Printf.fprintf fmt "</key>\n"
+    |None -> Format.fprintf fmt "</key>\n"
+    |Some s -> begin
+      Format.fprintf fmt "\n <default>%s</default>\n" s;
+      Format.fprintf fmt "</key>\n"
     end
 
-  let fprintf fmt graph =
+  let print fmt graph =
 
-    Printf.fprintf fmt "%s\n" header;
+    Format.fprintf fmt "%s\n" header;
 
     (* node attributed declaration *)
     List.iter
       (fun (prop,typ,default) -> pp_type fmt "node" prop typ default)
-      G.vertex_properties;
+      L.vertex_properties;
 
     (* edge attributed declaration *)
     List.iter
       (fun (prop,typ,default) -> pp_type fmt "edge" prop typ default)
-      G.edge_properties ;
+      L.edge_properties ;
 
     let directed = if G.is_directed then "edgedefault=\"directed\"" else "" in
-    Printf.fprintf fmt "<graph id=\"G\" %s>\n" directed;
+    Format.fprintf fmt "<graph id=\"G\" %s>\n" directed;
 
     (* vertex printer *)
     G.iter_vertex
       (fun vertex ->
-	let id = G.vertex_uid vertex in
-	let l = G.map_vertex vertex in
-	Printf.fprintf fmt " <node id=\"n%d\">\n" id;
-	List.iter (Printf.fprintf fmt "  %a\n" data_pp) l;
-	Printf.fprintf fmt " </node>\n") 
+	let id = L.vertex_uid vertex in
+	let l = L.map_vertex vertex in
+	Format.fprintf fmt " <node id=\"n%d\">\n" id;
+	List.iter (Format.fprintf fmt "  %a\n" data_pp) l;
+	Format.fprintf fmt " </node>\n")
       graph ;
 
     (* edge printer *)
     G.iter_edges_e
       (fun edge ->
-	let n1 = G.vertex_uid (G.E.src edge) in
-	let n2 = G.vertex_uid (G.E.dst edge) in
-	let eid = G.edge_uid edge in
-	let l = G.map_edge edge in
-	Printf.fprintf fmt
+	let n1 = L.vertex_uid (G.E.src edge) in
+	let n2 = L.vertex_uid (G.E.dst edge) in
+	let eid = L.edge_uid edge in
+	let l = L.map_edge edge in
+	Format.fprintf fmt
 	  " <edge id=\"e%d\" source=\"n%d\" target=\"n%d\">\n" eid n1 n2;
-	List.iter (Printf.fprintf fmt "  %a\n" data_pp) l;
-	Printf.fprintf fmt " </edge>\n") 
+	List.iter (Format.fprintf fmt "  %a\n" data_pp) l;
+	Format.fprintf fmt " </edge>\n")
       graph ;
 
-    Printf.fprintf fmt "</graph>\n";
-    Printf.fprintf fmt "</graphml>\n"
+    Format.fprintf fmt "</graph>\n";
+    Format.fprintf fmt "</graphml>\n"
 
 end
 

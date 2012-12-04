@@ -270,6 +270,9 @@ test: $(CMA) tests/test.ml
 test-bf: $(CMA) tests/test_bf.ml
 	ocaml unix.cma graphics.cma $^
 
+test-ts: $(CMA) tests/test_topsort.ml
+	ocaml unix.cma graphics.cma $^
+
 nonneg: $(CMA) tests/nonneg.ml
 	ocaml unix.cma graphics.cma $^
 
