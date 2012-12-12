@@ -147,15 +147,15 @@ struct
                let al = Attr.addl !def_edge_attr al in
                let el = L.edge [Attr.list al] in
                let g,vn = node g id [] in
-                 List.fold_left
-                   (fun g m -> match m with
-                      | NodeId idm ->
-                          let g,vm = node g idm [] in
-                          let e = B.G.E.create vn el vm in
-                            B.add_edge_e g e
-                      | NodeSub _ ->
-                          g)
-                   g nl
+                 fst (List.fold_left
+                       (fun (g,pvn) m -> match m with
+                          | NodeId idm ->
+                              let g,vm = node g idm [] in
+                              let e = B.G.E.create pvn el vm in
+                                ((B.add_edge_e g e),vm)
+                          | NodeSub _ ->
+                              (g,pvn))
+                       (g,vn) nl)
            | Attr_edge al ->
                def_edge_attr := Attr.addl !def_edge_attr al; g
            | Subgraph (SubgraphDef (_, stmts)) ->
