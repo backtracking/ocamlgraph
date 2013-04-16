@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id$ *)
-
 (** Strategies 
 
     Implementation of a winning strategy of a graph: the graph

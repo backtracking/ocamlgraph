@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: md.mli,v 1.2 2004-06-28 13:48:25 signoles Exp $ *)
-
 (** Minimum Degree algorithm
   
     Based on the article:

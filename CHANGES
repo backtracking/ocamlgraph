@@ -1,4 +1,6 @@
 
+ o new module Merge implementing several different of merges of vertices and
+   edges into a graph (contributed by Emmanuel Haucourt)
  o fixed DOT parser (contributed by Alex Reece)
  o Topological: fixed bug in presence of disjoint cycles; new implementation
  o new module [Graphml] to export graphs into the graphml format

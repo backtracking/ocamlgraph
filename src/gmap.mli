@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gmap.mli,v 1.1 2004-10-20 09:59:56 signoles Exp $ *)
-
 (** Graph mapping. Map a graph to another one. *)
 
 (** {2 Mapping of vertices} *)

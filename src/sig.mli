@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: sig.mli,v 1.21 2006-05-12 14:07:16 filliatr Exp $ *)
-
 (** {b Signatures for graph implementations.} *)
 
 (** {2 Signatures for graph implementations} *)
@@ -354,3 +352,9 @@ module type COMPARABLE = sig
   val hash : t -> int
   val equal : t -> t -> bool
 end
+
+(*
+Local Variables:
+compile-command: "make -C .."
+End:
+*)

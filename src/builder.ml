@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: builder.ml,v 1.12 2004-02-20 14:37:40 signoles Exp $ *)
-
 open Sig
 
 module type S = sig
@@ -56,3 +54,9 @@ module I(G : Sig.I) = struct
   let remove_edge g v1 v2 = G.remove_edge g v1 v2; g
   let remove_edge_e g e = G.remove_edge_e g e; g
 end
+
+(*
+Local Variables:
+compile-command: "make -C .."
+End:
+*)

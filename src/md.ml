@@ -14,9 +14,6 @@
 (*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *)
 (*                                                                        *)
 (**************************************************************************)
-
-(* $Id: md.ml,v 1.6 2004-10-22 14:42:06 signoles Exp $ *)
-  
   
 module P(G : Sig.P) = struct
 

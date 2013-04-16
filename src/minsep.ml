@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(*i $Id: minsep.ml,v 1.7 2004-10-25 15:46:16 signoles Exp $ i*)
-
 module type G = sig
   type t
   module V : Sig.COMPARABLE

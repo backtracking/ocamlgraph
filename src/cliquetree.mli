@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(*i $Id: cliquetree.mli,v 1.4 2004-10-19 15:22:47 signoles Exp $ i*)
-
 (** Construction of the clique tree of a graph and recognition
     of chordal graphs.
   

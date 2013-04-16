@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: builder.mli,v 1.13 2004-02-20 14:37:40 signoles Exp $ *)
-
 (** Graph builders in order to persistent/imperative graphs sharing a same
     signature. *)
 
@@ -49,3 +47,9 @@ module P(G : Sig.P) : S with module G = G
 
 module I(G : Sig.I) : S with module G = G
   (** Imperative Graphs Builders. *)
+
+(*
+Local Variables:
+compile-command: "make -C .."
+End:
+*)
