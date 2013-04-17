@@ -99,19 +99,19 @@ module type S = sig
 end
 
 (** Extension for the module [X].*)
-module B(X: Graph.Builder.S) : S with type graph = X.G.t
+module B(X: Builder.S) : S with type graph = X.G.t
 			   and type vertex := X.G.vertex
 			   and type edge := X.G.edge
 			   and type edge_label = X.G.E.label
 
 (**Extension for the module [G].*)
-module P(G: Graph.Sig.P): S with type graph = G.t
+module P(G: Sig.P): S with type graph = G.t
 		      and type vertex := G.vertex
 		      and type edge := G.edge
 		      and type edge_label = G.E.label
 
 (**Extension for the module [G].*)
-module I(G: Graph.Sig.I): sig
+module I(G: Sig.I): sig
 
   (** Same specification than module type {!S} but modify the graph inplace
       instead of returning a new graph. *)

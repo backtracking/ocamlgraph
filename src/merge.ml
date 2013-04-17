@@ -34,7 +34,7 @@ module type S = sig
     graph
 end
 
-module B(B: Graph.Builder.S) = struct
+module B(B: Builder.S) = struct
     
   type graph = B.G.t
   type vertex = B.G.vertex
@@ -176,7 +176,7 @@ module B(B: Graph.Builder.S) = struct
     merge_vertex g to_be_merged
 
   let merge_scc ?(loop_killer=false) ?specified_vertex g =
-    let module C = Graph.Components.Make(B.G) in
+    let module C = Components.Make(B.G) in
     let components = C.scc_list g in
     let alter accu to_be_identified =
       let to_be_identified =
@@ -192,10 +192,10 @@ module B(B: Graph.Builder.S) = struct
       
 end
 
-module P(G: Graph.Sig.P) = B(Graph.Builder.P(G))
+module P(G: Sig.P) = B(Builder.P(G))
 
-module I(G: Graph.Sig.I) = struct
-  include B(Graph.Builder.I(G))
+module I(G: Sig.I) = struct
+  include B(Builder.I(G))
   let merge_vertex g vl = ignore (merge_vertex g vl)
   let merge_edges_e ?src ?dst g el = ignore (merge_edges_e ?src ?dst g el)
   let merge_edges_with_label ?src ?dst ?label g l =
