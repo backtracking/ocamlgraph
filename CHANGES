@@ -1,7 +1,7 @@
 
 version 1.8.3, April 17, 2013
 ---------------------------
- o new module Merge implementing several different of merges of vertices and
+ o new module Merge implementing several different merges of vertices and
    edges into a graph (contributed by Emmanuel Haucourt)
  o fixed DOT parser (contributed by Alex Reece)
  o Topological: fixed bug in presence of disjoint cycles; new implementation
