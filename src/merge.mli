@@ -133,10 +133,7 @@ module I(G: Sig.I): sig
     ?loop_killer:bool -> ?specified_vertex:(vertex list -> vertex) -> graph -> 
     unit
 
-end with type graph = G.t
-		      and type vertex := G.vertex
-		      and type edge := G.edge
-		      and type edge_label = G.E.label
+end
 
 (*
 Local Variables:
