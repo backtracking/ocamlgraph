@@ -57,12 +57,26 @@ module B(B: Builder.S) = struct
     in
     B.G.fold_edges_e f g []
       
+  (* – former buggy version – the case where v is neither the source nor the
+     destination of some arrow was not taken into account, so that vertices were
+     just removed
+
+     let merge_vertex g vl = match vl with 
+     | [] -> g
+     | _ :: vl' ->
+     let to_be_added = identify_extremities g vl in
+     let g = List.fold_left B.remove_vertex g vl' in
+     List.fold_left B.add_edge_e g to_be_added
+   *)
+
   let merge_vertex g vl = match vl with 
     | [] -> g
-    | _ :: vl' ->
+    | v :: vl' ->
       let to_be_added = identify_extremities g vl in
       let g = List.fold_left B.remove_vertex g vl' in
-      List.fold_left B.add_edge_e g to_be_added
+      if to_be_added = []
+      then B.add_vertex g v
+      else List.fold_left B.add_edge_e g to_be_added
       
   let merge_edges_e ?src ?dst g el = match el with
     | e :: el' ->
@@ -108,13 +122,32 @@ module B(B: Builder.S) = struct
     in
     let edges_to_be_merged = B.G.fold_edges_e collect_edge g [] in
     merge_edges_e ?src ?dst g edges_to_be_merged
+
+  (* To deduce a comparison function on labels from a comparison function on
+     edges *)
+
+  let compare_label g =
+    try
+      let default_vertex =
+        let a_vertex_of_g = ref None in
+        (try B.G.iter_vertex (fun v -> a_vertex_of_g := Some v ; raise Exit) g 
+	 with Exit -> ());
+        match !a_vertex_of_g with 
+        | Some v -> v
+        | None -> raise Exit (*hence g is empty*) in
+      fun l1 l2 ->
+        let e1 = B.G.E.create default_vertex l1 default_vertex in
+        let e2 = B.G.E.create default_vertex l2 default_vertex in
+        B.G.E.compare e1 e2
+    with Exit -> (fun l1 l2 -> 0)
       
   let merge_isolabelled_edges g =
     let module S = Set.Make(B.G.V) in
     let do_meet s1 s2 = S.exists (fun x -> S.mem x s2) s1 in
     let module M = 
-	  (* TODO: using [compare] here is really suspicious *)
-	  Map.Make(struct type t = B.G.E.label let compare = compare end) 
+	  (* TODO: using [compare] here is really suspicious ... 
+	     DONE – yet not so clean *)
+	  Map.Make(struct type t = B.G.E.label let compare = compare_label g end) 
     in
     let accumulating e accu =
       let l = B.G.E.label e in
