@@ -138,7 +138,7 @@ module CommonAttributes : sig
         (** Sets the shape of the vertex.  Default value is [`Ellipse].
             [`Polygon (i, f)] draws a polygon with [n] sides and a skewing
             of [f]. *)
-    | `Style of [ `Filled | `Solid | `Dashed | `Dotted | `Bold | `Invis ]
+    | `Style of [ `Rounded | `Filled | `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
         (** Sets the layout style of the vertex.
 	    Several styles may be combined simultaneously. *)
     | `Width of float
@@ -176,7 +176,7 @@ module CommonAttributes : sig
     | `Labelfontsize of int
         (** Sets the font size for head and tail labels (in points).
             Default value is [14]. *)
-    | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ]
+    | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
         (** Sets the layout style of the edge.  Several styles may be combined
             simultaneously. *)
     ]
