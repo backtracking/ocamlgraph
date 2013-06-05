@@ -14,10 +14,10 @@ Caml</#fr><#en>an ocaml graph library</#en>
 
 <body>
 
-<h1>ocamlgraph</h1>
+<h1>OCamlgraph</h1>
 
-<#fr>ocamlgraph est une bibliothèque de graphes pour 
- <a href="http://caml.inria.fr/">Objective Caml</a>. 
+<#fr>OCamlgraph est une bibliothèque de graphes pour
+ <a href="http://caml.inria.fr/">Objective Caml</a>.
 Elle présente trois aspects différents:
 <ul>
 <li>
@@ -26,10 +26,10 @@ Elle présente trois aspects différents:
   opérations et algorithmes sur ces graphes.
   <p>
   Il est conseillé de jeter un oeil à ce module en premier lieu pour
-  comprendre le genre de choses fournies par ocamlgraph. Voir aussi le
+  comprendre le genre de choses fournies par OCamlgraph. Voir aussi le
   fichier <a href="demo.ml">demo.ml</a>.
 
-<li>Ensuite, ocamlgraph fournit plusieurs autres structrures de
+<li>Ensuite, OCamlgraph fournit plusieurs autres structrures de
   données pour les graphes, pour ceux qui ne se satisferaient pas de
   la précédente. Certaines sont <a
   href="doc/Persistent.html">persistentes</a> et d'autre <a
@@ -41,7 +41,7 @@ Elle présente trois aspects différents:
   L'interface <a href="doc/Sig.html">Sig</a> décrit les signatures des
   structures de données pour les graphes
   et les modules <a
-   href="doc/Persistent.html">Persistent</a> et 
+   href="doc/Persistent.html">Persistent</a> et
    <a href="doc/Imperative.html">Imperative</a> fournissent des
   implantations.
   <p>
@@ -51,7 +51,7 @@ Elle présente trois aspects différents:
 
 <p>
 
-<li>Enfin, ocamlgraph fournit plusieurs opérations et algorithmes
+<li>Enfin, OCamlgraph fournit plusieurs opérations et algorithmes
   classiques sur les graphes. Ils sont également écrits comme des
   foncteurs, c'est-à-dire indépendamment de la structure de données
   pour les graphes. En conséquence, vous pouvez définir votre propre
@@ -64,42 +64,42 @@ Elle présente trois aspects différents:
 </#fr>
 
 <#en>
-ocamlgraph is a graph library for <a
-href="http://caml.inria.fr/">Objective Caml</a>. 
+OCamlgraph is a graph library for <a
+href="http://caml.inria.fr/">Objective Caml</a>.
 Its contribution is three-fold:
 <ul>
 <li> It provides an easy-to-use graph data structure together with several
-   operations and algorithms over graphs, 
+   operations and algorithms over graphs,
    in <a href="doc/Pack.html">Graph.Pack</a>.
-   It is a reasonably efficient imperative data structure for directed graphs 
+   It is a reasonably efficient imperative data structure for directed graphs
    with vertices and edges labeled with integers.
    <p>
    Have a look at this module first in order to get an overview of what
    this library provides. See also <a href="demo.ml">demo.ml</a>.
 
-<li> Then ocamlgraph provides several other graph implementations for those
+<li> Then OCamlgraph provides several other graph implementations for those
    not satisfied with the one above. Some are <a
    href="doc/Persistent.html">persistent</a> (imutable) and other
    <a href="doc/Imperative.html">imperative</a> (mutable). Some are
-   directed and other are not. 
-   Some have labels for vertices, or labels for edges, or both. 
+   directed and other are not.
+   Some have labels for vertices, or labels for edges, or both.
    Some have abstract types for vertices. etc.
    <p>
-   See interface <a href="doc/Sig.html">Sig</a> for the graph 
+   See interface <a href="doc/Sig.html">Sig</a> for the graph
    signatures and modules <a
-   href="doc/Persistent.html">Persistent</a> and 
+   href="doc/Persistent.html">Persistent</a> and
    <a href="doc/Imperative.html">Imperative</a> for the implementations.
    <p>
-   These implementations are written as functors: you give the types of 
+   These implementations are written as functors: you give the types of
    vertices labels, edge labels, etc. and you get the data structure as a
    result.
 
 <p>
 
-<li> Finally, ocamlgraph provides several classic operations and algorithms
-   over graphs. They are also written as functors i.e. independently of the 
+<li> Finally, OCamlgraph provides several classic operations and algorithms
+   over graphs. They are also written as functors i.e. independently of the
    data structure for graphs. One consequence is that you can define your own
-   data structure for graphs and yet re-use all the algorithms from this 
+   data structure for graphs and yet re-use all the algorithms from this
    library -- you only need to provide a few operations such as iterating over
    all vertices, over the successors of a vertex, etc.
    See module <a href="doc/Path.html">Path</a> for an example.
@@ -111,7 +111,7 @@ Its contribution is three-fold:
 <h4>Documentation</h4>
 
 <#fr>Parcourir l'</#fr><#en>Browse the </#en><a href="doc">API</a>.
-<#fr>Note : Tous les modules sont regroupés à l'intérieur d'un unique module 
+<#fr>Note : Tous les modules sont regroupés à l'intérieur d'un unique module
 Graph.</#fr>
 <#en>Note: all modules are packaged into a single module Graph</#en>.
 
@@ -120,18 +120,18 @@ Graph.</#fr>
 <a href="FAQ">FAQ</a>
 
 <p>
-<#fr>Articles présentant ocamlgraph :</#fr> 
-<#en>Papers describing ocamlgraph:</#en> 
-<ul> 
+<#fr>Articles présentant OCamlgraph :</#fr>
+<#en>Papers describing OCamlgraph:</#en>
+<ul>
 <#fr>
 <li> <a href="http://www.lri.fr/~filliatr/ftp/publis/jfla05.ps.gz">Le foncteur
 sonne toujours deux fois</a> (<a
-href="http://pauillac.inria.fr/jfla/2005/">JFLA 2005</a>) 
+href="http://pauillac.inria.fr/jfla/2005/">JFLA 2005</a>)
 </#fr>
 <li>
 <a href="http://www.lri.fr/~filliatr/ftp/publis/ocamlgraph.ps">
-Designing a Generic Graph Library using ML Functors</a> 
-(<a href="http://cs.shu.edu/tfp2007/">TFP 2007</a>) 
+Designing a Generic Graph Library using ML Functors</a>
+(<a href="http://cs.shu.edu/tfp2007/">TFP 2007</a>)
 </ul>
 
 <p>
@@ -145,29 +145,29 @@ Designing a Generic Graph Library using ML Functors</a>
 
 <li><a href="demo_planar.ml">demo_planar.ml</a> :
   <#fr>dessine un <a href="doc/Rand.html">graphe planaire
-  aléatoire</a> 
+  aléatoire</a>
   et illustre les <a href="doc/Traverse.html">parcours</a>
        en profondeur et en largeur et l'algorithme de <a
   href="doc/Path.html">Dijkstra</a></#fr>
    <#en>displays a <a href="doc/Rand.html">random planar graph</a>
    and demonstrates <a href="doc/Traverse.html">depth-first
    and breadth-first traversals</a> and <a
-  href="doc/Path.html">Dijkstra's algorithm</a></#en> 
+  href="doc/Path.html">Dijkstra's algorithm</a></#en>
 
 <li><a href="color.ml">color.ml</a> :
   <#fr>dessine un <a href="doc/Rand.html">graphe planaire
-  aléatoire</a> 
+  aléatoire</a>
   et le colorie avec 4 couleurs</#fr>
-  <#en>displays a <a href="doc/Rand.html">random planar graph</a> 
+  <#en>displays a <a href="doc/Rand.html">random planar graph</a>
   and 4-color it</#en>
 </ul>
 
-<h4>Distribution</h4> 
+<h4>Distribution</h4>
 
 <#def LICENSE><a href="download/LICENSE">LICENSE</a></#def>
 
 <#fr>
-ocamlgraph est distribué librement, sous la licence GNU Library
+OCamlgraph est distribué librement, sous la licence GNU Library
 General Public License version 2, avec une exception concernant
 l'édition de lien décrite dans le fichier <#LICENSE>. <br>
 Il est disponible sous forme de sources :
@@ -178,8 +178,8 @@ Vous pouvez accéder à la <a href="download/">zone de téléchargement</a> directem
 Voici les derniers <a href="download/CHANGES">changements</a>.
 </#fr>
 <#en>
-ocamlgraph is freely available, under the terms of the GNU Library
-General Public License version 2, with the special exception on linking 
+OCamlgraph is freely available, under the terms of the GNU Library
+General Public License version 2, with the special exception on linking
 described in file <#LICENSE>.
 <br>
 It is available as a source tarball:
@@ -194,14 +194,12 @@ Here are the recent <a href="download/CHANGES">CHANGES</a>.
 <p>
 
 <#fr>Vous pouvez également accéder en lecture à la version de
-  développement d'Ocamlgraph, avec la commande</#fr>
+  développement d'OCamlgraph sur github</#fr>
 <#en>Alternatively, you can access the current development version
-  using anonynous SVN, as follows:</#en>
+  on github:</#en>
 <pre>
-  svn co https://www.lri.fr/svn/demons/ocamlgraph --username guest
+  <a href="https://github.com/backtracking/ocamlgraph">https://github.com/backtracking/ocamlgraph</a>
 </pre>
-<#fr>et le mot de passe <tt>guest</tt>.</#fr>
-<#en>using password <tt>guest</tt>.</#en>
 
 <h4><#fr>Crédits</#fr><#en>Credits</#en></h4>
 
