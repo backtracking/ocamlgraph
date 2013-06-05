@@ -163,7 +163,7 @@ module CommonAttributes = struct
         (** Sets the shape of the node.  Default value is [`Ellipse].
             [`Polygon (i, f)] draws a polygon with [n] sides and a skewing
             of [f]. *)
-    | `Style of [ `Filled | `Solid | `Dashed | `Dotted | `Bold | `Invis ]
+    | `Style of [ `Rounded | `Filled | `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
         (** Sets the layout style of the node.  Several styles may be combined
             simultaneously. *)
     | `Width of float
@@ -201,7 +201,7 @@ module CommonAttributes = struct
     | `Labelfontsize of int
         (** Sets the font size for head and tail labels (in points).
             Default value is [14]. *)
-    | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ]
+    | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
         (** Sets the layout style of the edge.  Several styles may be combined
             simultaneously. *)
     ]
@@ -234,13 +234,19 @@ module CommonAttributes = struct
     | `Record -> fprintf ppf "record"
     | `Polygon (i, f) -> fprintf ppf "polygon, sides=%i, skew=%f" i f
 
-  let fprint_node_style ppf = function
-      `Filled -> fprintf ppf "filled"
-    | `Solid -> fprintf ppf "solid"
-    | `Dashed -> fprintf ppf "dashed"
-    | `Dotted -> fprintf ppf "dotted"
-    | `Bold -> fprintf ppf "bold"
-    | `Invis -> fprintf ppf "invis"
+  let rec fprint_string_list ppf = function
+    [] -> ()
+    | [hd] -> fprintf ppf "%s" hd
+    | hd :: tl -> fprintf ppf "%s,%a" hd fprint_string_list tl
+
+  let node_style_str = function
+      `Rounded -> "rounded"
+    | `Filled -> "filled"
+    | `Solid -> "solid"
+    | `Dashed -> "dashed"
+    | `Dotted -> "dotted"
+    | `Bold -> "bold"
+    | `Invis -> "invis"
 
   let fprint_vertex ppf = function
     | `Color a -> fprintf ppf "color=%a" fprint_color a
@@ -255,11 +261,11 @@ module CommonAttributes = struct
     | `Peripheries i -> fprintf ppf "peripheries=%i" i
     | `Regular b -> fprintf ppf "regular=%b" b
     | `Shape a -> fprintf ppf "shape=%a" fprint_shape a
-    | `Style a -> fprintf ppf "style=%a" fprint_node_style a
+    | `Style a -> fprintf ppf "style=\"%a\"" fprint_string_list (List.map node_style_str a)
     | `Width f -> fprintf ppf "width=%f" f
 
-  let fprint_edge_style =
-    fprint_node_style
+  let edge_style_str =
+    node_style_str
 
   let fprint_arrow_direction ppf = function
       `Forward -> fprintf ppf "forward"
@@ -281,7 +287,7 @@ module CommonAttributes = struct
     | `Labelfontname s -> fprintf ppf "labelfontname=\"%s\"" s
 	(* (String.escaped s) *)
     | `Labelfontsize i -> fprintf ppf "labelfontsize=%i" i
-    | `Style a -> fprintf ppf "style=%a" fprint_edge_style a
+    | `Style a -> fprintf ppf "style=\"%a\"" fprint_string_list (List.map edge_style_str a)
 
 end
 
