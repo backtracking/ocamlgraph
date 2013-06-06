@@ -63,6 +63,7 @@ module type ATTRIBUTES = sig
   type subgraph = {
     sg_name : string;            (** Box name. *)
     sg_attributes : vertex list; (** Box attributes. *)
+    sg_parent : string option;   (** Nested subgraphs. *)
   }
 
 end
@@ -325,6 +326,7 @@ module DotAttributes : sig
   type subgraph = {
     sg_name : string;
     sg_attributes : vertex list;
+    sg_parent : string option;
   }
 
 end
@@ -445,6 +447,7 @@ module NeatoAttributes : sig
   type subgraph = {
     sg_name : string;
     sg_attributes : vertex list;
+    sg_parent : string option;
   }
 
 end
