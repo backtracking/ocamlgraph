@@ -175,13 +175,13 @@ module SubTreeMake(G: Graphviz.GraphWithDotAttrs) = struct
 
     let vertex_attributes v =
       let t = tree () in
-      if TM.is_ghost_node v t then [ `Style `Invis ]
+      if TM.is_ghost_node v t then [ `Style [`Invis] ]
       else G.vertex_attributes (TM.get_graph_vertex v t)
 
     let edge_attributes e =
       let t = tree () in
       if TM.is_ghost_node (T.E.src e) t || TM.is_ghost_node (T.E.dst e) t then
-	[ `Style `Dashed; `Dir `None ]
+	[ `Style [`Dashed]; `Dir `None ]
       else
 	G.edge_attributes
 	  (G.find_edge
