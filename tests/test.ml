@@ -15,9 +15,10 @@
 (*                                                                        *)
 (**************************************************************************)
 
+
 open Format
 open Graph
-
+(*
 module Int = struct 
   type t = int 
   let compare = compare 
@@ -42,30 +43,32 @@ let test_hash_cycle n =
   assert (T.has_cycle g)
 
 let () = test_hash_cycle 1_000
+*)
 
-(*
 module Int = struct 
   type t = int 
   let compare = compare 
-  let hash = Hashtbl.hash 
+  let hash = Hashtbl.hash
+  let equal = (=)
+  let default = 0
 end
 
-module G = Fun.DirectedLabeled(Int)(Int)
+module G = Persistent.Digraph.ConcreteLabeled(Int)(Int)
 
 let g = G.empty
-let g = G.add_vertex 1 g
-let g = G.add_edge_and_vertex 1 10 2 g
-let g = G.add_edge_and_vertex 2 50 3 g
-let g = G.add_edge_and_vertex 1 30 4 g
-let g = G.add_edge_and_vertex 1 100 5 g
-let g = G.add_edge_and_vertex 3 10 5 g
-let g = G.add_edge_and_vertex 4 20 3 g
-let g = G.add_edge_and_vertex 4 60 5 g
+let g = G.add_vertex g 1
+let g = G.add_edge_e g (G.E.create 1 10 2)
+let g = G.add_edge_e g (G.E.create 2 50 3)
+let g = G.add_edge_e g (G.E.create 1 30 4)
+let g = G.add_edge_e g (G.E.create 1 100 5)
+let g = G.add_edge_e g (G.E.create 3 10 5)
+let g = G.add_edge_e g (G.E.create 4 20 3)
+let g = G.add_edge_e g (G.E.create 4 60 5)
 
-let g = G.remove_vertex 4 g
+let g = G.remove_vertex g 4
 
-let gc = G.add_edge_and_vertex 5 10 1 g
-let gc = G.add_vertex 6 gc
+let gc = G.add_edge_e g (G.E.create 5 10 1)
+let gc = G.add_vertex gc 6
 
 module W = struct 
   type label = int
@@ -76,15 +79,14 @@ module W = struct
   let compare = compare
 end
 
-module Dij = Dijkstra.Make(G)(Int)(W)
+module Dij = Path.Dijkstra(G)(W)
 
 let p,w = Dij.shortest_path gc 1 5
 
-open G.Edge
+open G.E
 open Printf
 
 let () = List.iter (fun e -> printf "[%d -> %d]" (src e) (dst e)) p; printf "\n"
-*)
 
 (*
 module Int = struct 
@@ -217,7 +219,7 @@ module K = Kruskal.Make(G)(Int)(UF)
 open Printf
 let l = K.spanningtree g 
 let _ = List.iter (fun e -> printf "%d - %d\n" (G.E.src e) (G.E.dst e) ) l
-	*)
+*)
 
 (* open Graph *)
 (* module IntInt = struct *)
