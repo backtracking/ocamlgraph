@@ -93,6 +93,7 @@ module type ATTRIBUTES = sig
   type subgraph = {
     sg_name : string;            (** Box name. *)
     sg_attributes : vertex list; (** Box attributes. *)
+    sg_parent : string option;   (** Nested subgraphs. *)
   }
 
 end
@@ -391,60 +392,72 @@ struct
     (** [fprint_graph ppf graph] pretty prints the graph [graph] in
         the CGL language on the formatter [ppf]. *)
     let fprint_graph ppf graph =
-      let subgraphs = Hashtbl.create 7 in
+      let module SG = Map.Make(String) in
+      let subgraphs = ref SG.empty in
 
       (* Printing nodes. *)
 
       let print_nodes ppf =
+        let default_node_attributes = X.default_vertex_attributes graph in
+          if default_node_attributes  <> [] then
+            fprintf ppf "node%a;@ " 
+              fprint_node_attributes 
+              default_node_attributes;
 
-	let default_node_attributes = X.default_vertex_attributes graph in
-	if default_node_attributes  <> [] then
-	  fprintf ppf "node%a;@ "
-	    fprint_node_attributes default_node_attributes;
-
-	X.iter_vertex
-          (function node ->
-             begin match X.get_subgraph node with
-             | None -> ()
-             | Some sg ->
-                 try
-                   let (sg,nodes) =
-		     Hashtbl.find subgraphs sg.EN.Attributes.sg_name
-		   in
-                   Hashtbl.replace subgraphs
-		     sg.EN.Attributes.sg_name (sg,node::nodes)
-                 with Not_found ->
-                   Hashtbl.add subgraphs sg.EN.Attributes.sg_name (sg,[node])
-             end;
-	     fprintf ppf "%s%a;@ "
-	       (X.vertex_name node)
-	       fprint_node_attributes (X.vertex_attributes node))
-          graph
-
+            X.iter_vertex
+              (function node ->
+                begin match X.get_subgraph node with
+                | None -> ()
+                | Some sg ->
+                    let (sg, nodes) =
+                      if SG.mem sg.EN.Attributes.sg_name !subgraphs then
+                        SG.find sg.EN.Attributes.sg_name !subgraphs
+                      else
+                        (sg, [])
+                    in
+                      subgraphs := SG.add sg.EN.Attributes.sg_name (sg, node :: nodes) !subgraphs
+                end;
+                fprintf ppf "%s%a;@ "
+                  (X.vertex_name node)
+                  fprint_node_attributes 
+                  (X.vertex_attributes node)
+              )
+              graph
       in
 
       (* Printing subgraphs *)
 
+      let rec print_nested_subgraphs ppf = function
+        | [] ->
+            () (* no more work to do, so terminate *)
+        | name :: worklist ->
+            let sg, nodes = SG.find name !subgraphs in
+            let children = SG.filter (fun n (sg, nodes) -> sg.EN.Attributes.sg_parent = Some name) !subgraphs in
+              fprintf ppf "@[<v 2>subgraph cluster_%s { %t%t@ %t };@]@\n"
+  
+              name
+  
+              (fun ppf ->
+                (List.iter
+                  (fun n -> fprintf ppf "%a;@\n" EN.Attributes.fprint_vertex n)
+                  sg.EN.Attributes.sg_attributes
+                )
+              )
+  
+              (fun ppf ->
+                (List.iter (fun n -> fprintf ppf "%s;" (X.vertex_name n)) nodes)
+              )
+
+              (fun ppf ->
+                print_nested_subgraphs ppf (List.map fst (SG.bindings children))
+              );
+
+              print_nested_subgraphs ppf worklist
+      in
+
       let print_subgraphs ppf =
-
-        Hashtbl.iter
-          (fun name (sg,nodes) ->
-             fprintf ppf "@[<v 2>subgraph cluster_%s { %t%t };@]@\n"
-               name
-
-               (fun ppf ->
-                  (List.iter
-                     (fun n ->
-			fprintf ppf "%a;@\n" EN.Attributes.fprint_vertex n)
-                     sg.EN.Attributes.sg_attributes))
-
-               (fun ppf ->
-                  (List.iter
-		     (fun n -> fprintf ppf "%s;" (X.vertex_name n))
-                     nodes))
-          )
-          subgraphs
-
+        let root_worklist = SG.filter (fun n (sg, nodes) -> sg.EN.Attributes.sg_parent = None) !subgraphs in
+          print_nested_subgraphs ppf (List.map fst (SG.bindings root_worklist))
       in
 
       (* Printing edges *)
@@ -627,6 +640,7 @@ module DotAttributes = struct
     type subgraph = {
       sg_name : string;
       sg_attributes : vertex list;
+      sg_parent : string option;
     }
 
     (** {4 Pretty-print of attributes} *)
@@ -792,6 +806,7 @@ module NeatoAttributes = struct
     type subgraph = {
       sg_name : string;
       sg_attributes : vertex list;
+      sg_parent : string option;
     }
 
   (** {4 Pretty-print of attributes} *)
