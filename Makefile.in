@@ -70,7 +70,7 @@ LIB:=$(patsubst %, $(LIBDIR)/%.cmo, $(LIB))
 CMO = 	version util blocks persistent imperative \
 	delaunay builder classic rand oper \
 	components path nonnegative traverse coloring topological kruskal flow \
-        dominator graphviz gml dot_parser dot_lexer dot pack \
+        prim dominator graphviz gml dot_parser dot_lexer dot pack \
 	gmap minsep cliquetree mcs_m md strat fixpoint leaderlist contraction \
 	graphml merge
 CMO := $(LIB) $(patsubst %, $(SRCDIR)/%.cmo, $(CMO))
@@ -246,10 +246,16 @@ bin/demo.byte: $(CMA) examples/demo.cmo
 bin/demo.opt: $(CMXA) examples/demo.cmx
 	$(OCAMLOPT) -o $@ $^
 
+bin/fgtest.opt: $(CMXA) myTest/fgtest.cmx
+	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
+
 bin/demo_planar.byte: $(CMA) examples/demo_planar.cmo
 	$(OCAMLC) -o $@ graphics.cma unix.cma $^
 
 bin/demo_planar.opt: $(CMXA) examples/demo_planar.cmx
+	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
+
+bin/demo_prim.opt: $(CMXA) examples/demo_prim.cmx
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
 bin/color.byte: $(CMA) examples/color.cmo
@@ -298,6 +304,9 @@ bench: bin/bench.$(OCAMLBEST)
 	bin/bench.opt
 
 bin/bench.opt: $(CMXA) tests/bench.ml
+	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa $^
+
+bin/testunix.opt: $(CMXA) myTest/testunix.ml
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa $^
 
 check: $(CMA) tests/check.ml bin/test-ts
