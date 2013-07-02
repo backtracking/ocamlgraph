@@ -100,16 +100,24 @@ let draw_graph () =
   set_line_width 1;
   G.iter_vertex draw_vertex g0;
   G.iter_edges draw_edge g0
-
-module P = Prim.Make(G)(Int)
+module W = struct 
+  type label = G.E.label
+  type t = int
+  let weight x = x
+  let zero = 0
+  let add = (+)
+  let compare = compare
+end
+module P = Prim.Make(G)(W)
 
 let () =
   draw_graph ();
-  ignore (Graphics.wait_next_event [ Key_pressed ]);
   let el = P.spanningtree g0 in
+  Printf.printf "%d\n" (List.length el);
   List.iter
     (fun e -> draw_edge ~color:blue (G.E.src e) (G.E.dst e))
     el;
+  ignore (Graphics.wait_next_event [ Key_pressed ]);
   ignore (Graphics.wait_next_event [ Key_pressed ]);
   close_graph ()
 
