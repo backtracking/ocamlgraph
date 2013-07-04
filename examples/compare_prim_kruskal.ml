@@ -15,28 +15,31 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* Demo of Prim's algorithm *)
+(* Kruskal and Prim tests *)
 
 open Printf
 open Graph
 
 (* command line *)
-let n_ = ref 30
-let prob_ = ref 0.5
+let v_ = ref 30
+let e_ = ref 50
 let seed_ = ref None
+let debug_ = ref false
 
 let arg_spec = 
-  ["-v", Arg.Int (fun i -> n_ := i), 
+  ["-v", Arg.Int (fun i -> v_ := i), 
    " <int>  number of vertices";
-   "-prob", Arg.Float (fun f -> prob_ := f), 
-   " <float>  probability to discrad an edge";
+   "-e", Arg.Int (fun i -> e_ := i), 
+   " <int>  number of edges";
    "-seed", Arg.Int (fun n -> seed_ := Some n),
-   " <int>  random seed"
+   " <int>  random seed";
+   "--debug", Arg.Set debug_, "set the debug flag";
   ]
 let () = Arg.parse arg_spec (fun _ -> ()) "usage: color <options>"
 
-let n = !n_
-let prob = !prob_
+let v = !v_
+let e = !e_
+let debug = !debug_
 
 let seed = match !seed_ with
   | None -> Random.self_init (); Random.int (1 lsl 29)
@@ -55,51 +58,13 @@ module Int = struct
   let equal = (=)
   let default = 0
 end
-module G = Imperative.Graph.AbstractLabeled(IntInt)(Int)
-open G
 
-(* a random graph with n vertices *)
-module R = Rand.Planar.I(G)
-let g0 = R.graph ~xrange:(20,780) ~yrange:(20,580) ~prob n
+module G = Imperative.Graph.AbstractLabeled(Int)(Int)
 
-(* drawing *)
-let round f = truncate (f +. 0.5)
-let pi = 4.0 *. atan 1.0
+module R = Rand.I(G)
 
-open Graphics
-let () = open_graph " 800x600"
 
-let vertex_radius = 5
 
-let draw_edge ?(color=black) v1 v2 =
-  let (xu,yu) = G.V.label v1 in
-  let (xv,yv) = G.V.label v2 in
-  set_color color;
-  let dx = float (xv - xu) in
-  let dy = float (yv - yu) in
-  let r = sqrt (dx *. dx +. dy *. dy) in
-  let d = float vertex_radius +. 3. in
-  let xs, ys = float xu +. d *. dx /. r, float yu +. d *. dy /. r in
-  let xd, yd = float xv -. d *. dx /. r, float yv -. d *. dy /. r in
-  moveto (round xs) (round ys);
-  lineto (round xd) (round yd)
-
-let draw_vertex ?(color=red) v =
-  let (x,y) = G.V.label v in
-  set_color color;
-  draw_circle x y vertex_radius
-
-let color_vertex v color =
-  let x,y = G.V.label v in
-  set_color color;
-  fill_circle x y vertex_radius
-
-let draw_graph () = 
-  clear_graph ();
-  set_color red;
-  set_line_width 1;
-  G.iter_vertex draw_vertex g0;
-  G.iter_edges draw_edge g0
 module W = struct 
   type label = G.E.label
   type t = int
@@ -108,26 +73,51 @@ module W = struct
   let add = (+)
   let compare = compare
 end
-module P = Prim.Make(G)(W)
 
-let () =
-  draw_graph ();
-  ignore (Graphics.wait_next_event [ Key_pressed ]);
-  let el = P.spanningtree g0 in
-  Printf.printf "%d\n" (List.length el);
-  set_line_width 2;
-  List.iter
-    (fun e ->
-      draw_edge ~color:blue (G.E.src e) (G.E.dst e);
-      draw_vertex ~color:blue (G.E.src e);
-      draw_vertex ~color:blue (G.E.dst e)
-    ) el;
-  ignore (Graphics.wait_next_event [ Key_pressed ]);
-  close_graph ()
+module Time = struct
+ 
+  open Unix
+    
+  let utime f x =                                                   
+    let u = (times()).tms_utime in                                  
+    let y = f x in
+    let ut = (times()).tms_utime -. u in
+    y, ut
 
+  (* runs f 5 times, removes minimum and maximum timings, and
+     returns the mean of the remaining three timings *)
+  let time5 f x = 
+    let t = Array.init 5 (fun _ -> snd (utime f x)) in
+    if debug then Array.iter (fun x -> Printf.printf "%2.2f\n" x) t;
+    Array.sort Pervasives.compare t;
+    (t.(1) +. t.(2) +. t.(3)) /. 3.
+        
+  let print f x = 
+    let (y,ut) = utime f x in
+    printf "user time: %2.2f@." ut;
+    y
 
+end
+
+module P1 = Kruskal.Make(G)(W)
+module P2 = Prim.Make(G)(W)
+
+let testp g =Time.time5 P1.spanningtree g
+let testk g = Time.time5 P2.spanningtree g
+
+let test nb_v nb_e = 
+  Printf.printf "Execution time v=%d - e=%d\n" nb_v nb_e;
+  let g = R.graph ~v:nb_v ~e:nb_e () in
+  
+  let resp = testp g in
+  Printf.printf "PRIM : %2.2fs\n" resp;
+  let resk = testk g in
+  Printf.printf "KRUSKAL : %2.2fs\n%!" resk
+
+let () = test v e 
+  
 (*
 Local Variables: 
-compile-command: "make -C .. bin/demo_prim.opt"
+compile-command: "make -C .. bin/compare_prim_kruskal.opt"
 End: 
 *)

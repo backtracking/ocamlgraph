@@ -65,7 +65,7 @@ struct
     in
     List.iter cover edges;
     !s
-
+ 
 end
 
 module Make(G: G)(W : Sig.ORDERED_TYPE with type t=G.E.label) = 

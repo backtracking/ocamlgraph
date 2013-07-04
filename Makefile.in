@@ -255,6 +255,9 @@ bin/demo_planar.byte: $(CMA) examples/demo_planar.cmo
 bin/demo_planar.opt: $(CMXA) examples/demo_planar.cmx
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
+bin/compare_prim_kruskal.opt: $(CMXA) examples/compare_prim_kruskal.ml
+	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
+
 bin/demo_prim.opt: $(CMXA) examples/demo_prim.ml
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
