@@ -42,7 +42,7 @@ end
 
 
 
-(** Functor providing an implementation of Kruskal's minimum-spanning-tree 
+(** Functor providing an implementation of Prim's minimum-spanning-tree 
     algorithm. 
     Parameter [W] ensures that label on edges are comparable. *)
 module Make(G: G)(W: WEIGHT with type label = G.E.label) : sig

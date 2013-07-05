@@ -28,6 +28,10 @@ module type S = sig
   (* DEBUG *)
   val random_few_edges : loops:bool -> v:int -> e:int -> graph
   val random_many_edges : loops:bool -> v:int -> e:int -> graph
+  val gnp : ?loops:bool -> v:int -> prob:float -> graph
+  val gnp_labeled :
+    (vertex -> vertex -> edge_label) -> 
+    ?loops:bool -> v:int -> prob:float -> graph
 end
 
 module Make(B : Builder.INT) = struct
@@ -48,7 +52,7 @@ module Make(B : Builder.INT) = struct
     if of_int e > max_e then invalid_arg "random: too many edges";
     max_e
 
-  let fold_for i0 i1 f =
+   let fold_for i0 i1 f =
     let rec loop i v = if i > i1 then v else loop (i + 1) (f v i) in
     loop i0
 
@@ -108,7 +112,7 @@ module Make(B : Builder.INT) = struct
     (if r < 0.4 then random_few_edges else random_many_edges) ~loops ~v ~e
 
   let graph ?(loops=false) ~v ~e () = random B.add_edge ~loops ~v ~e
-
+  
   let labeled f ?(loops=false) ~v ~e () = 
     random 
       (fun g v1 v2 -> B.add_edge_e g (G.E.create v1 (f v1 v2) v2)) 
@@ -118,6 +122,30 @@ module Make(B : Builder.INT) = struct
   let random_few_edges = random_few_edges B.add_edge
   let random_many_edges = random_many_edges B.add_edge
 
+  (** G(n,p) graphs
+      See https://en.wikipedia.org/wiki/Random_graph *)
+
+
+  let gnp_generic add_edge ?(loops=false) ~v ~prob = 
+    if not (0.0 <= prob && prob <= 1.0) then invalid_arg "gnp";
+    let vertices = Array.init v (fun i -> B.G.V.create i) in 
+    let g = Array.fold_left B.add_vertex (B.empty ()) vertices in
+    let g = ref g in
+    for i = 0 to v-1 do
+      for j = 0 to (if G.is_directed then v-1 else i) do
+	if (loops || j <> i) && (prob = 1.0 || Random.float 1.0 < prob) then 
+	  g := add_edge !g vertices.(i) vertices.(j) 
+      done
+    done;
+    !g
+
+  let gnp ?(loops=false) ~v ~prob = 
+    gnp_generic B.add_edge ~loops ~v ~prob
+
+  let gnp_labeled f ?(loops=false) ~v ~prob =
+    gnp_generic (fun g v1 v2 -> B.add_edge_e g (G.E.create v1 (f v1 v2) v2))
+      ~loops ~v ~prob
+	  
 end
 
 module P (G : Sig.P with type V.label = int) = Make(Builder.P(G))
@@ -205,3 +233,9 @@ module Planar = struct
     Make(Builder.I(G))
 
 end
+(*
+  Local Variables: 
+  compile-command: "make -C .. src/rand.cmo"
+  End: 
+   
+*)

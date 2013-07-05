@@ -328,6 +328,17 @@ module type S = sig
 	?loops:bool -> v:int -> e:int -> unit -> t
 	  (** [random_labeled f] is similar to [random] except that edges are
             labeled using function [f] *)
+
+    val gnp : ?loops:bool -> v:int -> prob:float -> t
+      (** [gnp v prob] generates a random graph with [v] vertices and
+	  where each edge is selected with probality [prob] (G(n,p) model) *)
+
+    val gnp_labeled :
+      (V.t -> V.t -> E.label) -> 
+      ?loops:bool -> v:int -> prob:float -> t
+      (** [gnp_labeled add_edge v prob] is similar to [gnp] except that
+	  edges are labeled using function [f] *)
+      
   end
 
   (** Strongly connected components *)

@@ -1,4 +1,8 @@
 
+ o new functions [gnp] and [gnp_labeled] in module [Rand] to generate random
+   graphs using the G(n,p) model (contributed by Thomas Aubry)
+ o Prim's algorithm (in module [Prim]; not exported in [Pack])
+   (contributed by Thomas Aubry)
  o Merge: fixed bug with vertices with no incoming nor outcoming edge.
  o fixed compilation issue with OCaml 3.12.1
 

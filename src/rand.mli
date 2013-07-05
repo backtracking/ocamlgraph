@@ -33,7 +33,7 @@ module type S = sig
       The boolean [loops] indicates whether loops are allowed; 
       default value is no loop ([false]). 
       @raise Invalid_argument if [e] exceeds the maximal number of edges. *)
-
+  
   val labeled : 
     (vertex -> vertex -> edge_label) -> 
     ?loops:bool -> v:int -> e:int -> unit -> graph
@@ -48,6 +48,17 @@ module type S = sig
 
   val random_few_edges : loops:bool -> v:int -> e:int -> graph
   val random_many_edges : loops:bool -> v:int -> e:int -> graph
+
+  val gnp : ?loops:bool -> v:int -> prob:float -> graph
+  (** random graph using the G(n,p) model.
+      [gnp v prob] generates a random graph with exactly [v] vertices
+      and where each edge is selected with probability [prob] *)
+
+  val gnp_labeled :
+    (vertex -> vertex -> edge_label) -> 
+    ?loops:bool -> v:int -> prob:float -> graph
+    (** [gnp_labeled add_edge v e] is similar to [gnp] except that edges
+	are labeled using function [f]. *)
 
 end
 
