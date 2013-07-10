@@ -33,6 +33,16 @@ module type S = sig
       transitive closure. Meaningless for persistent implementations
       (then acts as [transitive_closure]). *)
 
+  val transitive_reduction : ?reflexive:bool -> g -> g
+    (** [transitive_reduction ?reflexive g] returns the transitive reduction
+      of [g] (as a new graph). Loops (i.e. edges from a vertex to itself)
+      are removed only if [reflexive] is [true] (default is [false]). *)
+
+  val replace_by_transitive_reduction : ?reflexive:bool -> g -> g
+    (** [replace_by_transitive_reduction ?reflexive g] replaces [g] by its
+      transitive reduction. Meaningless for persistent implementations
+      (then acts as [transitive_reduction]). *)
+
   val mirror : g -> g
     (** [mirror g] returns a new graph which is the mirror image of [g]:
 	each edge from [u] to [v] has been replaced by an edge from [v] to [u].

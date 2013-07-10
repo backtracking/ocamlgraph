@@ -234,6 +234,16 @@ module type S = sig
       transitive closure. Meaningless for persistent implementations
       (then acts as [transitive_closure]). *)
 
+  val transitive_reduction : ?reflexive:bool -> t -> t
+    (** [transitive_reduction ?reflexive g] returns the transitive reduction
+      of [g] (as a new graph). Loops (i.e. edges from a vertex to itself)
+      are removed only if [reflexive] is [true] (default is [false]). *)
+
+  val replace_by_transitive_reduction : ?reflexive:bool -> t -> t
+    (** [replace_by_transitive_reduction ?reflexive g] replaces [g] by its
+      transitive reduction. Meaningless for persistent implementations
+      (then acts as [transitive_reduction]). *)
+
   val mirror : t -> t
     (** [mirror g] returns a new graph which is the mirror image of [g]:
       each edge from [u] to [v] has been replaced by an edge from [v] to [u].
@@ -329,16 +339,16 @@ module type S = sig
 	  (** [random_labeled f] is similar to [random] except that edges are
             labeled using function [f] *)
 
-    val gnp : ?loops:bool -> v:int -> prob:float -> t
+    val gnp : ?loops:bool -> v:int -> prob:float -> unit -> t
       (** [gnp v prob] generates a random graph with [v] vertices and
 	  where each edge is selected with probality [prob] (G(n,p) model) *)
 
     val gnp_labeled :
-      (V.t -> V.t -> E.label) -> 
-      ?loops:bool -> v:int -> prob:float -> t
+      (V.t -> V.t -> E.label) ->
+      ?loops:bool -> v:int -> prob:float -> unit -> t
       (** [gnp_labeled add_edge v prob] is similar to [gnp] except that
 	  edges are labeled using function [f] *)
-      
+
   end
 
   (** Strongly connected components *)
