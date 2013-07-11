@@ -25,10 +25,10 @@ let n_ = ref 30
 let prob_ = ref 0.5
 let seed_ = ref None
 
-let arg_spec = 
-  ["-v", Arg.Int (fun i -> n_ := i), 
+let arg_spec =
+  ["-v", Arg.Int (fun i -> n_ := i),
    " <int>  number of vertices";
-   "-prob", Arg.Float (fun f -> prob_ := f), 
+   "-prob", Arg.Float (fun f -> prob_ := f),
    " <float>  probability to discrad an edge";
    "-seed", Arg.Int (fun n -> seed_ := Some n),
    " <int>  random seed"
@@ -45,13 +45,13 @@ let () = Format.printf "seed = %d@." seed; Random.init seed
 
 (* undirected graphs with integer coordinates and integer labels on edges *)
 
-module IntInt = struct 
-  type t = int * int 
+module IntInt = struct
+  type t = int * int
 end
-module Int = struct 
-  type t = int 
-  let compare = compare 
-  let hash = Hashtbl.hash 
+module Int = struct
+  type t = int
+  let compare = compare
+  let hash = Hashtbl.hash
   let equal = (=)
   let default = 0
 end
@@ -94,13 +94,13 @@ let color_vertex v color =
   set_color color;
   fill_circle x y vertex_radius
 
-let draw_graph () = 
+let draw_graph () =
   clear_graph ();
   set_color red;
   set_line_width 1;
   G.iter_vertex draw_vertex g0;
   G.iter_edges draw_edge g0
-module W = struct 
+module W = struct
   type label = G.E.label
   type t = int
   let weight x = x
@@ -127,7 +127,7 @@ let () =
 
 
 (*
-Local Variables: 
+Local Variables:
 compile-command: "make -C .. bin/demo_prim.opt"
-End: 
+End:
 *)

@@ -240,11 +240,11 @@ examples: $(EXAMPLESBIN)
 .PHONY: demo
 demo: bin/demo.$(OCAMLBEST)
 
-bin/demo.byte: $(CMA) examples/demo.cmo
-	$(OCAMLC) -o $@ $^
+bin/demo.byte: $(CMXA) examples/demo.cmo
+	$(OCAMLOPT) -o $@ graphics.cma unix.cma $^
 
 bin/demo.opt: $(CMXA) examples/demo.cmx
-	$(OCAMLOPT) -o $@ $^
+	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
 bin/fgtest.opt: $(CMXA) myTest/fgtest.cmx
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
