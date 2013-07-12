@@ -19,19 +19,19 @@ open Printf
 open Graph
 
 module U = Unix
-  
-let utime f x =                                                   
-  let u = (U.times()).U.tms_utime in                                  
+
+let utime f x =
+  let u = (U.times()).U.tms_utime in
   let y = f x in
   let ut = (U.times()).U.tms_utime -. u in
   (y,ut)
 
-let print_utime f x = 
+let print_utime f x =
   let (y,ut) = utime f x in
   Printf.printf "user time: %2.2f\n" ut; flush Pervasives.stdout;
   y
 
-let () = 
+let () =
   printf "planar graphs demo
   use mouse to select two vertices (blue = source, green = destination)
   keys are
@@ -45,13 +45,13 @@ let () =
 
 (* directed graphs with integer coordinates and integer labels on edges *)
 
-module IntInt = struct 
-  type t = int * int 
+module IntInt = struct
+  type t = int * int
 end
-module Int = struct 
-  type t = int 
-  let compare = compare 
-  let hash = Hashtbl.hash 
+module Int = struct
+  type t = int
+  let compare = compare
+  let hash = Hashtbl.hash
   let equal = (=)
   let default = 0
 end
@@ -60,11 +60,11 @@ open G
 
 let n_ = ref 30
 let prob_ = ref 0.5
-let () = 
+let () =
   Arg.parse
-      ["-v", Arg.Int (fun i -> n_ := i), 
+      ["-v", Arg.Int (fun i -> n_ := i),
        " <int>  number of vertices";
-       "-prob", Arg.Float (fun f -> prob_ := f), 
+       "-prob", Arg.Float (fun f -> prob_ := f),
        " <float>  probability to discrad an edge";
       ]
       (fun _ -> ())
@@ -77,10 +77,10 @@ let pi = 4.0 *. atan 1.0
 
 module Point = struct
   type point = V.t
-  let ccw v1 v2 v3 = 
+  let ccw v1 v2 v3 =
     Delaunay.IntPoints.ccw (V.label v1) (V.label v2) (V.label v3)
   let in_circle v1 v2 v3 v4 =
-    Delaunay.IntPoints.in_circle 
+    Delaunay.IntPoints.in_circle
       (V.label v1) (V.label v2) (V.label v3) (V.label v4)
   let distance v1 v2 =
     let x1,y1 = V.label v1 in
@@ -101,7 +101,7 @@ let read_graph f =
       l := (x,y) :: !l
     done;
     assert false
-  with End_of_file -> 
+  with End_of_file ->
     close_in c;
     let rec min_list cmp = function
       | [] -> assert false
@@ -116,13 +116,13 @@ let read_graph f =
       round (20. +. 760. *. (x -. xmin) /. (xmax -. xmin)),
       round (20. +. 560. *. (y -. ymin) /. (ymax -. ymin))
     in
-    let vertices = 
+    let vertices =
       Array.map (fun xy -> V.create (calibrate xy)) (Array.of_list !l)
     in
     let t = Triangulation.triangulate vertices in
     let g = create () in
     Array.iter (G.add_vertex g) vertices;
-    let add_edge v1 v2 = 
+    let add_edge v1 v2 =
       let e = E.create v1 (Point.distance v1 v2) v2 in G.add_edge_e g e
     in
     Triangulation.iter (fun v1 v2 -> add_edge v1 v2; add_edge v2 v1) t;
@@ -182,12 +182,12 @@ let draw_selection () = match !selection with
   | One v1 -> color_vertex v1 blue
   | Two (v1, v2) -> color_vertex v1 blue; color_vertex v2 green
 
-let draw_graph () = 
+let draw_graph () =
   clear_graph ();
   set_color red;
   set_line_width 1;
-  G.iter_vertex 
-    (fun v -> 
+  G.iter_vertex
+    (fun v ->
        let (x,y) = G.V.label v in
        draw_circle x y vertex_radius)
     !g;
@@ -209,17 +209,17 @@ let select () =
     | Two (_, v2) -> selection := Two (v2, v)
   in
   let p = mouse_pos () in
-  try 
-    G.iter_vertex 
-      (fun v -> 
-	 if distance p (G.V.label v) <= vertex_radius then begin 
-	   select_vertex v; draw_graph (); raise Exit 
-	 end) 
+  try
+    G.iter_vertex
+      (fun v ->
+	 if distance p (G.V.label v) <= vertex_radius then begin
+	   select_vertex v; draw_graph (); raise Exit
+	 end)
       !g
-  with Exit -> 
+  with Exit ->
     ()
 
-module W = struct 
+module W = struct
   type label = G.E.label
   type t = int
   let weight x = x
@@ -237,19 +237,19 @@ let dijkstra () = match !selection with
 	let (p,l),t = utime (Dij.shortest_path !g v1) v2 in
 	t_ := t;
 	printf "path of length %d (%d nodes) (%2.2f s)\n" l (List.length p) t;
-	flush stdout; 
-	List.iter 
-	  (fun e -> 
+	flush stdout;
+	List.iter
+	  (fun e ->
 	     let v1 = G.E.src e in
 	     let v2 = G.E.dst e in
 	     draw_arrow ~color:red ~width:3 (G.V.label v1) (G.V.label v2))
 	  p;
 	ignore (Graphics.wait_next_event [ Key_pressed; Button_down ]);
 	draw_graph ()
-      with Not_found -> 
+      with Not_found ->
 	printf "no path (%2.2f s)\n" !t_; flush stdout
       end
-  | _ -> 
+  | _ ->
       ()
 
 let draw_iteration f =
@@ -279,9 +279,9 @@ let four_colors () =
     end else
       true
   and try_color v c =
-    (try 
+    (try
        G.iter_succ (fun w -> if Mark.get w == c then raise Exit) !g v; true
-     with Exit -> 
+     with Exit ->
        false) &&
     (Mark.set v c; loop ())
   in
@@ -312,7 +312,7 @@ let () =
     close_graph ()
 
 (*
-Local Variables: 
+Local Variables:
 compile-command: "make -C .. bin/demo_planar.opt"
-End: 
+End:
 *)

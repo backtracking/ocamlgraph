@@ -114,7 +114,6 @@ let () =
   draw_graph ();
   ignore (Graphics.wait_next_event [ Key_pressed ]);
   let el = P.spanningtree g0 in
-  Printf.printf "%d\n" (List.length el);
   set_line_width 2;
   List.iter
     (fun e ->
