@@ -16,7 +16,7 @@ version 1.8.3, April 17, 2013
   (contributed by Pietro Abate)
  o Builder.S now contains functions remove_*.
  o modified Fixpoint module so that it also works with unlabeled
-   graphs (contributed by Markus W. Weissmann)
+   graphs, break backward compatibility yet (contributed by Markus W. Weissmann)
  o support of lablgtk2 installed with findlib (contributed by B. Monate)
  o new module [Dominator] to compute dominators
    (contributed by David Brumley and Ivan Jager)
