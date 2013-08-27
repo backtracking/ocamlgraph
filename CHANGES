@@ -1,4 +1,5 @@
 
+ o fixed installation with ocamlfind (thanks to Virgile Prevosto)
  o new functions [gnp] and [gnp_labeled] in module [Rand] to generate random
    graphs using the G(n,p) model (contributed by Thomas Aubry)
  o Prim's algorithm (in module [Prim]; not exported in [Pack])
