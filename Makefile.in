@@ -384,8 +384,10 @@ ifeq (@LABLGNOMECANVAS@,yes)
 	$(OCAMLFIND) install ocamlgraph META \
 		$(SRCDIR)/*.mli $(VIEWER_DIR)/*.mli $(DGRAPH_DIR)/*.mli \
 		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA) \
-		$(VIEWER_CMXLIB) $(VIEWER_CMOLIB) $(DGRAPH_CMXLIB) \
-		$(DGRAPH_CMOLIB) $(DGRAPH_CMILIB)
+		$(VIEWER_CMXLIB) $(VIEWER_CMOLIB) $(VIEWER_CMILIB) \
+                $(VIEWER_CMXLIB:.cmx=.o) \
+                $(DGRAPH_CMXLIB) $(DGRAPH_CMOLIB) $(DGRAPH_CMILIB) \
+                $(DGRAPH_CMXLIB:.cmx=.o)
 else
 	$(OCAMLFIND) install ocamlgraph META \
 		$(SRCDIR)/*.mli $(VIEWER_DIR)/*.mli $(DGRAPH_DIR)/*.mli \
