@@ -365,7 +365,8 @@ endif
 
 install-opt: install-byte
 	mkdir -p $(INSTALL_LIBDIR)
-	cp -f graph$(LIBEXT) graph.cmi graph.cmx $(CMXA) $(INSTALL_LIBDIR)
+	cp -f graph$(OBJEXT) graph$(LIBEXT) graph.cmi graph.cmx \
+		$(CMXA) $(INSTALL_LIBDIR)
 	cp -f $(SRCDIR)/*.mli $(INSTALL_LIBDIR)
 ifeq (@LABLGNOMECANVAS@,yes)
 	mkdir -p $(BINDIR)
@@ -383,7 +384,8 @@ ifdef OCAMLFIND
 ifeq (@LABLGNOMECANVAS@,yes)
 	$(OCAMLFIND) install ocamlgraph META \
 		$(SRCDIR)/*.mli $(VIEWER_DIR)/*.mli $(DGRAPH_DIR)/*.mli \
-		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA) \
+		graph$(OBJEXT) graph$(LIBEXT) graph.cmx graph.cmo graph.cmi \
+		$(CMA) $(CMXA) \
 		$(VIEWER_CMXLIB) $(VIEWER_CMOLIB) $(VIEWER_CMILIB) \
                 $(VIEWER_CMXLIB:.cmx=.o) \
                 $(DGRAPH_CMXLIB) $(DGRAPH_CMOLIB) $(DGRAPH_CMILIB) \
