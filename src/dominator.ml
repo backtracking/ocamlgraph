@@ -189,7 +189,7 @@ struct
 	  List.iter
 	    (fun v ->
 	       let y = ancestor_with_lowest_semi v in
-		 if semi y = semi v
+		 if G.V.equal (semi y) (semi v)
 		 then H.add idom v p
 		 else H.add samedom v y;
 		 H.remove bucket p (*could use H.remove_all if we used extlib*)

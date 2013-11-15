@@ -515,14 +515,14 @@ struct
       [|(x1_padded,y1_padded);(x1_padded,y2_padded);
       (x2_padded,y2_padded);(x2_padded,y1_padded)|]
     in
-    let rec cut_corners_array corners_array =
+    let rec _cut_corners_array corners_array =
       ignore (assert false);
       (* [JS 2010/09/09] does not work:
 	 exponential time seems to be required! *)
       let length = Array.length corners_array in
       if length > 4 then
 	XDotDraw.Unfilled_polygon (add_padding (Array.sub corners_array 0 4)) ::
-	(cut_corners_array (Array.sub corners_array 4 (length-4)))
+	(_cut_corners_array (Array.sub corners_array 4 (length-4)))
       else
 	[ XDotDraw.Unfilled_polygon (add_padding corners_array) ]
     in
