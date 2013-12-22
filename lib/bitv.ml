@@ -110,12 +110,12 @@ let unsafe_set v n b =
 (*s The corresponding safe operations test the validiy of the access. *)
 
 let get v n =
-  if n < 0 or n >= v.length then invalid_arg "Bitv.get";
+  if n < 0 || n >= v.length then invalid_arg "Bitv.get";
   let (i,j) = pos n in 
   ((Array.unsafe_get v.bits i) land (Array.unsafe_get bit_j j)) > 0
 
 let set v n b =
-  if n < 0 or n >= v.length then invalid_arg "Bitv.set";
+  if n < 0 || n >= v.length then invalid_arg "Bitv.set";
   let (i,j) = pos n in
   if b then
     Array.unsafe_set v.bits i
@@ -202,8 +202,8 @@ let unsafe_blit v1 ofs1 v2 ofs2 len =
     end
 
 let blit v1 ofs1 v2 ofs2 len =
-  if len < 0 or ofs1 < 0 or ofs1 + len > v1.length
-             or ofs2 < 0 or ofs2 + len > v2.length
+  if len < 0 || ofs1 < 0 || ofs1 + len > v1.length
+             || ofs2 < 0 || ofs2 + len > v2.length
   then invalid_arg "Bitv.blit";
   unsafe_blit v1.bits ofs1 v2.bits ofs2 len
 
@@ -211,7 +211,7 @@ let blit v1 ofs1 v2 ofs2 len =
     new vector of length [len] and blitting the subvector of [v] inside. *)
 
 let sub v ofs len =
-  if ofs < 0 or len < 0 or ofs + len > v.length then invalid_arg "Bitv.sub";
+  if ofs < 0 || len < 0 || ofs + len > v.length then invalid_arg "Bitv.sub";
   let r = create len false in
   unsafe_blit v.bits ofs r.bits 0 len;
   r
@@ -286,7 +286,7 @@ let blit_ones v ofs len =
     end
 
 let fill v ofs len b =
-  if ofs < 0 or len < 0 or ofs + len > v.length then invalid_arg "Bitv.fill";
+  if ofs < 0 || len < 0 || ofs + len > v.length then invalid_arg "Bitv.fill";
   if b then blit_ones v.bits ofs len else blit_zeros v.bits ofs len
 
 (*s All the iterators are implemented as for traditional arrays, using
