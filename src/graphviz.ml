@@ -152,6 +152,9 @@ module CommonAttributes = struct
 	*)
     | `Orientation of float
         (** Node rotation angle, in degrees.  Default value is [0.0]. *)
+    | `Penwidth of float
+        (** Width of the pen (in points) used to draw the border of the node.
+            Default value is [1.0]. *)
     | `Peripheries of int
         (** Sets  the  number  of periphery lines drawn around the polygon. *)
     | `Regular of bool
@@ -202,6 +205,9 @@ module CommonAttributes = struct
     | `Labelfontsize of int
         (** Sets the font size for head and tail labels (in points).
             Default value is [14]. *)
+    | `Penwidth of float
+        (** Width of the pen (in points) used to draw the edge. Default value
+            is [1.0].  *)
     | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
         (** Sets the layout style of the edge.  Several styles may be combined
             simultaneously. *)
@@ -259,6 +265,7 @@ module CommonAttributes = struct
     | `Height f -> fprintf ppf "height=%f" f
     | `Label s -> fprintf ppf "label=%a" fprint_string_user s
     | `Orientation f -> fprintf ppf "orientation=%f" f
+    | `Penwidth f -> fprintf ppf "penwidth=%f" f
     | `Peripheries i -> fprintf ppf "peripheries=%i" i
     | `Regular b -> fprintf ppf "regular=%b" b
     | `Shape a -> fprintf ppf "shape=%a" fprint_shape a
@@ -288,6 +295,7 @@ module CommonAttributes = struct
     | `Labelfontname s -> fprintf ppf "labelfontname=\"%s\"" s
 	(* (String.escaped s) *)
     | `Labelfontsize i -> fprintf ppf "labelfontsize=%i" i
+    | `Penwidth f -> fprintf ppf "penwidth=%f" f
     | `Style a -> fprintf ppf "style=\"%a\"" fprint_string_list (List.map edge_style_str a)
 
 end

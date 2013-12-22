@@ -127,6 +127,9 @@ module CommonAttributes : sig
 	*)
     | `Orientation of float
         (** Vertex rotation angle, in degrees.  Default value is [0.0]. *)
+    | `Penwidth of float
+        (** Width of the pen (in points) used to draw the border of the node.
+            Default value is [1.0]. *)
     | `Peripheries of int
         (** Sets  the  number  of periphery lines drawn around the polygon. *)
     | `Regular of bool
@@ -177,6 +180,9 @@ module CommonAttributes : sig
     | `Labelfontsize of int
         (** Sets the font size for head and tail labels (in points).
             Default value is [14]. *)
+    | `Penwidth of float
+        (** Width of the pen (in points) used to draw the edge. Default value
+            is [1.0].  *)
     | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
         (** Sets the layout style of the edge.  Several styles may be combined
             simultaneously. *)

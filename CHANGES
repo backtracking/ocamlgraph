@@ -1,4 +1,4 @@
-
+ o Graphviz: handle attribute penwidth on nodes and edges
  o also install graph.o
  o fixed installation with ocamlfind (thanks to Virgile Prevosto)
  o new functions [gnp] and [gnp_labeled] in module [Rand] to generate random

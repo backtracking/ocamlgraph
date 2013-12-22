@@ -225,7 +225,7 @@ struct
     mutable fillcolor : int32 option;
   }
 
-  let set_vattribute vattrs = function
+  let set_vattribute vattrs : Graphviz.DotAttributes.vertex  -> _ = function
     | `Color c ->
         vattrs.color <-
           set_if_none vattrs.color (Graphviz.color_to_color_with_transparency c)
@@ -246,7 +246,8 @@ struct
           (Graphviz.color_to_color_with_transparency c)
     | `FillcolorWithTransparency c ->
         vattrs.fillcolor <- set_if_none vattrs.fillcolor c
-    | `Comment _ | `Distortion _ | `Fixedsize _ | `Layer _ | `Url _ | `Z _ ->
+    | `Comment _ | `Distortion _ | `Fixedsize _ | `Layer _ | `Penwidth _
+    | `Url _ | `Z _ ->
       () (* TODO *)
 
   let attributes_list_to_vattributes vattrs =
@@ -567,7 +568,7 @@ struct
     mutable style : [ `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
   }
 
-  let rec attributes_list_to_eattributes eattrs = function
+  let rec attributes_list_to_eattributes eattrs : edge list -> _ = function
     |[] -> ()
     | `Color c :: q ->
       eattrs.color <-
@@ -606,11 +607,11 @@ struct
     | `Style s :: q ->
         eattrs.style <- s @ eattrs.style;
       attributes_list_to_eattributes eattrs q
-    | (`Arrowhead _ | `Arrowsize _ | `Arrowtail _ | `Comment_  | `Constraint_
+    | (`Arrowhead _ | `Arrowsize _ | `Arrowtail _ | `Comment _  | `Constraint _
       | `Headlabel _ | `Headport _ | `Headurl _ | `Labelangle _
-      |`Labeldistance _ | `Labelfloat _ | `Layer _ | `Minlen _ | `Samehead _
-      | `Sametail _ | `Taillabel _ | `Tailport _ | `Tailurl _ | `Weight _
-      | `Comment _ | `Constraint _) :: q ->
+      |`Labeldistance _ | `Labelfloat _ | `Layer _ | `Minlen _ | `Penwidth _
+      | `Samehead _  | `Sametail _ | `Taillabel _ | `Tailport _ | `Tailurl _
+      | `Weight _ ) :: q ->
       attributes_list_to_eattributes eattrs q;;
 
   let eattrs_to_operation tree e geometry_info =
