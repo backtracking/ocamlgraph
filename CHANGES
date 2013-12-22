@@ -1,10 +1,16 @@
- o Graphviz: handle attribute penwidth on nodes and edges
+ o Graphviz: handle attribute penwidth on edges and vertices
  o also install graph.o
  o fixed installation with ocamlfind (thanks to Virgile Prevosto)
  o new functions [gnp] and [gnp_labeled] in module [Rand] to generate random
    graphs using the G(n,p) model (contributed by Thomas Aubry)
  o Prim's algorithm (in module [Prim]; not exported in [Pack])
    (contributed by Thomas Aubry)
+ o Graphviz: support for nested subgraphs. (Backward-incompatible change:
+   add 'sg_parent = None' to obtain subgraphs whose parents are the main graph)
+ o Graphviz: edges and vertices can now receive multiple styles.
+   (Backward-incompatible change: constructors `Style now require a list as
+   argument)
+ o Graphviz: new vertex style 'rounded'
  o Merge: fixed bug with vertices with no incoming nor outcoming edge.
  o fixed compilation issue with OCaml 3.12.1
 
