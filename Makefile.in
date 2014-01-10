@@ -257,36 +257,47 @@ examples: $(EXAMPLESBIN)
 demo: bin/demo.$(OCAMLBEST)
 
 bin/demo.byte: $(CMXA) examples/demo.cmo
+	mkdir -p bin
 	$(OCAMLOPT) -o $@ graphics.cma unix.cma $^
 
 bin/demo.opt: $(CMXA) examples/demo.cmx
+	mkdir -p bin
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
 bin/fgtest.opt: $(CMXA) myTest/fgtest.cmx
+	mkdir -p bin
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
 bin/demo_planar.byte: $(CMA) examples/demo_planar.cmo
+	mkdir -p bin
 	$(OCAMLC) -o $@ graphics.cma unix.cma $^
 
 bin/demo_planar.opt: $(CMXA) examples/demo_planar.cmx
+	mkdir -p bin
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
 bin/compare_prim_kruskal.opt: $(CMXA) examples/compare_prim_kruskal.ml
+	mkdir -p bin
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
 bin/demo_prim.opt: $(CMXA) examples/demo_prim.ml
+	mkdir -p bin
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
 bin/color.byte: $(CMA) examples/color.cmo
+	mkdir -p bin
 	$(OCAMLC) -o $@ graphics.cma unix.cma $^
 
 bin/color.opt: $(CMXA) examples/color.cmx
+	mkdir -p bin
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
 bin/sudoku.byte: $(CMA) examples/sudoku.cmo
+	mkdir -p bin
 	$(OCAMLC) -o $@ graphics.cma unix.cma $^
 
 bin/sudoku.opt: $(CMXA) examples/sudoku.cmx
+	mkdir -p bin
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
 test: $(CMA) tests/test.ml
@@ -296,6 +307,7 @@ test-bf: $(CMA) tests/test_bf.ml
 	ocaml unix.cma graphics.cma $^
 
 bin/test-ts: $(CMXA) tests/test_topsort.ml
+	mkdir -p bin
 	$(OCAMLOPT) -o $@ unix.cmxa $^
 
 test-ts: bin/test-ts
