@@ -78,6 +78,9 @@ CMO := $(LIB) $(patsubst %, $(SRCDIR)/%.cmo, $(CMO))
 CMX = $(CMO:.cmo=.cmx)
 CMA = graph.cma
 CMXA = graph.cmxa
+ifeq (@NATIVE_DYNLINK@,yes)
+CMXS = graph.cmxs
+endif
 
 CMI = sig sig_pack dot_ast
 CMI := $(patsubst %, src/%.cmi, $(CMI))
@@ -89,13 +92,16 @@ GENERATED = META \
 $(CMX): OFLAGS += -for-pack Graph
 
 byte: $(CMA)
-opt: $(CMXA)
+opt: $(CMXA) $(CMXS)
 
 graph.cma: graph.cmo
 	$(OCAMLC) $(INCLUDES) -a -g -o $@ $^
 
 graph.cmxa: graph.cmx
 	$(OCAMLOPT) $(INCLUDES) -a -o $@ $^
+
+graph.cmxs: graph.cmx
+	$(OCAMLOPT) $(INCLUDES) -shared -o $@ $^
 
 graph.cmi: graph.cmo
 graph.o: graph.cmx
@@ -376,7 +382,7 @@ endif
 install-opt: install-byte
 	mkdir -p $(INSTALL_LIBDIR)
 	cp -f graph$(OBJEXT) graph$(LIBEXT) graph.cmi graph.cmx \
-		$(CMXA) $(INSTALL_LIBDIR)
+		$(CMXA) $(CMXS) $(INSTALL_LIBDIR)
 	cp -f $(SRCDIR)/*.mli $(INSTALL_LIBDIR)
 ifeq (@LABLGNOMECANVAS@,yes)
 	mkdir -p $(BINDIR)

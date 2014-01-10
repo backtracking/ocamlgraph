@@ -50,7 +50,10 @@ echo "ocaml version is $OCAMLVERSION"
 case $OCAMLVERSION in
   0.*|1.*|2.*|3.0*)
         AC_MSG_ERROR(ocamlgraph needs ocaml version 3.10.0 or higher);;
+  3.10*)
+    NATIVE_DYNLINK=no;;
   *)
+    NATIVE_DYNLINK=yes
 	;;
 esac
 
@@ -230,6 +233,7 @@ AC_SUBST(EXE)
 AC_SUBST(LIBEXT)
 AC_SUBST(OBJEXT)
 AC_SUBST(INCLUDEGTK2)
+AC_SUBST(NATIVE_DYNLINK)
 
 # Finally create the Makefile from Makefile.in
 AC_OUTPUT(Makefile)

@@ -1,6 +1,6 @@
  o fix compilation with 'make -j'
  o Graphviz: handle attribute penwidth on edges and vertices
- o also install graph.o
+ o also install graph.o and graph.cmxs
  o fixed installation with ocamlfind (thanks to Virgile Prevosto)
  o new functions [gnp] and [gnp_labeled] in module [Rand] to generate random
    graphs using the G(n,p) model (contributed by Thomas Aubry)
