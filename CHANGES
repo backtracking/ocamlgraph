@@ -1,3 +1,5 @@
+ o Components: the components of [scc_list] are provided in the same order than
+ the ones of [scc_array].
  o fix compilation with 'make -j'
  o Graphviz: handle attribute penwidth on edges and vertices
  o also install graph.o and graph.cmxs

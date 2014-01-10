@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: components.ml,v 1.9 2004-10-22 14:42:06 signoles Exp $ *)
-
 open Util
 
 module type G = sig
@@ -71,17 +69,7 @@ module Make(G: G) = struct
     t
 
   let scc_list g =
-    let _,scc = scc g in
-    let tbl = Hashtbl.create 97 in
-    G.iter_vertex
-      (fun v ->
-	 let n = scc v in
-	 try
-	   let l = Hashtbl.find tbl n in
-	   l := v :: !l
-	 with Not_found ->
-	   Hashtbl.add tbl n (ref [ v ]))
-      g;
-    Hashtbl.fold (fun _ v l -> !v :: l) tbl []
+    let a = scc_array g in
+    Array.fold_right (fun l acc -> l :: acc) a []
 
 end

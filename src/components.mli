@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: components.mli,v 1.12 2004-10-22 14:42:06 signoles Exp $ *)
-
 (** Strongly connected components. *)
 
 (** Minimal graph signature required by {!Make}.
@@ -47,12 +45,13 @@ module Make (G: G) : sig
         The function returned has complexity O(1) *)
 
   val scc_array : G.t -> G.V.t list array
-    (** [scc_array] computes the strongly connected components of [g].
-	Components are stored in the resulting array, indexed with a
-	numbering with the same properties as for [scc] above. *)
+  (** [scc_array g] computes the strongly connected components of [g].
+      Components are stored in the resulting array, indexed with a
+      numbering with the same properties as for [scc] above. *)
 
   val scc_list : G.t -> G.V.t list list
-    (** [scc_list] computes the strongly connected components of [g].
-	The result is a partition of the set of the vertices of [g]. *)
+  (** [scc_list g] computes the strongly connected components of [g].
+      The result is a partition of the set of the vertices of [g]. 
+      The [n]-th components is [(scc_array g).(n-1)]. *)
 
 end
