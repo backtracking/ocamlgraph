@@ -1,3 +1,4 @@
+ o fix compilation with 'make -j'
  o Graphviz: handle attribute penwidth on edges and vertices
  o also install graph.o
  o fixed installation with ocamlfind (thanks to Virgile Prevosto)

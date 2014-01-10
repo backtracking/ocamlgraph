@@ -125,7 +125,7 @@ ED_CMO:= $(patsubst %, $(ED_DIR)/%.cmo, $(ED_CMO))
 ED_CMX = $(ED_CMO:.cmo=.cmx)
 ED_CMI = $(ED_CMO:.cmo=.cmi)
 
-ED_INCLUDES = @INCLUDEGTK2@ -I +threads -I $(ED_DIR) $(INCLUDES) -I .
+ED_INCLUDES = @INCLUDEGTK2@ -I +threads -I $(ED_DIR) -I .
 
 $(ED_CMI) $(ED_CMO): BFLAGS+= $(ED_INCLUDES)
 $(ED_CMI) $(ED_CMO): $(CMA)
@@ -153,7 +153,7 @@ VIEWER_CMX=$(VIEWER_CMO:.cmo=.cmx)
 VIEWER_CMI=$(VIEWER_CMO:.cmo=.cmi)
 VIEWER_MLI=$(VIEWER_CMI:.cmi=.mli)
 
-VIEWER_INCLUDES= @INCLUDEGTK2@ -I $(VIEWER_DIR) $(INCLUDES) -I .
+VIEWER_INCLUDES= @INCLUDEGTK2@ -I $(VIEWER_DIR) -I .
 
 $(VIEWER_CMI) $(VIEWER_CMO): BFLAGS+= $(VIEWER_INCLUDES)
 $(VIEWER_CMX): OFLAGS+= $(VIEWER_INCLUDES) -for-pack Viewgraph
@@ -195,7 +195,7 @@ DGRAPH_CMO:=$(patsubst %,$(DGRAPH_DIR)/%.cmo, $(DGRAPH_CMO))
 DGRAPH_CMX=$(DGRAPH_CMO:.cmo=.cmx)
 DGRAPH_CMI=$(filter-out dgraph/dGraphViewer.cmi, $(DGRAPH_CMO:.cmo=.cmi))
 
-DGRAPH_INCLUDES= @INCLUDEGTK2@ -I $(DGRAPH_DIR) $(INCLUDES) -I .
+DGRAPH_INCLUDES= @INCLUDEGTK2@ -I $(DGRAPH_DIR) -I .
 
 $(DGRAPH_CMI) $(DGRAPH_CMO): BFLAGS+= $(DGRAPH_INCLUDES)
 $(DGRAPH_CMX): OFLAGS+= $(DGRAPH_INCLUDES) -for-pack Dgraph
@@ -206,7 +206,6 @@ $(DGRAPH_CMX): $(CMXA)
 DGRAPH_CMOLIB	= $(DGRAPH_DIR)/dgraph.cmo
 DGRAPH_CMILIB	= $(DGRAPH_DIR)/dgraph.cmi
 DGRAPH_CMXLIB	= $(DGRAPH_DIR)/dgraph.cmx
-
 
 dgraph/dGraphViewer.cmo: $(DGRAPH_CMOLIB)
 dgraph/dGraphViewer.cmx: $(DGRAPH_CMXLIB)
@@ -226,6 +225,17 @@ $(DGRAPH_DIR)/dgraph.opt: $(CMXA) $(DGRAPH_CMXLIB) \
   $(DGRAPH_DIR)/dGraphViewer.cmx
 	$(OCAMLOPT) -o $@ $(DGRAPH_INCLUDES) \
 		lablgtk.cmxa gtkInit.cmx lablgnomecanvas.cmxa $^
+
+# Fixing issue with "make -j"
+#############################
+
+# wait than all bytecodes are done before packing the native library:
+# without these extra dependencies, building graph.cmx also rebuilds the .cmi 
+# while graph.cmi may be required at the same time by some .cmo of the 
+# bytecodes, leading to tentative access to a corrupted graph.cmi. 
+graph.cmx: | $(DGRAPH_DIR)/dgraph.byte \
+	$(VIEWER_DIR)/viewgraph.byte \
+	$(ED_DIR)/editor.byte
 
 # Examples
 ##########
