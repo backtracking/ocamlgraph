@@ -1,3 +1,5 @@
+
+ o fixed [Graphml] printer (contributed by Johannes Schauer)
  o Components: the components of [scc_list] are provided in the same order than
  the ones of [scc_array].
  o fix compilation with 'make -j'

@@ -51,7 +51,7 @@ module Print
     Format.fprintf fmt "<data key=\"%s\">%s</data>" key value
 
   let pp_type fmt t prop typ default =
-    Format.fprintf fmt "<key id=\"%s\" for=\"%s\" attr.name=\"%s\" attr.type=\"%s\">" t prop prop typ;
+    Format.fprintf fmt "<key id=\"%s\" for=\"%s\" attr.name=\"%s\" attr.type=\"%s\">" prop t prop typ;
     match default with
     |None -> Format.fprintf fmt "</key>\n"
     |Some s -> begin
