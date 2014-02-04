@@ -1,4 +1,6 @@
 
+version 1.8.4, February 4, 2014
+-------------------------------
  o fixed [Graphml] printer (contributed by Johannes Schauer)
  o Components: the components of [scc_list] are provided in the same order than
  the ones of [scc_array].
@@ -20,7 +22,7 @@
  o fixed compilation issue with OCaml 3.12.1
 
 version 1.8.3, April 17, 2013
----------------------------
+-----------------------------
  o new module Merge implementing several different merges of vertices and
    edges into a graph (contributed by Emmanuel Haucourt)
  o fixed DOT parser (contributed by Alex Reece)
