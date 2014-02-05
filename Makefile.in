@@ -239,9 +239,14 @@ $(DGRAPH_DIR)/dgraph.opt: $(CMXA) $(DGRAPH_CMXLIB) \
 # without these extra dependencies, building graph.cmx also rebuilds the .cmi 
 # while graph.cmi may be required at the same time by some .cmo of the 
 # bytecodes, leading to tentative access to a corrupted graph.cmi. 
+
+ifeq (@LABLGNOMECANVAS@,yes)
 graph.cmx: | $(DGRAPH_DIR)/dgraph.byte \
 	$(VIEWER_DIR)/viewgraph.byte \
 	$(ED_DIR)/editor.byte
+endif
+
+$(CMX): | $(SRCDIR)/blocks.cmi
 
 # Examples
 ##########
@@ -501,7 +506,7 @@ source:
 
 # Build and install the .tar.gz requiered by Frama-C
 framac: EXPORTDIR=ocamlgraph
-framac: FTP=$$HOME/frama-c
+framac: FTP=$$HOME/GIT/BRANCHES/master
 framac:
 	mkdir -p export
 	cd export; rm -rf $(EXPORTDIR)

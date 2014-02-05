@@ -1,4 +1,7 @@
 
+ o fixed compilation when laglgnomecanvas is missing (bug introduced in 1.8.4). 
+ o fixed one more issue with 'make -j'.
+
 version 1.8.4, February 4, 2014
 -------------------------------
  o fixed [Graphml] printer (contributed by Johannes Schauer)
