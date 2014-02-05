@@ -112,7 +112,7 @@ graph.cmo: $(CMI) $(CMO)
 graph.cmx: $(CMI) $(CMX)
 	$(OCAMLOPT) $(INCLUDES) -pack -o $@ $^
 
-VERSION=1.8.4
+VERSION=1.8.4+dev
 
 src/version.ml: Makefile
 	rm -f $@
@@ -247,6 +247,7 @@ graph.cmx: | $(DGRAPH_DIR)/dgraph.byte \
 endif
 
 $(CMX): | $(SRCDIR)/blocks.cmi
+$(SRCDIR)/blocks.cmi: $(SRCDIR)/blocks.cmo
 
 # Examples
 ##########
