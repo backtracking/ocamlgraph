@@ -452,7 +452,7 @@ endif
 doc: $(DOC_CMO)
 	mkdir -p doc
 	rm -f doc/*
-	$(OCAMLDOC) -d doc -html $(DGRAPH_INCLUDES) $(DOC_SRC)
+	$(OCAMLDOC) -d doc -html $(DGRAPH_INCLUDES) -I lib -I src $(DOC_SRC)
 
 # literate programming
 $(NAME).tex: $(DOC_SRC)
