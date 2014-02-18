@@ -1,6 +1,7 @@
 
+ o fixed issue in ./configure with ocamlfind on Win32.
  o fixed compilation when laglgnomecanvas is missing (bug introduced in 1.8.4). 
- o fixed one more issue with 'make -j'.
+ o fixed more issues with 'make -j'.
 
 version 1.8.4, February 4, 2014
 -------------------------------
