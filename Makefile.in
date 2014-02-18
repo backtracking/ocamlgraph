@@ -246,8 +246,12 @@ graph.cmx: | $(DGRAPH_DIR)/dgraph.byte \
 	$(ED_DIR)/editor.byte
 endif
 
-$(CMX): | $(SRCDIR)/blocks.cmi
-$(SRCDIR)/blocks.cmi: $(SRCDIR)/blocks.cmo
+$(CMX): | $(SRCDIR)/blocks.cmo
+
+# No .mli for blocks.ml: so, to avoid clash when generating block.cmi 
+# from both ocamlc and ocamlopt, force to fully compile the bytecode library
+# before the native one
+$(SRCDIR)/blocks.cmx: | graph.cmo
 
 # Examples
 ##########
