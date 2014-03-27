@@ -142,7 +142,8 @@ module CommonAttributes : sig
         (** Sets the shape of the vertex.  Default value is [`Ellipse].
             [`Polygon (i, f)] draws a polygon with [n] sides and a skewing
             of [f]. *)
-    | `Style of [ `Rounded | `Filled | `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
+    | `Style of
+        [ `Rounded | `Filled | `Solid | `Dashed | `Dotted | `Bold | `Invis ]
         (** Sets the layout style of the vertex.
 	    Several styles may be combined simultaneously. *)
     | `Width of float
@@ -183,7 +184,7 @@ module CommonAttributes : sig
     | `Penwidth of float
         (** Width of the pen (in points) used to draw the edge. Default value
             is [1.0].  *)
-    | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
+    | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ]
         (** Sets the layout style of the edge.  Several styles may be combined
             simultaneously. *)
     ]

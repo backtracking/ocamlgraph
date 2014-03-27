@@ -239,7 +239,7 @@ struct
     | `Peripheries p -> vattrs.peripheries <- set_if_none vattrs.peripheries p
     | `Regular r -> vattrs.regular <- set_if_none vattrs.regular r
     | `Shape shape -> vattrs.shape <- set_if_none vattrs.shape shape
-    | `Style s -> vattrs.style <- s @ vattrs.style
+    | `Style s -> vattrs.style <- s :: vattrs.style
     | `Width w -> vattrs.width <- set_if_none vattrs.width w
     | `Fillcolor c ->
         vattrs.fillcolor <- set_if_none vattrs.fillcolor
@@ -605,7 +605,7 @@ struct
       eattrs.labelfontsize <- set_if_none eattrs.labelfontsize s;
       attributes_list_to_eattributes eattrs q
     | `Style s :: q ->
-        eattrs.style <- s @ eattrs.style;
+        eattrs.style <- s :: eattrs.style;
       attributes_list_to_eattributes eattrs q
     | (`Arrowhead _ | `Arrowsize _ | `Arrowtail _ | `Comment _  | `Constraint _
       | `Headlabel _ | `Headport _ | `Headurl _ | `Labelangle _
@@ -631,7 +631,7 @@ struct
     let dgraph_layout_default =
       [ `Color 0xFF0000; `Decorate false; `Dir `Forward; `Fontcolor 0x00000;
 	`Fontname "Sans"; `Fontsize 12; `Label ""; `Labelfontcolor 0x000000;
-	`Labelfontname "Sans"; `Labelfontsize 12; `Style [`Solid] ]
+	`Labelfontname "Sans"; `Labelfontsize 12; `Style `Solid ]
     in
     attributes_list_to_eattributes eattrs
       (Tree.default_edge_attributes tree

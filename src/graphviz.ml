@@ -80,6 +80,7 @@ let fprint_dir ppf = function
     `TopToBottom -> fprintf ppf "TB"
   | `LeftToRight -> fprintf ppf "LR"
 
+
 (** The [ATTRIBUTES] module type defines the interface for the engines. *)
 module type ATTRIBUTES = sig
 
@@ -167,7 +168,8 @@ module CommonAttributes = struct
         (** Sets the shape of the node.  Default value is [`Ellipse].
             [`Polygon (i, f)] draws a polygon with [n] sides and a skewing
             of [f]. *)
-    | `Style of [ `Rounded | `Filled | `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
+    | `Style of
+        [ `Rounded | `Filled | `Solid | `Dashed | `Dotted | `Bold | `Invis ]
         (** Sets the layout style of the node.  Several styles may be combined
             simultaneously. *)
     | `Width of float
@@ -208,7 +210,7 @@ module CommonAttributes = struct
     | `Penwidth of float
         (** Width of the pen (in points) used to draw the edge. Default value
             is [1.0].  *)
-    | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
+    | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ]
         (** Sets the layout style of the edge.  Several styles may be combined
             simultaneously. *)
     ]
@@ -242,18 +244,21 @@ module CommonAttributes = struct
     | `Polygon (i, f) -> fprintf ppf "polygon, sides=%i, skew=%f" i f
 
   let rec fprint_string_list ppf = function
-    [] -> ()
+    | [] -> ()
     | [hd] -> fprintf ppf "%s" hd
     | hd :: tl -> fprintf ppf "%s,%a" hd fprint_string_list tl
 
   let node_style_str = function
-      `Rounded -> "rounded"
+    | `Rounded -> "rounded"
     | `Filled -> "filled"
     | `Solid -> "solid"
     | `Dashed -> "dashed"
     | `Dotted -> "dotted"
     | `Bold -> "bold"
     | `Invis -> "invis"
+
+  let fprint_style_list ppf a =
+    fprintf ppf "style=\"%a\"" fprint_string_list (List.map node_style_str a)
 
   let fprint_vertex ppf = function
     | `Color a -> fprintf ppf "color=%a" fprint_color a
@@ -269,7 +274,7 @@ module CommonAttributes = struct
     | `Peripheries i -> fprintf ppf "peripheries=%i" i
     | `Regular b -> fprintf ppf "regular=%b" b
     | `Shape a -> fprintf ppf "shape=%a" fprint_shape a
-    | `Style a -> fprintf ppf "style=\"%a\"" fprint_string_list (List.map node_style_str a)
+    | `Style _ -> assert false
     | `Width f -> fprintf ppf "width=%f" f
 
   let edge_style_str =
@@ -296,7 +301,40 @@ module CommonAttributes = struct
 	(* (String.escaped s) *)
     | `Labelfontsize i -> fprintf ppf "labelfontsize=%i" i
     | `Penwidth f -> fprintf ppf "penwidth=%f" f
-    | `Style a -> fprintf ppf "style=\"%a\"" fprint_string_list (List.map edge_style_str a)
+    | `Style _ -> assert false
+
+  let rec filter_style al sl l = match l with
+    | [] -> al, sl
+    | `Style s :: l -> filter_style al (s :: sl) l
+    | a :: l -> filter_style (a :: al) sl l
+
+  (** [fprint_graph_attribute printer ppf list] pretty prints a list of
+      attributes on the formatter [ppf], using the printer [printer] for
+      each attribute.  The list appears between brackets and attributes
+      are speparated by ",".  If the list is empty, nothing is printed. *)
+  let fprint_attributes fprint_style_list fprint_attribute ppf list =
+    if list <> [] then begin
+      let list, styles = filter_style [] [] list in
+      let rec fprint_attributes_rec ppf = function
+        | [] -> ()
+        | hd :: tl ->
+	    fprintf ppf "%a" fprint_attribute hd;
+            if tl <> [] then fprintf ppf ",@ ";
+            fprint_attributes_rec ppf tl
+      in
+      fprintf ppf " [@[<hov>%a" fprint_attributes_rec list;
+      if styles <> [] then begin
+        if list <> [] then fprintf ppf ",@ ";
+        fprint_style_list ppf styles
+      end;
+      fprintf ppf "@]]"
+    end
+
+    let fprint_vertex_list =
+      fprint_attributes fprint_style_list fprint_vertex
+
+    let fprint_edge_list =
+      fprint_attributes fprint_style_list fprint_edge
 
 end
 
@@ -310,8 +348,8 @@ module type ENGINE = sig
   module Attributes : sig
     include ATTRIBUTES
     val fprint_graph:formatter -> graph -> unit
-    val fprint_vertex: formatter -> vertex -> unit
-    val fprint_edge: formatter -> edge -> unit
+    val fprint_vertex_list: formatter -> vertex list -> unit
+    val fprint_edge_list: formatter -> edge list -> unit
   end
 
   (** The litteral name of the engine. *)
@@ -375,34 +413,6 @@ struct
 	 fprintf ppf "%a;@ " EN.Attributes.fprint_graph att
        ) list
 
-   (** [fprint_graph_attribute printer ppf list] pretty prints a list of
-       attributes on the formatter [ppf], using the printer [printer] for
-       each attribute.  The list appears between brackets and attributes
-       are speparated by ",".  If the list is empty, nothing is printed. *)
-    let fprint_attributes fprint_attribute ppf = function
-	[] -> ()
-      | hd :: tl ->
-	  let rec fprint_attributes_rec ppf = function
-	      [] -> ()
-	    | hd' :: tl' ->
-		fprintf ppf ",@ %a%a"
-		  fprint_attribute hd'
-		  fprint_attributes_rec tl'
-	  in
-	  fprintf ppf " [@[<hov>%a%a@]]"
-	    fprint_attribute hd
-	    fprint_attributes_rec tl
-
-    (** [fprint_graph_attributes ppf list] pretty prints a list of
-        node attributes using the format of [fprint_attributes]. *)
-    let fprint_node_attributes ppf list =
-      fprint_attributes EN.Attributes.fprint_vertex ppf list
-
-    (** [fprint_graph_attributes ppf list] pretty prints a list of
-        edge attributes using the format of [fprint_attributes]. *)
-    let fprint_edge_attributes ppf list =
-      fprint_attributes EN.Attributes.fprint_edge ppf list
-
     (** [fprint_graph ppf graph] pretty prints the graph [graph] in
         the CGL language on the formatter [ppf]. *)
     let fprint_graph ppf graph =
@@ -414,8 +424,8 @@ struct
       let print_nodes ppf =
         let default_node_attributes = X.default_vertex_attributes graph in
           if default_node_attributes  <> [] then
-            fprintf ppf "node%a;@ " 
-              fprint_node_attributes 
+            fprintf ppf "node%a;@ "
+              EN.Attributes.fprint_vertex_list
               default_node_attributes;
 
             X.iter_vertex
@@ -433,7 +443,7 @@ struct
                 end;
                 fprintf ppf "%s%a;@ "
                   (X.vertex_name node)
-                  fprint_node_attributes 
+                  EN.Attributes.fprint_vertex_list
                   (X.vertex_attributes node)
               )
               graph
@@ -448,16 +458,14 @@ struct
             let sg, nodes = SG.find name !subgraphs in
             let children = SG.filter (fun n (sg, nodes) -> sg.EN.Attributes.sg_parent = Some name) !subgraphs in
               fprintf ppf "@[<v 2>subgraph cluster_%s { %t%t@ %t };@]@\n"
-  
+
               name
-  
+
               (fun ppf ->
-                (List.iter
-                  (fun n -> fprintf ppf "%a;@\n" EN.Attributes.fprint_vertex n)
+                EN.Attributes.fprint_vertex_list ppf
                   sg.EN.Attributes.sg_attributes
-                )
               )
-  
+
               (fun ppf ->
                 (List.iter (fun n -> fprintf ppf "%s;" (X.vertex_name n)) nodes)
               )
@@ -481,14 +489,15 @@ struct
 	let default_edge_attributes = X.default_edge_attributes graph in
 	if default_edge_attributes <> [] then
 	  fprintf ppf "edge%a;@ "
-	    fprint_edge_attributes default_edge_attributes;
+	    EN.Attributes.fprint_edge_list default_edge_attributes;
 
 	X.iter_edges_e (function edge ->
 	                  fprintf ppf "%s %s %s%a;@ "
 	                    (X.vertex_name (X.E.src edge))
 	                    EN.edge_arrow
 	                    (X.vertex_name (X.E.dst edge))
-	                    fprint_edge_attributes (X.edge_attributes edge)
+	                    EN.Attributes.fprint_edge_list
+                            (X.edge_attributes edge)
                        ) graph
 
       in
@@ -736,6 +745,14 @@ module DotAttributes = struct
       | `Tailurl s -> fprintf ppf "tailURL=%a" fprint_string s
       | `Weight i -> fprintf ppf "weight=%i" i
 
+    let fprint_vertex_list =
+      CommonAttributes.fprint_attributes
+        CommonAttributes.fprint_style_list fprint_vertex
+
+    let fprint_edge_list =
+      CommonAttributes.fprint_attributes
+        CommonAttributes.fprint_style_list fprint_edge
+
 end
 
 (** Graph modules with dot attributes *)
@@ -843,6 +860,14 @@ module NeatoAttributes = struct
       | `Id s -> fprintf ppf "id=%a" fprint_string s
       | `Len f -> fprintf ppf "len=%f" f
       | `Weight f -> fprintf ppf "weight=%f" f
+
+    let fprint_vertex_list =
+      CommonAttributes.fprint_attributes
+        CommonAttributes.fprint_style_list fprint_vertex
+
+    let fprint_edge_list =
+      CommonAttributes.fprint_attributes
+        CommonAttributes.fprint_style_list fprint_edge
 
 end
 
