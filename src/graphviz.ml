@@ -64,6 +64,10 @@ let fprint_string_user ppf s =
 (*  let s = String.escaped s in*)
     fprintf ppf "\"%s\"" s
 
+let fprint_square_not_empty printer ppf = function
+  | [] -> ()
+  | l -> fprintf ppf " [%a]" printer l
+
 type arrow_style =
   [ `None | `Normal | `Inv | `Dot | `Odot | `Invdot | `Invodot ]
 
@@ -80,6 +84,13 @@ let fprint_dir ppf = function
     `TopToBottom -> fprintf ppf "TB"
   | `LeftToRight -> fprintf ppf "LR"
 
+type symbseq =
+  | COMMA
+  | SEMI
+
+let fprint_symbseq ppf = function
+  | COMMA -> pp_print_string ppf ","
+  | SEMI  -> pp_print_string ppf ";"
 
 (** The [ATTRIBUTES] module type defines the interface for the engines. *)
 module type ATTRIBUTES = sig
@@ -257,8 +268,10 @@ module CommonAttributes = struct
     | `Bold -> "bold"
     | `Invis -> "invis"
 
-  let fprint_style_list ppf a =
-    fprintf ppf "style=\"%a\"" fprint_string_list (List.map node_style_str a)
+  let fprint_style_list sep ppf a =
+    fprintf ppf "style=\"%a\"%a@ "
+      fprint_string_list (List.map node_style_str a)
+      fprint_symbseq sep
 
   let fprint_vertex ppf = function
     | `Color a -> fprintf ppf "color=%a" fprint_color a
@@ -312,22 +325,22 @@ module CommonAttributes = struct
       attributes on the formatter [ppf], using the printer [printer] for
       each attribute.  The list appears between brackets and attributes
       are speparated by ",".  If the list is empty, nothing is printed. *)
-  let fprint_attributes fprint_style_list fprint_attribute ppf list =
+  let fprint_attributes fprint_style_list fprint_attribute sep ppf list =
     if list <> [] then begin
       let list, styles = filter_style [] [] list in
       let rec fprint_attributes_rec ppf = function
         | [] -> ()
         | hd :: tl ->
-	    fprintf ppf "%a" fprint_attribute hd;
-            if tl <> [] then fprintf ppf ",@ ";
+	    fprintf ppf "%a%a@ "
+                fprint_attribute hd
+                fprint_symbseq sep;
             fprint_attributes_rec ppf tl
       in
-      fprintf ppf " [@[<hov>%a" fprint_attributes_rec list;
+      fprintf ppf "@[<hov>%a" fprint_attributes_rec list;
       if styles <> [] then begin
-        if list <> [] then fprintf ppf ",@ ";
-        fprint_style_list ppf styles
+        fprint_style_list sep ppf styles
       end;
-      fprintf ppf "@]]"
+      fprintf ppf "@]"
     end
 
     let fprint_vertex_list =
@@ -348,8 +361,8 @@ module type ENGINE = sig
   module Attributes : sig
     include ATTRIBUTES
     val fprint_graph:formatter -> graph -> unit
-    val fprint_vertex_list: formatter -> vertex list -> unit
-    val fprint_edge_list: formatter -> edge list -> unit
+    val fprint_vertex_list: symbseq -> formatter -> vertex list -> unit
+    val fprint_edge_list: symbseq -> formatter -> edge list -> unit
   end
 
   (** The litteral name of the engine. *)
@@ -425,7 +438,7 @@ struct
         let default_node_attributes = X.default_vertex_attributes graph in
           if default_node_attributes  <> [] then
             fprintf ppf "node%a;@ "
-              EN.Attributes.fprint_vertex_list
+              (fprint_square_not_empty (EN.Attributes.fprint_vertex_list COMMA))
               default_node_attributes;
 
             X.iter_vertex
@@ -443,7 +456,7 @@ struct
                 end;
                 fprintf ppf "%s%a;@ "
                   (X.vertex_name node)
-                  EN.Attributes.fprint_vertex_list
+                  (fprint_square_not_empty (EN.Attributes.fprint_vertex_list COMMA))
                   (X.vertex_attributes node)
               )
               graph
@@ -457,14 +470,12 @@ struct
         | name :: worklist ->
             let sg, nodes = SG.find name !subgraphs in
             let children = SG.filter (fun n (sg, nodes) -> sg.EN.Attributes.sg_parent = Some name) !subgraphs in
-              fprintf ppf "@[<v 2>subgraph cluster_%s { %t%t@ %t };@]@\n"
+              fprintf ppf "@[<v 2>subgraph cluster_%s { %a%t@ %t };@]@\n"
 
               name
 
-              (fun ppf ->
-                EN.Attributes.fprint_vertex_list ppf
-                  sg.EN.Attributes.sg_attributes
-              )
+              (EN.Attributes.fprint_vertex_list SEMI)
+              sg.EN.Attributes.sg_attributes
 
               (fun ppf ->
                 (List.iter (fun n -> fprintf ppf "%s;" (X.vertex_name n)) nodes)
@@ -489,14 +500,15 @@ struct
 	let default_edge_attributes = X.default_edge_attributes graph in
 	if default_edge_attributes <> [] then
 	  fprintf ppf "edge%a;@ "
-	    EN.Attributes.fprint_edge_list default_edge_attributes;
+	    (fprint_square_not_empty (EN.Attributes.fprint_edge_list COMMA))
+            default_edge_attributes;
 
 	X.iter_edges_e (function edge ->
 	                  fprintf ppf "%s %s %s%a;@ "
 	                    (X.vertex_name (X.E.src edge))
 	                    EN.edge_arrow
 	                    (X.vertex_name (X.E.dst edge))
-	                    EN.Attributes.fprint_edge_list
+	                    (fprint_square_not_empty (EN.Attributes.fprint_edge_list COMMA))
                             (X.edge_attributes edge)
                        ) graph
 
