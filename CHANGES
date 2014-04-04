@@ -1,6 +1,12 @@
 
+version 1.8.5, March 4, 2014
+-----------------------------
+ o Graphviz: reverted to the old API where edges and vertices are
+   given a single style attribute; but such attributes are collected
+   and output in the DOT file into a list (thus allowing multiple style
+   attributes)
  o fixed issue in ./configure with ocamlfind on Win32.
- o fixed compilation when laglgnomecanvas is missing (bug introduced in 1.8.4). 
+ o fixed compilation when laglgnomecanvas is missing (bug introduced in 1.8.4).
  o fixed more issues with 'make -j'.
 
 version 1.8.4, February 4, 2014
