@@ -511,7 +511,7 @@ source:
 
 # Build and install the .tar.gz requiered by Frama-C
 framac: EXPORTDIR=ocamlgraph
-framac: FTP=$$HOME/GIT/BRANCHES/master
+framac: FTP=$$HOME/GIT/frama-c.master
 framac:
 	mkdir -p export
 	cd export; rm -rf $(EXPORTDIR)

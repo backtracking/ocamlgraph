@@ -214,6 +214,7 @@ struct
     mutable fontsize : int option;
     mutable height : float option;
     mutable label : string option;
+    mutable html_label : string option;
     mutable orientation : float option;
     mutable peripheries : int option;
     mutable regular : bool option;
@@ -235,6 +236,7 @@ struct
     | `Fontsize s -> vattrs.fontsize <- set_if_none vattrs.fontsize s
     | `Height h -> vattrs.height <- set_if_none vattrs.height h
     | `Label label -> vattrs.label <- set_if_none vattrs.label label
+    | `HtmlLabel l -> vattrs.html_label <- set_if_none vattrs.html_label l
     | `Orientation o -> vattrs.orientation <- set_if_none vattrs.orientation o
     | `Peripheries p -> vattrs.peripheries <- set_if_none vattrs.peripheries p
     | `Regular r -> vattrs.regular <- set_if_none vattrs.regular r
@@ -262,6 +264,7 @@ struct
 	fontsize = None;
 	height = None;
 	label = None;
+        html_label = None;
 	orientation = None;
 	peripheries = None;
 	regular = None;
@@ -562,6 +565,7 @@ struct
     mutable fontname : string option;
     mutable fontsize : int option;
     mutable label : string option;
+    mutable html_label : string option;
     mutable labelfontcolor : int option;
     mutable labelfontname : string option;
     mutable labelfontsize : int option;
@@ -595,6 +599,9 @@ struct
     | `Label l :: q ->
       eattrs.label <- set_if_none eattrs.label l;
       attributes_list_to_eattributes eattrs q
+    | `HtmlLabel l :: q ->
+      eattrs.html_label <- set_if_none eattrs.html_label l;
+      attributes_list_to_eattributes eattrs q
     | `Labelfontcolor c :: q ->
       eattrs.fontcolor <- set_if_none eattrs.fontcolor c;
       attributes_list_to_eattributes eattrs q
@@ -623,6 +630,7 @@ struct
       fontname = None;
       fontsize = None;
       label = None;
+      html_label = None;
       labelfontcolor = None;
       labelfontname = None;
       labelfontsize = None;

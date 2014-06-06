@@ -64,6 +64,8 @@ let fprint_string_user ppf s =
 (*  let s = String.escaped s in*)
     fprintf ppf "\"%s\"" s
 
+let fprint_htmlstring_user ppf s = fprintf ppf "<%s>" s
+
 let fprint_square_not_empty printer ppf = function
   | [] -> ()
   | l -> fprintf ppf " [%a]" printer l
@@ -126,6 +128,7 @@ module CommonAttributes = struct
         (** Sets the type size (in points).  Default value is [14]. *)
     | `Label of string
         (** Caption for graph drawing. *)
+    | `HtmlLabel of string
     | `Orientation of [ `Portrait | `Landscape ]
         (** Sets the page orientation.  Default value is [`Portrait]. *)
     | `Page of float * float
@@ -162,6 +165,7 @@ module CommonAttributes = struct
 	    lines.
             Record labels may contain recursive box lists delimited by { | }.
 	*)
+    | `HtmlLabel of string
     | `Orientation of float
         (** Node rotation angle, in degrees.  Default value is [0.0]. *)
     | `Penwidth of float
@@ -209,6 +213,7 @@ module CommonAttributes = struct
         (** Sets the label to be attached to the edge.  The string may include
 	    escaped newlines [\n], [\l], or [\r] for centered, left, or right
 	    justified lines. *)
+    | `HtmlLabel of string
     | `Labelfontcolor of color
         (** Sets the font color for head and tail labels.  Default value is
             [black]. *)
@@ -238,6 +243,7 @@ module CommonAttributes = struct
     | `Fontname s -> fprintf ppf "fontname=%a" fprint_string s
     | `Fontsize i -> fprintf ppf "fontsize=%i" i
     | `Label s -> fprintf ppf "label=%a" fprint_string_user s
+    | `HtmlLabel s -> fprintf ppf "label=%a" fprint_htmlstring_user s
     | `Orientation a -> fprintf ppf "orientation=%a" fprint_orientation a
     | `Page (x, y) -> fprintf ppf "page=\"%f,%f\"" x y
     | `Pagedir a -> fprintf ppf "pagedir=%a" fprint_dir a
@@ -282,6 +288,7 @@ module CommonAttributes = struct
     | `Fontsize i -> fprintf ppf "fontsize=%i" i
     | `Height f -> fprintf ppf "height=%f" f
     | `Label s -> fprintf ppf "label=%a" fprint_string_user s
+    | `HtmlLabel s -> fprintf ppf "label=%a" fprint_htmlstring_user s
     | `Orientation f -> fprintf ppf "orientation=%f" f
     | `Penwidth f -> fprintf ppf "penwidth=%f" f
     | `Peripheries i -> fprintf ppf "peripheries=%i" i
@@ -309,6 +316,7 @@ module CommonAttributes = struct
     | `Fontname s -> fprintf ppf "fontname=%a" fprint_string s
     | `Fontsize i -> fprintf ppf "fontsize=%i" i
     | `Label s -> fprintf ppf "label=%a" fprint_string_user s
+    | `HtmlLabel s -> fprintf ppf "label=%a" fprint_htmlstring_user s
     | `Labelfontcolor a -> fprintf ppf "labelfontcolor=%a" fprint_color a
     | `Labelfontname s -> fprintf ppf "labelfontname=\"%s\"" s
 	(* (String.escaped s) *)

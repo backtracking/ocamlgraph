@@ -1,3 +1,4 @@
+ o Graphviz: add the attribute `HtmlLabel to specify html strings.
 
 version 1.8.5, March 4, 2014
 -----------------------------
