@@ -1,4 +1,5 @@
 
+ o Graphviz: add the attribute `HtmlLabel to specify html strings.
  o fixed issue in ./configure with ocamlfind on Win32.
  o fixed compilation when laglgnomecanvas is missing (bug introduced in 1.8.4). 
  o fixed more issues with 'make -j'.

@@ -87,8 +87,14 @@ module CommonAttributes : sig
         (** Sets the type size (in points).  Default value is [14]. *)
     | `Label of string
         (** Caption for graph drawing. *)
+    | `HtmlLabel of string
+    (** Caption for graph drawing. In HTML strings, angle brackets must occur in
+        matched pairs, and newlines and other formatting whitespace characters
+        are allowed. In addition, the content must be legal XML, so that the
+        special XML escape sequences for ", &, <, and > may be necessary in
+        order to embed these characters in attribute values or raw text."  *)
     | `Orientation of [ `Portrait | `Landscape ]
-        (** Sets the page orientation.  Default value is [`Portrait]. *)
+    (** Sets the page orientation.  Default value is [`Portrait]. *)
     | `Page of float * float
         (** Sets the PostScript pagination unit, e.g [8.5, 11.0]. *)
     | `Pagedir of [ `TopToBottom | `LeftToRight ]
@@ -125,8 +131,14 @@ module CommonAttributes : sig
 	    lines.
             Record labels may contain recursive box lists delimited by { | }.
 	*)
+    | `HtmlLabel of string
+    (** Like label, in html style. In HTML strings, angle brackets must occur in
+        matched pairs, and newlines and other formatting whitespace characters
+        are allowed. In addition, the content must be legal XML, so that the
+        special XML escape sequences for ", &, <, and > may be necessary in
+        order to embed these characters in attribute values or raw text."  *)
     | `Orientation of float
-        (** Vertex rotation angle, in degrees.  Default value is [0.0]. *)
+    (** Vertex rotation angle, in degrees.  Default value is [0.0]. *)
     | `Penwidth of float
         (** Width of the pen (in points) used to draw the border of the node.
             Default value is [1.0]. *)
@@ -172,6 +184,12 @@ module CommonAttributes : sig
         (** Sets the label to be attached to the edge.  The string may include
 	    escaped newlines [\n], [\l], or [\r] for centered, left, or right
 	    justified lines. *)
+    | `HtmlLabel of string
+    (** Like label, in html style. In HTML strings, angle brackets must occur in
+        matched pairs, and newlines and other formatting whitespace characters
+        are allowed. In addition, the content must be legal XML, so that the
+        special XML escape sequences for ", &, <, and > may be necessary in
+        order to embed these characters in attribute values or raw text."  *)
     | `Labelfontcolor of color
         (** Sets the font color for head and tail labels.  Default value is
             [black]. *)
