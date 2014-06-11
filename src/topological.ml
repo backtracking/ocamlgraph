@@ -132,7 +132,7 @@ struct
 
   let fold f g acc =
     let checker = C.create g in
-    let degree = H.create 997 in
+    let degree = H.create 97 in
     let todo = Q.create () in
     let push x =
       H.remove degree x;

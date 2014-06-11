@@ -45,7 +45,7 @@ end
 
 module I(G : Sig.I) = struct
   module G = G
-  let empty () = G.create ~size:997 ()
+  let empty () = G.create ~size:97 ()
   let copy = G.copy
   let add_vertex g v = G.add_vertex g v; g
   let add_edge g v1 v2 = G.add_edge g v1 v2; g

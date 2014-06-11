@@ -249,7 +249,7 @@ struct
   *)
   let dominators_to_dom_tree cfg ?(pred=G.pred) dominators =
     let idoms = dominators_to_idoms dominators in
-    let tree = H.create 9999 in
+    let tree = H.create 97 in
     let () =
       G.iter_vertex
 	(fun y ->

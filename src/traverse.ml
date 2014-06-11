@@ -32,7 +32,7 @@ module Dfs(G : G) = struct
   module H = Hashtbl.Make(G.V)
 
   let iter ?(pre=fun _ -> ()) ?(post=fun _ -> ()) g =
-    let h = H.create 65537 in
+    let h = H.create 97 in
     let rec visit v =
       if not (H.mem h v) then begin
 	H.add h v ();
@@ -46,7 +46,7 @@ module Dfs(G : G) = struct
   let postfix post g = iter ~post g
 
   let iter_component ?(pre=fun _ -> ()) ?(post=fun _ -> ()) g v =
-    let h = H.create 65537 in
+    let h = H.create 97 in
     let rec visit v =
       H.add h v ();
       pre v;
@@ -62,7 +62,7 @@ module Dfs(G : G) = struct
      already visited in the current component; [h v = false] means
      already visited in another tree *)
   let has_cycle g =
-    let h = H.create 65537 in
+    let h = H.create 97 in
     let rec visit v =
       H.add h v true;
       G.iter_succ
@@ -74,8 +74,8 @@ module Dfs(G : G) = struct
     with Exit -> true
 
   let has_cycle_undirected g =
-    let h = H.create 65537 in
-    let father = H.create 65537 in
+    let h = H.create 97 in
+    let father = H.create 97 in
     let is_father u v = (* u is the father of v in the DFS descent *)
       try G.V.equal (H.find father v) u with Not_found -> false
     in
@@ -98,7 +98,7 @@ module Dfs(G : G) = struct
   module Tail = struct
 
     let has_cycle g =
-      let h = H.create 65537 in
+      let h = H.create 97 in
       let stack = Stack.create () in
       let loop () =
 	while not (Stack.is_empty stack) do
@@ -129,8 +129,8 @@ module Dfs(G : G) = struct
 	true
 
     let has_cycle_undirected g =
-      let h = H.create 65537 in
-      let father = H.create 65537 in
+      let h = H.create 97 in
+      let father = H.create 97 in
       let is_father u v = (* u is the father of v in the DFS descent *)
 	try G.V.equal (H.find father v) u with Not_found -> false
       in
@@ -168,7 +168,7 @@ module Dfs(G : G) = struct
       if G.is_directed then has_cycle g else has_cycle_undirected g
 
     let iter f g =
-      let h = H.create 65537 in
+      let h = H.create 97 in
       let stack = Stack.create () in
       let loop () =
 	while not (Stack.is_empty stack) do
@@ -187,7 +187,7 @@ module Dfs(G : G) = struct
 	g
 
     let iter_component f g v0 =
-      let h = H.create 65537 in
+      let h = H.create 97 in
       let stack = Stack.create () in
       Stack.push v0 stack;
       while not (Stack.is_empty stack) do
@@ -239,7 +239,7 @@ module Bfs(G : G) = struct
   module H = Hashtbl.Make(G.V)
 
   let iter f g =
-    let h = H.create 65537 in
+    let h = H.create 97 in
     let q = Queue.create () in
     (* invariant: [h] contains exactly the vertices which have been pushed *)
     let push v =
@@ -255,7 +255,7 @@ module Bfs(G : G) = struct
     G.iter_vertex (fun v -> push v; loop ()) g
 
   let iter_component f g v0 =
-    let h = H.create 65537 in
+    let h = H.create 97 in
     let q = Queue.create () in
     (* invariant: [h] contains exactly the vertices which have been pushed *)
     let push v =
