@@ -29,8 +29,8 @@ module Make(G: G) = struct
   module H = Hashtbl.Make(G.V)
 
   let scc g =
-    let root = H.create 997 in
-    let hashcomp = H.create 997 in
+    let root = H.create 97 in
+    let hashcomp = H.create 97 in
     let stack = ref [] in
     let numdfs = ref 0 in
     let numcomp = ref 0 in

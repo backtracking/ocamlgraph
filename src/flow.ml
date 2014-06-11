@@ -46,9 +46,9 @@ struct
   module Se = Set.Make(G.E)
   module Sv = Set.Make(G.V)
 
-  let excedents = V.create 997
-  let hauteur = V.create 997
-  let flot = E.create 997
+  let excedents = V.create 97
+  let hauteur = V.create 97
+  let flot = E.create 97
 
   let fold_booleen f = List.fold_left (fun r x->(f x) || r) false
 
@@ -196,7 +196,7 @@ struct
     module H = Hashtbl.Make(G.V)
     type mark = Plus | Minus
 
-    let marked = H.create 997
+    let marked = H.create 97
     let unvisited = Queue.create ()
 
     let clear () = H.clear marked
@@ -227,7 +227,7 @@ struct
 	   let hash e = U.hash (E.src e, E.dst e)
 	 end)
 
-    let create () = H.create 997
+    let create () = H.create 97
 
     let find = H.find
 

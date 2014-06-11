@@ -1,3 +1,5 @@
+ o functions in modules Components, Dominator, Flow, Topological and Traverse
+   now create smaller auxiliary hash tables
  o Graphviz: add the attribute `HtmlLabel to specify html strings.
 
 version 1.8.5, March 4, 2014
