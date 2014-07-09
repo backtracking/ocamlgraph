@@ -262,7 +262,7 @@ end
   \frametitle{benefits of functorized algorithms}
 
   \begin{itemize}
-  \item clearly \emph{separates} algorithm from data structure\vskip8pt
+  \item clearly \emph{separates} algorithms from data structures\vskip8pt
   \item possible use on \emph{non-\ocamlgraph} data structures\vskip8pt
   \item easy \emph{extension} with new algorithms\vskip8pt
   \end{itemize}
@@ -270,7 +270,7 @@ end
 \end{frame}
 
 \begin{frame}
-  \frametitle{existing algorithms}
+  \frametitle{some algorithms in \ocamlgraph}
   \begin{itemize}
   \item traversal: 7 DFS, 2 BFS, 2 cycle detections
   \item topological sorting
@@ -279,7 +279,7 @@ end
   \item minimum spanning tree: Kruskal, Prim
   \item maximal flow: Goldberg, Ford-Fulkerson
   \item $k$-coloring
-  \item misc. operations: transitive closure, complement, mirror,
+  \item transitive closure, complement, mirror,
     neighborhood, \dots
   \item building:
     \begin{itemize}
@@ -401,7 +401,7 @@ module P = Make(Make_Map)
   \item simple
     \begin{itemize}
     \item initially 9 men-weeks
-    \item 7000 loc (later 2000 loc by external contributors)
+    \item 7,000 loc (later 2,000 loc by external contributors)
     \end{itemize}
     % \begin{center}
     %   \emph{only possible thanks to ML functors}
@@ -410,8 +410,8 @@ module P = Make(Make_Map)
     \bigskip
   \item yet efficient
     \begin{itemize}
-    \item creation rate $\approx$ 100 000 edges per second
-    \item traversal rate $\approx$ 1 million edges per second
+    \item creation $\approx$ 100,000 edges per second
+    \item traversal $\approx$ 1 million edges per second
     \end{itemize}
     % \begin{center}
     %   \emph{compares well to other graph libraries}
@@ -421,15 +421,18 @@ module P = Make(Make_Map)
 
 \begin{frame}\frametitle{lesson 1: make it simple}
   \begin{itemize}
-  \item don't optimize too early or too aggressively
-    \begin{itemize}
-    \item cf \textit{The Practice of Programming}, Kernighan \& Pike
-    \end{itemize}
+  \item \emph{the first principle of optimization is \textit{don't}} \par
+    (Kernighan \& Pike, \textit{The Practice of Programming})
 
   \bigskip
   \item implement algorithms as in textbooks
     \begin{itemize}
-    \item yet, don't be naive when it comes to (internal) data structures
+    \item iterators and functors make it easy
+    \end{itemize}
+
+  \bigskip
+  \item yet, don't be naive when it comes to data structures
+    \begin{itemize}
     \item do care about complexity
     \end{itemize}
   \end{itemize}
@@ -442,7 +445,7 @@ module P = Make(Make_Map)
 
   \bigskip
   \begin{itemize}
-  \item some nasty limitations of the module system
+  \item a few bugs/limitations of the module system
     \begin{itemize}
     \item cf BTS \#2049 (weakness of applicative modules)
     \item two signatures with a common type or a module
@@ -451,16 +454,28 @@ module P = Make(Make_Map)
 \end{frame}
 
 \begin{frame}\frametitle{lesson 2: functors}
+  too many functors in the API can be a pain for the user
+
+  \bigskip
   \begin{itemize}
-  \item too many functors in the API can be a pain for the user
-    \begin{itemize}
     \item many functors are used internally only
+
+      \bigskip
     \item a module \of{Pack} provides a simple API, with no functor
-    \end{itemize}
+      \begin{itemize}
+      \item one particular graph data structure
+      \item all functors already applied for you
+      \end{itemize}
 
   \bigskip
   \item refrain yourself from making everything as generic as possible
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    questions ?
+  \end{center}
 \end{frame}
 
 \end{document}
