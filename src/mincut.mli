@@ -18,9 +18,11 @@
 (** Minimal cutset of a graph
 
     Compute a minimal vertex cutset of a reducible oriented graph.
-    The set [S] of vertices is a cutset of [G] if [G \ S] doesn't contain any cycle.
+    The set [S] of vertices is a cutset of [G] if [G \ S] doesn't
+    contain any cycle.
 
-    Based on the article: A linear time algorithm for finding minimum cutsets in reducible graphs by A. Shamir (1979).
+    Based on the article: A linear time algorithm for finding minimum
+    cutsets in reducible graphs by A. Shamir (1979).
 *)
 
 (** Minimal signature for computing the minimal separators *)
