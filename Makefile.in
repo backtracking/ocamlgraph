@@ -72,7 +72,7 @@ CMO = 	version util blocks persistent imperative \
 	components path nonnegative traverse coloring topological kruskal flow \
         prim dominator graphviz gml dot_parser dot_lexer dot pack \
 	gmap minsep cliquetree mcs_m md strat fixpoint leaderlist contraction \
-	graphml merge
+	graphml merge mincut
 CMO := $(LIB) $(patsubst %, $(SRCDIR)/%.cmo, $(CMO))
 
 CMX = $(CMO:.cmo=.cmx)
@@ -236,9 +236,9 @@ $(DGRAPH_DIR)/dgraph.opt: $(CMXA) $(DGRAPH_CMXLIB) \
 #############################
 
 # wait than all bytecodes are done before packing the native library:
-# without these extra dependencies, building graph.cmx also rebuilds the .cmi 
-# while graph.cmi may be required at the same time by some .cmo of the 
-# bytecodes, leading to tentative access to a corrupted graph.cmi. 
+# without these extra dependencies, building graph.cmx also rebuilds the .cmi
+# while graph.cmi may be required at the same time by some .cmo of the
+# bytecodes, leading to tentative access to a corrupted graph.cmi.
 
 ifeq (@LABLGNOMECANVAS@,yes)
 graph.cmx: | $(DGRAPH_DIR)/dgraph.byte \
@@ -248,7 +248,7 @@ endif
 
 $(CMX): | $(SRCDIR)/blocks.cmo
 
-# No .mli for blocks.ml: so, to avoid clash when generating block.cmi 
+# No .mli for blocks.ml: so, to avoid clash when generating block.cmi
 # from both ocamlc and ocamlopt, force to fully compile the bytecode library
 # before the native one
 $(SRCDIR)/blocks.cmx: | graph.cmo
