@@ -112,12 +112,7 @@ module Digraph = struct
     include I.Digraph.ConcreteBidirectional(V)
 
     let add_vertex g v = ignore (add_vertex g v)
-
-    let add_edge g v1 v2 =
-      add_vertex g v1;
-      add_vertex g v2;
-      ignore (unsafe_add_edge g v1 v2)
-
+    let add_edge g v1 v2 = ignore (add_edge g v1 v2)
     let add_edge_e g (v1, v2) = add_edge g v1 v2
 
     let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
@@ -137,16 +132,8 @@ module Digraph = struct
     include I.Digraph.ConcreteBidirectionalLabeled(V)(E)
 
     let add_vertex g v = ignore (add_vertex g v)
-
-    let add_edge g v1 v2 =
-      add_vertex g v1;
-      add_vertex g v2;
-      ignore (unsafe_add_edge g v1 v2)
-
-    let add_edge_e g (v1, l, v2) =
-      add_vertex g v1;
-      add_vertex g v2;
-      ignore (unsafe_add_edge_e g (v1, l, v2))
+    let add_edge g v1 v2 = ignore (add_edge g v1 v2)
+    let add_edge_e g (v1, l, v2) = ignore (add_edge_e g (v1, l, v2))
 
     let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
     let remove_edge_e g e = ignore (remove_edge_e g e)
@@ -251,9 +238,11 @@ module Graph = struct
     (* Redefine the [add_edge] and [remove_edge] operations *)
 
     let add_edge g v1 v2 =
-      G.add_edge g v1 v2;
-      assert (G.HM.mem v1 g && G.HM.mem v2 g);
-      ignore (G.unsafe_add_edge g v2 v1)
+      if not (mem_edge g v1 v2) then begin
+        G.add_edge g v1 v2;
+        assert (G.HM.mem v1 g && G.HM.mem v2 g);
+        ignore (G.unsafe_add_edge g v2 v1)
+      end
 
     let add_edge_e g (v1, v2) = add_edge g v1 v2
 
@@ -277,9 +266,11 @@ module Graph = struct
     (* Redefine the [add_edge] and [remove_edge] operations *)
 
     let add_edge_e g (v1, l, v2 as e) =
-      G.add_edge_e g e;
-      assert (G.HM.mem v1 g && G.HM.mem v2 g);
-      ignore (G.unsafe_add_edge g v2 (v1, l))
+      if not (mem_edge_e g e) then begin
+        G.add_edge_e g e;
+        assert (G.HM.mem v1 g && G.HM.mem v2 g);
+        ignore (G.unsafe_add_edge g v2 (v1, l))
+      end
 
     let add_edge g v1 v2 = add_edge_e g (v1, Edge.default, v2)
 

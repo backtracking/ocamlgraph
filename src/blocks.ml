@@ -768,9 +768,11 @@ module Make(F : TBL_BUILDER) = struct
       include Minimal(S)(HM)
 
       let add_edge g v1 v2 =
-	let g = add_vertex g v1 in
-	let g = add_vertex g v2 in
-	unsafe_add_edge g v1 v2
+        if mem_edge g v1 v2 then g
+        else
+          let g = add_vertex g v1 in
+          let g = add_vertex g v2 in
+          unsafe_add_edge g v1 v2
 
       let add_edge_e g (v1, v2) = add_edge g v1 v2
 
@@ -783,15 +785,15 @@ module Make(F : TBL_BUILDER) = struct
       include BidirectionalMinimal(S)(HM)
 
       let unsafe_add_edge g v1 v2 =
-        let in_set, out_set = HM.find v1 g in
+        let find v g = try HM.find v g with Not_found -> S.empty, S.empty in
+        let in_set, out_set = find v1 g in
         let g = HM.add v1 (in_set,S.add v2 out_set) g in
-        let in_set, out_set = HM.find v2 g in
+        let in_set, out_set = find v2 g in
 	HM.add v2 (S.add v1 in_set,out_set) g
 
       let add_edge g v1 v2 =
-	let g = add_vertex g v1 in
-	let g = add_vertex g v2 in
-	unsafe_add_edge g v1 v2
+        if mem_edge g v1 v2 then g
+        else unsafe_add_edge g v1 v2
 
       let add_edge_e g (v1, v2) = add_edge g v1 v2
 
@@ -803,10 +805,12 @@ module Make(F : TBL_BUILDER) = struct
       include Labeled(V)(Edge)(HM)
       include Minimal(S)(HM)
 
-      let add_edge_e g (v1, l, v2) =
-	let g = add_vertex g v1 in
-	let g = add_vertex g v2 in
-	unsafe_add_edge g v1 (v2, l)
+      let add_edge_e g (v1, l, v2 as e) =
+        if mem_edge_e g e then g
+        else
+          let g = add_vertex g v1 in
+          let g = add_vertex g v2 in
+          unsafe_add_edge g v1 (v2, l)
 
       let add_edge g v1 v2 = add_edge_e g (v1, Edge.default, v2)
 
@@ -821,18 +825,13 @@ module Make(F : TBL_BUILDER) = struct
       include BidirectionalMinimal(S)(HM)
 
       let unsafe_add_edge_e g (v1, l, v2) =
-        let in_set, out_set = HM.find v1 g in
+        let find v g = try HM.find v g with Not_found -> S.empty, S.empty in
+        let in_set, out_set = find v1 g in
         let g = HM.add v1 (in_set,S.add (v2,l) out_set) g in
-        let in_set, out_set = HM.find v2 g in
+        let in_set, out_set = find v2 g in
 	HM.add v2 (S.add (v1,l) in_set,out_set) g
 
-      let unsafe_add_edge g v1 v2 =
-        unsafe_add_edge_e g (v1, Edge.default, v2)
-
-      let add_edge_e g (v1, l, v2) =
-	let g = add_vertex g v1 in
-	let g = add_vertex g v2 in
-	unsafe_add_edge_e g (v1, l, v2)
+      let add_edge_e g e = if mem_edge_e g e then g else unsafe_add_edge_e g e
 
       let add_edge g v1 v2 = add_edge_e g (v1, Edge.default, v2)
 

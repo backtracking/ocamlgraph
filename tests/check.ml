@@ -25,6 +25,15 @@ module Int = struct
   let default = 0
 end
 
+(* pair with equality which ignores the second component *)
+module Pair = struct
+  type t = int * int
+  let compare (x, _) (y, _) = Int.compare x y
+  let hash (x, _) = Int.hash x
+  let equal (x, _) (y, _) = x = y
+  let default = 0, 0
+end
+
 module W = struct
   type label = int
   type t = int
@@ -194,6 +203,69 @@ module Generic = struct
     let module A = MakeP
       (Persistent.Digraph.ConcreteBidirectionalLabeled(Int)(Int))
       (struct let v = 3 let e = 4 end)
+    in
+    ()
+
+  (* Generic tests for imperative concrete graphs with custom equality *)
+  module Make_pair
+    (G : Sig.I with type V.label = int * int)
+    (V : sig val v: int val e: int end) =
+  struct
+
+    module O = Oper.I(G)
+    let test_mirror g =
+      if G.is_directed then begin (* TODO: remove *)
+	let g' = O.mirror g in
+	assert (G.nb_vertex g = G.nb_vertex g');
+	G.iter_edges (fun v1 v2 -> assert (G.mem_edge g' v2 v1)) g;
+	G.iter_edges (fun v1 v2 -> assert (G.mem_edge g v2 v1)) g';
+	()
+      end
+
+    let g = G.create ()
+    let () =
+      let v1 = G.V.create (1, 0) in
+      let v2 = G.V.create (2, 0) in
+      let v3 = G.V.create (2, 1) in
+      test_mirror g;
+      G.add_edge g v1 v2;
+      G.add_edge g v2 v1;
+      G.add_edge g v1 v3;
+      G.iter_vertex (fun v -> assert (snd (G.V.label v) = 0)) g;
+      test_mirror g;
+      assert (G.nb_vertex g = V.v && G.nb_edges g = V.e);
+      G.remove_vertex g v3;
+      assert (G.nb_vertex g = 1 && G.nb_edges g = 0);
+      test_mirror g;
+      G.clear g;
+      assert (G.nb_vertex g = 0 && G.nb_edges g = 0)
+
+  end
+
+  let () =
+    let module A = Make_pair
+      (Imperative.Digraph.ConcreteLabeled(Pair)(Pair))
+      (struct let v = 2 let e = 2 end)
+    in
+    let module A = Make_pair
+      (Imperative.Graph.ConcreteLabeled(Pair)(Pair))
+      (struct let v = 2 let e = 1 end)
+    in
+    let module A = Make_pair
+      (Imperative.Digraph.Concrete(Pair))
+      (struct let v = 2 let e = 2 end)
+    in
+    let module A = Make_pair
+      (Imperative.Graph.Concrete(Pair))
+      (struct let v = 2 let e = 1 end)
+    in
+    let module A = Make_pair
+      (Imperative.Digraph.ConcreteBidirectional(Pair))
+      (struct let v = 2 let e = 2 end)
+    in
+    let module A = Make_pair
+      (Imperative.Digraph.ConcreteBidirectionalLabeled(Pair)(Pair))
+      (struct let v = 2 let e = 2 end)
     in
     ()
 
