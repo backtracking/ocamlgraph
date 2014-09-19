@@ -1,3 +1,6 @@
+
+ o Traverse: documentation is clarified: providing iterators over the roots of
+   the graph is enough.
  o Imperative concreate (di)graph: fix bug of functions add_edge* of imperative
    concrete (di)graphs which appear when the added edge [e] was already in the
    graph [g] and one of the vertices of [e] is equal to another vertex of [g]

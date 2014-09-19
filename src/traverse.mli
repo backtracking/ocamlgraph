@@ -26,7 +26,13 @@ module type G = sig
   type t
   module V : Sig.COMPARABLE
   val iter_vertex : (V.t -> unit) -> t -> unit
+  (** It is enough to iter over all the roots (vertices without predecessor) of
+      the graph, even if iterating over the other vertices is correct. *)
+
   val fold_vertex : (V.t -> 'a -> 'a) -> t  -> 'a -> 'a
+  (** It is enough to fold over all the roots (vertices without predecessor) of
+      the graph, even if folding over the other vertices is correct. *)
+
   val iter_succ : (V.t -> unit) -> t -> V.t -> unit
   val fold_succ : (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
 end
