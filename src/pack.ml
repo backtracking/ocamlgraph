@@ -43,9 +43,9 @@ struct
   module Components = Components.Make(G)
 
   module W = struct
-    type label = int
+    type edge = G.E.t
     type t = int
-    let weight x = x
+    let weight e = G.E.label e
     let zero = 0
     let add = (+)
     let compare : t -> t -> int = Pervasives.compare

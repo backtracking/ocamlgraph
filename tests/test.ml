@@ -71,9 +71,9 @@ let gc = G.add_edge_e g (G.E.create 5 10 1)
 let gc = G.add_vertex gc 6
 
 module W = struct 
-  type label = int
+  type edge = G.E.t
   type t = int
-  let weight x = x 
+  let weight e = G.E. label e
   let zero = 0
   let add = (+)
   let compare = compare
