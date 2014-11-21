@@ -1,4 +1,10 @@
 
+* marks some incompatible change
+
+
+ * Path: function weight now has the more general type "edge -> t"
+   (contributed by Steffen Smolka)
+   update your code by turning "weight l" into "weight (G.E.label e)"
  o installation: "make install-findlib" now uses DESTDIR when defined
  o Traverse: documentation is clarified: providing iterators over the roots of
    the graph is enough.
