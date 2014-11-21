@@ -40,11 +40,11 @@ end
 
 (** Signature for edges' weights. *)
 module type WEIGHT = sig
-  type label
-    (** Type for labels of graph edges. *)
+  type edge
+    (** Type for graph edges. *)
   type t
     (** Type of edges' weights. *)
-  val weight : label -> t
+  val weight : edge -> t
     (** Get the weight of an edge. *)
   val compare : t -> t -> int
     (** Weights must be ordered. *)
@@ -56,7 +56,7 @@ end
 
 module Dijkstra
   (G: G)
-  (W: WEIGHT with type label = G.E.label) :
+  (W: WEIGHT with type edge = G.E.t) :
 sig
 
   val shortest_path : G.t -> G.V.t -> G.V.t -> G.E.t list * W.t
@@ -73,7 +73,7 @@ end
 
 module BellmanFord
   (G: G)
-  (W: WEIGHT with type label = G.E.label) :
+  (W: WEIGHT with type edge = G.E.t) :
 sig
 
   module H : Hashtbl.S with type key = G.V.t

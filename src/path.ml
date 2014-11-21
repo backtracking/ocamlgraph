@@ -18,9 +18,9 @@
 (* $Id: path.ml,v 1.6 2005-07-18 07:10:35 filliatr Exp $ *)
 
 module type WEIGHT = sig
-  type label
+  type edge
   type t
-  val weight : label -> t
+  val weight : edge -> t
   val compare : t -> t -> int
   val add : t -> t -> t
   val zero : t
@@ -45,7 +45,7 @@ end
 
 module Dijkstra
   (G: G)
-  (W: WEIGHT with type label = G.E.label) =
+  (W: WEIGHT with type edge = G.E.t) =
 struct
 
   open G.E
@@ -80,7 +80,7 @@ struct
             (fun e ->
                let ev = dst e in
                if not (H.mem visited ev) then begin
-                 let dev = W.add w (W.weight (label e)) in
+                 let dev = W.add w (W.weight e) in
                  let improvement =
                    try W.compare dev (H.find dist ev) < 0 with Not_found -> true
                  in
@@ -104,7 +104,7 @@ end
 
 module BellmanFord
   (G: G)
-  (W: WEIGHT with type label = G.E.label) =
+  (W: WEIGHT with type edge = G.E.t) =
 struct
 
   open G.E
@@ -145,7 +145,7 @@ struct
           let ev2 = dst e in
           try begin
             let dev1 = H.find dist ev1 in
-            let dev2 = W.add dev1 (W.weight (label e)) in
+            let dev2 = W.add dev1 (W.weight e) in
             let improvement =
               try W.compare dev2 (H.find dist ev2) < 0
               with Not_found -> true
