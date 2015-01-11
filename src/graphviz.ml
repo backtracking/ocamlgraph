@@ -25,7 +25,7 @@
 
 open Format
 open Pervasives (* for compatibility with ocaml 3.12.0+dev17
-		   (incoming ocaml3.12) *)
+                   (incoming ocaml3.12) *)
 
 (***************************************************************************)
 (** {2 Common stuff} *)
@@ -162,9 +162,9 @@ module CommonAttributes = struct
     | `Label of string
         (** Sets the label printed in the node. The string may include escaped
             newlines [\n], [\l], or [\r] for center, left, and right justified
-	    lines.
+            lines.
             Record labels may contain recursive box lists delimited by { | }.
-	*)
+        *)
     | `HtmlLabel of string
     | `Orientation of float
         (** Node rotation angle, in degrees.  Default value is [0.0]. *)
@@ -175,11 +175,26 @@ module CommonAttributes = struct
         (** Sets  the  number  of periphery lines drawn around the polygon. *)
     | `Regular of bool
         (** If [true], then the polygon is made regular, i.e. symmetric about
-	    the x and y axis, otherwise  the polygon   takes   on   the  aspect
-	    ratio of the label.  Default value is [false]. *)
+            the x and y axis, otherwise  the polygon   takes   on   the  aspect
+            ratio of the label.  Default value is [false]. *)
     | `Shape of
         [`Ellipse | `Box | `Circle | `Doublecircle | `Diamond
-        | `Plaintext | `Record | `Polygon of int * float]
+         | `Oval | `Egg | `Triangle | `Invtriangle
+         | `Trapezium | `Invtrapezium
+         | `House | `Invhouse
+         | `Parallelogram | `Doubleoctagon | `Tripleoctagon
+         | `Mdiamond | `Mcircle | `Msquare
+         | `Star | `Underline
+         | `Note | `Tab | `Folder
+         | `Box3d | `Component  | `Promoter
+         | `Cds
+         | `Terminator | `Utr | `Primersite
+         | `Restrictionsite
+         | `Fivepoverhang | `Threepoverhang | `Noverhang
+         | `Assembly | `Signature | `Insulator | `Ribosite | `Rnastab
+         | `Proteasesite | `Proteinstab | `Rpromoter | `Rarrow
+         | `Larrow | `Lpromoter
+         | `Plaintext | `Record | `Polygon of int * float]
         (** Sets the shape of the node.  Default value is [`Ellipse].
             [`Polygon (i, f)] draws a polygon with [n] sides and a skewing
             of [f]. *)
@@ -206,13 +221,13 @@ module CommonAttributes = struct
         (** Sets the label font color.  Default value is [black]. *)
     | `Fontname of string
         (** Sets the label font family name.  Default value is
-	    ["Times-Roman"]. *)
+            ["Times-Roman"]. *)
     | `Fontsize of int
         (** Sets the label type size (in points).  Default value is [14]. *)
     | `Label of string
         (** Sets the label to be attached to the edge.  The string may include
-	    escaped newlines [\n], [\l], or [\r] for centered, left, or right
-	    justified lines. *)
+            escaped newlines [\n], [\l], or [\r] for centered, left, or right
+            justified lines. *)
     | `HtmlLabel of string
     | `Labelfontcolor of color
         (** Sets the font color for head and tail labels.  Default value is
@@ -258,6 +273,47 @@ module CommonAttributes = struct
     | `Diamond -> fprintf ppf "diamond"
     | `Plaintext -> fprintf ppf "plaintext"
     | `Record -> fprintf ppf "record"
+    | `Egg -> fprintf ppf "egg"
+    | `House -> fprintf ppf "house"
+    | `Invhouse -> fprintf ppf "invhouse"
+    | `Trapezium ->  fprintf ppf "trapezium"
+    | `Invtrapezium ->  fprintf ppf "invtrapezium"
+    | `Triangle -> fprintf ppf "triangle"
+    | `Invtriangle -> fprintf ppf "invtriangle"
+    | `Oval ->  fprintf ppf "oval"
+    | `Assembly -> fprintf ppf "assembly"
+    | `Box3d -> fprintf ppf "box3d"
+    | `Cds -> fprintf ppf "cds"
+    | `Component -> fprintf ppf "component"
+    | `Doubleoctagon -> fprintf ppf "doubleoctagon"
+    | `Fivepoverhang -> fprintf ppf "fivepoverhang"
+    | `Folder -> fprintf ppf "folder"
+    | `Insulator -> fprintf ppf "insulator"
+    | `Larrow -> fprintf ppf "larrow"
+    | `Lpromoter -> fprintf ppf "lpromoter"
+    | `Mcircle -> fprintf ppf "mcircle"
+    | `Mdiamond -> fprintf ppf "mdiamond"
+    | `Msquare -> fprintf ppf " msquare"
+    | `Note -> fprintf ppf "note"
+    | `Noverhang -> fprintf ppf "noverhang"
+    | `Parallelogram -> fprintf ppf "parallelogram"
+    | `Primersite -> fprintf ppf "primersite"
+    | `Promoter -> fprintf ppf "promoter"
+    | `Proteasesite -> fprintf ppf "proteasesite"
+    | `Proteinstab -> fprintf ppf "proteinstab"
+    | `Rarrow -> fprintf ppf "rarrow"
+    | `Restrictionsite -> fprintf ppf "restrictionsite"
+    | `Ribosite -> fprintf ppf "ribosite"
+    | `Rnastab -> fprintf ppf "rnastab"
+    | `Rpromoter -> fprintf ppf "rpromoter"
+    | `Signature -> fprintf ppf "signature"
+    | `Star -> fprintf ppf "star"
+    | `Tab -> fprintf ppf "tab"
+    | `Terminator -> fprintf ppf "terminator"
+    | `Threepoverhang -> fprintf ppf "threepoverhang"
+    | `Tripleoctagon -> fprintf ppf "tripleoctagon"
+    | `Underline -> fprintf ppf "underline"
+    | `Utr -> fprintf ppf "utr"
     | `Polygon (i, f) -> fprintf ppf "polygon, sides=%i, skew=%f" i f
 
   let rec fprint_string_list ppf = function
@@ -319,7 +375,7 @@ module CommonAttributes = struct
     | `HtmlLabel s -> fprintf ppf "label=%a" fprint_htmlstring_user s
     | `Labelfontcolor a -> fprintf ppf "labelfontcolor=%a" fprint_color a
     | `Labelfontname s -> fprintf ppf "labelfontname=\"%s\"" s
-	(* (String.escaped s) *)
+        (* (String.escaped s) *)
     | `Labelfontsize i -> fprintf ppf "labelfontsize=%i" i
     | `Penwidth f -> fprintf ppf "penwidth=%f" f
     | `Style _ -> assert false
@@ -339,7 +395,7 @@ module CommonAttributes = struct
       let rec fprint_attributes_rec ppf = function
         | [] -> ()
         | hd :: tl ->
-	    fprintf ppf "%a%a@ "
+            fprintf ppf "%a%a@ "
                 fprint_attribute hd
                 fprint_symbseq sep;
             fprint_attributes_rec ppf tl
@@ -420,18 +476,18 @@ struct
     try
       f arg
     with
-	Error msg ->
-	  Printf.eprintf "%s: %s failure\n   %s\n"
-	  Sys.argv.(0) EN.name msg;
-	  flush stderr;
-	  exit 2
+        Error msg ->
+          Printf.eprintf "%s: %s failure\n   %s\n"
+          Sys.argv.(0) EN.name msg;
+          flush stderr;
+          exit 2
 
     (** [fprint_graph_attributes ppf list] pretty prints a list of
         graph attributes on the formatter [ppf].  Attributes are separated
         by a ";". *)
     let fprint_graph_attributes ppf list =
        List.iter (function att ->
-	 fprintf ppf "%a;@ " EN.Attributes.fprint_graph att
+         fprintf ppf "%a;@ " EN.Attributes.fprint_graph att
        ) list
 
     (** [fprint_graph ppf graph] pretty prints the graph [graph] in
@@ -505,33 +561,33 @@ struct
 
       let print_edges ppf =
 
-	let default_edge_attributes = X.default_edge_attributes graph in
-	if default_edge_attributes <> [] then
-	  fprintf ppf "edge%a;@ "
-	    (fprint_square_not_empty (EN.Attributes.fprint_edge_list COMMA))
+        let default_edge_attributes = X.default_edge_attributes graph in
+        if default_edge_attributes <> [] then
+          fprintf ppf "edge%a;@ "
+            (fprint_square_not_empty (EN.Attributes.fprint_edge_list COMMA))
             default_edge_attributes;
 
-	X.iter_edges_e (function edge ->
-	                  fprintf ppf "%s %s %s%a;@ "
-	                    (X.vertex_name (X.E.src edge))
-	                    EN.edge_arrow
-	                    (X.vertex_name (X.E.dst edge))
-	                    (fprint_square_not_empty (EN.Attributes.fprint_edge_list COMMA))
+        X.iter_edges_e (function edge ->
+                          fprintf ppf "%s %s %s%a;@ "
+                            (X.vertex_name (X.E.src edge))
+                            EN.edge_arrow
+                            (X.vertex_name (X.E.dst edge))
+                            (fprint_square_not_empty (EN.Attributes.fprint_edge_list COMMA))
                             (X.edge_attributes edge)
                        ) graph
 
       in
 
       fprintf ppf "@[<v>%s G {@ @[<v 2>  %a"
-	EN.opening
-	fprint_graph_attributes (X.graph_attributes graph);
+        EN.opening
+        fprint_graph_attributes (X.graph_attributes graph);
       fprintf ppf "%t@ " print_nodes;
       fprintf ppf "%t@ " print_subgraphs;
       fprintf ppf "%t@ " print_edges;
       fprintf ppf "@]}@]"
 
     (** [output_graph oc graph] pretty prints the graph [graph] in the dot
-	language on the channel [oc]. *)
+        language on the channel [oc]. *)
     let output_graph oc graph =
       let ppf = formatter_of_out_channel oc in
       fprint_graph ppf graph;
@@ -585,14 +641,14 @@ module DotAttributes = struct
         (** Sets the minimum separation between ranks. *)
     | `Quantum of float
         (** If not [0.0], node label dimensions will be rounded to integral
-	    multiples of it.  Default value is [0.0]. *)
+            multiples of it.  Default value is [0.0]. *)
     | `Rankdir of [ `TopToBottom | `LeftToRight ]
         (** Direction of rank ordering.  Default value is [`TopToBottom]. *)
     | `Ratio of [ `Float of float | `Fill | `Compress| `Auto ]
         (** Sets the aspect ratio. *)
     | `Samplepoints of int
         (** Number of points used to represent ellipses and circles on output.
-	    Default value is [8]. *)
+            Default value is [8]. *)
     | `Url of string
         (** URL associated with graph (format-dependent). *)
     ]
@@ -622,7 +678,7 @@ module DotAttributes = struct
     | `Url of string
         (** The  default  url  for  image  map  files; in PostScript files,
             the base URL for all relative URLs, as recognized by Acrobat
-	    Distiller 3.0 and up. *)
+            Distiller 3.0 and up. *)
     | `Z of float
         (** z coordinate for VRML output. *)
     ]
@@ -665,10 +721,10 @@ module DotAttributes = struct
         (** Minimum rank distance between head an tail.  Default value is [1]. *)
     | `Samehead of string
         (** Tag for head node; edge heads with the same tag are merged onto the
-	    same port. *)
+            same port. *)
     | `Sametail of string
         (** Tag for tail node; edge tails with the same tag are merged onto the
-	    same port. *)
+            same port. *)
     | `Taillabel of string
         (** Sets the label attached to the tail arrow. *)
     | `Tailport of [ `N | `NE | `E | `SE | `S | `SW | `W | `NW ]
@@ -694,13 +750,13 @@ module DotAttributes = struct
       | hd :: tl -> fprintf ppf "%s,%a" hd fprint_string_list tl
 
     let fprint_ratio ppf = function
-	`Float f -> fprintf ppf "%f" f
+        `Float f -> fprintf ppf "%f" f
       | `Fill -> fprintf ppf "fill"
       | `Compress -> fprintf ppf "compress"
       | `Auto -> fprintf ppf "auto"
 
     let fprint_graph ppf = function
-	#CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
+        #CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
       | `Bgcolor a -> fprintf ppf "bgcolor=%a" fprint_color a
       | `BgcolorWithTransparency a ->
           fprintf ppf "bcolor=%a" fprint_color_with_transparency a
@@ -721,8 +777,8 @@ module DotAttributes = struct
       | `Url s -> fprintf ppf "URL=\"%s\"" s (*(String.escaped s)*)
 
     let fprint_vertex ppf = function
-	#CommonAttributes.vertex as att ->
-	  CommonAttributes.fprint_vertex ppf att
+        #CommonAttributes.vertex as att ->
+          CommonAttributes.fprint_vertex ppf att
       | `Comment s -> fprintf ppf "comment=%a" fprint_string s
       | `Distortion f -> fprintf ppf "distortion=%f" f
       | `Fillcolor a -> fprintf ppf "fillcolor=%a" fprint_color a
@@ -734,7 +790,7 @@ module DotAttributes = struct
       | `Z f -> fprintf ppf "z=%f" f
 
     let fprint_port ppf = function
-	`N -> fprintf ppf "n"
+        `N -> fprintf ppf "n"
       | `NE -> fprintf ppf "ne"
       | `E -> fprintf ppf "e"
       | `SE -> fprintf ppf "se"
@@ -744,7 +800,7 @@ module DotAttributes = struct
       | `NW -> fprintf ppf "nw"
 
     let fprint_edge ppf = function
-	#CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att
+        #CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att
       | `Arrowhead a -> fprintf ppf "arrowhead=%a" fprint_arrow_style a
       | `Arrowsize f -> fprintf ppf "arrowsize=%f" f
       | `Arrowtail a -> fprintf ppf "arrowtail=%a" fprint_arrow_style a
@@ -793,17 +849,17 @@ module type GraphWithDotAttrs = sig
 
   val get_subgraph : V.t -> DotAttributes.subgraph option
     (** The box (if exists) which the vertex belongs to. Boxes with same
-	   names are not distinguished and so they should have the same
-	   attributes. *)
+           names are not distinguished and so they should have the same
+           attributes. *)
 end
 
 module Dot =
   MakeEngine (struct
-		module Attributes = DotAttributes
-		let name = "dot"
-		let opening = "digraph"
-		let edge_arrow = "->"
-	      end)
+                module Attributes = DotAttributes
+                let name = "dot"
+                let opening = "digraph"
+                let edge_arrow = "->"
+              end)
 
 (***************************************************************************)
 (** {2 Interface with the neato engine} *)
@@ -823,13 +879,13 @@ module NeatoAttributes = struct
     | `Start of int
         (** Seed for random number generator. *)
     | `Overlap of bool
-	(** Default value is [true]. *)
+        (** Default value is [true]. *)
     | `Spline of bool
-	(** [true] makes edge splines if nodes don't overlap.
-	    Default value is [false]. *)
+        (** [true] makes edge splines if nodes don't overlap.
+            Default value is [false]. *)
     | `Sep of float
-	(** Edge spline separation factor from nodes.  Default value
-	    is [0.0]. *)
+        (** Edge spline separation factor from nodes.  Default value
+            is [0.0]. *)
     ]
 
   (** Attributes of nodes.  They include all common node attributes and
@@ -863,7 +919,7 @@ module NeatoAttributes = struct
   (** {4 Pretty-print of attributes} *)
 
     let fprint_graph ppf = function
-	#CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
+        #CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
       | `Margin (f1, f2) -> fprintf ppf "margin=\"%f,%f\"" f1 f2
       | `Start i -> fprintf ppf "start=%i" i
       | `Overlap b -> fprintf ppf "overlap=%b" b
@@ -871,12 +927,12 @@ module NeatoAttributes = struct
       | `Sep f -> fprintf ppf "sep=%f" f
 
     let fprint_vertex ppf = function
-	#CommonAttributes.vertex as att ->
-	  CommonAttributes.fprint_vertex ppf att
+        #CommonAttributes.vertex as att ->
+          CommonAttributes.fprint_vertex ppf att
       | `Pos (f1, f2) -> fprintf ppf "pos=\"%f,%f\"" f1 f2
 
     let fprint_edge ppf = function
-	#CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att
+        #CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att
       | `Id s -> fprintf ppf "id=%a" fprint_string s
       | `Len f -> fprintf ppf "len=%f" f
       | `Weight f -> fprintf ppf "weight=%f" f
@@ -893,11 +949,11 @@ end
 
 module Neato =
   MakeEngine (struct
-		module Attributes = NeatoAttributes
-		let name = "neato"
-		let opening = "graph"
-		let edge_arrow = "--"
-	      end)
+                module Attributes = NeatoAttributes
+                let name = "neato"
+                let opening = "graph"
+                let edge_arrow = "--"
+              end)
 
 (*
 Local Variables:

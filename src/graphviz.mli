@@ -110,7 +110,7 @@ module CommonAttributes : sig
   type vertex =
     [ `Color of color
         (** Sets the color of the border of the vertex.
-	  Default value is [black] *)
+          Default value is [black] *)
     | `ColorWithTransparency of color_with_transparency
         (** Sets the color of the border of the vertex with a transparency
             component. Default value is fully opaque [black] *)
@@ -126,11 +126,11 @@ module CommonAttributes : sig
         (** Sets the minimum height.  Default value is [0.5]. *)
     | `Label of string
         (** Sets the label printed in the vertex.
-	    The string may include escaped
+            The string may include escaped
             newlines [\n], [\l], or [\r] for center, left, and right justified
-	    lines.
+            lines.
             Record labels may contain recursive box lists delimited by { | }.
-	*)
+        *)
     | `HtmlLabel of string
     (** Like label, in html style. In HTML strings, angle brackets must occur in
         matched pairs, and newlines and other formatting whitespace characters
@@ -146,18 +146,36 @@ module CommonAttributes : sig
         (** Sets  the  number  of periphery lines drawn around the polygon. *)
     | `Regular of bool
         (** If [true], then the polygon is made regular, i.e. symmetric about
-	    the x and y axis, otherwise  the polygon   takes   on   the  aspect
-	    ratio of the label.  Default value is [false]. *)
+            the x and y axis, otherwise  the polygon   takes   on   the  aspect
+            ratio of the label.  Default value is [false]. *)
     | `Shape of
         [`Ellipse | `Box | `Circle | `Doublecircle | `Diamond
-        | `Plaintext | `Record | `Polygon of int * float]
-        (** Sets the shape of the vertex.  Default value is [`Ellipse].
+         | `Plaintext | `Record
+         (* Addition through http://www.graphviz.org/doc/info/shapes.html *)
+         | `Oval | `Egg | `Triangle | `Invtriangle
+         | `Trapezium | `Invtrapezium
+         | `House | `Invhouse
+         | `Parallelogram | `Doubleoctagon | `Tripleoctagon
+         | `Mdiamond | `Mcircle | `Msquare
+         | `Star | `Underline
+         | `Note | `Tab | `Folder
+         | `Box3d | `Component  | `Promoter
+         | `Cds
+         | `Terminator | `Utr | `Primersite
+         | `Restrictionsite
+         | `Fivepoverhang | `Threepoverhang | `Noverhang
+         | `Assembly | `Signature | `Insulator | `Ribosite | `Rnastab
+         | `Proteasesite | `Proteinstab | `Rpromoter | `Rarrow
+         | `Larrow | `Lpromoter
+         (* Addition ends here *)
+         | `Polygon of int * float]
+    (** Sets the shape of the vertex.  Default value is [`Ellipse].
             [`Polygon (i, f)] draws a polygon with [n] sides and a skewing
             of [f]. *)
     | `Style of
         [ `Rounded | `Filled | `Solid | `Dashed | `Dotted | `Bold | `Invis ]
         (** Sets the layout style of the vertex.
-	    Several styles may be combined simultaneously. *)
+            Several styles may be combined simultaneously. *)
     | `Width of float
         (** Sets the minimum width.  Default value is [0.75]. *)
     ]
@@ -177,13 +195,13 @@ module CommonAttributes : sig
         (** Sets the label font color.  Default value is [black]. *)
     | `Fontname of string
         (** Sets the label font family name.  Default value is
-	    ["Times-Roman"]. *)
+            ["Times-Roman"]. *)
     | `Fontsize of int
         (** Sets the label type size (in points).  Default value is [14]. *)
     | `Label of string
         (** Sets the label to be attached to the edge.  The string may include
-	    escaped newlines [\n], [\l], or [\r] for centered, left, or right
-	    justified lines. *)
+            escaped newlines [\n], [\l], or [\r] for centered, left, or right
+            justified lines. *)
     | `HtmlLabel of string
     (** Like label, in html style. In HTML strings, angle brackets must occur in
         matched pairs, and newlines and other formatting whitespace characters
@@ -253,14 +271,14 @@ module DotAttributes : sig
         (** Sets the minimum separation between ranks. *)
     | `Quantum of float
         (** If not [0.0], node label dimensions will be rounded to integral
-	    multiples of it.  Default value is [0.0]. *)
+            multiples of it.  Default value is [0.0]. *)
     | `Rankdir of [ `TopToBottom | `LeftToRight ]
         (** Direction of rank ordering.  Default value is [`TopToBottom]. *)
     | `Ratio of [ `Float of float | `Fill | `Compress| `Auto ]
         (** Sets the aspect ratio. *)
     | `Samplepoints of int
         (** Number of points used to represent ellipses and circles on output.
-	    Default value is [8]. *)
+            Default value is [8]. *)
     | `Url of string
         (** URL associated with graph (format-dependent). *)
     ]
@@ -289,7 +307,7 @@ module DotAttributes : sig
     | `Url of string
         (** The  default  url  for  image  map  files; in PostScript files,
             the base URL for all relative URLs, as recognized by Acrobat
-	    Distiller 3.0 and up. *)
+            Distiller 3.0 and up. *)
     | `Z of float
         (** z coordinate for VRML output. *)
     ]
@@ -329,13 +347,13 @@ module DotAttributes : sig
         (** Overlay. *)
     | `Minlen of int
         (** Minimum rank distance between head an tail.
-	    Default value is [1]. *)
+            Default value is [1]. *)
     | `Samehead of string
         (** Tag for head node; edge heads with the same tag are merged onto the
-	    same port. *)
+            same port. *)
     | `Sametail of string
         (** Tag for tail node; edge tails with the same tag are merged onto the
-	    same port. *)
+            same port. *)
     | `Taillabel of string
         (** Sets the label attached to the tail arrow. *)
     | `Tailport of [ `N | `NE | `E | `SE | `S | `SW | `W | `NW ]
@@ -376,8 +394,8 @@ module type GraphWithDotAttrs = sig
 
   val get_subgraph : V.t -> DotAttributes.subgraph option
     (** The box (if exists) which the vertex belongs to. Boxes with same
-	   names are not distinguished and so they should have the same
-	   attributes. *)
+           names are not distinguished and so they should have the same
+           attributes. *)
 
 end
 
@@ -402,8 +420,8 @@ module Dot
 
      val get_subgraph : V.t -> DotAttributes.subgraph option
        (** The box (if exists) which the vertex belongs to. Boxes with same
-	   names are not distinguished and so they should have the same
-	   attributes. *)
+           names are not distinguished and so they should have the same
+           attributes. *)
 
      val default_edge_attributes: t -> DotAttributes.edge list
      val edge_attributes: E.t -> DotAttributes.edge list
@@ -413,11 +431,11 @@ sig
 
   val fprint_graph: formatter -> X.t -> unit
     (** [fprint_graph ppf graph] pretty prints the graph [graph] in
-	the CGL language on the formatter [ppf]. *)
+        the CGL language on the formatter [ppf]. *)
 
   val output_graph: out_channel -> X.t -> unit
     (** [output_graph oc graph] pretty prints the graph [graph] in the dot
-	language on the channel [oc]. *)
+        language on the channel [oc]. *)
 
 end
 
@@ -437,13 +455,13 @@ module NeatoAttributes : sig
     | `Start of int
         (** Seed for random number generator. *)
     | `Overlap of bool
-	(** Default value is [true]. *)
+        (** Default value is [true]. *)
     | `Spline of bool
-	(** [true] makes edge splines if nodes don't overlap.
-	    Default value is [false]. *)
+        (** [true] makes edge splines if nodes don't overlap.
+            Default value is [false]. *)
     | `Sep of float
-	(** Edge spline separation factor from nodes.  Default value
-	    is [0.0]. *)
+        (** Edge spline separation factor from nodes.  Default value
+            is [0.0]. *)
     ]
 
   (** Attributes of nodes.  They include all common node attributes and
@@ -499,8 +517,8 @@ module Neato
 
      val get_subgraph : V.t -> NeatoAttributes.subgraph option
        (** The box (if exists) which the vertex belongs to. Boxes with same
-	   names are not distinguished and so they should have the same
-	   attributes. *)
+           names are not distinguished and so they should have the same
+           attributes. *)
 
      val default_edge_attributes: t -> NeatoAttributes.edge list
      val edge_attributes: E.t -> NeatoAttributes.edge list
@@ -510,20 +528,20 @@ sig
 
   val set_command: string -> unit
     (** Several functions provided by this module run the external program
-	{i neato}.  By default, this command is supposed to be in the default
-	path and is invoked by {i neato}.  The function
-	[set_command] allows to set an alternative path at run time. *)
+        {i neato}.  By default, this command is supposed to be in the default
+        path and is invoked by {i neato}.  The function
+        [set_command] allows to set an alternative path at run time. *)
 
   exception Error of string
   val handle_error: ('a -> 'b) -> 'a -> 'b
 
   val fprint_graph: formatter -> X.t -> unit
     (** [fprint_graph ppf graph] pretty prints the graph [graph] in
-	the CGL language on the formatter [ppf]. *)
+        the CGL language on the formatter [ppf]. *)
 
   val output_graph: out_channel -> X.t -> unit
     (** [output_graph oc graph] pretty prints the graph [graph] in the dot
-	language on the channel [oc]. *)
+        language on the channel [oc]. *)
 
 end
 
