@@ -43,10 +43,13 @@ module Make
 struct
 
   module N = Oper.Neighbourhood(G)
-  module Vertex_Set = N.Vertex_Set
+  module Vertex_Set: Set.S with type t = N.Vertex_Set.t
+                           and type elt = G.V.t = N.Vertex_Set
   module VSetset = Set.Make(N.Vertex_Set)
-  (* [Vertex_set] prefixed by [N.] in order to avoid an error with ocamldoc
-     4.02 *)
+  (* Use [N.Vertex_Set] instead of [Vertex_Set] in order to avoid an error with
+     ocamldoc 4.02. However this change requires to add extra type annotations
+     to module [Vertex_Set] above in order to prevent compilation error with
+     OCaml <= 4.0 :-(. *)
 
   let initialisation g =
     let cc = G.cc g in
