@@ -44,7 +44,7 @@ struct
 
   module N = Oper.Neighbourhood(G)
   module Vertex_Set = N.Vertex_Set
-  module VSetset = Set.Make(Vertex_Set)
+  module VSetset = Set.Make(N.Vertex_Set)
 
   let initialisation g =
     let cc = G.cc g in
