@@ -257,7 +257,7 @@ module Make (S : CCC) = struct
 
   let iter_triangles f t =
     let n = Array.length t.arcs in
-    let seen_arc = Array.create n false in
+    let seen_arc = Array.make n false in
     let mate i = n - 1 - i in
     let index a = mate a.mate in
     for i = 0 to n-1 do

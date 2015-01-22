@@ -44,10 +44,10 @@ struct
     include XDot.Make(G)
     open XDot
     type t = graph_layout =
-	{ vertex_layouts  : node_layout HV.t;
-	  edge_layouts    : edge_layout HE.t;
-	  cluster_layouts : (string, cluster_layout) Hashtbl.t;
-	  bbox : bounding_box }
+        { vertex_layouts  : node_layout HV.t;
+          edge_layouts    : edge_layout HE.t;
+          cluster_layouts : (string, cluster_layout) Hashtbl.t;
+          bbox : bounding_box }
   end
   open Layout
 
@@ -79,78 +79,78 @@ struct
     let fill_stack tree root =
       let stack_queue = Queue.create () in
       let rec flush_queue queue =
-	if not(Queue.is_empty queue) then begin
-	  let elem, depth = Queue.take queue in
-	  iter_fun (fun v -> Queue.add (v, depth + 1) queue) tree elem;
-	  Stack.push (elem,depth) stack;
-	  flush_queue queue
-	end
+        if not(Queue.is_empty queue) then begin
+          let elem, depth = Queue.take queue in
+          iter_fun (fun v -> Queue.add (v, depth + 1) queue) tree elem;
+          Stack.push (elem,depth) stack;
+          flush_queue queue
+        end
       in
       Queue.add (root, 0) stack_queue;
       flush_queue stack_queue;
-    in 
+    in
     fill_stack tree root;
     let offset = ref geometry_info.x_offset in
     let max_depth = snd (Stack.top stack) in
     let rec flush_stack stack =
       if not (Stack.is_empty stack) then begin
-	let elem, depth = Stack.pop stack in
-	if depth = max_depth then begin
-	  HV.add table elem (!offset, depth);
-	  offset := !offset +. geometry_info.x_offset +. vertex_x_space;
-	end else begin
-	  let sum, cpt =
-	    fold_fun
-	      (fun v (sum, cpt) ->
-		let (x, _) =
-		  try HV.find table v with Not_found -> assert false
-		in
-		sum +. x, cpt +. 1.)
-	      tree
-	      elem
-	      (0., 0.)
-	  in
-	  assert (cpt <> 0.);
-	  HV.add table elem (sum /. cpt, depth)
-	end;
-	flush_stack stack
+        let elem, depth = Stack.pop stack in
+        if depth = max_depth then begin
+          HV.add table elem (!offset, depth);
+          offset := !offset +. geometry_info.x_offset +. vertex_x_space;
+        end else begin
+          let sum, cpt =
+            fold_fun
+              (fun v (sum, cpt) ->
+                let (x, _) =
+                  try HV.find table v with Not_found -> assert false
+                in
+                sum +. x, cpt +. 1.)
+              tree
+              elem
+              (0., 0.)
+          in
+          assert (cpt <> 0.);
+          HV.add table elem (sum /. cpt, depth)
+        end;
+        flush_stack stack
       end
     in
     flush_stack stack
-      
+
   (* Bind two tree position tables together *)
   let bind_tree_tables forward_table backward_table root geometry_info =
     (* Using dimension is required in order to be put at the middle of the
        canvas.*)
     let max_fwd, max_dim_fwd =
       HV.fold
-	(fun v (_, y) (max_y, max_dimy as acc) ->
-	  if TreeManipulation.is_ghost_node v then acc
-	  else (*max y max_y*)
-	    if y < max_y then acc
-	    else
-	      let _, dimy = get_dimensions v geometry_info in
-	      (*[BM] why 1.5? *)
+        (fun v (_, y) (max_y, max_dimy as acc) ->
+          if TreeManipulation.is_ghost_node v then acc
+          else (*max y max_y*)
+            if y < max_y then acc
+            else
+              let _, dimy = get_dimensions v geometry_info in
+              (*[BM] why 1.5? *)
               let dimy = dimy *. 1.5 in
-	      y, if y = max_y then max max_dimy dimy else dimy)
-	forward_table
-	(0, 0.)
+              y, if y = max_y then max max_dimy dimy else dimy)
+        forward_table
+        (0, 0.)
     in
     HV.iter
       (fun v (x, y) ->(*[BM]: why 0.5 and 1.5 ??? *)
-	HV.add
-	  geometry_info.position
-	  v
-	  (x, ((float (max_fwd + y)) -. 0.5) *. float geometry_info.y_offset
-	    -. 1.5 *. max_dim_fwd))
+        HV.add
+          geometry_info.position
+          v
+          (x, ((float (max_fwd + y)) -. 0.5) *. float geometry_info.y_offset
+            -. 1.5 *. max_dim_fwd))
       backward_table;
     HV.iter
       (fun v (x, y) ->(*[BM]: why 0.5 and 1.5 ??? *)
-	HV.add
-	  geometry_info.position
-	  v
-	  (x, ((float (max_fwd - y)) -. 0.5) *. float geometry_info.y_offset
-	    -. 1.5 *. max_dim_fwd))
+        HV.add
+          geometry_info.position
+          v
+          (x, ((float (max_fwd - y)) -. 0.5) *. float geometry_info.y_offset
+            -. 1.5 *. max_dim_fwd))
       forward_table;
     HV.remove geometry_info.position root
 
@@ -219,7 +219,25 @@ struct
     mutable peripheries : int option;
     mutable regular : bool option;
     mutable shape : [ `Ellipse | `Box | `Circle | `Doublecircle | `Diamond
-      | `Plaintext | `Record | `Polygon of int * float ] option;
+         | `Oval | `Egg | `Triangle | `Invtriangle
+         | `Trapezium | `Invtrapezium
+         | `House | `Invhouse
+         | `Oval | `Egg | `Triangle | `Invtriangle
+         | `Trapezium | `Invtrapezium
+         | `House | `Invhouse
+         | `Parallelogram | `Doubleoctagon | `Tripleoctagon
+         | `Mdiamond | `Mcircle | `Msquare
+         | `Star | `Underline
+         | `Note | `Tab | `Folder
+         | `Box3d | `Component  | `Promoter
+         | `Cds
+         | `Terminator | `Utr | `Primersite
+         | `Restrictionsite
+         | `Fivepoverhang | `Threepoverhang | `Noverhang
+         | `Assembly | `Signature | `Insulator | `Ribosite | `Rnastab
+         | `Proteasesite | `Proteinstab | `Rpromoter | `Rarrow
+         | `Larrow | `Lpromoter
+         | `Plaintext | `Record | `Polygon of int * float ] option;
     mutable style : [ `Rounded | `Filled | `Solid | `Dashed | `Dotted | `Bold
       | `Invis ] list;
     mutable width : float option;
@@ -258,31 +276,31 @@ struct
   let fill_vattributes tree vattributes =
     let vertex_to_vattrs v =
       let vattrs = {
-	color = None;
-	fontcolor = None;
-	fontname = None;
-	fontsize = None;
-	height = None;
-	label = None;
+        color = None;
+        fontcolor = None;
+        fontname = None;
+        fontsize = None;
+        height = None;
+        label = None;
         html_label = None;
-	orientation = None;
-	peripheries = None;
-	regular = None;
-	shape = None;
-	style = [];
-	width = None;
-	fillcolor = None
+        orientation = None;
+        peripheries = None;
+        regular = None;
+        shape = None;
+        style = [];
+        width = None;
+        fillcolor = None
       } in
       let dgraph_layout_default =
-	[ `Color 0xFFFFFF; `Fontcolor 0x000000; `Fontname "Sans";
-	  `Fontsize 12; `Height 0.; `Label (Tree.vertex_name v);
-	  `Orientation 0.; `Peripheries 1; `Regular false; `Shape `Ellipse;
-	  `Width 0.; `Fillcolor 0xFFFFFF ]
+        [ `Color 0xFFFFFF; `Fontcolor 0x000000; `Fontname "Sans";
+          `Fontsize 12; `Height 0.; `Label (Tree.vertex_name v);
+          `Orientation 0.; `Peripheries 1; `Regular false; `Shape `Ellipse;
+          `Width 0.; `Fillcolor 0xFFFFFF ]
       in
       attributes_list_to_vattributes vattrs
-	(Tree.vertex_attributes v
-	 @ Tree.default_vertex_attributes tree
-	 @ dgraph_layout_default);
+        (Tree.vertex_attributes v
+         @ Tree.default_vertex_attributes tree
+         @ dgraph_layout_default);
       vattrs
     in
     Tree.iter_vertex (fun v -> HV.add vattributes v (vertex_to_vattrs v)) tree
@@ -319,10 +337,10 @@ struct
       let vattrs = try HV.find vattributes v with Not_found -> assert false in
       let minwidth, minheight = the vattrs.width, the vattrs.height in
       let truewidth, trueheight =
-	calc_dimensions
-	  (the vattrs.fontname)
-	  (the vattrs.fontsize)
-	  (the vattrs.label) context
+        calc_dimensions
+          (the vattrs.fontname)
+          (the vattrs.fontsize)
+          (the vattrs.label) context
       in
       let width = max minwidth truewidth in
       let height = max minheight trueheight in
@@ -371,8 +389,8 @@ struct
       let diameter = max width height in
       let big_diameter = diameter +. 5. in
       (XDotDraw.Unfilled_ellipse (position,big_diameter,big_diameter)) ::
-	[ if filled then XDotDraw.Filled_ellipse (position,diameter,diameter)
-	  else XDotDraw.Unfilled_ellipse (position,diameter,diameter) ]
+        [ if filled then XDotDraw.Filled_ellipse (position,diameter,diameter)
+          else XDotDraw.Unfilled_ellipse (position,diameter,diameter) ]
     | `Box ->
       let x, y = position in
       let x1 = x -. width and x2 = x +. width in
@@ -403,24 +421,24 @@ struct
     XDotDraw.Pen_color (string_color32 (the vattrs.color)) ::
       XDotDraw.Style (List.map (style_to_style_attr) vattrs.style) ::
       (if List.mem `Filled vattrs.style then
-	  XDotDraw.Fill_color (string_color32 (the vattrs.fillcolor)) ::
-	    shape_to_operations v vattrs geometry_info (the vattrs.shape)
+          XDotDraw.Fill_color (string_color32 (the vattrs.fillcolor)) ::
+            shape_to_operations v vattrs geometry_info (the vattrs.shape)
        else
-	  shape_to_operations v vattrs geometry_info (the vattrs.shape))
+          shape_to_operations v vattrs geometry_info (the vattrs.shape))
       ,
     (* Vertex label drawing *)
     [ XDotDraw.Pen_color (string_color (the vattrs.fontcolor));
       XDotDraw.Font
-	(float (the vattrs.fontsize),
-	 the vattrs.fontname);
+        (float (the vattrs.fontsize),
+         the vattrs.fontname);
       let x, y = get_position v geometry_info in
       let _, h = get_dimensions v geometry_info in
       (* [JS 2010/10/08] "/. 4." is quite strange but gives better results *)
       XDotDraw.Text
-	((x, y +. h /. 4.),
-	 XDotDraw.Center,
-	 width,
-	 the vattrs.label) ]
+        ((x, y +. h /. 4.),
+         XDotDraw.Center,
+         width,
+         the vattrs.label) ]
 
   let vertex_to_node_layout v vattributes geometry_info =
     let draw, ldraw = vattrs_to_draw_operations v vattributes geometry_info in
@@ -461,32 +479,32 @@ struct
       match l with
       |[] -> corners_array
       |v :: tl ->
-	let x, y = get_position v geometry_info in
-	let w, h = get_dimensions v geometry_info in
-	let halfw = w /. 2. in
-	let x1 = x -. halfw and x2 = x +. halfw in
-	let y1 = y -. h and y2 = y +. h in
-	  (* Should cluster be split in two *)
-	let x1_distance = minx -. x1 in
-	let x2_distance = x2 -. maxx in
-	let y1_distance = miny -. y1 in
-	let y2_distance = y2 -. maxy in
-	if x1_distance > max_x_distance ||
-	  x2_distance > max_x_distance ||
-	  y1_distance > max_y_distance ||
-	  y2_distance > max_y_distance ||
-	  ((x1_distance <> 0. || x2_distance <> 0.) &&
-	      (y1_distance <> 0. || y2_distance <> 0.))
-	then
-	  Array.append (find_corners tl corners_array)
-	    (find_corners tl [| x1, y1; x1, y2; x2, y2; x2, y1 |])
-	else
-	  let newminx = min x1 minx in
-	  let newminy = min y1 miny in
-	  let newmaxx = max x2 maxx in
-	  let newmaxy = max y2 maxy in
-	  find_corners tl [|(newminx,newminy);(newminx,newmaxy);
-			    (newmaxx,newmaxy);(newmaxx,newminy)|]
+        let x, y = get_position v geometry_info in
+        let w, h = get_dimensions v geometry_info in
+        let halfw = w /. 2. in
+        let x1 = x -. halfw and x2 = x +. halfw in
+        let y1 = y -. h and y2 = y +. h in
+          (* Should cluster be split in two *)
+        let x1_distance = minx -. x1 in
+        let x2_distance = x2 -. maxx in
+        let y1_distance = miny -. y1 in
+        let y2_distance = y2 -. maxy in
+        if x1_distance > max_x_distance ||
+          x2_distance > max_x_distance ||
+          y1_distance > max_y_distance ||
+          y2_distance > max_y_distance ||
+          ((x1_distance <> 0. || x2_distance <> 0.) &&
+              (y1_distance <> 0. || y2_distance <> 0.))
+        then
+          Array.append (find_corners tl corners_array)
+            (find_corners tl [| x1, y1; x1, y2; x2, y2; x2, y1 |])
+        else
+          let newminx = min x1 minx in
+          let newminy = min y1 miny in
+          let newmaxx = max x2 maxx in
+          let newmaxy = max y2 maxy in
+          find_corners tl [|(newminx,newminy);(newminx,newmaxy);
+                            (newmaxx,newmaxy);(newmaxx,newminy)|]
     in
     match l with
     | [] ->
@@ -522,13 +540,13 @@ struct
     let rec _cut_corners_array corners_array =
       ignore (assert false);
       (* [JS 2010/09/09] does not work:
-	 exponential time seems to be required! *)
+         exponential time seems to be required! *)
       let length = Array.length corners_array in
       if length > 4 then
-	XDotDraw.Unfilled_polygon (add_padding (Array.sub corners_array 0 4)) ::
-	(_cut_corners_array (Array.sub corners_array 4 (length-4)))
+        XDotDraw.Unfilled_polygon (add_padding (Array.sub corners_array 0 4)) ::
+        (_cut_corners_array (Array.sub corners_array 4 (length-4)))
       else
-	[ XDotDraw.Unfilled_polygon (add_padding corners_array) ]
+        [ XDotDraw.Unfilled_polygon (add_padding corners_array) ]
     in
     let (x1,y1) = corners_array.(0) in
     let (x2,y2) = corners_array.(3) in
@@ -536,9 +554,9 @@ struct
       XDot.c_pos = ((x1 +. x2) /. 2., (y1 +. y2) /. 2.);
       XDot.c_bbox = ((x1,y1),(x2,y2));
       XDot.c_draw =
-	XDotDraw.Pen_color
-	  (string_color (get_cluster_color c.sg_attributes)) ::
-	(*cut_corners_array corners_array*)[];
+        XDotDraw.Pen_color
+          (string_color (get_cluster_color c.sg_attributes)) ::
+        (*cut_corners_array corners_array*)[];
       XDot.c_ldraw = []
     };;
 
@@ -548,9 +566,9 @@ struct
     let visited = ref [] in
     Hashtbl.iter
       (fun c _ ->
-	if not (List.mem c !visited) then
-	  let lay = cluster_to_cluster_layout tree c clusters geometry_info in
-	  Hashtbl.add cluster_layouts c.sg_name lay)
+        if not (List.mem c !visited) then
+          let lay = cluster_to_cluster_layout tree c clusters geometry_info in
+          Hashtbl.add cluster_layouts c.sg_name lay)
     clusters;
     cluster_layouts;;
 
@@ -638,8 +656,8 @@ struct
     in
     let dgraph_layout_default =
       [ `Color 0xFF0000; `Decorate false; `Dir `Forward; `Fontcolor 0x00000;
-	`Fontname "Sans"; `Fontsize 12; `Label ""; `Labelfontcolor 0x000000;
-	`Labelfontname "Sans"; `Labelfontsize 12; `Style `Solid ]
+        `Fontname "Sans"; `Fontsize 12; `Label ""; `Labelfontcolor 0x000000;
+        `Labelfontname "Sans"; `Labelfontsize 12; `Style `Solid ]
     in
     attributes_list_to_eattributes eattrs
       (Tree.default_edge_attributes tree
@@ -653,26 +671,26 @@ struct
     (
       (* Shapes and curves *)
       [ XDotDraw.Pen_color (string_color32 (the eattrs.color));
-	XDotDraw.Fill_color (string_color32 (the eattrs.color));
-	XDotDraw.Style (List.map (style_to_style_attr) eattrs.style);
-	XDotDraw.Filled_bspline posarray ]
+        XDotDraw.Fill_color (string_color32 (the eattrs.color));
+        XDotDraw.Style (List.map (style_to_style_attr) eattrs.style);
+        XDotDraw.Filled_bspline posarray ]
     ,
       (* Label drawing *)
       [ XDotDraw.Pen_color (string_color (the eattrs.fontcolor));
-	XDotDraw.Fill_color (string_color (the eattrs.fontcolor));
-	XDotDraw.Font (float_of_int (the eattrs.fontsize),
-	(the eattrs.fontname));
-	(let pos = ((xsrc +. xend) /. 2. +. 5., (ysrc +. yend) /. 2.) in
-	XDotDraw.Text (pos,XDotDraw.Center,40.,the eattrs.label)) ]
+        XDotDraw.Fill_color (string_color (the eattrs.fontcolor));
+        XDotDraw.Font (float_of_int (the eattrs.fontsize),
+        (the eattrs.fontname));
+        (let pos = ((xsrc +. xend) /. 2. +. 5., (ysrc +. yend) /. 2.) in
+        XDotDraw.Text (pos,XDotDraw.Center,40.,the eattrs.label)) ]
     ,
       (* Head arrowhead drawing *)
       (if eattrs.dir = Some `None then
-	[]
+        []
       else
-	XDotDraw.Pen_color (string_color32 (the eattrs.color)) ::
-	XDotDraw.Fill_color (string_color32 (the eattrs.color)) ::
-	XDotDraw.Style (List.map (style_to_style_attr) eattrs.style) ::
-	(edge_to_arrow posarray.(2) posarray.(3)))
+        XDotDraw.Pen_color (string_color32 (the eattrs.color)) ::
+        XDotDraw.Fill_color (string_color32 (the eattrs.color)) ::
+        XDotDraw.Style (List.map (style_to_style_attr) eattrs.style) ::
+        (edge_to_arrow posarray.(2) posarray.(3)))
     ,
       (* Tail arrowhead drawing *)
       []
@@ -686,7 +704,7 @@ struct
 
   let edge_to_edge_layout tree e geometry_info =
     let (draw,ldraw,hdraw,tdraw,hldraw,tldraw) =
-      eattrs_to_operation tree e geometry_info 
+      eattrs_to_operation tree e geometry_info
     in
     {
       XDot.e_draw = draw;
@@ -703,9 +721,9 @@ struct
     fill_vattributes tree vattributes;
     let geometry_info =
       { dimensions = HV.create 97;
-	position = HV.create 97;
-	x_offset = 0.;
-	y_offset = 0 }
+        position = HV.create 97;
+        x_offset = 0.;
+        y_offset = 0 }
     in
     fill_dimensions context tree vattributes geometry_info;
     set_offset geometry_info;
@@ -714,15 +732,15 @@ struct
     let vertex_layouts = HV.create 97 in
     Tree.iter_vertex
       (fun v ->
-	let n_layout = vertex_to_node_layout v vattributes geometry_info in
-	HV.add vertex_layouts v n_layout)
+        let n_layout = vertex_to_node_layout v vattributes geometry_info in
+        HV.add vertex_layouts v n_layout)
     tree;
 
     let edge_layouts = HE.create 97 in
     Tree.iter_edges_e
       (fun e ->
-	let e_layout = edge_to_edge_layout tree e geometry_info in
-	HE.add edge_layouts e e_layout)
+        let e_layout = edge_to_edge_layout tree e geometry_info in
+        HE.add edge_layouts e e_layout)
     tree;
 
     let cluster_layouts = Hashtbl.create 7
@@ -733,22 +751,22 @@ struct
       edge_layouts = edge_layouts;
       cluster_layouts = cluster_layouts;
       bbox =
-	let ((x1,y1), (x2,y2) as bb) =
-	  HV.fold
-	    (fun v (x, y) ((minx, miny),(maxx, maxy) as acc) ->
-	      if TreeManipulation.is_ghost_node v then acc
-	      else (min x minx, min y miny), (max x maxx, max y maxy))
-	    geometry_info.position
-	    ((max_float, max_float), (0., 0.))
-	in
+        let ((x1,y1), (x2,y2) as bb) =
+          HV.fold
+            (fun v (x, y) ((minx, miny),(maxx, maxy) as acc) ->
+              if TreeManipulation.is_ghost_node v then acc
+              else (min x minx, min y miny), (max x maxx, max y maxy))
+            geometry_info.position
+            ((max_float, max_float), (0., 0.))
+        in
 (*	Format.printf "BB=%f %f %f %f@." x1 y1 x2 y2;*)
-	bb }
+        bb }
 
 end
 
 module MakeFromDotModel
   (Tree: Sig.G with type V.label = DGraphModel.DotG.V.t
-	       and type E.label = unit)
+               and type E.label = unit)
   (TreeManipulation: sig val is_ghost_node: Tree.V.t -> bool end) =
 struct
 
@@ -771,32 +789,32 @@ struct
     let corners pos_array =
       let p0 = pos_array.(0) in
       Array.fold_left
-	(fun ((minx, miny), (maxx, maxy)) (x, y) ->
-	  (min minx x, min miny y), (max maxx x, max maxy y))
-	(p0, p0)
-	pos_array
+        (fun ((minx, miny), (maxx, maxy)) (x, y) ->
+          (min minx x, min miny y), (max maxx x, max maxy y))
+        (p0, p0)
+        pos_array
     in
     (* The width and height of the bounding box of the first shape
        corresponding to a node.*)
     let rec get_size = function
       | [] -> 0., 0.
-      | XDotDraw.Unfilled_ellipse (_,w,h) :: _ 
-      | XDotDraw.Filled_ellipse (_,w,h) :: _ -> 
+      | XDotDraw.Unfilled_ellipse (_,w,h) :: _
+      | XDotDraw.Filled_ellipse (_,w,h) :: _ ->
         2. *. w, 2. *. h
       | XDotDraw.Unfilled_polygon pos_array :: _
       | XDotDraw.Filled_polygon pos_array :: _ ->
-	let (minx, miny), (maxx, maxy) = corners pos_array in
-	maxx -. minx, maxy -. miny
-      | (XDotDraw.Style _ |XDotDraw.Font _|XDotDraw.Pen_color _ 
+        let (minx, miny), (maxx, maxy) = corners pos_array in
+        maxx -. minx, maxy -. miny
+      | (XDotDraw.Style _ |XDotDraw.Font _|XDotDraw.Pen_color _
             |XDotDraw.Fill_color _|XDotDraw.Filled_bspline _ |XDotDraw.Bspline _
-            | XDotDraw.Polyline _|XDotDraw.Text _) 
+            | XDotDraw.Polyline _|XDotDraw.Text _)
         :: tl -> get_size tl
     in
     Tree.iter_vertex
       (fun v ->
-	let layout = model#get_vertex_layout (Tree.V.label v) in
-	let dim = get_size layout.XDot.n_draw in
-	HV.add geometry_info.dimensions v dim)
+        let layout = model#get_vertex_layout (Tree.V.label v) in
+        let dim = get_size layout.XDot.n_draw in
+        HV.add geometry_info.dimensions v dim)
       tree
 
   let fill_position tree root geometry_info =
@@ -808,7 +826,7 @@ struct
       forward_table;*)
     fill_tree_positions tree root Tree.iter_pred Tree.fold_pred backward_table
       geometry_info;
-    (*    HV.iter (fun k (off,depth) -> 
+    (*    HV.iter (fun k (off,depth) ->
           Format.printf "BACKoff:%f depth:%d@." off depth)
           backward_table;
     Format.printf "DONE@.";*)
@@ -819,8 +837,8 @@ struct
     let polygon pts =
       let length = float (Array.length pts) in
       let oldabssum, oldordsum =
-	Array.fold_left
-	  (fun (xsum, ysum) (x, y) -> xsum +. x, ysum +. y) (0.,0.) pts
+        Array.fold_left
+          (fun (xsum, ysum) (x, y) -> xsum +. x, ysum +. y) (0.,0.) pts
       in
       let oldabs, oldord = oldabssum /. length, oldordsum /. length in
       Array.map (fun (x, y) -> x -. oldabs +. abs, y -. oldord +. ord) pts
@@ -835,10 +853,10 @@ struct
     in
     List.map do_one operations
 
-  let parse_n_ldraw_operations 
+  let parse_n_ldraw_operations
       (initial_node_pos_x,initial_node_pos_y)
-      (node_pos_x,node_pos_y) 
-      operations 
+      (node_pos_x,node_pos_y)
+      operations
       =
     List.map
       (function
@@ -850,7 +868,7 @@ struct
           pos_x+.translate_x,
           pos_y+.translate_y
         in
-	XDotDraw.Text (pos, align, w, s)
+        XDotDraw.Text (pos, align, w, s)
       | op -> op)
       operations
 
@@ -861,7 +879,7 @@ struct
       n_pos = pos;
       n_bbox = XDot.bounding_box pos width height;
       n_draw = parse_n_draw_operations orig_layout.XDot.n_draw pos;
-      n_ldraw = parse_n_ldraw_operations 
+      n_ldraw = parse_n_ldraw_operations
         orig_layout.XDot.n_pos
         pos
         orig_layout.XDot.n_ldraw}
@@ -873,36 +891,36 @@ struct
     | XDotDraw.Bspline _ :: tl ->
       let pos_array = edge_to_posarray src dst geometry_info in
       XDotDraw.Bspline pos_array ::
-	(edge_to_arrow pos_array.(2) pos_array.(3)) @
-	(parse_e_draw_operations tl src dst geometry_info)
+        (edge_to_arrow pos_array.(2) pos_array.(3)) @
+        (parse_e_draw_operations tl src dst geometry_info)
     | XDotDraw.Filled_bspline _ :: tl ->
       let pos_array = edge_to_posarray src dst geometry_info in
       XDotDraw.Filled_bspline pos_array ::
-	(edge_to_arrow pos_array.(2) pos_array.(3)) @
-	(parse_e_draw_operations tl src dst geometry_info)
+        (edge_to_arrow pos_array.(2) pos_array.(3)) @
+        (parse_e_draw_operations tl src dst geometry_info)
     | XDotDraw.Pen_color c :: tl ->
       XDotDraw.Pen_color c :: XDotDraw.Fill_color c ::
-	(parse_e_draw_operations tl src dst geometry_info)
+        (parse_e_draw_operations tl src dst geometry_info)
     | op :: tl -> op :: (parse_e_draw_operations tl src dst geometry_info);;
 
   let rec parse_e_ldraw_operations operations src dst geometry_info =
     match operations with
       | [] -> []
       | XDotDraw.Text (_, align, w, s) :: tl ->
-	  let (xsrc,ysrc) = get_position src geometry_info in
-	  let (xdst,ydst) = get_position dst geometry_info in
-	  let pos = ((xsrc +. xdst) /. 2., (ysrc +. ydst) /. 2.) in
-	  XDotDraw.Text (pos, align, w, s) ::
-	  (parse_e_ldraw_operations tl src dst geometry_info)
+          let (xsrc,ysrc) = get_position src geometry_info in
+          let (xdst,ydst) = get_position dst geometry_info in
+          let pos = ((xsrc +. xdst) /. 2., (ysrc +. ydst) /. 2.) in
+          XDotDraw.Text (pos, align, w, s) ::
+          (parse_e_ldraw_operations tl src dst geometry_info)
       | op :: tl -> op :: (parse_e_ldraw_operations tl src dst geometry_info);;
 
   let parse_edge_layout tree e layout geometry_info =
     let src = Tree.E.src e and dst = Tree.E.dst e in
     {
       XDot.e_draw =
-	parse_e_draw_operations layout.XDot.e_draw src dst geometry_info;
+        parse_e_draw_operations layout.XDot.e_draw src dst geometry_info;
       e_ldraw =
-	parse_e_ldraw_operations layout.XDot.e_ldraw src dst geometry_info;
+        parse_e_ldraw_operations layout.XDot.e_ldraw src dst geometry_info;
       e_hdraw = [];
       e_tdraw = [];
       e_hldraw = [];
@@ -916,9 +934,9 @@ struct
   let from_model tree root model =
     let geometry_info =
       { dimensions = HV.create 97;
-	position = HV.create 97;
-	x_offset = 0.;
-	y_offset = 0 }
+        position = HV.create 97;
+        x_offset = 0.;
+        y_offset = 0 }
     in
     fill_dimensions model tree geometry_info;
     set_offset geometry_info;
@@ -926,27 +944,27 @@ struct
     let vertex_layouts = HV.create 97 in
     Tree.iter_vertex
       (fun v ->
-	let old_layout = model#get_vertex_layout (Tree.V.label v) in
-	let v_layout = parse_vertex_layout tree v old_layout geometry_info in
-	HV.add vertex_layouts v v_layout)
+        let old_layout = model#get_vertex_layout (Tree.V.label v) in
+        let v_layout = parse_vertex_layout tree v old_layout geometry_info in
+        HV.add vertex_layouts v v_layout)
       tree;
     let edge_layouts = HE.create 97 in
     Tree.iter_edges_e
       (fun e ->
-	let src = Tree.V.label (Tree.E.src e) in
-	let dst = Tree.V.label (Tree.E.dst e) in
-	let old_layout =
-	  try model#get_edge_layout (model#find_edge src dst)
-	  with Not_found ->
-	    { XDot.e_draw = [];
-	      e_ldraw = [];
-	      e_hdraw = [];
-	      e_tdraw = [];
-	      e_hldraw = [];
-	      e_tldraw = [] }
-	in
-	let e_layout = parse_edge_layout tree e old_layout geometry_info in
-	HE.add edge_layouts e e_layout)
+        let src = Tree.V.label (Tree.E.src e) in
+        let dst = Tree.V.label (Tree.E.dst e) in
+        let old_layout =
+          try model#get_edge_layout (model#find_edge src dst)
+          with Not_found ->
+            { XDot.e_draw = [];
+              e_ldraw = [];
+              e_hdraw = [];
+              e_tdraw = [];
+              e_hldraw = [];
+              e_tldraw = [] }
+        in
+        let e_layout = parse_edge_layout tree e old_layout geometry_info in
+        HE.add edge_layouts e e_layout)
     tree;
     let cluster_layouts = Hashtbl.create 7 in
     let root_pos = get_position root geometry_info in
@@ -954,18 +972,18 @@ struct
       edge_layouts = edge_layouts;
       cluster_layouts = cluster_layouts;
       bbox =
-	let ((x1,y1), (x2,y2) as bb) =
-	  HV.fold
-	    (fun v (x, y) ((minx, miny),(maxx, maxy) as acc) ->
-	      if TreeManipulation.is_ghost_node v then acc
-	      else 
+        let ((x1,y1), (x2,y2) as bb) =
+          HV.fold
+            (fun v (x, y) ((minx, miny),(maxx, maxy) as acc) ->
+              if TreeManipulation.is_ghost_node v then acc
+              else
                 let width,height= get_dimensions v geometry_info in
-                (min (x-.width) minx, min (y-.height) miny), 
+                (min (x-.width) minx, min (y-.height) miny),
                 (max (x+.width) maxx, max (y+.height) maxy))
-	    geometry_info.position
-	    (root_pos, root_pos)
-	in
+            geometry_info.position
+            (root_pos, root_pos)
+        in
 (*	Format.printf "BB=%f %f %f %f@." x1 y1 x2 y2;*)
-	bb }
+        bb }
 
 end
