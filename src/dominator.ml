@@ -16,8 +16,10 @@
 (**************************************************************************)
 
 (*
-Copyright © 2009 Carnegie-Mellon University, David Brumley, and Ivan Jager.
-From the BAP library; see http://bap.ece.cmu.edu
+  Copyright © 2009 Carnegie-Mellon University, David Brumley, and Ivan Jager.
+  From the BAP library; see http://bap.ece.cmu.edu
+
+  Modified by OCamlGraph's authors.
 *)
 
 (* stuff to read:
@@ -38,49 +40,70 @@ module type G = sig
   val fold_vertex : (V.t -> 'a -> 'a) -> t -> 'a -> 'a
   val iter_vertex : (V.t -> unit) -> t -> unit
   val nb_vertex : t -> int
-  val create: ?size:int -> unit -> t
-  val add_edge : t -> V.t -> V.t -> unit
 end
 
-module Make(G : G) =
-struct
+module type I = sig
+  include G
+  val create: ?size:int -> unit -> t
+  val add_edge: t -> V.t -> V.t -> unit
+end
+
+module type S = sig
+  type t
+  type vertex
+  module S : Set.S with type elt = vertex
+  type idom = vertex -> vertex
+  type idoms = vertex -> vertex -> bool
+  type dom_tree = vertex -> vertex list
+  type dominators = vertex -> vertex list
+  type dom = vertex -> vertex -> bool
+  type sdom = vertex -> vertex -> bool
+  type dom_frontier = vertex -> vertex list
+  val compute_idom: t -> vertex -> vertex -> vertex
+  val dominators_to_dom: ('a -> S.t) -> vertex -> 'a -> bool
+  val dominators_to_sdom: (vertex -> S.t) -> vertex -> vertex -> bool
+  val dom_to_sdom: (vertex -> vertex -> bool) -> vertex -> vertex -> bool
+  val dominators_to_sdominators: (vertex -> S.t) -> vertex -> S.t
+  val dominators_to_idoms: (vertex -> S.t) -> vertex -> vertex -> bool
+  val dominators_to_dom_tree:
+    t ->
+    ?pred:(t -> vertex -> vertex list) -> (vertex -> S.t) -> vertex -> S.t
+  val idom_to_dom_tree: t -> (vertex -> vertex) -> vertex -> vertex list
+  val idom_to_idoms: idom -> vertex -> vertex -> bool
+  val compute_dom_frontier: t -> dom_tree -> idom -> vertex -> vertex list
+  val idom_to_dominators: ('a -> 'a) -> 'a -> 'a list
+  val idom_to_dom: (vertex -> vertex) -> vertex -> vertex -> bool
+end
+
+module Make(G : G) = struct
+
+  type t = G.t
+  type vertex = G.V.t
+
   module H = Hashtbl.Make(G.V)
   module S = Set.Make(G.V)
 
   (** function from [n] to [n]'s immediate dominator *)
-  type idom = G.V.t -> G.V.t
+  type idom = vertex -> vertex
 
   (** [idoms x y] is true when [x] is [y]'s immediate dominator *)
-  type idoms = G.V.t -> G.V.t -> bool
+  type idoms = vertex -> vertex -> bool
 
   (** function from [x] to a list of nodes immediately dominated by [x] *)
-  type dom_tree = G.V.t -> G.V.t list
+  type dom_tree = vertex -> vertex list
 
   (** function from node to a list of nodes that dominate it. *)
-  type dominators = G.V.t -> G.V.t list
+  type dominators = vertex -> vertex list
 
   (** [dom x y] returns true iff [x] dominates [y] *)
-  type dom = G.V.t -> G.V.t -> bool
+  type dom = vertex -> vertex -> bool
 
   (** [sdom x y] returns true iff [x] strictly dominates [y]. *)
-  type sdom = G.V.t -> G.V.t -> bool
+  type sdom = vertex -> vertex -> bool
 
   (** function from [x] to a list of nodes not dominated by [x], but with
       predecessors which are dominated by [x] *)
-  type dom_frontier = G.V.t -> G.V.t list
-
-  type dom_graph = unit -> G.t
-
-  type dom_functions = {
-    idom : idom;
-    idoms: idoms;
-    dom_tree: dom_tree;
-    dominators: dominators;
-    dom: dom;
-    sdom: sdom;
-    dom_frontier: dom_frontier;
-    dom_graph : dom_graph;
-  }
+  type dom_frontier = vertex -> vertex list
 
   let set_of_list x = List.fold_left (fun set v -> S.add v set) S.empty x
 
@@ -341,6 +364,25 @@ struct
     with Not_found ->
       false
 
+end
+
+module Make_graph(G: I) = struct
+
+  include Make(G)
+
+  type dom_graph = unit -> t
+
+  type dom_functions = {
+    idom : idom;
+    idoms: idoms;
+    dom_tree: dom_tree;
+    dominators: dominators;
+    dom: dom;
+    sdom: sdom;
+    dom_frontier: dom_frontier;
+    dom_graph : dom_graph;
+  }
+
   let compute_dom_graph cfg dom_tree =
     let g = G.create ~size:(G.nb_vertex cfg) () in
     G.iter_vertex (fun p ->
@@ -370,15 +412,14 @@ struct
       lazy(compute_dom_frontier cfg (Lazy.force dom_tree) idom)
     in
       {
-	idom=idom;
-	idoms=idoms;
-	dom_tree=(fun x -> Lazy.force dom_tree x);
-	dominators=dominators;
-	dom=dom;
-	sdom=sdom;
-	dom_frontier=(fun x -> Lazy.force dom_frontier x);
+        idom=idom;
+        idoms=idoms;
+        dom_tree=(fun x -> Lazy.force dom_tree x);
+        dominators=dominators;
+        dom=dom;
+        sdom=sdom;
+        dom_frontier=(fun x -> Lazy.force dom_frontier x);
         dom_graph=(fun () -> compute_dom_graph cfg (Lazy.force dom_tree));
       }
-
 
 end

@@ -16,8 +16,10 @@
 (**************************************************************************)
 
 (*
-Copyright © 2009 Carnegie-Mellon University, David Brumley, and Ivan Jager.
-From the BAP library; see http://bap.ece.cmu.edu
+  Copyright © 2009 Carnegie-Mellon University, David Brumley, and Ivan Jager.
+  From the BAP library; see http://bap.ece.cmu.edu
+
+  Modified by OCamlGraph's authors.
 *)
 
 (** Dominators
@@ -38,104 +40,112 @@ module type G = sig
   val fold_vertex : (V.t -> 'a -> 'a) -> t -> 'a -> 'a
   val iter_vertex : (V.t -> unit) -> t -> unit
   val nb_vertex : t -> int
-  val create: ?size:int -> unit -> t
-  val add_edge : t -> V.t -> V.t -> unit
 end
 
-module Make(G : G) : sig
-  module S : Set.S with type elt = G.V.t
+module type S = sig
+
+  type t       (** type of graphs *)
+  type vertex  (** type of vertices *)
+
+  module S: Set.S with type elt = vertex
 
   (** function from [n] to [n]'s immediate dominator *)
-  type idom = G.V.t -> G.V.t
+  type idom = vertex -> vertex
 
   (** [idoms x y] is true when [x] is [y]'s immediate dominator *)
-  type idoms = G.V.t -> G.V.t -> bool
+  type idoms = vertex -> vertex -> bool
 
   (** function from [x] to a list of nodes immediately dominated by [x] *)
-  type dom_tree = G.V.t -> G.V.t list
+  type dom_tree = vertex -> vertex list
 
   (** function from node to a list of nodes that dominate it. *)
-  type dominators = G.V.t -> G.V.t list
+  type dominators = vertex -> vertex list
 
   (** [dom x y] returns true iff [x] dominates [y] *)
-  type dom = G.V.t -> G.V.t -> bool
+  type dom = vertex -> vertex -> bool
 
   (** [sdom x y] returns true iff [x] strictly dominates [y]. *)
-  type sdom = G.V.t -> G.V.t -> bool
+  type sdom = vertex -> vertex -> bool
 
   (** function from [x] to a list of nodes not dominated by [x], but with
       predecessors which are dominated by [x] *)
-  type dom_frontier = G.V.t -> G.V.t list
-
-  type dom_graph = unit -> G.t
-
-  type dom_functions = {
-    idom : idom;
-    idoms : idoms;
-    dom_tree : dom_tree;
-    dominators : dominators;
-    dom : dom;
-    sdom : sdom;
-    dom_frontier : dom_frontier;
-    dom_graph : dom_graph
-  }
+  type dom_frontier = vertex -> vertex list
 
   (** Computes the dominator tree, using the Lengauer-Tarjan algorithm.
       [compute_idom cfg s0] returns a function [idom : V.t -> V.t] s.t.
-      [idom x] returns the immediate dominator of [x]
-  *)
-  val compute_idom : G.t -> G.V.t -> G.V.t -> G.V.t
+      [idom x] returns the immediate dominator of [x]. *)
+  val compute_idom: t -> vertex -> vertex -> vertex
 
   (** Given a function from a node to it's dominators, returns a function
       [dom : V.t -> V.t -> bool] s.t. [dom x y] returns true when
-      [x] dominates [y]
-  *)
-  val dominators_to_dom : ('a -> S.t) -> S.elt -> 'a -> bool
+      [x] dominates [y]. *)
+  val dominators_to_dom: ('a -> S.t) -> vertex -> 'a -> bool
 
   (** Given a function from a node to it's dominators, returns a function
       [sdom : V.t -> V.t -> bool] s.t. [sdom x y] returns true when
-      [x] strictly dominates [y]
-  *)
-  val dominators_to_sdom : (G.V.t -> S.t) -> S.elt -> G.V.t -> bool
-  val dom_to_sdom : (G.V.t -> G.V.t -> bool) -> G.V.t -> G.V.t -> bool
+      [x] strictly dominates [y]. *)
+  val dominators_to_sdom: (vertex -> S.t) -> vertex -> vertex -> bool
+  val dom_to_sdom: (vertex -> vertex -> bool) -> vertex -> vertex -> bool
 
   (** Given a a function from a node to it's dominators, returns a function
       from a node to it's strict dominators. *)
-  val dominators_to_sdominators : (S.elt -> S.t) -> S.elt -> S.t
+  val dominators_to_sdominators: (vertex -> S.t) -> vertex -> S.t
 
   (** Given a function from a node to it's dominators, returns a function
-      [idoms : G.V.t -> G.V.t -> bool] s.t. [idoms x y] returns true when
-      [x] is the immediate dominator of [y].
-  *)
-  val dominators_to_idoms : (S.elt -> S.t) -> S.elt -> S.elt -> bool
+      [idoms : vertex -> vertex -> bool] s.t. [idoms x y] returns true when
+      [x] is the immediate dominator of [y]. *)
+  val dominators_to_idoms : (vertex -> S.t) -> vertex -> vertex -> bool
 
   (** Computes a dominator tree (function from x to a list of nodes immediately
       dominated by x) for the given CFG and dominator function.
       Note: The dominator tree is also called [IDom] by Muchnick.
       Note: If you are computing a post-dominator tree, then the
-      optional argument pred should be G.succ.
-  *)
-  val dominators_to_dom_tree :
-    G.t ->
-    ?pred:(G.t -> S.elt -> S.elt list) -> (S.elt -> S.t) -> S.elt -> S.t
+      optional argument pred should be G.succ. *)
+  val dominators_to_dom_tree:
+    t ->
+    ?pred:(t -> vertex -> vertex list) -> (vertex -> S.t) -> vertex -> S.t
 
   (** Computes a dominator tree (function from x to a list of nodes immediately
-      dominated by x) for the given CFG and idom function.
-  *)
-  val idom_to_dom_tree : G.t -> (G.V.t -> G.V.t) -> G.V.t -> G.V.t list
+      dominated by x) for the given CFG and idom function. *)
+  val idom_to_dom_tree: t -> (vertex -> vertex) -> vertex -> vertex list
 
-  val idom_to_idoms : idom -> G.V.t -> G.V.t -> bool
+  val idom_to_idoms: idom -> vertex -> vertex -> bool
 
   (** Computes the dominance frontier.
       As specified in section 19.1 of Modern Compiler Implementation in ML
-      by Andrew Appel.
-  *)
-  val compute_dom_frontier :
-    G.t -> dom_tree -> idom -> G.V.t -> G.V.t list
+      by Andrew Appel. *)
+  val compute_dom_frontier: t -> dom_tree -> idom -> vertex -> vertex list
 
-  val idom_to_dominators : ('a -> 'a) -> 'a -> 'a list
+  val idom_to_dominators: ('a -> 'a) -> 'a -> 'a list
 
-  val idom_to_dom : (G.V.t -> G.V.t) -> G.V.t -> G.V.t -> bool
+  val idom_to_dom: (vertex -> vertex) -> vertex -> vertex -> bool
+
+end
+
+module Make(G : G) : S with type t = G.t and type vertex = G.V.t
+
+module type I = sig
+  include G
+  val create: ?size:int -> unit -> t
+  val add_edge: t -> V.t -> V.t -> unit
+end
+
+module Make_graph(G:I): sig
+
+  include S with type t = G.t and type vertex = G.V.t
+
+  type dom_graph = unit -> t
+
+  type dom_functions = {
+    idom: idom;
+    idoms: idoms;
+    dom_tree: dom_tree;
+    dominators: dominators;
+    dom: dom;
+    sdom: sdom;
+    dom_frontier: dom_frontier;
+    dom_graph: dom_graph
+  }
 
   val compute_dom_graph : G.t -> dom_tree -> G.t
 
@@ -148,5 +158,6 @@ module Make(G : G) : sig
       @return a record containing all dominance functions for the given graph
       and entry node.
   *)
-  val compute_all : G.t -> G.V.t -> dom_functions
+  val compute_all : G.t -> vertex -> dom_functions
+
 end

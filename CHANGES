@@ -1,6 +1,8 @@
 
 * marks some incompatible change
 
+ o Dominator: new functor [Make_graph] with may use graph building operations,
+   while the old functor [Make] now only requires a read-only graph.
  o Graphviz: support for additional polygonal-shapes
  o New module Clique (contributed by Giselle Reis)
  o Avoid ocamldoc error with OCaml 4.02
