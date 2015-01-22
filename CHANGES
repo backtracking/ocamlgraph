@@ -1,7 +1,8 @@
 
 * marks some incompatible change
 
-
+ o New module Clique (contributed by Giselle Reis)
+ o Avoid ocamldoc error with OCaml 4.02
  * Path: function weight now has the more general type "edge -> t"
    (contributed by Steffen Smolka)
    update your code by turning "weight l" into "weight (G.E.label e)"

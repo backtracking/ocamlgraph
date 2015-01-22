@@ -45,6 +45,8 @@ struct
   module N = Oper.Neighbourhood(G)
   module Vertex_Set = N.Vertex_Set
   module VSetset = Set.Make(N.Vertex_Set)
+  (* [Vertex_set] prefixed by [N.] in order to avoid an error with ocamldoc
+     4.02 *)
 
   let initialisation g =
     let cc = G.cc g in
