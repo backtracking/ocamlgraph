@@ -688,6 +688,8 @@ module TestSigPack : RightSigPack = struct
   type g = t
 end
 
+include Test_clique
+
 (*
 Local Variables:
 compile-command: "make -C .. check"
