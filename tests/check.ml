@@ -34,10 +34,10 @@ module Pair = struct
   let default = 0, 0
 end
 
-module W = struct
-  type label = int
+module W(E:sig type t type label val label: t -> label end) = struct
+  type edge = E.t
   type t = int
-  let weight x = x
+  let weight = E.label
   let zero = 0
   let add = (+)
   let compare = compare
@@ -323,8 +323,8 @@ end
 module Dijkstra = struct
 
   module TestDijkstra
-    (G : Sig.G with type V.label = int and type E.label = int)
-    (B : Builder.S with module G = G) =
+    (G: Sig.G with type V.label = int and type E.label = int)
+    (B: Builder.S with module G = G) =
   struct
 
     let g = B.empty ()
@@ -347,7 +347,7 @@ module Dijkstra = struct
     let g = B.add_edge_e g (G.E.create v4 20 v3)
     let g = B.add_edge_e g (G.E.create v4 60 v5)
 
-    module Dij = Path.Dijkstra(G)(W)
+    module Dij = Path.Dijkstra(G)(W(G.E))
     module Dfs = Traverse.Dfs(G)
 
     let test g i j w l =
