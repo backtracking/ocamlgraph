@@ -168,6 +168,15 @@ module W = struct
   let compare = compare
 end
 
+module PathWeight = struct
+  type edge = G.E.t
+  type t = int
+  let weight x = G.E.label x
+  let zero = 0
+  let add = (+)
+  let compare = compare
+end
+
 module Selection = struct
 
   type selection =
@@ -258,7 +267,7 @@ let () = match !algo with
     let el = P.spanningtree g in
     Draw.draw_edges el
   | Some Dijkstra ->
-    let module Dij = Path.Dijkstra(G)(W) in
+    let module Dij = Path.Dijkstra(G)(PathWeight) in
     let rec recherche () =
       let (v1, v2) = Selection.select2 g in
       begin
