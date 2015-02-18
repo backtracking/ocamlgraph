@@ -31,9 +31,9 @@ module Gr = struct
     Hashtbl.hash (vertex_uid (G.E.src e), G.E.label e, vertex_uid (G.E.dst e))
 end
 
-module GraphPrinter = Graph.Graphml.Printer(Gr)
+module GraphPrinter = Graph.Graphml.Print(G)(Gr)
 
-let print g = GraphPrinter.fprintf stdout g
+let print g = GraphPrinter.print Format.std_formatter g
 
 let () =
   let g = G.create () in
