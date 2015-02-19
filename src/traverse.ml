@@ -238,23 +238,27 @@ end
 module Bfs(G : G) = struct
   module H = Hashtbl.Make(G.V)
 
-  let iter f g =
+  let fold f i (g : G.t) =
     let h = H.create 97 in
     let q = Queue.create () in
     (* invariant: [h] contains exactly the vertices which have been pushed *)
     let push v =
       if not (H.mem h v) then begin H.add h v (); Queue.add v q end
     in
-    let loop () =
-      while not (Queue.is_empty q) do
-        let v = Queue.pop q in
-        f v;
-        G.iter_succ push g v
-      done
+    let rec loop s =
+      if not (Queue.is_empty q) then
+        let v  = Queue.pop q in
+        let ns = f v s in               (* Sticking to OCamlGraph's fold conv *)
+        G.iter_succ push g v;
+        loop ns
+      else
+        s
     in
-    G.iter_vertex (fun v -> push v; loop ()) g
+    G.fold_vertex (fun v s -> push v; loop s) g i
 
-  let iter_component f g v0 =
+  let iter f = fold (fun v () -> f v) ()
+
+  let fold_component f i g v0 =
     let h = H.create 97 in
     let q = Queue.create () in
     (* invariant: [h] contains exactly the vertices which have been pushed *)
@@ -262,11 +266,18 @@ module Bfs(G : G) = struct
       if not (H.mem h v) then begin H.add h v (); Queue.add v q end
     in
     push v0;
-    while not (Queue.is_empty q) do
-      let v = Queue.pop q in
-      f v;
-      G.iter_succ push g v
-    done
+    let rec loop s =
+      if not (Queue.is_empty q) then
+        let v  = Queue.pop q in
+        let ns = f v s in
+        G.iter_succ push g v;
+        loop ns
+      else
+        s
+    in
+    loop i
+
+  let iter_component f = fold_component (fun v () -> f v) ()
 
   (* step-by-step iterator *)
 

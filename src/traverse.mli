@@ -95,8 +95,12 @@ module Bfs(G : G) : sig
   val iter : (G.V.t -> unit) -> G.t -> unit
   val iter_component : (G.V.t -> unit) -> G.t -> G.V.t -> unit
 
+  (** {2 Classical folds} *)
+  val fold : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> 'a
+  val fold_component : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> G.V.t -> 'a
+
   (** {2 Step-by-step iterator}
-    See module [Dfs] *)
+      See module [Dfs] *)
 
   type iterator
   val start : G.t -> iterator

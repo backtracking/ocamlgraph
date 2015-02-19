@@ -1,6 +1,8 @@
 
 * marks some incompatible change
 
+ o Adding folds to BFS.
+
 version 1.8.6, January 23, 2015
 -------------------------------
  o Dominator: new functor [Make_graph] with may use graph building operations,
