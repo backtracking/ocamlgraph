@@ -112,9 +112,9 @@ struct
 
       (* get some node from the node-set -- this will eventually trigger
            an exception *)
-      match N.choose wl with
-      | exception Not_found -> data
-      | n ->
+      match (try Some (N.choose wl) with Not_found -> None) with
+      | None -> data
+      | Some n ->
         (* remove the chosen node from the set *)
         let wl = N.remove n wl in
 
