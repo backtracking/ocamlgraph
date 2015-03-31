@@ -110,10 +110,11 @@ struct
           | Some d' -> (d', N.add n wl)
       in
 
-      try
-        (* get some node from the node-set -- this will eventually trigger
+      (* get some node from the node-set -- this will eventually trigger
            an exception *)
-        let n = N.choose wl in
+      match (try Some (N.choose wl) with Not_found -> None) with
+      | None -> data
+      | Some n ->
         (* remove the chosen node from the set *)
         let wl = N.remove n wl in
 
@@ -165,8 +166,6 @@ struct
         (* do a recursive call: the recursion will eventually end with a
          * Not_found exception when no nodes are left in the work list *)
         worklist data wl
-
-      with Not_found -> data
     in
     let data = worklist data nodes in
     (fun n -> M.find n data)
