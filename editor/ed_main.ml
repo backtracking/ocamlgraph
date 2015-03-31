@@ -941,37 +941,37 @@ let handbook_text (view:GText.view) =
   buffer#insert ~iter ~tag_names:["heading"] "First words\n";
   buffer#insert ~iter ~tag_names:["subsection"] 
     ("\tFirst of all, you have to know this is an experimental application. " 
-     ^"If you find a bug, please report it to developpers. "
-     ^"This application have only basic fonctionnalities on graphs, so if you want a new fonctionnality, send it too.\n");
+     ^"If you find a bug, please report it to the developers. "
+     ^"This application has only basic functionalities on graphs, so if you want a new functionality, send it too.\n");
   buffer#insert ~iter ~tag_names:["subsection"] 
-    (ed_name^" represents a graph in hyperbolic geometry, and precisely in Poincaré's disk representation.\n\n"
+    (ed_name^" represents a graph in hyperbolic geometry, and specifically in Poincaré's disk representation.\n\n"
      ^ed_name^" is organized in four parts :\n");
   buffer#insert ~iter ~tag_names:["item"] "- a menu bar\n";
-  buffer#insert ~iter ~tag_names:["item"] "- a vertices list, on the left side\n";
+  buffer#insert ~iter ~tag_names:["item"] "- a vertex list, on the left side\n";
   buffer#insert ~iter ~tag_names:["item"] "- the Poincaré's disk\n";
   buffer#insert ~iter ~tag_names:["item"] "- and an associated contextual menu\n\n";
   buffer#insert ~iter ~tag_names:["heading"] "Menu bar\n";
   buffer#insert ~iter ~tag_names:["subsection"] 
-    "\t It gives standard fonctionnalities. You can create a new graph, open and save graphs from/to Gml and Dot formats.\n"; 
+    "\t It provides standard functionalities. You can create a new graph, open and save graphs from/to the Gml and Dot formats.\n"; 
   buffer#insert ~iter ~tag_names:["italic"] 
   "Don't forget to save your changes before create or load a new graph.\n\n";
-  buffer#insert ~iter ~tag_names:["heading"] "Vertices list\n";
+  buffer#insert ~iter ~tag_names:["heading"] "Vertex list\n";
   buffer#insert ~iter ~tag_names:["subsection"] 
-    "\t You can change root of graph drawing by clicking on a vertex name. If you expand one, you can see successors of it.\n\n"; 
+    "\t You can change the root the of graph diagram by clicking on a vertex name. If you expand one, you can see its descendants.\n\n"; 
   buffer#insert ~iter ~tag_names:["heading"] "Poincaré's disk\n";
   buffer#insert ~iter ~tag_names:["subsection"] 
-    ("\t The graph is displayed in a disk. You can drag a vertex.");
+    ("\t The graph is displayed in a disk. You can drag vertex to move the whole graph around.");
   buffer#insert ~iter ~tag_names:["annotation"] "[1]\n";
   buffer#insert ~iter ~tag_names:["subsection"] 
-    ("By double-clicking on a node, you add/remove it to selection.\nWith a <Ctrl>+double-click you select all nodes, or unselect all (if one or more node is already selected)"
+    ("By double-clicking on a node, you add/remove it to the current selection.\nWith a <Ctrl>+double-click you select all nodes, or unselect all (if one or more node is already selected)"
      ^"\n\n"); 
   buffer#insert ~iter ~tag_names:["heading"] "Contextual menu\n";
   buffer#insert ~iter ~tag_names:["subsection"] 
-    ("\t This is the main way (and the only for the moment) to edit a graph. There are two differents menus, but it is transparent for your use.\n" 
-     ^"The first is only composed by an adding node menu, and appear when you click in the disk.\n"
+    ("\t This is the main way (and the only for the moment) to edit a graph. There are two different menus, but the distinction is transparent for the user.\n" 
+     ^"The first is only composed by an 'adding node' menu, and appears when you click anywhere in the background of the disk.\n"
      ^"The second menu appears when you click on a vertex."
-     ^" You can change root of graph drawing, add a successor or remove focused vertex."
-     ^" Rest of menu depends of selected nodes. You can add or remove an edge with one of selected, or with all."
+     ^" You can change root of the graph diagram, add a child node or remove the focused vertex."
+     ^" The remainder of the menu depends on which nodes are selected. You can add or remove an edge with one of them selected, or with all."
      ^"\n\n"); 
   buffer#insert ~iter ~tag_names:["annotation"] "[1] :";
   buffer#insert ~iter ~tag_names:["subsection"] " a bug still remains, you can't drag root to much on the right-side, but on the left-side it is infinite";
