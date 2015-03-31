@@ -1,12 +1,15 @@
 
 * marks some incompatible change
 
+ o Fixpoint: do not catch Not_found raised by a user-provided function.
  o Adding folds to BFS.
 
 version 1.8.6, January 23, 2015
 -------------------------------
- o Dominator: new functor [Make_graph] with may use graph building operations,
+ * Dominator: new functor [Make_graph] with may use graph building operations,
    while the old functor [Make] now only requires a read-only graph.
+   Function [compute_all] and [compute_dom_graph] are now only defined in the
+   new [Make_graph] functor.
  o Graphviz: support for additional polygonal-shapes
  o New module Clique (contributed by Giselle Reis)
  o Avoid ocamldoc error with OCaml 4.02
