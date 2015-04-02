@@ -458,12 +458,14 @@ DOC_SRC	= $(CMI:.cmi=.mli) $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
 ifeq (@LABLGNOMECANVAS@,yes)
 DOC_SRC := $(DOC_SRC) $(DGRAPH_CMI:.cmi=.mli)
 endif
+DOC_CHARSET = utf-8
 
 .PHONY: doc
 doc: $(DOC_CMO)
 	mkdir -p doc
 	rm -f doc/*
-	$(OCAMLDOC) -d doc -html $(DGRAPH_INCLUDES) -I lib -I src $(DOC_SRC)
+	$(OCAMLDOC) -charset $(DOC_CHARSET) -d doc -html $(DGRAPH_INCLUDES) \
+		-I lib -I src $(DOC_SRC)
 
 # literate programming
 $(NAME).tex: $(DOC_SRC)
