@@ -29,25 +29,9 @@ open Persistent
     from arbitrary vertex. By using the graph modules defined here,
     introduction of such a cycle is automatically prevented. *)
 
-(** Signature for edges' weights. *)
-module type WEIGHT = sig
-  type label
-    (** Type for labels of graph edges. *)
-  type t
-    (** Type of edges' weights. *)
-  val weight : label -> t
-    (** Get the weight of an edge. *)
-  val compare : t -> t -> int
-    (** Weights must be ordered. *)
-  val add : t -> t -> t
-    (** Addition of weights. *)
-  val zero : t
-    (** Neutral element for {!add}. *)
-end
-
 module Imperative
   (G: Sig.IM)
-  (W: WEIGHT with type label = G.E.label) : sig
+  (W: Sig.WEIGHT with type edge = G.E.t) : sig
 
   include Sig.IM with module V = G.V and module E = G.E
 
@@ -59,7 +43,7 @@ end
 (** Persistent graphs with negative-cycle prevention *)
 module Persistent
   (G: Sig.P)
-  (W: WEIGHT with type label = G.E.label) : sig
+  (W: Sig.WEIGHT with type edge = G.E.t) : sig
 
   include Sig.P with module V = G.V and module E = G.E
 

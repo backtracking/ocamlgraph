@@ -17,15 +17,6 @@
 
 (* $Id: path.ml,v 1.6 2005-07-18 07:10:35 filliatr Exp $ *)
 
-module type WEIGHT = sig
-  type edge
-  type t
-  val weight : edge -> t
-  val compare : t -> t -> int
-  val add : t -> t -> t
-  val zero : t
-end
-
 module type G = sig
   type t
   module V : Sig.COMPARABLE
@@ -45,7 +36,7 @@ end
 
 module Dijkstra
   (G: G)
-  (W: WEIGHT with type edge = G.E.t) =
+  (W: Sig.WEIGHT with type edge = G.E.t) =
 struct
 
   open G.E
@@ -104,7 +95,7 @@ end
 
 module BellmanFord
   (G: G)
-  (W: WEIGHT with type edge = G.E.t) =
+  (W: Sig.WEIGHT with type edge = G.E.t) =
 struct
 
   open G.E

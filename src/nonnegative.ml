@@ -21,18 +21,9 @@ open Sig
 open Blocks
 open Printf
 
-module type WEIGHT = sig
-  type label
-  type t
-  val weight : label -> t
-  val compare : t -> t -> int
-  val add : t -> t -> t
-  val zero : t
-end
-
 module Imperative
   (G: Sig.IM)
-  (W: WEIGHT with type label = G.E.label) = struct
+  (W: Sig.WEIGHT with type edge = G.E.t) = struct
 
     module S = Set.Make(G.V)
     module M = Map.Make(G.V)
@@ -127,7 +118,7 @@ module Imperative
              If relax happens, record it to the new list. *)
 	  let (v2dist, nextSrc) = S.fold (fun x (v2dist, nextSrc) ->
  	    let _, dev1 = M.find x v1dist in
-	    let ndev2 = W.add dev1 (W.weight (G.E.label e)) in
+	    let ndev2 = W.add dev1 (W.weight e) in
 	    let improvement =
 	      try
 		let _, dev2 = M.find x v2dist in
@@ -403,7 +394,7 @@ print_string ("source: " ^ (sov x) ^ "\n");
 
 module Persistent
   (G: Sig.P)
-  (W: WEIGHT with type label = G.E.label) = struct
+  (W: Sig.WEIGHT with type edge = G.E.t) = struct
 
     module S = Set.Make(G.V)
     module M = Map.Make(G.V)
@@ -462,7 +453,7 @@ module Persistent
              If relax happens, record it to the new list. *)
 	  let (v2dist, nextSrc) = S.fold (fun x (v2dist, nextSrc) ->
 	    let _, dev1 = M.find x v1dist in
-	    let ndev2 = W.add dev1 (W.weight (G.E.label e)) in
+	    let ndev2 = W.add dev1 (W.weight e) in
 	    let improvement =
 	      try
 		let _, dev2 = M.find x v2dist in

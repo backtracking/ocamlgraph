@@ -558,7 +558,6 @@ end
 
 (* Faster implementations when vertices are not shared between graphs. *)
 (****
-
 module UV = struct
 
   let cpt_vertex = ref min_int
@@ -619,13 +618,37 @@ module UV = struct
       let is_empty g = S.is_empty g.vertices
       let nb_vertex g = S.cardinal g.vertices
       let out_degree _ v = S.cardinal v.succ
+      let clear g = g.vertices <- S.empty
 
       let add_vertex g v = g.vertices <- S.add v g.vertices
       let mem_vertex g v = S.mem v g.vertices
       let iter_vertex f g = S.iter f g.vertices
       let fold_vertex f g = S.fold f g.vertices
       let succ _ v = S.elements v.succ
+      let succ_e _ v = List.map (fun w -> (v, w)) (S.elements v.succ)
+      let iter_succ f _ v = S.iter f v.succ
+      let iter_succ_e f _ v = S.iter (fun w -> f (v, w)) v.succ
+      let fold_succ f _ v acc = S.fold f v.succ acc
+      let fold_succ_e f _ v acc = S.fold (fun w acc -> f (v, w) acc) v.succ acc
 
+      let add_edge _ v1 v2 = v1.succ <- S.add v2 v1.succ
+      let add_edge_e g (v1, v2) = add_edge g v1 v2
+      let mem_edge _ v1 v2 = S.mem v2 v1.succ
+      let mem_edge_e g (v1, v2) = mem_edge g v1 v2
+      let remove_edge _ v1 v2 = v1.succ <- S.remove v2 v1.succ
+      let remove_edge_e g (v1, v2) = remove_edge g v1 v2
+      let nb_edges g = fold_vertex (fun v n -> n + S.cardinal v.succ) g 0
+
+      let find_edge g i j = if mem_edge g i j then i, j else raise Not_found
+      let find_all_edges g i j = try [ find_edge g i j ] with Not_found -> []
+
+      module Mark = struct
+        type graph = t
+        type vertex = V.t
+        let clear g = S.iter (fun v -> v.mark <- 0) g.vertices
+        let get v = v.mark
+        let set v m = v.mark <- m
+      end
     end
 
     module AbstractLabeled (V: ANY_TYPE)(E: ORDERED_TYPE_DFT) :
@@ -636,6 +659,7 @@ module UV = struct
 
   end
 
+(**
   module Graph = struct
 
     module Abstract(V: ANY_TYPE) :
@@ -645,9 +669,9 @@ module UV = struct
       Sig.IM with type V.label = V.t and type E.label = E.t
 
   end
-
+**)
 end
-*****)
+****)
 
 (*
 Local Variables:

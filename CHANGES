@@ -1,6 +1,9 @@
 
 * marks some incompatible change
 
+ * Prim, Nonnegative: function weight now has the more general type "edge -> t"
+   (to be consistent with Path)
+ o new module type Sig.WEIGHT (used in Path, Prim, and Nonnegative)
  o Fixpoint: do not catch Not_found raised by a user-provided function.
  o Adding folds to BFS.
 

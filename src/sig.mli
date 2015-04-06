@@ -302,6 +302,22 @@ module type I = sig
 
 end
 
+(** Signature for edges' weights. *)
+module type WEIGHT = sig
+  type edge
+    (** Type for graph edges. *)
+  type t
+    (** Type of edges' weights. *)
+  val weight : edge -> t
+    (** Get the weight of an edge. *)
+  val compare : t -> t -> int
+    (** Weights must be ordered. *)
+  val add : t -> t -> t
+    (** Addition of weights. *)
+  val zero : t
+    (** Neutral element for {!add}. *)
+end
+
 (** Signature for marks on vertices. *)
 module type MARK = sig
   type graph

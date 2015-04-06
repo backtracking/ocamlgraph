@@ -15,38 +15,27 @@
 (*                                                                        *)
 (**************************************************************************)
 
-module type WEIGHT = sig
-  type label
-  type t
-  val weight : label -> t
-  val compare : t -> t -> int
-  val add : t -> t -> t
-  val zero : t
-end
-
 module type G = sig
-  type t 
-  module V : Sig.COMPARABLE 
-  module E : sig 
-    type t 
-    type label 
-    val label : t -> label 
-    val dst : t -> V.t 
+  type t
+  module V : Sig.COMPARABLE
+  module E : sig
+    type t
+    type label
+    val label : t -> label
+    val dst : t -> V.t
     val src : t -> V.t
     val compare : t -> t -> int
-  end 
+  end
   val iter_vertex : (V.t -> unit) -> t -> unit
   val iter_edges_e : (E.t -> unit) -> t ->  unit
   val iter_succ_e : (E.t -> unit) -> t -> V.t -> unit
 end
 
-
-
-(** Functor providing an implementation of Prim's minimum-spanning-tree 
-    algorithm. 
+(** Functor providing an implementation of Prim's minimum-spanning-tree
+    algorithm.
     Parameter [W] ensures that label on edges are comparable. *)
-module Make(G: G)(W: WEIGHT with type label = G.E.label) : sig
+module Make(G: G)(W: Sig.WEIGHT with type edge = G.E.t) : sig
   val spanningtree : G.t -> G.E.t list
   val spanningtree_from : G.t -> G.V.t -> G.E.t list
-end  
+end
 

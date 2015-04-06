@@ -17,26 +17,17 @@
 
 open Util
 
-module type WEIGHT = sig
-  type label
-  type t
-  val weight : label -> t
-  val compare : t -> t -> int
-  val add : t -> t -> t
-  val zero : t
-end
-
 module type G = sig
-  type t 
-  module V : Sig.COMPARABLE 
-  module E : sig 
-    type t 
-    type label 
-    val label : t -> label 
-    val dst : t -> V.t 
+  type t
+  module V : Sig.COMPARABLE
+  module E : sig
+    type t
+    type label
+    val label : t -> label
+    val dst : t -> V.t
     val src : t -> V.t
     val compare : t -> t -> int
-  end 
+  end
   val iter_vertex : (V.t -> unit) -> t -> unit
   val iter_edges_e : (E.t -> unit) -> t ->  unit
   val iter_succ_e : (E.t -> unit) -> t -> V.t -> unit
@@ -44,7 +35,7 @@ end
 
 module Make
   (G: G)
-  (W: WEIGHT with type label = G.E.label) =
+  (W: Sig.WEIGHT with type edge = G.E.t) =
 struct
   open G.E
   module H = Hashtbl.Make(G.V)
@@ -60,7 +51,7 @@ struct
   end
 
   module Q = Heap.Imperative(Elt)
-  
+
   let spanningtree_from g r =
     let visited = H.create 97 in
     let key = H.create 97 in
@@ -70,10 +61,10 @@ struct
       let (w,u) = Q.pop_maximum q in
       if not (H.mem visited u) then begin
 	H.add visited u ();
-	G.iter_succ_e (fun e -> 
+	G.iter_succ_e (fun e ->
 	  let v = dst e in
 	  if not (H.mem visited v) then begin
-	    let wuv = W.weight (label e) in
+	    let wuv = W.weight e in
 	    let improvement =
               try W.compare wuv (fst (H.find key v)) < 0 with Not_found -> true
             in
@@ -95,12 +86,5 @@ struct
       match !r with
 	| None -> assert false
 	| Some r -> spanningtree_from g r
- 
+
 end
-
-
-(*
-  Local Variables: 
-  compile-command: "make -C .. src/prim.cmo"
-  End: 
-*)

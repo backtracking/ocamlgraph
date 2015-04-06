@@ -38,25 +38,9 @@ module type G = sig
   val nb_vertex : t -> int
 end
 
-(** Signature for edges' weights. *)
-module type WEIGHT = sig
-  type edge
-    (** Type for graph edges. *)
-  type t
-    (** Type of edges' weights. *)
-  val weight : edge -> t
-    (** Get the weight of an edge. *)
-  val compare : t -> t -> int
-    (** Weights must be ordered. *)
-  val add : t -> t -> t
-    (** Addition of weights. *)
-  val zero : t
-    (** Neutral element for {!add}. *)
-end
-
 module Dijkstra
   (G: G)
-  (W: WEIGHT with type edge = G.E.t) :
+  (W: Sig.WEIGHT with type edge = G.E.t) :
 sig
 
   val shortest_path : G.t -> G.V.t -> G.V.t -> G.E.t list * W.t
@@ -73,7 +57,7 @@ end
 
 module BellmanFord
   (G: G)
-  (W: WEIGHT with type edge = G.E.t) :
+  (W: Sig.WEIGHT with type edge = G.E.t) :
 sig
 
   module H : Hashtbl.S with type key = G.V.t
