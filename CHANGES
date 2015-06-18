@@ -1,6 +1,7 @@
 
 * marks some incompatible change
 
+ o Graphviz: fixed printing of attribute BgcolorWithTransparency
  * Prim, Nonnegative: function weight now has the more general type "edge -> t"
    (to be consistent with Path)
  o new module type Sig.WEIGHT (used in Path, Prim, and Nonnegative)

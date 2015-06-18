@@ -759,7 +759,7 @@ module DotAttributes = struct
         #CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
       | `Bgcolor a -> fprintf ppf "bgcolor=%a" fprint_color a
       | `BgcolorWithTransparency a ->
-          fprintf ppf "bcolor=%a" fprint_color_with_transparency a
+          fprintf ppf "bgcolor=%a" fprint_color_with_transparency a
       | `Comment s -> fprintf ppf "comment=%a" fprint_string s
       | `Concentrate b -> fprintf ppf "concentrate=%b" b
       | `Fontpath s -> fprintf ppf "fontpath=%a" fprint_string s
