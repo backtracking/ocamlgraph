@@ -90,3 +90,8 @@ end
 module B1 = Bench(Pack.Digraph)(Builder.I(Pack.Digraph))
 
 
+(*
+Local Variables:
+compile-command: "make -C .. bench"
+End:
+*)

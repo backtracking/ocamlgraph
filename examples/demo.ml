@@ -160,9 +160,9 @@ module Draw = struct
 end
 
 module W = struct
-  type label = G.E.label
+  type edge = G.E.t
   type t = int
-  let weight x = x
+  let weight = G.E.label
   let zero = 0
   let add = (+)
   let compare = compare
