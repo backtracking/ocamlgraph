@@ -73,3 +73,43 @@ module Make(G: G) = struct
     Array.fold_right (fun l acc -> l :: acc) a []
 
 end
+
+(** Connected components (for undirected graphs) *)
+
+module type U = sig
+  type t
+  module V : Sig.COMPARABLE
+  val iter_vertex : (V.t -> unit) -> t -> unit
+  val iter_edges : (V.t -> V.t -> unit) -> t -> unit
+end
+
+module Undirected(G: U) = struct
+
+  module UF = Unionfind.Make(G.V)
+  module H = Hashtbl.Make(G.V)
+
+  let components g =
+    let vertices = ref [] in
+    G.iter_vertex (fun v -> vertices := v :: !vertices) g;
+    let uf = UF.init !vertices in
+    let visit u v = UF.union u v uf in
+    G.iter_edges visit g;
+    let count = ref 0 in
+    let comp = H.create 5003 in
+    let visit v =
+      let v = UF.find v uf in
+      if not (H.mem comp v) then begin H.add comp v !count; incr count end in
+    G.iter_vertex visit g;
+    !count, (fun v -> H.find comp (UF.find v uf))
+
+  let components_array g =
+    let n,f = components g in
+    let t = Array.make n [] in
+    G.iter_vertex (fun v -> let i = f v in t.(i) <- v :: t.(i)) g;
+    t
+
+  let components_list g =
+    let a = components_array g in
+    Array.fold_right (fun l acc -> l :: acc) a []
+
+end

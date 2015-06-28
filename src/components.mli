@@ -51,7 +51,24 @@ module Make (G: G) : sig
 
   val scc_list : G.t -> G.V.t list list
   (** [scc_list g] computes the strongly connected components of [g].
-      The result is a partition of the set of the vertices of [g]. 
+      The result is a partition of the set of the vertices of [g].
       The [n]-th components is [(scc_array g).(n-1)]. *)
 
+end
+
+(** Connected components (for undirected graphs).
+    The implementation uses union-find. Time complexity is (quasi) O(V+E).
+    Space complexity is O(V). *)
+
+module type U = sig
+  type t
+  module V : Sig.COMPARABLE
+  val iter_vertex : (V.t -> unit) -> t -> unit
+  val iter_edges : (V.t -> V.t -> unit) -> t -> unit
+end
+
+module Undirected(G: U) : sig
+  val components: G.t -> int * (G.V.t -> int)
+  val components_array: G.t -> G.V.t list array
+  val components_list: G.t -> G.V.t list list
 end

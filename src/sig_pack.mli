@@ -353,7 +353,7 @@ module type S = sig
 
   (** Strongly connected components *)
   module Components : sig
-    val scc : t -> int*(V.t -> int)
+    val scc : t -> int * (V.t -> int)
 	(** strongly connected components *)
     val scc_array : t -> V.t list array
     val scc_list : t -> V.t list list

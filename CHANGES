@@ -1,6 +1,7 @@
 
 * marks some incompatible change
 
+ o new functor [Components.Undirected] to compute connected components
  o Graphviz: fixed printing of attribute BgcolorWithTransparency
  * Prim, Nonnegative: function weight now has the more general type "edge -> t"
    (to be consistent with Path)
