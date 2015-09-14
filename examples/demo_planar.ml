@@ -136,6 +136,13 @@ let g = ref (new_graph ())
 
 let () = printf "nb edges : %d\n" (G.nb_edges !g); flush stdout
 
+let dump_graph () =
+  G.iter_edges (fun v1 v2 ->
+    let x1, y1 = G.V.label v1 in
+    let x2, y2 = G.V.label v2 in
+    Format.printf "%d,%d,%d,%d@\n" x1 y1 x2 y2) !g;
+  Format.printf "@?"
+
 (* let () = g := read_graph "tmp/carron.txt" *)
 
 open Graphics
@@ -303,6 +310,7 @@ let () =
 	| 'p' -> dijkstra ()
 	| 'd' -> dfs ()
 	| 'b' -> bfs ()
+	| 'x' -> dump_graph ()
 	(* | 'c' -> four_colors () *)
 	| _ -> ()
       else if st.button then

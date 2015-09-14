@@ -22,25 +22,25 @@
 (** Minimal graph signature for Kruskal.
     Sub-signature of {!Sig.G}. *)
 module type G = sig
-  type t 
-  module V : Sig.COMPARABLE 
-  module E : sig 
-    type t 
-    type label 
-    val label : t -> label 
-    val dst : t -> V.t 
+  type t
+  module V : Sig.COMPARABLE
+  module E : sig
+    type t
+    type label
+    val label : t -> label
+    val dst : t -> V.t
     val src : t -> V.t
-  end 
+  end
   val fold_vertex : (V.t -> 'a -> 'a) -> t -> 'a -> 'a
   val iter_edges_e : (E.t -> unit) -> t ->  unit
 end
 
-(** Functor providing an implementation of Kruskal's minimum-spanning-tree 
-    algorithm. 
+(** Functor providing an implementation of Kruskal's minimum-spanning-tree
+    algorithm.
     Parameter [W] ensures that label on edges are comparable. *)
 module Make(G: G)(W: Sig.ORDERED_TYPE with type t = G.E.label) : sig
   val spanningtree : G.t -> G.E.t list
-end  
+end
 
 (** {2 Generic version where union-find implementation is provided} *)
 
@@ -53,13 +53,13 @@ module type UNIONFIND = sig
   val union : elt -> elt -> t -> unit
 end
 
-(** Functor providing an implementation of Kruskal's minimum-spanning-tree 
+(** Functor providing an implementation of Kruskal's minimum-spanning-tree
     algorithm using a user-defined union-find algorithm.
     Parameter [W] ensures that label on edges are comparable. *)
 module Generic
   (G: G)
   (W: Sig.ORDERED_TYPE with type t = G.E.label)
-  (UF: UNIONFIND with type elt = G.V.t) : 
+  (UF: UNIONFIND with type elt = G.V.t) :
 sig
   val spanningtree : G.t -> G.E.t list
-end  
+end

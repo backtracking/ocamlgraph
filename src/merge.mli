@@ -24,7 +24,7 @@ module type S = sig
   type vertex
   type edge
   type edge_label
-    
+
   val merge_vertex: graph -> vertex list -> graph
   (** If no element of [vl] belongs to [g] then [merge_vertex g (v::vl)] is the
       graph [g]. Otherwise the collection of vertices of [merge_vertex g
@@ -35,7 +35,7 @@ module type S = sig
       with a smaller collection of vertices and a smaller collection of edges
       (in the weak sense).  However the labels appearing in [merge_vertex g
       v::vl] are exactly the ones appearing in [g].*)
-    
+
   val merge_edges_e: ?src:vertex -> ?dst:vertex -> graph -> edge list -> graph
   (** If no element of [el] belongs to [g] then [merge_edges_e g (e::el)] is the
       graph [g]. Otherwise the collection of vertices of [merge_edges_e g
@@ -50,7 +50,7 @@ module type S = sig
       understood up to the fact their source and destination were updated. Note
       [v=w] if and only if the source of some element of [el] matches the
       destination of some element of [el] (possibly the same).*)
-    
+
   val merge_edges_with_label:
     ?src:vertex -> ?dst:vertex -> ?label:edge_label -> graph -> edge_label
     -> graph
@@ -61,7 +61,7 @@ module type S = sig
       label [label]. Otherwise it carries the label [l]. In particular
       [merge_edges_with_label ?src ?tgt ?label g l] is the graph [g] if and only
       if there is at most one edge of [g] carrying the label [l].*)
-    
+
   val merge_isolabelled_edges: graph -> graph
   (** The graph [merge_isolabelled_edges g] is obtained from [g] by
       identifying two vertices when they are the sources (destinations) of two
@@ -80,7 +80,7 @@ module type S = sig
       to it. The graph [merge_ends g] is the graph [merge_vertex vl] where [vl]
       is the list of (strict) ends of [g]. The vertex substituted to the ends
       can be specified.*)
-    
+
   val merge_starts: ?strict:bool -> ?specified_vertex:vertex -> graph -> graph
   (** A vertex [v] of [g] is called a start if every edge of [g] starting from
       [v] also arrives to [v]. It is called a strict start if no edge of [g]
@@ -88,8 +88,8 @@ module type S = sig
       where [vl] is the list of (strict) starts of [g]. The vertex substituted
       to the starts can be specified.*)
 
-  val merge_scc: 
-    ?loop_killer:bool -> ?specified_vertex:(vertex list -> vertex) -> graph -> 
+  val merge_scc:
+    ?loop_killer:bool -> ?specified_vertex:(vertex list -> vertex) -> graph ->
     graph
 (** The vertex of every strongly connected component are identified. If the
     option [loop_killer] is set to [true] then all the edges between identified
@@ -120,7 +120,7 @@ module I(G: Sig.I): sig
   type vertex = G.vertex
   type edge = G.edge
   type edge_label = G.E.label
-    
+
   val merge_vertex: graph -> vertex list -> unit
   val merge_edges_e: ?src:vertex -> ?dst:vertex -> graph -> edge list -> unit
   val merge_edges_with_label:
@@ -129,8 +129,8 @@ module I(G: Sig.I): sig
   val merge_isolabelled_edges: graph -> unit
   val merge_ends: ?strict:bool -> ?specified_vertex:vertex -> graph -> unit
   val merge_starts: ?strict:bool -> ?specified_vertex:vertex -> graph -> unit
-  val merge_scc: 
-    ?loop_killer:bool -> ?specified_vertex:(vertex list -> vertex) -> graph -> 
+  val merge_scc:
+    ?loop_killer:bool -> ?specified_vertex:(vertex list -> vertex) -> graph ->
     unit
 
 end

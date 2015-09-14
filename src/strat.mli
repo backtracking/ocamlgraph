@@ -15,15 +15,15 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(** Strategies 
+(** Strategies
 
     Implementation of a winning strategy of a graph: the graph
     represents a two players game, each vertex belongs to either player
     (whose turn it is to play) and describes a configuration of the
-    game. The algorithm computes the winning strategy of a player, if any; 
+    game. The algorithm computes the winning strategy of a player, if any;
     i.e. the moves to play (which vertex to go to) so that for all
     possible moves of the other player, the game goes through a final
-    state. 
+    state.
 
     @author Nicolas Ayache *)
 

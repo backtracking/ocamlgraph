@@ -14,7 +14,7 @@
 (*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  *)
 (*                                                                        *)
 (**************************************************************************)
-  
+
 module P(G : Sig.P) = struct
 
   module VertexSet = Set.Make(G.V)
@@ -22,7 +22,7 @@ module P(G : Sig.P) = struct
   module Choose = Oper.Choose(G)
 
   type edgeset = (G.V.t * G.V.t) list
-      
+
   let md g =
     let gref = ref g in
     let gtri = ref g in
@@ -31,16 +31,16 @@ module P(G : Sig.P) = struct
     let ord = ref [] in
     let i = ref 0 in
     while not (CT.is_chordal !gtri) && !i < n do
-      let v = 
-	let x = 
-	  G.fold_vertex 
+      let v =
+	let x =
+	  G.fold_vertex
 	    (fun v' x ->
 	       let deg' = G.out_degree !gref v' in
 	       match x with
 		   Some (v,deg) when deg' > deg -> x
 		 | _ -> Some (v', deg'))
 	    !gref None
-	in match x with 
+	in match x with
 	    Some (v,_) -> v
 	  | None -> failwith "Expecting some vertex"
       in
@@ -56,41 +56,41 @@ module P(G : Sig.P) = struct
 		    else tri)
 		 tri ng
 	     in
-	     let g' = 
+	     let g' =
 	       List.fold_left
 		 (fun g v' ->
 		    if v <> v' then
 		      G.add_edge g v v'
 		    else g)
 		 g ng
-	     in 
+	     in
 	     (g', tri'))
-	  (!gref, []) ng 
+	  (!gref, []) ng
       in
       ord := v :: !ord;
-      gtri := List.fold_left 
-	(fun g (x,y) -> G.add_edge g x y) 
+      gtri := List.fold_left
+	(fun g (x,y) -> G.add_edge g x y)
 	!gtri tri';
       gref := G.remove_vertex g' v;
       tri := tri' @ !tri;
       incr i;
     done;
     (!gtri, !tri, !ord)
-	  
-  let triangulate g = 
-    let gtri, _, _ = md g in 
+
+  let triangulate g =
+    let gtri, _, _ = md g in
     gtri
 
 end
 
 module I(G : Sig.I) = struct
 
-  module VertexSet = Set.Make(G.V)   
+  module VertexSet = Set.Make(G.V)
   module CT = Cliquetree.CliqueTree(G)
   module Choose = Oper.Choose(G)
-            
+
   type edgeset = (G.V.t * G.V.t) list
-      
+
   module Copy = Gmap.Vertex(G)(struct include G include Builder.I(G) end)
 
   let md g =
@@ -101,16 +101,16 @@ module I(G : Sig.I) = struct
     let ord = ref [] in
     let i = ref 0 in
     while not (CT.is_chordal gtri) && !i < n do
-      let v = 
-	let x = 
-	  G.fold_vertex 
+      let v =
+	let x =
+	  G.fold_vertex
 	    (fun v' x ->
 	       let deg' = G.out_degree gcur v' in
 	       match x with
 		   Some (v,deg) when deg' > deg -> x
 		 | _ -> Some (v', deg'))
 	    gcur None
-	in match x with 
+	in match x with
 	    Some (v,_) -> v
 	  | None -> failwith "Expecting some vertex"
       in
@@ -123,7 +123,7 @@ module I(G : Sig.I) = struct
 		let tri' =
 		  if v <> v' && not (G.mem_edge g v v') then
 		    (v, v') :: tri
-		  else 
+		  else
 		    tri
 		in
 		List.iter (fun v' -> if v <> v' then G.add_edge gcur v v') ng;
@@ -133,16 +133,16 @@ module I(G : Sig.I) = struct
       in
       ord := v :: !ord;
       List.iter
-	(fun (x,y) -> G.add_edge gtri x y) 
+	(fun (x,y) -> G.add_edge gtri x y)
 	tri';
       G.remove_vertex gcur v;
       tri := tri' @ !tri;
       incr i;
     done;
     (gtri, !tri, !ord)
-	  
-  let triangulate g = 
-    let gtri, _, _ = md g in 
+
+  let triangulate g =
+    let gtri, _, _ = md g in
     gtri
 
 end

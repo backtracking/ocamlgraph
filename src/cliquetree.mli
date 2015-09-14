@@ -17,11 +17,11 @@
 
 (** Construction of the clique tree of a graph and recognition
     of chordal graphs.
-  
+
     Based on the article:
     Chordal graphs and their clique graph
     by P. Galinier, M. Habib and C. Paul.
-  
+
     @author Matthieu Sozeau *)
 
 module CliqueTree(G : Sig.G) : sig
@@ -40,7 +40,7 @@ module CliqueTree(G : Sig.G) : sig
 
   (** Set of original vertices *)
   module CVS : Set.S with type elt = CliqueV.t
-		       
+
   (** Clique tree vertex type *)
   module CliqueTreeV : sig
     (** Trace of the algorithm as a list of markers Clique vertices *)
@@ -51,32 +51,32 @@ module CliqueTree(G : Sig.G) : sig
     val compare : t -> t -> int
     val hash : t -> int
     val equal : t -> t -> bool
-	    
+
     val create : data -> label -> t
     val label : t -> label
     val data : t -> data
   end
-	
+
   module CliqueTreeE : sig
     type t = int * CVS.t
     val compare : t -> t -> int
     val default : t
     val create : int -> CVS.t -> t
-	    
-    (** Vertices in the clique tree edge 
+
+    (** Vertices in the clique tree edge
       (intersection of the two clique extremities). *)
     val vertices : t -> CVS.t
   end
-	
+
   (** The clique tree graph type *)
   module CliqueTree : Sig.G with type V.t = CliqueTreeV.t
 			    and type E.label = CliqueTreeE.t
-      
-  (** [mcs_clique g] return an perfect elimination order of [g] 
+
+  (** [mcs_clique g] return an perfect elimination order of [g]
     (if it is chordal), the clique tree of [g] and its root.  *)
   val mcs_clique : G.t -> G.V.t list * CliqueTree.t * CliqueTree.V.t
 
-  (** [is_chordal g] uses the clique tree construction to test if a graph is 
+  (** [is_chordal g] uses the clique tree construction to test if a graph is
     chordal or not. *)
   val is_chordal : G.t -> bool
 

@@ -38,11 +38,11 @@ module type G_GOLDBERG = sig
   val fold_pred_e : (E.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
 end
 
-module Goldberg(G: G_GOLDBERG)(F: FLOW with type label = G.E.label) = 
+module Goldberg(G: G_GOLDBERG)(F: FLOW with type label = G.E.label) =
 struct
-  
+
   module V = Hashtbl.Make(G.V)
-  module E = Hashtbl.Make(Util.HTProduct(G.V)(G.V)) 
+  module E = Hashtbl.Make(Util.HTProduct(G.V)(G.V))
   module Se = Set.Make(G.E)
   module Sv = Set.Make(G.V)
 
@@ -52,26 +52,26 @@ struct
 
   let fold_booleen f = List.fold_left (fun r x->(f x) || r) false
 
-  let capacite_restante g e = 
+  let capacite_restante g e =
     F.sub (F.max_capacity (G.E.label e)) (E.find flot (G.E.src e, G.E.dst e))
 
-  let reste_excedent x = F.compare (V.find excedents x) F.zero > 0 
-      
-  let flux_et_reflux g x = 
-    let s = 
-      G.fold_succ_e 
+  let reste_excedent x = F.compare (V.find excedents x) F.zero > 0
+
+  let flux_et_reflux g x =
+    let s =
+      G.fold_succ_e
 	(fun e s->
-	   if F.compare 
+	   if F.compare
 	     (capacite_restante g e) (F.min_capacity (G.E.label e))
-	     > 0 
-	   then e::s else s) 
-	g x [] 
-    in 
-    G.fold_pred_e 
-      (fun e s -> 
-	 if F.compare 
+	     > 0
+	   then e::s else s)
+	g x []
+    in
+    G.fold_pred_e
+      (fun e s ->
+	 if F.compare
 	   (E.find flot (G.E.src e, G.E.dst e)) (F.min_capacity (G.E.label e))
-	   > 0 
+	   > 0
 	 then (G.E.create (G.E.dst e) (G.E.label e) (G.E.src e))::s else s)
       g x s
 
@@ -94,64 +94,64 @@ struct
       if reste_excedent x then l:=Sv.add x !l;
       if reste_excedent y then l:=Sv.add y !l;
       true
-    else 
-      (if F.compare ex F.zero > 0 then l:=Sv.add x !l; 
+    else
+      (if F.compare ex F.zero > 0 then l:=Sv.add x !l;
        false)
 
-  let elever g p x = 
+  let elever g p x =
     let u = flux_et_reflux g x in
     reste_excedent x
-    && not (G.V.equal x p) 
-    && 
-    List.for_all 
+    && not (G.V.equal x p)
+    &&
+    List.for_all
       (fun e -> (V.find hauteur (G.E.src e)) <= (V.find hauteur (G.E.dst e))) u
-    && 
-    (let min = 
+    &&
+    (let min =
        List.fold_left (fun m e -> min (V.find hauteur (G.E.dst e)) m) max_int u
      in
-     V.replace hauteur x (1+min); 
+     V.replace hauteur x (1+min);
      true)
 
-  let init_preflot g s p = 
+  let init_preflot g s p =
     G.iter_vertex (fun x -> V.add excedents x F.zero; V.add hauteur x 0) g;
-    G.iter_edges_e 
-      (fun e -> 
-	 let x,y = G.E.src e, G.E.dst e in 
-	 E.add flot (x,y) (F.flow (G.E.label e)); 
+    G.iter_edges_e
+      (fun e ->
+	 let x,y = G.E.src e, G.E.dst e in
+	 E.add flot (x,y) (F.flow (G.E.label e));
 	 E.add flot (y,x) (F.sub F.zero (F.flow (G.E.label e))))
       g;
     V.add hauteur s (G.nb_vertex g);
-    G.fold_succ_e 
-      (fun e l -> 
+    G.fold_succ_e
+      (fun e l ->
 	 let y = G.E.dst e in
-	 let c = F.max_capacity (G.E.label e) in 
+	 let c = F.max_capacity (G.E.label e) in
 	 E.add flot (s,y) c;
 	 E.add flot (y,s) (F.sub F.zero c);
 	 V.add excedents y c;
 	 y::l)
       g s []
-      
-  let maxflow g s p = 
-    let push_and_pull l x = 
+
+  let maxflow g s p =
+    let push_and_pull l x =
       G.fold_succ_e (fun e r->pousser g e l || r) g x false
       || G.fold_pred_e (fun e r->pousser g e l || r) g x false
     in
     let todo = ref (init_preflot g s p) in
-    while 
+    while
       (fold_booleen (elever g p) !todo) ||
-      (let l = ref Sv.empty in 
+      (let l = ref Sv.empty in
        let r = fold_booleen (push_and_pull l) !todo in
        todo:=Sv.elements !l; r)
     do () done;
-    let flot_max = 
+    let flot_max =
       G.fold_pred_e (fun e f -> F.add (E.find flot (G.E.src e,p)) f) g p F.zero
     in
-    let flot_init = 
+    let flot_init =
       G.fold_pred_e (fun e f -> F.add (F.flow (G.E.label e)) f) g p F.zero
     in
-    let f e = 
-      let x,y = G.E.src e, G.E.dst e in 
-      try E.find flot (x,y) 
+    let f e =
+      let x,y = G.E.src e, G.E.dst e in
+      try E.find flot (x,y)
       with Not_found -> F.flow (G.E.label e)
     in
     f, F.sub flot_max flot_init
@@ -203,7 +203,7 @@ struct
 
     let mem = H.mem marked
 
-    let set s e tag = 
+    let set s e tag =
       assert (not (mem s));
       H.add marked s (e, tag);
       Queue.add s unvisited
@@ -217,7 +217,7 @@ struct
   end
 
   module Result = struct
-    module H = 
+    module H =
       Hashtbl.Make
 	(struct
 	   open G
@@ -231,7 +231,7 @@ struct
 
     let find = H.find
 
-    let flow r e = 
+    let flow r e =
       try
 	find r e
       with Not_found ->
@@ -259,7 +259,7 @@ struct
     let rec loop t =
       if not (G.V.equal s t) then
 	let e, tag = Mark.get t in
-	match tag with 
+	match tag with
 	  | Mark.Plus -> Result.grow r e a; loop (G.E.src e)
 	  | Mark.Minus -> Result.reduce r e a; loop (G.E.dst e)
     in
@@ -270,7 +270,7 @@ struct
       if G.V.equal s u then begin
 	match b with
 	  | F.Infinity -> (* source = destination *)
-	      assert (G.V.equal s t); 
+	      assert (G.V.equal s t);
 	      a
 	  | F.Flow f ->
 	      set_flow r s t f;
@@ -279,29 +279,29 @@ struct
 	let e, tag = Mark.get u in
 	let l = G.E.label e in
 	match tag with
-	  | Mark.Plus -> 
-	      loop 
-	        (G.E.src e) 
+	  | Mark.Plus ->
+	      loop
+	        (G.E.src e)
 	        (F.min b (F.Flow (F.sub (F.max_capacity l) (Result.flow r e))))
-	  | Mark.Minus -> 
-	      loop 
-	        (G.E.dst e) 
+	  | Mark.Minus ->
+	      loop
+	        (G.E.dst e)
 	        (F.min b (F.Flow (F.sub (Result.flow r e) (F.min_capacity l))))
     in
     loop t F.Infinity
 
   let maxflow g s t =
     let r = Result.create () in
-    let succ s = 
+    let succ s =
       G.iter_succ_e
 	(fun e ->
 	   assert (G.V.equal s (G.E.src e));
 	   let t = G.E.dst e in
-	   if not (Mark.mem t || is_full r e) then 
+	   if not (Mark.mem t || is_full r e) then
 	     Mark.set t (Some e) Mark.Plus)
 	g s
     in
-    let pred s = 
+    let pred s =
       G.iter_pred_e
 	(fun e ->
 	   assert (G.V.equal s (G.E.dst e));

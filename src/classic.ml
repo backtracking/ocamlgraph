@@ -18,7 +18,7 @@
 (* $Id: classic.ml,v 1.9 2004-02-02 08:11:14 filliatr Exp $ *)
 
 module type S = sig
-  type graph 
+  type graph
   val divisors : int -> graph
   val de_bruijn : int -> graph
   val vertex_only : int -> graph
@@ -35,8 +35,8 @@ module Generic(B : Builder.INT) = struct
     let rec loop g i =
       let sqrt_i = truncate (sqrt (float i)) in
       let rec loop_i g d =
-	if d > sqrt_i then 
-	  g 
+	if d > sqrt_i then
+	  g
 	else if i mod d == 0 then
 	  loop_i (B.add_edge (B.add_edge g v.(i / d) v.(i)) v.(d) v.(i)) (d+1)
 	else
@@ -45,7 +45,7 @@ module Generic(B : Builder.INT) = struct
       if i > n then g else loop (loop_i (B.add_vertex g v.(i)) 2) (i+1)
     in
     loop (B.empty ()) 2
-	
+
   let fold_for i0 i1 f =
     let rec loop i v = if i > i1 then v else loop (i + 1) (f v i) in
     loop i0
@@ -58,7 +58,7 @@ module Generic(B : Builder.INT) = struct
     let rec loop g i =
       if i > all_1 then
 	g
-      else 
+      else
 	let si = (i lsl 1) land all_1 in
 	let g = B.add_edge g v.(i) v.(si) in
 	let g = B.add_edge g v.(i) v.(si lor 1) in

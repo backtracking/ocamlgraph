@@ -25,10 +25,10 @@ let n_ = ref 30
 let prob_ = ref 0.5
 let seed_ = ref None
 
-let arg_spec = 
-  ["-v", Arg.Int (fun i -> n_ := i), 
+let arg_spec =
+  ["-v", Arg.Int (fun i -> n_ := i),
    " <int>  number of vertices";
-   "-prob", Arg.Float (fun f -> prob_ := f), 
+   "-prob", Arg.Float (fun f -> prob_ := f),
    " <float>  probability to discrad an edge";
    "-seed", Arg.Int (fun n -> seed_ := Some n),
    " <int>  random seed"
@@ -45,13 +45,13 @@ let () = Format.printf "seed = %d@." seed; Random.init seed
 
 (* undirected graphs with integer coordinates and integer labels on edges *)
 
-module IntInt = struct 
-  type t = int * int 
+module IntInt = struct
+  type t = int * int
 end
-module Int = struct 
-  type t = int 
-  let compare = compare 
-  let hash = Hashtbl.hash 
+module Int = struct
+  type t = int
+  let compare = compare
+  let hash = Hashtbl.hash
   let equal = (=)
   let default = 0
 end
@@ -94,7 +94,7 @@ let color_vertex v color =
   set_color color;
   fill_circle x y vertex_radius
 
-let draw_graph () = 
+let draw_graph () =
   clear_graph ();
   set_color red;
   set_line_width 1;
@@ -105,21 +105,21 @@ module Dfs = Traverse.Dfs(G)
 module Bfs = Traverse.Bfs(G)
 
 let test_bfs () =
-  let rec loop i = 
+  let rec loop i =
     let v = Bfs.get i in
     color_vertex v red;
     ignore (Graphics.wait_next_event [ Key_pressed ]);
     loop (Bfs.step i)
-  in 
+  in
   try loop (Bfs.start g0) with Exit -> ()
 
 let test_dfs () =
-  let rec loop i = 
+  let rec loop i =
     let v = Dfs.get i in
     color_vertex v red;
     ignore (Graphics.wait_next_event [ Key_pressed ]);
     loop (Dfs.step i)
-  in 
+  in
   try loop (Dfs.start g0) with Exit -> ()
 
 let cols = [| white; red; green; blue; yellow; black |]
@@ -162,14 +162,14 @@ let coloring_b () =
   let finish = ref false in
   let round = ref 1 in
   let nb_to_color = ref n in
-  while not !finish do 
+  while not !finish do
     let c = ref 0 in
     finish := true;
-    let erase v = 
+    let erase v =
       incr c; finish := false; Mark.set v 0b11111; Stack.push v stack
     in
-    G.iter_vertex 
-      (fun v -> if Mark.get v = 0 && out_degree g0 v < 4 then erase v) 
+    G.iter_vertex
+      (fun v -> if Mark.get v = 0 && out_degree g0 v < 4 then erase v)
       g0;
     printf "round %d: removed %d vertices\n" !round !c;
     incr round;
@@ -203,11 +203,11 @@ let coloring_b () =
     assert (0 <= c && c <= 4);
     if c > 0 then begin
       Mark.set v (m land 0b11111);
-      let update w = 
+      let update w =
 	(* give back color [c] to [w] only when no more succ. has color [c] *)
-	try 
+	try
 	  iter_succ (fun u -> if Mark.get u lsr 5 = c then raise Exit) g0 w;
-	  Mark.set w ((Mark.get w) lor (1 lsl c)) 
+	  Mark.set w ((Mark.get w) lor (1 lsl c))
 	with Exit ->
 	  ()
       in
@@ -232,32 +232,32 @@ let coloring_b () =
   end;
   (* third step: we color the eliminated vertices, in reverse order *)
   Stack.iter
-    (fun v -> 
+    (fun v ->
        assert (Mark.get v land 1 = 1);
-       try 
-	 for i = 1 to 4 do 
+       try
+	 for i = 1 to 4 do
 	   try try_color v i; raise Exit with NoColor -> uncolor v
 	 done;
 	 assert false (* we must succeed *)
        with Exit -> ())
     stack;
-  (* finally we display the coloring *)  
-  iter_vertex 
-    (fun v -> 
+  (* finally we display the coloring *)
+  iter_vertex
+    (fun v ->
        let c = (Mark.get v) lsr 5 in
        assert (1 <= c && c <= 4);
-       color_vertex v cols.(c)) 
+       color_vertex v cols.(c))
     g0
 
 open Unix
-  
-let utime f x =                                                   
-  let u = (times()).tms_utime in                                  
+
+let utime f x =
+  let u = (times()).tms_utime in
   let y = f x in
   let ut = (times()).tms_utime -. u in
   (y,ut)
 
-let print_utime f x = 
+let print_utime f x =
   let (y,ut) = utime f x in
   Format.printf "user time: %2.2f@." ut;
   y
@@ -275,7 +275,7 @@ let () =
 
 
 (*
-Local Variables: 
+Local Variables:
 compile-command: "make -C .. bin/color.opt"
-End: 
+End:
 *)

@@ -26,13 +26,13 @@ module type CCC = sig
   type point
 
   val ccw : point -> point -> point -> bool
-    (** The counterclockwise relation [ccw p q r] states that the 
-      circle through points [(p,q,r)] is traversed counterclockwise 
+    (** The counterclockwise relation [ccw p q r] states that the
+      circle through points [(p,q,r)] is traversed counterclockwise
       when we encounter the points in cyclic order [p,q,r,p,...] **)
 
   val in_circle : point -> point -> point -> point -> bool
-    (** The relation [in_circle p q r s] states that [s] lies 
-      inside the circle [(p,q,r)] if [ccw p q r] is true, or outside that 
+    (** The relation [in_circle p q r s] states that [s] lies
+      inside the circle [(p,q,r)] if [ccw p q r] is true, or outside that
       circle if [ccw p q r] is false. *)
 
 end
@@ -46,19 +46,19 @@ module type Triangulation = sig
   type triangulation
 
   val triangulate : S.point array -> triangulation
-    (** [triangulate a] computes the Delaunay triangulation of a set of 
+    (** [triangulate a] computes the Delaunay triangulation of a set of
       points, given as an array [a]. If [N] is the number of points
       (that is [Array.length a]), then the running time is $O(N \log N)$
-      on the average and $O(N^2)$ on the worst-case. The space used is 
+      on the average and $O(N^2)$ on the worst-case. The space used is
       always $O(N)$. *)
 
   val iter : (S.point -> S.point -> unit) -> triangulation -> unit
-    (** [iter f t] iterates over all edges of the triangulation [t]. 
+    (** [iter f t] iterates over all edges of the triangulation [t].
       [f u v] is called once for each undirected edge [(u,v)]. *)
 
   val fold : (S.point -> S.point -> 'a -> 'a) -> triangulation -> 'a -> 'a
 
-  val iter_triangles : 
+  val iter_triangles :
     (S.point -> S.point -> S.point -> unit) -> triangulation -> unit
 
 end

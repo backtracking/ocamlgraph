@@ -20,7 +20,7 @@
 (* Unionfind structure over hash-ordered types.
 
    This module implements a unionfind data structure, given a total ordering
-   function and a hash function over the elements. 
+   function and a hash function over the elements.
 
 *)
 
@@ -29,8 +29,8 @@ module type HashedOrderedType = sig
   (* The type of the elements*)
   type t
   val equal : t -> t -> bool
-  val hash : t -> int 
-  val compare : t -> t -> int 
+  val hash : t -> int
+  val compare : t -> t -> int
 end
 
 (* Input signature of the functor Unionfind.Make *)
@@ -38,7 +38,7 @@ end
 module type S = sig
   type elt
   type t
-    
+
   val init : elt list -> t
   val find : elt -> t -> elt
   val union : elt -> elt -> t -> unit

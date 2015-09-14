@@ -35,9 +35,9 @@ module type MINSEP = sig
 end
 
 module Make
-  (G : sig 
+  (G : sig
      include G
-     val cc: t -> V.t list -> V.t list list 
+     val cc: t -> V.t list -> V.t list list
        (** compute the set of connected components of G(V \ l) *)
    end) =
 struct
@@ -56,8 +56,8 @@ struct
     let neighbourhood = N.list_from_vertex g in
     let neighbourhoods = N.set_from_vertices g in
     G.fold_vertex
-      (fun v s -> 
-	 List.fold_left 
+      (fun v s ->
+	 List.fold_left
 	   (fun s l -> neighbourhoods l :: s)
 	   s (cc (v :: neighbourhood v)))
       g []
@@ -72,13 +72,13 @@ struct
 	  let l = Vertex_Set.elements s in
 	  let seen = VSetset.add s seen in
 	  let bigs, tl =
-	    Vertex_Set.fold 
+	    Vertex_Set.fold
 	      (fun v c ->
-		 let add_neighbourhoods (bigs, tl) l = 
+		 let add_neighbourhoods (bigs, tl) l =
 		   let s = neighbourhoods l in
 		   s :: bigs, if VSetset.mem s seen then tl else s :: tl
 		 in
-		 List.fold_left 
+		 List.fold_left
 		   add_neighbourhoods
 		   (bigs, tl) (cc (l @ neighbourhood v)))
 	      s (bigs, tl)
@@ -89,8 +89,8 @@ struct
 
   let allminsep g = generation g (initialisation g)
 
-  let set_of_allminsep g = 
-    List.fold_left 
+  let set_of_allminsep g =
+    List.fold_left
       (fun bigs s -> VSetset.add s bigs) VSetset.empty (allminsep g)
 
   let list_of_allminsep g = List.map Vertex_Set.elements (allminsep g)
@@ -109,22 +109,22 @@ module P(G : sig include G val remove_vertex : t -> V.t -> t end) = struct
 	       end)
 end
 
-module I(G : sig 
-	   include G 
-	   module Mark : Sig.MARK with type graph = t and type vertex = V.t 
-	 end) =  
+module I(G : sig
+	   include G
+	   module Mark : Sig.MARK with type graph = t and type vertex = V.t
+	 end) =
 struct
   module G = G
   include Make(struct
 		 include G
-		 let cc = 
-		   let module CC = 
+		 let cc =
+		   let module CC =
 		     Components.Make
-		       (struct 
-			  include G 
-			  let iter_vertex f = 
+		       (struct
+			  include G
+			  let iter_vertex f =
 			    iter_vertex (fun v -> if Mark.get v=0 then f v)
-			end) 
+			end)
 		   in
 		   fun g l ->
 		     G.Mark.clear g;

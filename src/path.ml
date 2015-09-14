@@ -202,7 +202,7 @@ struct
     try
       HVV.find pc.cache (v1, v2)
     with Not_found ->
-      (* the path is not in cache; we check it with Dijkstra *)
+      (* the path is not in cache; we check it with a BFS *)
       let visited = HV.create 97 in
       let q = Queue.create () in
       let rec loop () =

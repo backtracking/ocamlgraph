@@ -17,12 +17,12 @@
 
 (**
   Minimal separators of a graph
-  
+
   Based on the article:
   Generating all the minimal separators of a graph.
   by A. Berry, J.-P. Bordat and O.Cogis
   http://www.isima.fr/berry/generating.html
-  
+
   A set [S] of vertices is a minimal separator if it exists 2 distinct
   connected components [C] and [D] in [G \ S] such that each vertex of [S] has
   a successor in [C] and [D]. *)
@@ -55,14 +55,14 @@ module type MINSEP = sig
 end
 
 (** Implementation for a persistent graph *)
-module P(G : sig include G val remove_vertex : t -> V.t -> t end) : 
+module P(G : sig include G val remove_vertex : t -> V.t -> t end) :
   MINSEP with module G = G
 
 (** Implementation for an imperative graph.
   Less efficient that the implementation for a persistent graph *)
-module I(G : sig 
-	   include G 
+module I(G : sig
+	   include G
 	   module Mark : Sig.MARK with type graph = t and type vertex = V.t
-	 end) : 
+	 end) :
   MINSEP with module G = G
 

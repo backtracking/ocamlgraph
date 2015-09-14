@@ -23,7 +23,7 @@ open Sig
 (** {2 Common interface for graph builders}.
 
    Note: the following functions always return graphs but this is meaningless
-   for imperative implementations (the graph is modified in-place).  
+   for imperative implementations (the graph is modified in-place).
    This is just to provide a common interface. *)
 
 module type S = sig

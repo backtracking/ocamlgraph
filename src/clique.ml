@@ -27,19 +27,19 @@ module Bron_Kerbosch(G : G) = struct
   let rec bron_kerbosch cliquelst graph clique candidates used = match (candidates, used) with
     | ([], []) -> clique :: cliquelst
     | ([], _) -> cliquelst
-    | (c, u) -> 
+    | (c, u) ->
       let (_, _, cliques) = List.fold_left ( fun (c, u, acc) v ->
 	(* Get the neighbors ignoring self-loops *)
 	let n = List.filter (fun nb -> not (G.V.equal nb v)) (G.succ graph v) in
 	let c' = List.filter (fun cv -> List.exists (fun v -> G.V.equal v cv) n) c in
 	let u' = List.filter (fun cv -> List.exists (fun v -> G.V.equal v cv) n) u in
 	let c_minus_v = List.filter (fun cv -> not (G.V.equal cv v)) c in
-	
+
 	( c_minus_v, (v :: u), bron_kerbosch acc graph (v :: clique) c' u')
-      ) (c, u, []) c in 
+      ) (c, u, []) c in
       cliques @ cliquelst
-  
-  let maximalcliques g = 
+
+  let maximalcliques g =
     let vertices = G.fold_vertex (fun v acc -> v :: acc) g [] in
     bron_kerbosch [] g [] vertices []
 

@@ -24,12 +24,12 @@ val parse_dot_ast : string -> Dot_ast.file
 type clusters_hash = (string, attr list) Hashtbl.t
 
 (** Provide a parser for DOT file format. *)
-module Parse 
+module Parse
   (B : Builder.S)
-  (L : sig 
+  (L : sig
      val node : node_id -> attr list -> B.G.V.label
        (** How to build the node label out of the set of attributes *)
-     val edge : attr list -> B.G.E.label 
+     val edge : attr list -> B.G.E.label
        (** How to build the edge label out of the set of attributes *)
    end) :
 sig
@@ -37,7 +37,7 @@ sig
   (** Parses a dot file *)
   val parse : string -> B.G.t
 
-  (** Parses a dot file and returns the graph, its bounding box and 
+  (** Parses a dot file and returns the graph, its bounding box and
       a hash table from clusters to dot attributes *)
   val parse_bounding_box_and_clusters :
     string -> B.G.t * string * clusters_hash

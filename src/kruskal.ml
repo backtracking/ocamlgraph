@@ -28,15 +28,15 @@ module type UNIONFIND = sig
 end
 
 module type G = sig
-  type t 
-  module V : Sig.COMPARABLE 
-  module E : sig 
-    type t 
-    type label 
-    val label : t -> label 
-    val dst : t -> V.t 
+  type t
+  module V : Sig.COMPARABLE
+  module E : sig
+    type t
+    type label
+    val label : t -> label
+    val dst : t -> V.t
     val src : t -> V.t
-  end 
+  end
   val fold_vertex : (V.t -> 'a -> 'a) -> t -> 'a -> 'a
   val iter_edges_e : (E.t -> unit) -> t ->  unit
 end
@@ -46,11 +46,11 @@ module Generic
   (W : Sig.ORDERED_TYPE with type t = G.E.label)
   (UF: UNIONFIND with type elt = G.V.t) =
 struct
-    
-  let spanningtree g =   
+
+  let spanningtree g =
     let vertices = G.fold_vertex (fun v a -> v :: a) g [] in
     let uf = UF.init vertices in
-    let edges = 
+    let edges =
       let l = ref [] in
       G.iter_edges_e (fun e -> l := e :: !l) g;
       List.sort (fun e e'-> W.compare (G.E.label e) (G.E.label e')) !l
@@ -59,15 +59,15 @@ struct
     let cover e =
       let u, v = G.E.src e, G.E.dst e in
       if G.V.compare (UF.find u uf) (UF.find v uf) <> 0 then begin
-	UF.union u v uf; 
+	UF.union u v uf;
 	s := e :: !s
       end
     in
     List.iter cover edges;
     !s
- 
+
 end
 
-module Make(G: G)(W : Sig.ORDERED_TYPE with type t=G.E.label) = 
+module Make(G: G)(W : Sig.ORDERED_TYPE with type t=G.E.label) =
   Generic(G)(W)(Unionfind.Make(G.V))
 

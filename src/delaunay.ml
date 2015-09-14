@@ -38,7 +38,7 @@ module type Triangulation = sig
   val triangulate : S.point array -> triangulation
   val iter : (S.point -> S.point -> unit) -> triangulation -> unit
   val fold : (S.point -> S.point -> 'a -> 'a) -> triangulation -> 'a -> 'a
-  val iter_triangles : 
+  val iter_triangles :
     (S.point -> S.point -> S.point -> unit) -> triangulation -> unit
 end
 
@@ -52,31 +52,31 @@ module Make (S : CCC) = struct
      pointing in opposite directions; the two arcs are called mates. Each
      arc conceptually has a triangle on its left and a mate on its right. *)
 
-  type arc = { 
-    mutable vert : point; 
+  type arc = {
+    mutable vert : point;
       (* v, if this arc goes from u to v *)
-    mutable next : arc; 
+    mutable next : arc;
       (* the arc from v that shares a triangle with this one *)
     mutable inst : node ref;
       (* instruction to change when the triangle is modified *)
-    mate : int 
+    mate : int
   }
-  and node = 
+  and node =
     | Branch of int * int * node ref * node ref
     | Terminal of arc
 
-  type triangulation = { 
-    points : S.point array; 
+  type triangulation = {
+    points : S.point array;
     arcs : arc array;
-    last_used_arc : int 
+    last_used_arc : int
   }
 
-  let rec dummy_arc = 
-    { vert = Infinity; next = dummy_arc; 
+  let rec dummy_arc =
+    { vert = Infinity; next = dummy_arc;
       inst = ref (Terminal dummy_arc); mate = -1 }
 
   let make_arc n i =
-    { vert = Infinity; next = dummy_arc; 
+    { vert = Infinity; next = dummy_arc;
       inst = ref (Terminal dummy_arc); mate = 6 * n - 7 - i }
 
   let finite = function Point p -> p | Infinity -> assert false
@@ -92,14 +92,14 @@ module Make (S : CCC) = struct
     c''.inst <- n; c.inst <- n; e.inst <- n;
     c.vert <- Point p;
     d.next <- e';
-    e'.next <- c'; 
+    e'.next <- c';
     c'.next <- d;
     c'.inst <- n'; e'.inst <- n'; d.inst <- n';
     d.vert <- Point t''
 
   let triangulate points =
     let ccw p q r = S.ccw points.(p) points.(q) points.(r) in
-    let in_circle p q r s = 
+    let in_circle p q r s =
       S.in_circle points.(p) points.(q) points.(r) points.(s)
     in
     let n = Array.length points in
@@ -108,7 +108,7 @@ module Make (S : CCC) = struct
     let mate i = 6 * n - 7 - i in
 
   (*i DEBUG
-  let rec dump d l = 
+  let rec dump d l =
     eprintf "%s" (String.make (2*d) ' ');
     match !l with
       | Terminal a ->
@@ -120,7 +120,7 @@ module Make (S : CCC) = struct
   in
   i*)
 
-    (* initialization: 
+    (* initialization:
        create a trivial triangulation for the first 2 vertices *)
     let u = 0 in
     let v = 1 in
@@ -145,9 +145,9 @@ module Make (S : CCC) = struct
     for p = 2 to n - 1 do
       (* Step T1 *)
       let rec step_T1 l p = match !l with
-	| Terminal al -> 
+	| Terminal al ->
 	    l, al
-	| Branch (pl, ql, al, bl) -> 
+	| Branch (pl, ql, al, bl) ->
 	    step_T1 (if ccw pl ql p then al else bl) p
       in
       let l, al = step_T1 l0 p in
@@ -175,7 +175,7 @@ module Make (S : CCC) = struct
       bj.vert   <- Point p;   bj.next <- aj_2;   bj.inst <- l';
       bj_1.vert <- Point p; bj_1.next <- aj;   bj_1.inst <- l'';
       bj_2.vert <- Point p; bj_2.next <- aj_1; bj_2.inst <- l''';
-      a.next <- bj;   a.inst <- l'; 
+      a.next <- bj;   a.inst <- l';
       b.next <- bj_1; b.inst <- l'';
       c.next <- bj_2; c.inst <- l''';
       let r = finite r in
@@ -195,7 +195,7 @@ module Make (S : CCC) = struct
 	      if t <> r && ccw p s t then begin
 		let n = ref (Terminal d) in
 		match !m with
-		  | Branch (mu, mv, ml, is_l') -> 
+		  | Branch (mu, mv, ml, is_l') ->
 		      assert (is_l' == l');
 		      m := Branch (mu, mv, ml, d.inst);
 		      d.inst := Branch (t, p, n, l');
@@ -207,7 +207,7 @@ module Make (S : CCC) = struct
 		      let t = finite d.vert in
 		      l' := Terminal a;
 		      loop m a d s t
-		  | Terminal _ -> 
+		  | Terminal _ ->
 		      assert false
 	      end else begin
 		(* at exit of while loop *)
@@ -269,7 +269,7 @@ module Make (S : CCC) = struct
 	seen_arc.(index a2) <- true;
 	seen_arc.(index a3) <- true;
 	match a1.vert, a2.vert, a3.vert with
-	  | Point i1, Point i2, Point i3 -> 
+	  | Point i1, Point i2, Point i3 ->
 	      f t.points.(i1) t.points.(i2) t.points.(i3)
 	  | _ ->
 	      ()
@@ -303,50 +303,50 @@ module FloatPoints = struct
 
   let det = function
     | [| [| a00; a01 |];
-	 [| a10; a11 |] |] -> 
+	 [| a10; a11 |] |] ->
 	a00 * a11 - a01 * a10
     | [| [| a00; a01; a02 |];
 	 [| a10; a11; a12 |];
-	 [| a20; a21; a22 |] |] -> 
-	a00*a11*a22 - a00*a12*a21 - a10*a01*a22 + 
+	 [| a20; a21; a22 |] |] ->
+	a00*a11*a22 - a00*a12*a21 - a10*a01*a22 +
 	a10*a02*a21 + a20*a01*a12 - a20*a02*a11
     | [| [| a00; a01; a02; a03 |];
 	 [| a10; a11; a12; a13 |];
 	 [| a20; a21; a22; a23 |];
-	 [| a30; a31; a32; a33 |] |] -> 
-	a00*a11*a22*a33 - a00*a11*a23*a32 - a00*a21*a12*a33 + 
-	a00*a21*a13*a32 + a00*a31*a12*a23 - a00*a31*a13*a22 - 
-	a10*a01*a22*a33 + a10*a01*a23*a32 + a10*a21*a02*a33 - 
-	a10*a21*a03*a32 - a10*a31*a02*a23 + a10*a31*a03*a22 + 
-	a20*a01*a12*a33 - a20*a01*a13*a32 - a20*a11*a02*a33 + 
-	a20*a11*a03*a32 + a20*a31*a02*a13 - a20*a31*a03*a12 - 
-	a30*a01*a12*a23 + a30*a01*a13*a22 + a30*a11*a02*a23 - 
+	 [| a30; a31; a32; a33 |] |] ->
+	a00*a11*a22*a33 - a00*a11*a23*a32 - a00*a21*a12*a33 +
+	a00*a21*a13*a32 + a00*a31*a12*a23 - a00*a31*a13*a22 -
+	a10*a01*a22*a33 + a10*a01*a23*a32 + a10*a21*a02*a33 -
+	a10*a21*a03*a32 - a10*a31*a02*a23 + a10*a31*a03*a22 +
+	a20*a01*a12*a33 - a20*a01*a13*a32 - a20*a11*a02*a33 +
+	a20*a11*a03*a32 + a20*a31*a02*a13 - a20*a31*a03*a12 -
+	a30*a01*a12*a23 + a30*a01*a13*a22 + a30*a11*a02*a23 -
 	a30*a11*a03*a22 - a30*a21*a02*a13 + a30*a21*a03*a12
     | _ -> assert false
 
-  let ccw (xu,yu) (xv,yv) (xw,yw) = 
+  let ccw (xu,yu) (xv,yv) (xw,yw) =
     det [| [| xu; yu; 1.0 |];
 	   [| xv; yv; 1.0 |];
 	   [| xw; yw; 1.0 |] |] > 0.0
 
   (*i DEBUG
-  let ccw (xu,yu) (xv,yv) (xw,yw) = 
-    eprintf "ccw((%.0f,%.0f),(%.0f,%.0f),(%.0f,%.0f)) -> " 
+  let ccw (xu,yu) (xv,yv) (xw,yw) =
+    eprintf "ccw((%.0f,%.0f),(%.0f,%.0f),(%.0f,%.0f)) -> "
       xu yu xv yv xw yw;
     let r = ccw (xu,yu) (xv,yv) (xw,yw) in
     eprintf "%b\n" r; flush stderr;
     r
   i*)
 
-  let in_circle (xt,yt) (xu,yu) (xv,yv) (xw,yw) = 
+  let in_circle (xt,yt) (xu,yu) (xv,yv) (xw,yw) =
     det [| [| xt; yt; (xt * xt + yt * yt); 1.0 |];
 	   [| xu; yu; (xu * xu + yu * yu); 1.0 |];
 	   [| xv; yv; (xv * xv + yv * yv); 1.0 |];
 	   [| xw; yw; (xw * xw + yw * yw); 1.0 |]; |] > 0.0
 
   (*i DEBUG
-  let in_circle (xt,yt) (xu,yu) (xv,yv) (xw,yw) = 
-    eprintf "in_circle((%.0f,%.0f),(%.0f,%.0f),(%.0f,%.0f),(%.0f,%.0f)) -> " 
+  let in_circle (xt,yt) (xu,yu) (xv,yv) (xw,yw) =
+    eprintf "in_circle((%.0f,%.0f),(%.0f,%.0f),(%.0f,%.0f),(%.0f,%.0f)) -> "
       xt yt xu yu xv yv xw yw;
     let r = in_circle (xt,yt) (xu,yu) (xv,yv) (xw,yw) in
     eprintf "%b\n" r; flush stderr;
@@ -365,11 +365,11 @@ module IntPoints = struct
 
   type point = int * int
 
-  let ccw (xu,yu) (xv,yv) (xw,yw) = 
-    FloatPoints.ccw 
+  let ccw (xu,yu) (xv,yv) (xw,yw) =
+    FloatPoints.ccw
       (float xu, float yu) (float xv, float yv) (float xw, float yw)
 
-  let in_circle (xt,yt) (xu,yu) (xv,yv) (xw,yw) = 
+  let in_circle (xt,yt) (xu,yu) (xv,yv) (xw,yw) =
     FloatPoints.in_circle
       (float xt, float yt)
       (float xu, float yu) (float xv, float yv) (float xw, float yw)

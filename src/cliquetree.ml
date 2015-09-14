@@ -18,13 +18,13 @@
 module CliqueTree(Gr : Sig.G) = struct
 
   (* Original vertex set (of Gr) *)
-  module OVSet = Set.Make(Gr.V) 
-    
+  module OVSet = Set.Make(Gr.V)
+
   (* Vertex signature *)
-  module rec CliqueV : 
-  sig 
+  module rec CliqueV :
+  sig
     type t
-    val compare : t -> t -> int  
+    val compare : t -> t -> int
     val hash : t -> int
     val equal : t -> t -> bool
     val label : t -> t
@@ -58,9 +58,9 @@ module CliqueTree(Gr : Sig.G) = struct
     type label = t
     let label x = x
 
-    let create o = { 
-      mark = 0; 
-      orig = o; 
+    let create o = {
+      mark = 0;
+      orig = o;
       m = CVS.empty;
       last = None;
       number = 0;
@@ -76,30 +76,30 @@ module CliqueTree(Gr : Sig.G) = struct
     let set_number x v = x.number <- v
 
     let mark x = x.mark
-    let incr_mark x = 
+    let incr_mark x =
       (*Printf.printf "Increasing mark of %s to %i\n%!"
 	(Gr.v_to_string x.orig) (succ x.mark);*)
       x.mark <- succ x.mark
 
     let m x = x.m
     let set_m x v = x.m <- v
-		      
-    let last x = 
+
+    let last x =
       match x.last with
 	  Some v -> v
 	| None -> failwith "last not set"
-	    
+
     let set_last x v = x.last <- Some v
 
   end
     (* Clique tree vertex set *)
   and CVS : Set.S with type elt = CliqueV.t = Set.Make(CliqueV)
-		    
+
   (* The final clique tree vertex type:
      - set of original vertexes ordered by mark.
      - clique number.
   *)
-  module CliqueTreeV = 
+  module CliqueTreeV =
     Util.DataV
       (struct type t = CliqueV.t list * CVS.t end)
       (struct
@@ -110,20 +110,20 @@ module CliqueTree(Gr : Sig.G) = struct
 	 let equal x y = x = y
 	 let label x = x
 	 let create lbl = lbl
-       end)  
-    
+       end)
+
   module CliqueTreeE = struct
     type t = int * CVS.t
-	
+
     let compare (x, _ : t) (y, _ : t) = Pervasives.compare x y
 
     let default = (0, CVS.empty)
-		    
+
     let create n s = (n, s)
-		       
+
     let vertices = snd
 
-    let width g tri (_, x) = 
+    let width g tri (_, x) =
       let vertices = List.map CliqueV.vertex (CVS.elements x) in
       let w =
 	List.fold_left
@@ -137,18 +137,18 @@ module CliqueTree(Gr : Sig.G) = struct
 		else w)
 	     w vertices)
 	  0 vertices
-      in 
+      in
       assert(w mod 2 = 0);
       w / 2
   end
-    
+
   (* The returned tree *)
   module CliqueTree =
     Persistent.Digraph.ConcreteLabeled(CliqueTreeV)(CliqueTreeE)
-      
+
   (* Intermediate graph *)
   module G = Persistent.Graph.Concrete(CliqueV)
-    
+
   (* Convenient types *)
   module EdgeSet = Set.Make(G.E)
   module H = Hashtbl.Make(CliqueV)
@@ -164,7 +164,7 @@ module CliqueTree(Gr : Sig.G) = struct
   let vertices_list x =
     let l = CVS.elements x in
     List.sort
-      (fun x y -> 
+      (fun x y ->
 	 (*let markx = mark x and marky = mark y in*)
 	 (Pervasives.compare : int -> int -> int) (number y) (number x))
       l
@@ -185,10 +185,10 @@ module CliqueTree(Gr : Sig.G) = struct
 	   if CVS.is_empty !unnumbered then
 	   Printf.printf "No more unnumbered vertices\n%!"
 	   else
-	   Printf.printf "%i unnumbered vertices remaining\n%!" 
+	   Printf.printf "%i unnumbered vertices remaining\n%!"
 	   (CVS.cardinal !unnumbered);
 	*)
- 	let x, mark = 
+ 	let x, mark =
 	  let choosed = CVS.choose !unnumbered in
  	    CVS.fold
  	      (fun x ((maxx, maxv) as max) ->
@@ -205,7 +205,7 @@ module CliqueTree(Gr : Sig.G) = struct
 	    incr j;
 	    (* m x is the neighborhoud of x in the previous clique *)
 	    cliques.(!j) <- ([x], CVS.add x (m x));
-	    (* Use reverse map of cliques to find what clique 
+	    (* Use reverse map of cliques to find what clique
 	       we're connected to. m x is the width of the ties *)
 	    let clast = clique (last x) in
 	    ties := (clast, m x, !j) :: !ties;
@@ -225,17 +225,17 @@ module CliqueTree(Gr : Sig.G) = struct
 	  set_number x i;
 	  set_clique x !j;
       done;
-      let cliques = 
+      let cliques =
 	Array.mapi
 	  (fun i (l, c) -> CliqueTreeV.create (List.rev l, c) i)
 	  (Array.sub cliques 0 (succ !j))
       in
-      let tree = 
+      let tree =
 	Array.fold_left CliqueTree.add_vertex CliqueTree.empty cliques
       in
-      let tree, _ = 
+      let tree, _ =
 	List.fold_left
-	  (fun (g, n) (i, verts, j) ->	     
+	  (fun (g, n) (i, verts, j) ->
 	     let label = CliqueTreeE.create n verts in
 	     let edge = CliqueTree.E.create cliques.(i) label cliques.(j) in
 	     (CliqueTree.add_edge_e g edge, succ n))
@@ -249,7 +249,7 @@ module CliqueTree(Gr : Sig.G) = struct
 
    let rec drop_while p l =
      match l with
-       | x :: tl -> 
+       | x :: tl ->
 	   if p x then drop_while p tl
 	   else l
        | [] -> []
@@ -264,17 +264,17 @@ module CliqueTree(Gr : Sig.G) = struct
      try
        while !vertices <> [] && not (List.for_all (fun c -> !c = []) !sons) do
 	 (match takeOne vertices with
-	      Some v -> 
+	      Some v ->
 		let mark = CliqueV.mark v in
 		List.iter
-		  (fun s -> 
+		  (fun s ->
 		     match !s with
-		       | y :: tl -> 
+		       | y :: tl ->
 			   let ymark = CliqueV.mark y in
 			   if ymark > mark then
 			     ()
 			   else if ymark = mark then
-			     s := drop_while 
+			     s := drop_while
 			       (fun y -> CliqueV.mark y = mark) tl
 			   else raise NotClique
 		       | [] -> ())
@@ -312,9 +312,9 @@ module CliqueTree(Gr : Sig.G) = struct
 	   end
        | _ -> true
 
-   let is_chordal g = 
+   let is_chordal g =
      let order, tree, root = mcs_clique g in
-     let rec aux c = 
+     let rec aux c =
        let csons = sons tree c in
        let s = List.map CliqueTreeV.data csons in
        let l = CliqueTreeV.data c in
@@ -322,14 +322,14 @@ module CliqueTree(Gr : Sig.G) = struct
        let first = test_simpliciality_first' (snd l) (sons ()) in
        let next = test_simpliciality_next (fst l) (sons ()) in
        first && next && (List.for_all aux csons)
-     in 
+     in
      aux root
-	  
-   let maxwidth g tri tree = 
+
+   let maxwidth g tri tree =
      CliqueTree.fold_edges_e
-       (fun e res -> 
-	  let w = CliqueTreeE.width g tri (CliqueTree.E.label e) in	   
+       (fun e res ->
+	  let w = CliqueTreeE.width g tri (CliqueTree.E.label e) in
 	  max res w)
-       tree 0      	 
+       tree 0
 
 end

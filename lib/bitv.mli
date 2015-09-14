@@ -16,11 +16,11 @@
 (**************************************************************************)
 
 (*s {\bf Module Bitv}.
-    This module implements bit vectors, as an abstract datatype [t]. 
+    This module implements bit vectors, as an abstract datatype [t].
     Since bit vectors are particular cases of arrays, this module provides
-    the same operations as the module [Array] (Sections~\ref{barray} 
-    up to \ref{earray}). It also provides bitwise operations 
-    (Section~\ref{bitwise}). In the following, [false] stands for the bit 0 
+    the same operations as the module [Array] (Sections~\ref{barray}
+    up to \ref{earray}). It also provides bitwise operations
+    (Section~\ref{bitwise}). In the following, [false] stands for the bit 0
     and [true] for the bit 1. *)
 
 type t
@@ -29,10 +29,10 @@ type t
     [(Bitv.create n b)] creates a new bit vector of length [n],
     initialized with [b].
     [(Bitv.init n f)] returns a fresh vector of length [n],
-    with bit number [i] initialized to the result of [(f i)]. 
+    with bit number [i] initialized to the result of [(f i)].
     [(Bitv.set v n b)] sets the [n]th bit of [v] to the value [b].
-    [(Bitv.get v n)] returns the [n]th bit of [v]. 
-    [Bitv.length] returns the length (number of elements) of the given 
+    [(Bitv.get v n)] returns the [n]th bit of [v].
+    [Bitv.length] returns the length (number of elements) of the given
     vector. *)
 
 val create : int -> bool -> t
@@ -40,7 +40,7 @@ val create : int -> bool -> t
 val init : int -> (int -> bool) -> t
 
 val set : t -> int -> bool -> unit
-    
+
 val get : t -> int -> bool
 
 val length : t -> int
@@ -62,7 +62,7 @@ val append : t -> t -> t
 
 val concat : t list -> t
 
-(*s {\bf Sub-vectors and filling.} 
+(*s {\bf Sub-vectors and filling.}
     [(Bitv.sub v start len)] returns a fresh
     vector of length [len], containing the bits number [start] to
     [start + len - 1] of vector [v].  Raise [Invalid_argument
@@ -101,7 +101,7 @@ val blit : t -> int -> t -> int -> int -> unit
 
     [(Bitv.fold_left f x v)] computes [f (... (f (f x (get v 0)) (get
     v 1)) ...) (get v (n-1))], where [n] is the length of the vector
-    [v]. 
+    [v].
 
     [(Bitv.fold_right f a x)] computes [f (get v 0) (f (get v 1)
     ( ... (f (get v (n-1)) x) ...))], where [n] is the length of the
@@ -128,7 +128,7 @@ val gray_iter : (t -> unit) -> int -> unit
     [bwxor] implement logical and, or and exclusive or.  They return
     fresh vectors and raise [Invalid_argument "Bitv.xxx"] if the two
     vectors do not have the same length (where \texttt{xxx} is the
-    name of the function).  [bwnot] implements the logical negation. 
+    name of the function).  [bwnot] implements the logical negation.
     It returns a fresh vector.
     [shiftl] and [shiftr] implement shifts. They return fresh vectors.
     [shiftl] moves bits from least to most significant, and [shiftr]
@@ -147,26 +147,26 @@ val shiftr : t -> int -> t
 val all_zeros : t -> bool
 val all_ones  : t -> bool
 
-(*s {\bf Conversions to and from strings.} 
+(*s {\bf Conversions to and from strings.}
     Least significant bit comes first. *)
 
 val to_string : t -> string
 val of_string : string -> t
 val print : Format.formatter -> t -> unit
 
-(*s {\bf Conversions to and from lists of integers.} 
+(*s {\bf Conversions to and from lists of integers.}
     The list gives the indices of bits which are set (ie [true]). *)
 
 val to_list : t -> int list
 val of_list : int list -> t
 val of_list_with_length : int list -> int -> t
 
-(*s Interpretation of bit vectors as integers. Least significant bit 
-    comes first (ie is at index 0 in the bit vector). 
-    [to_xxx] functions truncate when the bit vector is too wide, 
-    and raise [Invalid_argument] when it is too short. 
-    Suffix [_s] indicates that sign bit is kept, 
-    and [_us] that it is discarded. *) 
+(*s Interpretation of bit vectors as integers. Least significant bit
+    comes first (ie is at index 0 in the bit vector).
+    [to_xxx] functions truncate when the bit vector is too wide,
+    and raise [Invalid_argument] when it is too short.
+    Suffix [_s] indicates that sign bit is kept,
+    and [_us] that it is discarded. *)
 
 (* type [int] (length 31/63 with sign, 30/62 without) *)
 val of_int_s : int -> t

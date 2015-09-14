@@ -15,10 +15,10 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(** Algorithms on flows 
+(** Algorithms on flows
 
     The following flow algorithms only apply to networks, that are
-    directed graphs together with a source (a 0 in-degree vertex) and a 
+    directed graphs together with a source (a 0 in-degree vertex) and a
     terminal (a 0 out-degree vertex). *)
 
 (** {1 Maximum flow algorithms} *)
@@ -72,7 +72,7 @@ module type G_GOLDBERG = sig
 end
 
 module Goldberg(G: G_GOLDBERG)(F: FLOW with type label = G.E.label) : sig
-      
+
   val maxflow : G.t -> G.V.t -> G.V.t -> (G.E.t -> F.t) * F.t
     (** [maxflow g v1 v2] searchs the maximal flow from source [v1] to
 	terminal [v2] using the Goldberg algorithm. It returns the new

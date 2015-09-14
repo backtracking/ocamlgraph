@@ -31,24 +31,24 @@ module type GM = sig
   end
 end
 
-(** Graph coloring with marking. 
+(** Graph coloring with marking.
     Only applies to imperative graphs with marks. *)
 module Mark(G : GM) = struct
 
   exception NoColoring
 
   module Bfs = Traverse.Bfs(G)
-  
+
   let coloring g k =
     (* first step: we eliminate vertices with less than [k] successors *)
     let stack = Stack.create () in
     let nb_to_color = ref (G.nb_vertex g) in
     let count = ref 1 in
-    while !count > 0 do 
+    while !count > 0 do
       count := 0;
       let erase v = incr count; G.Mark.set v (k+1); Stack.push v stack in
-      G.iter_vertex 
-	(fun v -> if G.Mark.get v = 0 && G.out_degree g v < k then erase v) 
+      G.iter_vertex
+	(fun v -> if G.Mark.get v = 0 && G.out_degree g v < k then erase v)
 	g;
       (*Format.printf "eliminating %d nodes@." !count;*)
       nb_to_color := !nb_to_color - !count
@@ -79,9 +79,9 @@ module Mark(G : GM) = struct
     end;
     (* third step: we color the eliminated vertices, in reverse order *)
     Stack.iter
-      (fun v -> 
-	 try 
-	   for i = 1 to k do 
+      (fun v ->
+	 try
+	   for i = 1 to k do
 	     try try_color v i; raise Exit with NoColoring -> ()
 	   done;
 	   raise NoColoring (* it may still fail on a self edge v->v *)
@@ -110,7 +110,7 @@ module Make(G: G) = struct
 
   let coloring g k =
     let h = H.create 97 in
-    let module M = 
+    let module M =
       Mark(struct
 	     include G
 	     module Mark = struct
