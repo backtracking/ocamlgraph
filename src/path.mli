@@ -23,7 +23,7 @@
     Sub-signature of {!Sig.G}. *)
 module type G = sig
   type t
-  module V : Sig.COMPARABLE
+  module V : Sig.VERTEX
   module E : sig
     type t
     type label
@@ -36,6 +36,14 @@ module type G = sig
   val iter_succ_e : (E.t -> unit) -> t -> V.t -> unit
   val fold_edges_e : (E.t -> 'a -> 'a) -> t -> 'a -> 'a
   val nb_vertex : t -> int
+end
+
+(** Minimal graph signature for Johnson's algorithm.
+    Sub-signature of {!Builder.S} *)
+module type B = sig
+  module G : G
+  val add_vertex : G.t -> G.V.t -> G.t
+  val add_edge : G.t -> G.V.t -> G.V.t -> G.t
 end
 
 module Dijkstra
@@ -90,6 +98,22 @@ sig
         Complexity: O(V^2E) *)
 end
 
+module Johnson
+  (B: B)
+  (W: Sig.WEIGHT with type edge = B.G.E.t) :
+sig
+
+  module H : Hashtbl.S with type key = (B.G.V.t * B.G.V.t)
+
+  val all_pairs_shortest_paths : B.G.t -> W.t H.t
+    (** [all_pairs_shortest_paths g] computes the distance of shortest
+        path between all pairs of vertices in [g]. They are returned as
+        a hash table mapping each pair of vertices to their
+        distance. If [g] contains a negative-cycle, raises
+        [NegativeCycle l] where [l] is such a cycle.
+
+        Complexity: at most O(VElog(V)) *)
+end
 
 (** Check for a path. *)
 module Check

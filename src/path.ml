@@ -34,6 +34,12 @@ module type G = sig
   val nb_vertex : t -> int
 end
 
+module type B = sig
+  module G : G
+  val add_vertex : G.t -> -> G.V.t -> G.t
+  val add_edge : G.t -> G.V.t -> G.V.t -> G.t
+end
+
 module Dijkstra
   (G: G)
   (W: Sig.WEIGHT with type edge = G.E.t) =
@@ -180,6 +186,20 @@ struct
 
 end
 
+module Johnson
+  (B: B)
+  (W: Sig.WEIGHT with type edge = G.E.t) =
+struct
+
+  open B
+  
+  module H = Hashtbl.Make(Util.HTProduct(G.V)(G.V))
+  module H2 = Hashtbl.Make(G.V)
+
+  let all_pairs_shortest_paths g =
+    let g' = add_vertex 
+
+end
 
 module Check
   (G :
