@@ -294,11 +294,16 @@ struct
       end
     in
     let module D = Dijkstra(G)(W'') in
-    G.iter_vertex (fun v ->
-		   G.iter_vertex
-		     (fun u ->
-		      let (_, d) = D.shortest_path g v u
-		      in HVV.add pairs_dist (v, u) d) g) g;
+    G.iter_vertex
+      (fun v ->
+       G.iter_vertex
+	 (fun u ->
+	  let (_, d) = D.shortest_path g v u in
+	  HVV.add pairs_dist (v, u)
+		  (W''.add d
+			   (W''.sub (BF.H.find bf_res (G'.V.Old u))
+				    (BF.H.find bf_res (G'.V.Old v))
+			   ))) g) g;
     pairs_dist
 
 end
