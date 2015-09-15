@@ -26,18 +26,14 @@ module type G = sig
     val label : t -> label
     val src : t -> V.t
     val dst : t -> V.t
+    val create : V.t -> label -> V.t -> t
   end
   val iter_vertex : (V.t -> unit) -> t -> unit
+  val fold_vertex : (V.t -> 'a -> 'a) -> t  -> 'a -> 'a
   val iter_succ : (V.t -> unit) -> t -> V.t -> unit
   val iter_succ_e : (E.t -> unit) -> t -> V.t -> unit
   val fold_edges_e : (E.t -> 'a -> 'a) -> t -> 'a -> 'a
   val nb_vertex : t -> int
-end
-
-module type B = sig
-  module G : G
-  val add_vertex : G.t -> -> G.V.t -> G.t
-  val add_edge : G.t -> G.V.t -> G.V.t -> G.t
 end
 
 module Dijkstra
@@ -187,17 +183,99 @@ struct
 end
 
 module Johnson
-  (B: B)
+  (G: G)
   (W: Sig.WEIGHT with type edge = G.E.t) =
 struct
 
-  open B
-  
-  module H = Hashtbl.Make(Util.HTProduct(G.V)(G.V))
-  module H2 = Hashtbl.Make(G.V)
+  module HVV = Hashtbl.Make(Util.HTProduct(G.V)(G.V))
+  module HV = Hashtbl.Make(G.V)
+
+  module G' = struct
+    type t = G.t
+    module V = struct
+      type t = New | Old of G.V.t
+      let compare v u = match v, u with
+	| New, New -> 0
+	| New, Old v -> -1
+	| Old v, New -> 1
+	| Old v, Old u -> G.V.compare v u
+      let hash v = match v with
+	| Old v -> G.V.hash v
+	| _ -> Hashtbl.hash v
+      let equal v u = match v, u with
+	| New, New -> true
+	| New, Old v -> false
+	| Old v, New -> false
+	| Old v, Old u -> G.V.equal v u
+    end
+    module E = struct
+      type label = G.E.label
+      type t = NewE of V.t * label * V.t | OldE of G.E.t
+      let src e = match e with
+	| NewE (v1, _, _) -> v1
+	| OldE e -> V.Old (G.E.src e)
+      let dst e = match e with
+	| NewE (_, _, v2) -> v2
+	| OldE e -> V.Old (G.E.dst e)
+      let label e = match e with
+	| NewE (_, l, _) -> l
+	| OldE e -> G.E.label e
+      let create v l u = match v, u with
+	| V.New, V.Old u -> NewE (V.New, l, V.Old u)
+	| V.Old v, V.Old u -> OldE (G.E.create v l u)
+	| _, _ -> assert false
+    end
+    let iter_vertex f g = f V.New; G.iter_vertex (fun v -> f (V.Old v)) g
+    let fold_vertex f g acc =
+      let acc' = f V.New acc in
+      G.fold_vertex (fun v a -> f (V.Old v) a) g acc'
+    let iter_succ f g v = match v with
+      | V.New -> G.iter_vertex (fun u -> f (V.Old u)) g
+      | V.Old v -> G.iter_succ (fun u -> f (V.Old u)) g v
+    let get_edge_label g = G.fold_edges_e (fun e acc -> Some e) g None
+    let iter_succ_e f g v = match v with
+      | V.New ->
+	 let e =
+	   (match get_edge_label g with
+	    | None -> raise (Invalid_argument "graph with no edges\n")
+	    | Some e -> e) in
+	 let lab = G.E.label e in
+	 G.iter_vertex (fun u -> f (E.create V.New lab (V.Old u))) g
+      | V.Old v -> G.iter_succ_e (fun e -> f (E.OldE e)) g v
+    let fold_edges_e f g acc =
+      let e =
+      match get_edge_label g with
+      | None -> raise (Invalid_argument "graph with no edges\n")
+      | Some e -> e in
+      let lab = G.E.label e in
+      let acc' =
+	G.fold_vertex (fun x a -> f (E.create V.New lab (V.Old x)) acc) g acc
+      in
+      G.fold_edges_e (fun edg ->
+		      let v1 = G.E.src edg in
+		      let v2 = G.E.dst edg in
+		      let l = G.E.label edg in
+		      f (E.create (V.Old v1) l (V.Old v2))) g acc'
+    let nb_vertex g = G.nb_vertex g + 1
+  end
+
+  module W' = struct
+    open G'.E
+
+    type edge = G'.E.t
+    type t = W.t
+    let zero = W.zero
+    let weight e = match e with
+      | NewE (_, _, _) -> zero
+      | OldE e -> W.weight e
+    let compare = W.compare
+    let add = W.add
+  end
 
   let all_pairs_shortest_paths g =
-    let g' = add_vertex 
+    let module BF = BellmanFord(G')(W') in
+    let bf_res = BF.all_shortest_paths g G'.V.New in
+    HVV.create 97
 
 end
 

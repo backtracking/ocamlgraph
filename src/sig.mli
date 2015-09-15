@@ -146,7 +146,7 @@ module type G = sig
   val iter_vertex : (vertex -> unit) -> t -> unit
     (** Iter on all vertices of a graph. *)
 
-  val fold_vertex : (vertex -> 'a -> 'a) -> t  -> 'a -> 'a
+  val fold_vertex : (vertex -> 'a -> 'a) -> t -> 'a -> 'a
     (** Fold on all vertices of a graph. *)
 
   val iter_edges : (vertex -> vertex -> unit) -> t -> unit

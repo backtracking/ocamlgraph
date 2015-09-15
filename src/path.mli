@@ -23,27 +23,21 @@
     Sub-signature of {!Sig.G}. *)
 module type G = sig
   type t
-  module V : Sig.VERTEX
+  module V : Sig.COMPARABLE
   module E : sig
     type t
     type label
     val label : t -> label
     val src : t -> V.t
     val dst : t -> V.t
+    val create : V.t -> label -> V.t -> t
   end
   val iter_vertex : (V.t -> unit) -> t -> unit
+  val fold_vertex : (V.t -> 'a -> 'a) -> t  -> 'a -> 'a
   val iter_succ : (V.t -> unit) -> t -> V.t -> unit
   val iter_succ_e : (E.t -> unit) -> t -> V.t -> unit
   val fold_edges_e : (E.t -> 'a -> 'a) -> t -> 'a -> 'a
   val nb_vertex : t -> int
-end
-
-(** Minimal graph signature for Johnson's algorithm.
-    Sub-signature of {!Builder.S} *)
-module type B = sig
-  module G : G
-  val add_vertex : G.t -> G.V.t -> G.t
-  val add_edge : G.t -> G.V.t -> G.V.t -> G.t
 end
 
 module Dijkstra
@@ -99,13 +93,13 @@ sig
 end
 
 module Johnson
-  (B: B)
-  (W: Sig.WEIGHT with type edge = B.G.E.t) :
+  (G: G)
+  (W: Sig.WEIGHT with type edge = G.E.t) :
 sig
 
-  module H : Hashtbl.S with type key = (B.G.V.t * B.G.V.t)
+  module HVV : Hashtbl.S with type key = (G.V.t * G.V.t)
 
-  val all_pairs_shortest_paths : B.G.t -> W.t H.t
+  val all_pairs_shortest_paths : G.t -> W.t HVV.t
     (** [all_pairs_shortest_paths g] computes the distance of shortest
         path between all pairs of vertices in [g]. They are returned as
         a hash table mapping each pair of vertices to their
