@@ -187,8 +187,8 @@ module Johnson
   (W: Sig.WEIGHT with type edge = G.E.t) =
 struct
 
+  module  HV = Hashtbl.Make(G.V)
   module HVV = Hashtbl.Make(Util.HTProduct(G.V)(G.V))
-  module HV = Hashtbl.Make(G.V)
 
   module G' = struct
     type t = G.t
@@ -270,12 +270,36 @@ struct
       | OldE e -> W.weight e
     let compare = W.compare
     let add = W.add
+    let sub = W.sub
   end
 
+  module BF = BellmanFord(G')(W')
+
   let all_pairs_shortest_paths g =
-    let module BF = BellmanFord(G')(W') in
+    let pairs_dist = HVV.create 97 in
     let bf_res = BF.all_shortest_paths g G'.V.New in
-    HVV.create 97
+    let module W'' = struct
+	type edge = W.edge
+	type t = W.t
+	let add = W.add
+	let sub = W.sub
+	let weight e =
+	  let v1 = G.E.src e in
+	  let v2 = G.E.dst e in
+	  add (W.weight e)
+	      (W.sub (BF.H.find bf_res (G'.V.Old v1))
+		     (BF.H.find bf_res (G'.V.Old v2)))
+	let compare = W.compare
+	let zero = W.zero
+      end
+    in
+    let module D = Dijkstra(G)(W'') in
+    G.iter_vertex (fun v ->
+		   G.iter_vertex
+		     (fun u ->
+		      let (_, d) = D.shortest_path g v u
+		      in HVV.add pairs_dist (v, u) d) g) g;
+    pairs_dist
 
 end
 

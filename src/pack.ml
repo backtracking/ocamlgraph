@@ -48,6 +48,7 @@ struct
     let weight e = G.E.label e
     let zero = 0
     let add = (+)
+    let sub = (-)
     let compare : t -> t -> int = Pervasives.compare
   end
 
