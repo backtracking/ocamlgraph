@@ -36,6 +36,13 @@ module type G = sig
   val nb_vertex : t -> int
 end
 
+(** Weight signature for Johnson's algorithm. *)
+module type WJ = sig
+  include Sig.WEIGHT
+  val sub : t -> t -> t
+    (** Subtraction of weights. *)
+end
+
 module Dijkstra
   (G: G)
   (W: Sig.WEIGHT with type edge = G.E.t) =
@@ -184,7 +191,7 @@ end
 
 module Johnson
   (G: G)
-  (W: Sig.WEIGHT with type edge = G.E.t) =
+  (W: WJ with type edge = G.E.t) =
 struct
 
   module  HV = Hashtbl.Make(G.V)
@@ -270,7 +277,6 @@ struct
       | OldE e -> W.weight e
     let compare = W.compare
     let add = W.add
-    let sub = W.sub
   end
 
   module BF = BellmanFord(G')(W')

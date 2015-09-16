@@ -314,8 +314,6 @@ module type WEIGHT = sig
     (** Weights must be ordered. *)
   val add : t -> t -> t
     (** Addition of weights. *)
-  val sub : t -> t -> t
-    (** Subtraction of weights. *)
   val zero : t
     (** Neutral element for {!add}. *)
 end
