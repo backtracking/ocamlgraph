@@ -39,6 +39,7 @@ let () =
     - `d' runs DFS
     - `b' runs BFS
     - `p' runs Dijkstra's shortest path
+    - `c' runs SCC
     - `q' to quit
     ";
   flush stdout
@@ -232,6 +233,7 @@ module W = struct
   let weight x = G.E.label x
   let zero = 0
   let add = (+)
+  let sub = (-)
   let compare = compare
 end
 module Dij = Path.Dijkstra(G)(W)
@@ -269,6 +271,25 @@ module Dfs = Traverse.Dfs(G)
 let dfs () = draw_iteration Dfs.prefix
 module Bfs = Traverse.Bfs(G)
 let bfs () = draw_iteration Bfs.iter
+
+module Scc = Components.Make(G)
+let scc () =
+  printf "running scc ... "; flush stdout;
+  let (n_scc, map_scc) = Scc.scc !g in
+  printf "number of components: %d\n" n_scc; flush stdout;
+  let color =
+    if n_scc <= 8 then
+      [|red; green; blue; yellow; cyan; magenta; black; white|]
+    else begin
+	let temp = Array.make n_scc 0 in
+	for i = 0 to (n_scc-1) do
+	  let r = Random.int 256 in
+	  let g = Random.int 256 in
+	  let b = Random.int 256 in
+	  temp.(i) <- rgb r g b
+	done; temp end in
+  G.iter_vertex (
+      fun v -> color_vertex v color.(map_scc v)) !g
 
 (* brute-force coloring *)
 let four_colors () =
@@ -311,6 +332,7 @@ let () =
 	| 'd' -> dfs ()
 	| 'b' -> bfs ()
 	| 'x' -> dump_graph ()
+	| 'c' -> scc ()
 	(* | 'c' -> four_colors () *)
 	| _ -> ()
       else if st.button then
