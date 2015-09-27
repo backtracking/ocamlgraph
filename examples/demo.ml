@@ -165,6 +165,7 @@ module W = struct
   let weight = G.E.label
   let zero = 0
   let add = (+)
+  let sub = (-)
   let compare = compare
 end
 
@@ -174,6 +175,7 @@ module PathWeight = struct
   let weight x = G.E.label x
   let zero = 0
   let add = (+)
+  let sub = (-)
   let compare = compare
 end
 

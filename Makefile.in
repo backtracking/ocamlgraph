@@ -316,6 +316,9 @@ test: $(CMA) tests/test.ml
 test-bf: $(CMA) tests/test_bf.ml
 	ocaml unix.cma graphics.cma $^
 
+test-johnson: $(CMA) tests/test_johnson.ml
+	ocaml unix.cma graphics.cma $^
+
 bin/test-ts: $(CMXA) tests/test_topsort.ml
 	mkdir -p bin
 	$(OCAMLOPT) -o $@ unix.cmxa $^

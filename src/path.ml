@@ -194,7 +194,6 @@ module Johnson
   (W: WJ with type edge = G.E.t) =
 struct
 
-  module  HV = Hashtbl.Make(G.V)
   module HVV = Hashtbl.Make(Util.HTProduct(G.V)(G.V))
 
   module G' = struct
@@ -203,32 +202,31 @@ struct
       type t = New | Old of G.V.t
       let compare v u = match v, u with
 	| New, New -> 0
-	| New, Old v -> -1
-	| Old v, New -> 1
+	| New, Old _ -> -1
+	| Old _, New -> 1
 	| Old v, Old u -> G.V.compare v u
       let hash v = match v with
 	| Old v -> G.V.hash v
-	| _ -> Hashtbl.hash v
+	| New -> 42
       let equal v u = match v, u with
 	| New, New -> true
-	| New, Old v -> false
-	| Old v, New -> false
+	| New, Old _ | Old _, New -> false
 	| Old v, Old u -> G.V.equal v u
     end
     module E = struct
       type label = G.E.label
-      type t = NewE of V.t * label * V.t | OldE of G.E.t
+      type t = NewE of V.t | OldE of G.E.t
       let src e = match e with
-	| NewE (v1, _, _) -> v1
+	| NewE _ -> V.New
 	| OldE e -> V.Old (G.E.src e)
       let dst e = match e with
-	| NewE (_, _, v2) -> v2
+	| NewE v -> v
 	| OldE e -> V.Old (G.E.dst e)
       let label e = match e with
-	| NewE (_, l, _) -> l
+	| NewE _ -> assert false
 	| OldE e -> G.E.label e
       let create v l u = match v, u with
-	| V.New, V.Old u -> NewE (V.New, l, V.Old u)
+	| V.New, V.Old u -> NewE (V.Old u)
 	| V.Old v, V.Old u -> OldE (G.E.create v l u)
 	| _, _ -> assert false
     end
@@ -239,24 +237,13 @@ struct
     let iter_succ f g v = match v with
       | V.New -> G.iter_vertex (fun u -> f (V.Old u)) g
       | V.Old v -> G.iter_succ (fun u -> f (V.Old u)) g v
-    let get_edge_label g = G.fold_edges_e (fun e acc -> Some e) g None
     let iter_succ_e f g v = match v with
       | V.New ->
-	 let e =
-	   (match get_edge_label g with
-	    | None -> raise (Invalid_argument "graph with no edges\n")
-	    | Some e -> e) in
-	 let lab = G.E.label e in
-	 G.iter_vertex (fun u -> f (E.create V.New lab (V.Old u))) g
+	 G.iter_vertex (fun u -> f (E.NewE (V.Old u))) g
       | V.Old v -> G.iter_succ_e (fun e -> f (E.OldE e)) g v
     let fold_edges_e f g acc =
-      let e =
-      match get_edge_label g with
-      | None -> raise (Invalid_argument "graph with no edges\n")
-      | Some e -> e in
-      let lab = G.E.label e in
       let acc' =
-	G.fold_vertex (fun x a -> f (E.create V.New lab (V.Old x)) acc) g acc
+	G.fold_vertex (fun x a -> f (E.NewE (V.Old x)) acc) g acc
       in
       G.fold_edges_e (fun edg ->
 		      let v1 = G.E.src edg in
@@ -273,7 +260,7 @@ struct
     type t = W.t
     let zero = W.zero
     let weight e = match e with
-      | NewE (_, _, _) -> zero
+      | NewE _ -> zero
       | OldE e -> W.weight e
     let compare = W.compare
     let add = W.add

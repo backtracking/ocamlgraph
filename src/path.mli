@@ -40,13 +40,6 @@ module type G = sig
   val nb_vertex : t -> int
 end
 
-(** Weight signature for Johnson's algorithm. *)
-module type WJ = sig
-  include Sig.WEIGHT
-  val sub : t -> t -> t
-    (** Subtraction of weights. *)
-end
-
 module Dijkstra
   (G: G)
   (W: Sig.WEIGHT with type edge = G.E.t) :
@@ -97,6 +90,13 @@ sig
         cycle, raises [Not_found].
 
         Complexity: O(V^2E) *)
+end
+
+(** Weight signature for Johnson's algorithm. *)
+module type WJ = sig
+  include Sig.WEIGHT
+  val sub : t -> t -> t
+    (** Subtraction of weights. *)
 end
 
 module Johnson

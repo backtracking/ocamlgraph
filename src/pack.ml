@@ -53,8 +53,7 @@ struct
   end
 
   include Path.Dijkstra(G)(W)
-  include J
-  (*  let johnson = J.all_pairs_shortest_paths*)
+  include Path.Johnson(G)(W)
 
   module BF = Path.BellmanFord(G)(W)
   let bellman_ford = BF.find_negative_cycle_from
