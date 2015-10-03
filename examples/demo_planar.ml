@@ -272,24 +272,46 @@ let dfs () = draw_iteration Dfs.prefix
 module Bfs = Traverse.Bfs(G)
 let bfs () = draw_iteration Bfs.iter
 
+let golden_ratio = 0.618033988749895
+
+let hsv_to_rgb h s v =
+  let c = v *. s in
+  let h = int_of_float h in
+  let hh = (h mod 360)/60 in
+  let hhf = (mod_float (float_of_int h) 360.) /. 60. in
+  let x = c *. (1. -. (abs_float (mod_float hhf 2. -. 1.))) in
+  let m = v -. c in
+  let cc = int_of_float ((c +. m) *. 255.) in
+  let xx = int_of_float ((x +. m) *. 255.) in
+  let mm = int_of_float (m *. 255.) in
+  match hh with
+  | 0 -> cc, xx, mm
+  | 1 -> xx, cc, mm
+  | 2 -> mm, cc, xx
+  | 3 -> mm, xx, cc
+  | 4 -> xx, mm, cc
+  | 5 -> cc, mm, xx
+  | _ -> mm, mm, mm
+
 module Scc = Components.Make(G)
 let scc () =
   printf "running scc ... "; flush stdout;
   let (n_scc, map_scc) = Scc.scc !g in
   printf "number of components: %d\n" n_scc; flush stdout;
-  let color =
-    if n_scc <= 8 then
-      [|red; green; blue; yellow; cyan; magenta; black; white|]
-    else begin
-	let temp = Array.make n_scc 0 in
-	for i = 0 to (n_scc-1) do
-	  let r = Random.int 256 in
-	  let g = Random.int 256 in
-	  let b = Random.int 256 in
-	  temp.(i) <- rgb r g b
-	done; temp end in
+  let colors = Hashtbl.create n_scc in
+  let inc = golden_ratio *. 360. in
+  Random.self_init ();
+  let h = ref (Random.float 360.) in
   G.iter_vertex (
-      fun v -> color_vertex v color.(map_scc v)) !g
+      fun v -> try let color = Hashtbl.find colors (map_scc v) in
+		   color_vertex v color
+	       with Not_found ->
+		 let color = hsv_to_rgb !h 0.7 0.95 in
+		 h := !h +. inc;
+		 let rgb (r, g, b) = rgb r g b in
+		 let c = rgb color in
+		 Hashtbl.add colors (map_scc v) c;
+		 color_vertex v c) !g
 
 (* brute-force coloring *)
 let four_colors () =
