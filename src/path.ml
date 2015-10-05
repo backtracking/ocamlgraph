@@ -85,7 +85,7 @@ struct
                    try W.compare dev (H.find dist ev) < 0 with Not_found -> true
                  in
                  if improvement then begin
-                   H.replace dist ev dev;
+                     H.replace dist ev dev;
                    PQ.add q (dev, ev, e :: p)
                  end
                end)
@@ -291,12 +291,14 @@ struct
       (fun v ->
        G.iter_vertex
 	 (fun u ->
-	  let (_, d) = D.shortest_path g v u in
-	  HVV.add pairs_dist (v, u)
-		  (W''.add d
-			   (W''.sub (BF.H.find bf_res (G'.V.Old u))
-				    (BF.H.find bf_res (G'.V.Old v))
-			   ))) g) g;
+	  try
+	    let (_, d) = D.shortest_path g v u in
+	    HVV.add pairs_dist (v, u)
+		    (W''.add d
+			     (W''.sub (BF.H.find bf_res (G'.V.Old u))
+				      (BF.H.find bf_res (G'.V.Old v))
+			     ))
+	  with Not_found -> () ) g) g;
     pairs_dist
 
 end

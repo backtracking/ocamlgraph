@@ -40,6 +40,7 @@ let () =
     - `b' runs BFS
     - `p' runs Dijkstra's shortest path
     - `c' runs SCC
+    - `j' runs Johnson shortest path
     - `q' to quit
     ";
   flush stdout
@@ -259,7 +260,24 @@ let dijkstra () = match !selection with
 	printf "no path (%2.2f s)\n" !t_; flush stdout
       end
   | _ ->
-      ()
+     ()
+
+module J = Path.Johnson(G)(W)
+
+let johnson () =
+  match !selection with
+  | Two (v1, v2) ->
+     printf "running Johnson... "; flush stdout;
+     let t_ = ref 0.0 in
+     begin try
+	 let paths, t = utime (J.all_pairs_shortest_paths) !g in
+	 t_ := t;
+	 printf "path of length %d (%2.2f s)\n" (J.HVV.find paths (v1, v2)) t;
+	 flush stdout
+       with Not_found ->
+	 printf "no path (%2.2f s)\n" !t_; flush stdout
+     end
+  | _ -> ()
 
 let draw_iteration f =
   let pause () = for i = 1 to 10000000 do () done in
@@ -355,6 +373,7 @@ let () =
 	| 'b' -> bfs ()
 	| 'x' -> dump_graph ()
 	| 'c' -> scc ()
+	| 'j' -> johnson ()
 	(* | 'c' -> four_colors () *)
 	| _ -> ()
       else if st.button then
