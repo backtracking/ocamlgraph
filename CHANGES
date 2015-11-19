@@ -1,6 +1,7 @@
 
 * marks some incompatible change
 
+ o [Dominator] fixed stack overflow (patch by Albin Coquereau)
  o new functor [Path.Johnson] to compute all pairs of shortest paths
    using Johnson's algorithm (contributed by M·rio Pereira)
  o fixed configuration on Windows (patch by Martin R. Neuh‰uﬂer)

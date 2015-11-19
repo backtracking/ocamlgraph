@@ -22,14 +22,14 @@ open Format
 module Time = struct
 
   open Unix
-    
-  let utime f x =                                                   
-    let u = (times()).tms_utime in                                  
+
+  let utime f x =
+    let u = (times()).tms_utime in
     let y = f x in
     let ut = (times()).tms_utime -. u in
     (y,ut)
-      
-  let print f x = 
+
+  let print f x =
     let (y,ut) = utime f x in
     printf "user time: %2.2f@." ut;
     y
@@ -40,7 +40,7 @@ open Graph
 
 module Bench
   (G : Sig.G with type V.label = int)
-  (B : Builder.S with module G = G) = 
+  (B : Builder.S with module G = G) =
 struct
 
   module R = Rand.Make(B)
@@ -51,26 +51,26 @@ struct
 
   (* détection de cycle *)
 
-  let has_cycle v e = 
+  let has_cycle v e =
     let g = R.graph ~v ~e () in
     let b,t = Time.utime Dfs.has_cycle g in
     printf "v = %d e = %d cycle = %b time = %2.2f@." v e b t;
     b
 
-  let bench1 () = 
+  let bench1 () =
     (* on augmente E jusqu'à trouver un cycle *)
     let v = 20000 in
     let e = ref 1 in
     while not (has_cycle v !e) do e := 2 * !e done
 
-  (* résultats : 
+  (* résultats :
      le temps d'une recherche de cycle négative ne dépend pas de
      E et est d'environ 1s pour 10^6 noeuds *)
 
   (* 2. composantes fortement connexes *)
 
   module C = Components.Make(G)
-  
+
   let bench2 () =
     for i = 1 to 100 do
       let v = i * i in

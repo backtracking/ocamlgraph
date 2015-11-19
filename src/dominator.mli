@@ -39,6 +39,7 @@ module type G = sig
   val succ : t -> V.t -> V.t list
   val fold_vertex : (V.t -> 'a -> 'a) -> t -> 'a -> 'a
   val iter_vertex : (V.t -> unit) -> t -> unit
+  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
   val nb_vertex : t -> int
 end
 

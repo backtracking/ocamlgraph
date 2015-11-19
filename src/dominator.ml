@@ -18,15 +18,12 @@
 (*
   Copyright © 2009 Carnegie-Mellon University, David Brumley, and Ivan Jager.
   From the BAP library; see http://bap.ece.cmu.edu
-
   Modified by OCamlGraph's authors.
 *)
 
 (* stuff to read:
    http://www.hipersoft.rice.edu/grads/publications/dom14.pdf
-
    Modern Compiler Implementation in ML, by Appel
-
    Introduction to Algorithms, Cormen et al
 *)
 
@@ -39,6 +36,7 @@ module type G = sig
   val succ : t -> V.t -> V.t list
   val fold_vertex : (V.t -> 'a -> 'a) -> t -> 'a -> 'a
   val iter_vertex : (V.t -> unit) -> t -> unit
+  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
   val nb_vertex : t -> int
 end
 
@@ -130,12 +128,16 @@ module Make(G : G) = struct
       [compute_idom cfg s0] returns a function [idom : V.t -> V.t] s.t.
       [idom x] returns the immediate dominator of [x]
   *)
+   (** Computes the dominator tree, using the Lengauer-Tarjan algorithm.
+      [compute_idom cfg s0] returns a function [idom : V.t -> V.t] s.t.
+      [idom x] returns the immediate dominator of [x]
+  *)
   let compute_idom cfg s0 =
-      (* based on the Tiger book, section 19.2.
-	 This uses path compression, but doesn't yet do balanced path
-	 compression, so the runtime is O(N log(N)) rather than
-	 O(N inverseackerman(N))
-      *)
+    (* based on the Tiger book, section 19.2.
+       This uses path compression, but doesn't yet do balanced path
+       compression, so the runtime is O(N log(N)) rather than
+       O(N inverseackerman(N))
+    *)
     let size = G.nb_vertex cfg in
     let bucket = H.create size (* node n -> *)
     and dfnum_h = H.create size (* node -> DFS number *)
@@ -146,23 +148,31 @@ module Make(G : G) = struct
     and samedom = H.create size (* node -> node with same idom *)
     and idom = H.create size (* node n -> idom n *)
     and vertex = Array.make size s0 (* DFS number -> node *)
-    and nn = ref 0
-    in
+    and nn = ref 0 in
     let dfnum x = try  H.find dfnum_h x with Not_found -> raise Unreachable
-    and semi = H.find semi_h
-    in
-    let rec dfs p n =
-      if not(H.mem dfnum_h n) then (
-	let enn = !nn in
-	  H.add dfnum_h n enn;
-	  vertex.(enn) <- n;
-	  (match p with
+    and semi = H.find semi_h in
+    let dfs n0 =
+      let stack = Stack.create () in
+      let loop () =
+        while not (Stack.is_empty stack) do
+          let n,p = Stack.pop stack in
+          if not (H.mem dfnum_h n) then begin
+            let enn = !nn in
+	    H.add dfnum_h n enn;
+	    vertex.(enn) <- n;
+            begin match p with
 	    | Some p -> H.add parent n p
-	    | None -> ()
-	  );
-	  nn := (enn + 1);
-	  List.iter (dfs (Some n)) (G.succ cfg n)
-      )
+	    | None -> () end;
+	    nn := enn + 1;
+            G.iter_succ
+	      (fun m ->
+                if not (H.mem dfnum_h m) then Stack.push (m, Some n) stack)
+              cfg n
+          end
+        done
+      in
+      Stack.push (n0,None) stack;
+      loop ()
     in
     let rec ancestor_with_lowest_semi v =
       try
@@ -170,9 +180,9 @@ module Make(G : G) = struct
 	let b = ancestor_with_lowest_semi a in
 	let () = H.replace ancestor v (H.find ancestor a) in
 	let best_v = H.find best v in
-	  if dfnum(semi b) < dfnum(semi best_v)
-	  then (H.replace best v b; b)
-	  else best_v
+	if dfnum(semi b) < dfnum(semi best_v)
+	then (H.replace best v b; b)
+	else best_v
       with Not_found -> H.find best v
     in
     let link p n =
@@ -181,52 +191,52 @@ module Make(G : G) = struct
     in
     let semidominator n =
       let s = H.find parent n in
-	List.fold_left
-	  (fun s v ->
-	     try (* FIXME: do we want to allow unreachable nodes? *)
-	       let s' =
-		 if dfnum v <= dfnum n
-		 then v
-		 else semi(ancestor_with_lowest_semi v)
-	       in
-		 if dfnum s' < dfnum s then s' else s
-	     with Unreachable -> (* maybe switch to Not_found later *)
-	       s (* v is unreachable from s0 *)
-	  )
-	  s
-	  (G.pred cfg n)
+      List.fold_left
+	(fun s v ->
+	  try (* FIXME: do we want to allow unreachable nodes? *)
+            let s' =
+	      if dfnum v <= dfnum n
+	      then v
+	      else semi(ancestor_with_lowest_semi v)
+            in
+	    if dfnum s' < dfnum s then s' else s
+	  with Unreachable -> (* maybe switch to Not_found later *)
+            s (* v is unreachable from s0 *)
+	)
+	s
+	(G.pred cfg n)
     in
-    let () = dfs None s0 in
+    let () = dfs s0 in
     let lastn = !nn - 1 in
-      while decr nn; !nn > 0 do (* skip over the root node *)
-	let i = !nn in
-	let n = vertex.(i) in
-	let p = H.find parent n in
-	let s = semidominator n in
-	  H.add semi_h n s;
-	  H.add bucket s  n;
-	  link p n;
-	  (* now that the path from p to v is in the forest,
-	     calculate the dominator of v based on the first clause of the
-	     Dominator Theorem, otherwise defer until y's dominator is known *)
-	  List.iter
-	    (fun v ->
-	       let y = ancestor_with_lowest_semi v in
-		 if G.V.equal (semi y) (semi v)
-		 then H.add idom v p
-		 else H.add samedom v y;
-		 H.remove bucket p (*could use H.remove_all if we used extlib*)
-	    )
-	    (H.find_all bucket p)
-      done;
-      (* now all the defered calculations can be done *)
-      for i = 1 to lastn do
-	let n = vertex.(i) in
-	  try
-	    H.add idom n (H.find idom (H.find samedom n))
-	  with Not_found -> ()
-      done;
-      H.find idom
+    while decr nn; !nn > 0 do (* skip over the root node *)
+      let i = !nn in
+      let n = vertex.(i) in
+      let p = H.find parent n in
+      let s = semidominator n in
+      H.add semi_h n s;
+      H.add bucket s  n;
+      link p n;
+      (* now that the path from p to v is in the forest,
+         calculate the dominator of v based on the first clause of the
+         Dominator Theorem, otherwise defer until y's dominator is known *)
+      List.iter
+	(fun v ->
+          let y = ancestor_with_lowest_semi v in
+	  if G.V.equal (semi y) (semi v)
+	  then H.add idom v p
+	  else H.add samedom v y;
+	  H.remove bucket p (*could use H.remove_all if we used extlib*)
+	)
+	(H.find_all bucket p)
+    done;
+    (* now all the defered calculations can be done *)
+    for i = 1 to lastn do
+      let n = vertex.(i) in
+      try
+	H.add idom n (H.find idom (H.find samedom n))
+      with Not_found -> ()
+    done;
+    H.find idom
 
 
   (** Given a function from a node to it's dominators, returns a function
@@ -393,11 +403,9 @@ module Make_graph(G: I) = struct
     g
 
   (** Computes all dominance functions.
-
       This function computes some things eagerly and some lazily, so don't
       worry about it doing extra work to compute functions you don't need,
       but also don't call it if you aren't going to use anything it returns.
-
       @return a record containing all dominance functions for the given graph
       and entry node.
   *)
