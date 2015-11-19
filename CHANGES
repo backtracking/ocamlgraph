@@ -1,6 +1,8 @@
 
 * marks some incompatible change
 
+ o new functor [Path.Johnson] to compute all pairs of shortest paths
+   using Johnson's algorithm (contributed by M·rio Pereira)
  o fixed configuration on Windows (patch by Martin R. Neuh‰uﬂer)
  o new functor [Components.Undirected] to compute connected components
  o Graphviz: fixed printing of attribute BgcolorWithTransparency
@@ -9,8 +11,6 @@
  o new module type Sig.WEIGHT (used in Path, Prim, and Nonnegative)
  o Fixpoint: do not catch Not_found raised by a user-provided function.
  o Adding folds to BFS.
- o new functor [Path.Johnson] to compute all pairs of shortest paths
-   using Johnson's algorithm
 
 version 1.8.6, January 23, 2015
 -------------------------------
