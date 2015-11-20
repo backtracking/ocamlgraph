@@ -28,7 +28,8 @@ module Make(G: G) = struct
 
   module H = Hashtbl.Make(G.V)
 
-  let scc g =
+  (* legacy code, as a reference. Raises Stack_overflow on large graphs *)
+  let legacy g =
     let root = H.create 97 in
     let hashcomp = H.create 97 in
     let stack = ref [] in
@@ -60,6 +61,64 @@ module Make(G: G) = struct
       end
     in
     G.iter_vertex visit g;
+    !numcomp, (fun v -> H.find hashcomp v)
+
+  (* iterative code using a stack (variable [cont] below) *)
+
+  type action =
+    | Finish of G.V.t * int
+    | Visit of G.V.t * G.V.t
+    | Test of G.V.t * G.V.t
+
+  let scc g =
+    let root = H.create 997 in
+    let hashcomp = H.create 997 in
+    let stack = ref [] in
+    let numdfs = ref 0 in
+    let numcomp = ref 0 in
+    let rec pop x = function
+      | (y, w) :: l when y > x ->
+	H.add hashcomp w !numcomp;
+	pop x l
+      | l -> l
+    in
+    let cont = ref [] in
+    let visit v =
+      if not (H.mem root v) then begin
+	let n = incr numdfs; !numdfs in
+	H.add root v n;
+        cont := Finish (v, n) :: !cont;
+	G.iter_succ
+	  (fun w ->
+            cont := Visit (v, w) :: Test (v, w) :: !cont)
+	  g v;
+      end
+    in
+    let rec finish () = match !cont with
+      | [] -> ()
+      | action :: tail ->
+        cont := tail;
+        begin match action with
+          | Finish (v, n) ->
+	    if H.find root v = n then begin
+	      H.add hashcomp v !numcomp;
+	      let s = pop n !stack in
+	      stack:= s;
+	      incr numcomp
+	    end else
+              stack := (n, v) :: !stack;
+          | Visit (v, w) -> visit w
+          | Test (v, w) ->
+	    if not (H.mem hashcomp w) then
+	      H.replace root v (min (H.find root v) (H.find root w))
+        end;
+        finish ()
+    in
+    let visit_and_finish v =
+      visit v;
+      finish ()
+    in
+    G.iter_vertex visit_and_finish g;
     !numcomp, (fun v -> H.find hashcomp v)
 
   let scc_array g =

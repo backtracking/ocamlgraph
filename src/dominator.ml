@@ -327,28 +327,28 @@ module Make(G : G) = struct
       As specified in section 19.1 of Modern Compiler Implementation in ML
       by Andrew Appel.
   *)
-  let compute_dom_frontier cfg (dom_tree:dom_tree) (idom:idom) =
+  let compute_dom_frontier cfg (dom_tree: dom_tree) (idom: idom) =
     let children = dom_tree in
     let idoms = idom_to_idoms idom in
     let df_cache = H.create 57 in
     let df_local n =
       (* The successors of n that are not strictly dominated by n *)
-      List.filter (fun y -> not((idoms n y))) (G.succ cfg n)
+      List.filter (fun y -> not (idoms n y)) (G.succ cfg n)
     in
     let rec df n =
       try H.find df_cache n
       with Not_found ->
 	let s = df_local n in
 	let res = add_df_ups s n in
-	let () = H.add df_cache n res in
-	  res
+	H.add df_cache n res;
+	res
     and add_df_ups s n =
       List.fold_left
 	(fun s c ->
 	   List.fold_left
 	     (* the appel errata uses sdom, but Muchnick uses idoms, which
 		should be a bit faster and is the same *)
-	     (fun s w  -> if idoms n w then s else w::s)
+	     (fun s w  -> if idoms n w then s else w :: s)
 	     s
 	     (df c)
 	)

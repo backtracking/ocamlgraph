@@ -1,6 +1,7 @@
 
 * marks some incompatible change
 
+ o [Components] fixed stack overflow with [scc] (patch by Albin Coquereau)
  o [Dominator] fixed stack overflow (patch by Albin Coquereau)
  o new functor [Path.Johnson] to compute all pairs of shortest paths
    using Johnson's algorithm (contributed by Mário Pereira)
