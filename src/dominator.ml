@@ -128,10 +128,6 @@ module Make(G : G) = struct
       [compute_idom cfg s0] returns a function [idom : V.t -> V.t] s.t.
       [idom x] returns the immediate dominator of [x]
   *)
-   (** Computes the dominator tree, using the Lengauer-Tarjan algorithm.
-      [compute_idom cfg s0] returns a function [idom : V.t -> V.t] s.t.
-      [idom x] returns the immediate dominator of [x]
-  *)
   let compute_idom cfg s0 =
     (* based on the Tiger book, section 19.2.
        This uses path compression, but doesn't yet do balanced path
@@ -332,30 +328,28 @@ module Make(G : G) = struct
     let idoms = idom_to_idoms idom in
     let df_cache = H.create 57 in
     let df_local n =
-      (* The successors of n that are not strictly dominated by n *)
+      (* the successors of n that are not strictly dominated by n *)
       List.filter (fun y -> not (idoms n y)) (G.succ cfg n)
     in
-    let rec df n =
-      try H.find df_cache n
-      with Not_found ->
+    (* written in CPS to prevent stack overflow *)
+    let rec df n k =
+      match try Some (H.find df_cache n) with Not_found -> None with
+      | Some r -> k r
+      | None ->
 	let s = df_local n in
-	let res = add_df_ups s n in
-	H.add df_cache n res;
-	res
-    and add_df_ups s n =
-      List.fold_left
-	(fun s c ->
-	   List.fold_left
-	     (* the appel errata uses sdom, but Muchnick uses idoms, which
-		should be a bit faster and is the same *)
-	     (fun s w  -> if idoms n w then s else w :: s)
-	     s
-	     (df c)
-	)
-	s
-	(children n)
+	add_df_ups s n (fun res -> H.add df_cache n res; k res) (children n)
+    and add_df_ups s n k = function
+      | [] -> k s
+      | c :: chl ->
+        df c (fun dfc ->
+	  add_df_ups
+            (List.fold_left
+  	        (* the appel errata uses sdom, but Muchnick uses idoms, which
+		   should be a bit faster and is the same *)
+	       (fun s w  -> if idoms n w then s else w :: s) s dfc)
+            n k chl)
     in
-      df
+    fun n -> df n (fun x -> x)
 
   let idom_to_dominators idom x =
     let rec d y list =
