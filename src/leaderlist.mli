@@ -23,7 +23,7 @@
 (** The leader list algorithm; it generates a list of basic blocks from
     a directed graph. A basic block is a forward path of nodes that requires
     neither branching from nor into.
- *)
+*)
 
 (** Minimal graph signature for leader list algorithm *)
 module type G = sig
@@ -35,7 +35,7 @@ module type G = sig
 end
 
 module Make
-  (G : G) :
+    (G : G) :
 sig
   val leader_lists : G.t -> G.V.t -> G.V.t list list
   (** [leader_lists graph root] computes the leader lists or basic blocks

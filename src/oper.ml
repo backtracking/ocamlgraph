@@ -41,8 +41,8 @@ module Make(B : Builder.S) = struct
     let phi v g =
       let g = if reflexive then B.add_edge g v v else g in
       G.fold_succ
-	(fun sv g -> G.fold_pred (fun pv g -> B.add_edge g pv sv) g v g)
-	g v g
+        (fun sv g -> G.fold_pred (fun pv g -> B.add_edge g pv sv) g v g)
+        g v g
     in
     G.fold_vertex phi g0 g0
 
@@ -54,52 +54,52 @@ module Make(B : Builder.S) = struct
   let mirror g =
     if G.is_directed then begin
       let g' =
-       G.fold_vertex
-         (fun v g' -> B.add_vertex g' v)
-         g (B.empty ())
+        G.fold_vertex
+          (fun v g' -> B.add_vertex g' v)
+          g (B.empty ())
       in
       G.fold_edges_e
-       (fun e g' ->
-          let v1 = G.E.src e in
-          let v2 = G.E.dst e in
-          B.add_edge_e g' (G.E.create v2 (G.E.label e) v1))
-       g g'
+        (fun e g' ->
+           let v1 = G.E.src e in
+           let v2 = G.E.dst e in
+           B.add_edge_e g' (G.E.create v2 (G.E.label e) v1))
+        g g'
     end else
       g
 
   let complement g =
     G.fold_vertex
       (fun v g' ->
-        G.fold_vertex
-          (fun w g' ->
-             if G.mem_edge g v w then g'
-             else B.add_edge g' v w)
-        g g')
+         G.fold_vertex
+           (fun w g' ->
+              if G.mem_edge g v w then g'
+              else B.add_edge g' v w)
+           g g')
       g (B.empty ())
 
   let intersect g1 g2 =
     G.fold_vertex
       (fun v g ->
-        try
-          let succ = G.succ_e g2 v in
-          G.fold_succ_e
-            (fun e g ->
-              if List.exists (fun e' -> G.E.compare e e' = 0) succ
-              then B.add_edge_e g e
-              else g)
-            g1 v (B.add_vertex g v)
-        with Invalid_argument _ ->
-          (* [v] not in [g2] *)
-          g)
+         try
+           let succ = G.succ_e g2 v in
+           G.fold_succ_e
+             (fun e g ->
+                if List.exists (fun e' -> G.E.compare e e' = 0) succ
+                then B.add_edge_e g e
+                else g)
+             g1 v (B.add_vertex g v)
+         with Invalid_argument _ ->
+           (* [v] not in [g2] *)
+           g)
       g1 (B.empty ())
 
   let union g1 g2 =
     let add g1 g2 =
       (* add the graph [g1] in [g2] *)
       G.fold_vertex
-	(fun v g ->
-	   G.fold_succ_e (fun e g -> B.add_edge_e g e) g1 v (B.add_vertex g v))
-	g1 g2
+        (fun v g ->
+           G.fold_succ_e (fun e g -> B.add_edge_e g e) g1 v (B.add_vertex g v))
+        g1 g2
     in
     add g1 (B.copy g2)
 
@@ -107,13 +107,13 @@ module Make(B : Builder.S) = struct
     let phi v g =
       let g = if reflexive then B.remove_edge g v v else g in
       G.fold_succ
-	(fun sv g ->
-	  G.fold_pred
-	    (fun pv g ->
-	      if G.V.equal pv v || G.V.equal sv v then g
-	      else B.remove_edge g pv sv)
-	    g v g)
-	g v g
+        (fun sv g ->
+           G.fold_pred
+             (fun pv g ->
+                if G.V.equal pv v || G.V.equal sv v then g
+                else B.remove_edge g pv sv)
+             g v g)
+        g v g
     in
     G.fold_vertex phi g0 g0
 
@@ -126,12 +126,12 @@ module P(G : Sig.P) = Make(Builder.P(G))
 module I(G : Sig.I) = Make(Builder.I(G))
 
 module Choose(G : sig
-		type t
-		type vertex
-		type edge
-		val iter_vertex : (vertex -> unit) -> t -> unit
-		val iter_edges_e : (edge -> unit) -> t -> unit
-	      end) =
+    type t
+    type vertex
+    type edge
+    val iter_vertex : (vertex -> unit) -> t -> unit
+    val iter_edges_e : (edge -> unit) -> t -> unit
+  end) =
 struct
 
   exception Found_Vertex of G.vertex
@@ -153,11 +153,11 @@ struct
 end
 
 module Neighbourhood(G : sig
-		      type t
-		      module V : Sig.COMPARABLE
-		      val fold_succ: (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
-		      val succ: t -> V.t -> V.t list
-		    end) =
+    type t
+    module V : Sig.COMPARABLE
+    val fold_succ: (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
+    val succ: t -> V.t -> V.t list
+  end) =
 struct
 
   module Vertex_Set = Set.Make(G.V)
@@ -171,11 +171,11 @@ struct
     let rec aux = function
       | [] -> []
       | v' :: l ->
-	  if G.V.equal v v' then begin
-	    assert (not (List.exists (G.V.equal v) l));
-	    l
-	  end else
-	    v' :: aux l
+        if G.V.equal v v' then begin
+          assert (not (List.exists (G.V.equal v) l));
+          l
+        end else
+          v' :: aux l
     in
     aux (G.succ g v)
 

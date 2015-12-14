@@ -31,18 +31,18 @@ module MaximalCardinalitySearch : sig
     type edgelist = (G.V.t * G.V.t) list
 
     (** [mcsm g] returns a tuple [(o, e)] where [o] is a perfect elimination
-      order of [g'] where [g'] is the triangulation [e] applied to [g]. *)
+        order of [g'] where [g'] is the triangulation [e] applied to [g]. *)
     val mcsm : G.t -> (int * G.V.t) list * edgelist
 
     (** [triangulate g] computes a triangulation of [g]
-      using the MCS-M algorithm *)
+        using the MCS-M algorithm *)
     val triangulate : G.t -> G.t
   end
   module I(Gr : Sig.I) : sig
     type edgelist = (Gr.V.t * Gr.V.t) list
 
     (** [mcsm g] return a tuple [(o, e)] where o is a perfect elimination order
-      of [g'] where [g'] is the triangulation [e] applied to [g]. *)
+        of [g'] where [g'] is the triangulation [e] applied to [g]. *)
     val mcsm : Gr.t -> (int * Gr.V.t) list * edgelist
 
     (** [triangulate g] triangulates [g] using the MCS-M algorithm *)

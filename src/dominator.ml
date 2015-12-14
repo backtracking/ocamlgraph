@@ -110,14 +110,14 @@ module Make(G : G) = struct
   let pseudo_topological_fold f x nodes succ =
     let found = H.create 57 in
     let rec visit x n =
-	if H.mem found n
-	then (* black or gray *) x
-	else  (* white *)
-	  let () = H.add found n () in
-	  let x = List.fold_left visit x (succ n) in
-	    f n x
+      if H.mem found n
+      then (* black or gray *) x
+      else  (* white *)
+        let () = H.add found n () in
+        let x = List.fold_left visit x (succ n) in
+        f n x
     in
-      List.fold_left visit x nodes
+    List.fold_left visit x nodes
 
   (** Given the entry nodes into a graph, and a successor function, returns
       the nodes in pseudo topological order. *)
@@ -154,15 +154,15 @@ module Make(G : G) = struct
           let n,p = Stack.pop stack in
           if not (H.mem dfnum_h n) then begin
             let enn = !nn in
-	    H.add dfnum_h n enn;
-	    vertex.(enn) <- n;
+            H.add dfnum_h n enn;
+            vertex.(enn) <- n;
             begin match p with
-	    | Some p -> H.add parent n p
-	    | None -> () end;
-	    nn := enn + 1;
+              | Some p -> H.add parent n p
+              | None -> () end;
+            nn := enn + 1;
             G.iter_succ
-	      (fun m ->
-                if not (H.mem dfnum_h m) then Stack.push (m, Some n) stack)
+              (fun m ->
+                 if not (H.mem dfnum_h m) then Stack.push (m, Some n) stack)
               cfg n
           end
         done
@@ -172,13 +172,13 @@ module Make(G : G) = struct
     in
     let rec ancestor_with_lowest_semi v =
       try
-	let a = H.find ancestor v in
-	let b = ancestor_with_lowest_semi a in
-	let () = H.replace ancestor v (H.find ancestor a) in
-	let best_v = H.find best v in
-	if dfnum(semi b) < dfnum(semi best_v)
-	then (H.replace best v b; b)
-	else best_v
+        let a = H.find ancestor v in
+        let b = ancestor_with_lowest_semi a in
+        let () = H.replace ancestor v (H.find ancestor a) in
+        let best_v = H.find best v in
+        if dfnum(semi b) < dfnum(semi best_v)
+        then (H.replace best v b; b)
+        else best_v
       with Not_found -> H.find best v
     in
     let link p n =
@@ -188,19 +188,19 @@ module Make(G : G) = struct
     let semidominator n =
       let s = H.find parent n in
       List.fold_left
-	(fun s v ->
-	  try (* FIXME: do we want to allow unreachable nodes? *)
-            let s' =
-	      if dfnum v <= dfnum n
-	      then v
-	      else semi(ancestor_with_lowest_semi v)
-            in
-	    if dfnum s' < dfnum s then s' else s
-	  with Unreachable -> (* maybe switch to Not_found later *)
-            s (* v is unreachable from s0 *)
-	)
-	s
-	(G.pred cfg n)
+        (fun s v ->
+           try (* FIXME: do we want to allow unreachable nodes? *)
+             let s' =
+               if dfnum v <= dfnum n
+               then v
+               else semi(ancestor_with_lowest_semi v)
+             in
+             if dfnum s' < dfnum s then s' else s
+           with Unreachable -> (* maybe switch to Not_found later *)
+             s (* v is unreachable from s0 *)
+        )
+        s
+        (G.pred cfg n)
     in
     let () = dfs s0 in
     let lastn = !nn - 1 in
@@ -216,20 +216,20 @@ module Make(G : G) = struct
          calculate the dominator of v based on the first clause of the
          Dominator Theorem, otherwise defer until y's dominator is known *)
       List.iter
-	(fun v ->
-          let y = ancestor_with_lowest_semi v in
-	  if G.V.equal (semi y) (semi v)
-	  then H.add idom v p
-	  else H.add samedom v y;
-	  H.remove bucket p (*could use H.remove_all if we used extlib*)
-	)
-	(H.find_all bucket p)
+        (fun v ->
+           let y = ancestor_with_lowest_semi v in
+           if G.V.equal (semi y) (semi v)
+           then H.add idom v p
+           else H.add samedom v y;
+           H.remove bucket p (*could use H.remove_all if we used extlib*)
+        )
+        (H.find_all bucket p)
     done;
     (* now all the defered calculations can be done *)
     for i = 1 to lastn do
       let n = vertex.(i) in
       try
-	H.add idom n (H.find idom (H.find samedom n))
+        H.add idom n (H.find idom (H.find samedom n))
       with Not_found -> ()
     done;
     H.find idom
@@ -263,11 +263,11 @@ module Make(G : G) = struct
   *)
   let dominators_to_idoms dominators =
     let sdom = dominators_to_sdom dominators in
-      (fun x y ->
-	 sdom x y
-	 && let sdoms = dominators_to_sdominators dominators y in
-	   S.for_all (fun w -> G.V.equal x w || not(sdom x w)) sdoms
-      )
+    (fun x y ->
+       sdom x y
+       && let sdoms = dominators_to_sdominators dominators y in
+       S.for_all (fun w -> G.V.equal x w || not(sdom x w)) sdoms
+    )
 
 
   (** Computes a dominator tree (function from x to a list of nodes immediately
@@ -281,24 +281,24 @@ module Make(G : G) = struct
     let tree = H.create 97 in
     let () =
       G.iter_vertex
-	(fun y ->
-	   match pred cfg y with
-	       [x] -> (
-		 (* a node that is not reachable from start has no
-		    idom *)
-		 if S.is_empty (dominators x) then () else
-		   H.add tree x y
-	       )
-	     | _ -> (
-		 S.iter
-		   (fun x -> if idoms x y then H.add tree x y)
-		   (dominators y)
-	       )
-	)
-	cfg
+        (fun y ->
+           match pred cfg y with
+             [x] -> (
+               (* a node that is not reachable from start has no
+                  idom *)
+               if S.is_empty (dominators x) then () else
+                 H.add tree x y
+             )
+           | _ -> (
+               S.iter
+                 (fun x -> if idoms x y then H.add tree x y)
+                 (dominators y)
+             )
+        )
+        cfg
     in
-      (* FIXME: maybe faster to convert eagerly *)
-      fun x -> set_of_list(H.find_all tree x)
+    (* FIXME: maybe faster to convert eagerly *)
+    fun x -> set_of_list(H.find_all tree x)
 
   (** Computes a dominator tree (function from x to a list of nodes immediately
       dominated by x) for the given CFG and idom function. *)
@@ -306,13 +306,13 @@ module Make(G : G) = struct
     let tree = H.create (G.nb_vertex cfg) in
     let () =
       G.iter_vertex
-	(fun v ->
-	   try H.add tree (idom v) v
-	   with Not_found -> () (* s0 doesn't have an idom *)
-	)
-	cfg
+        (fun v ->
+           try H.add tree (idom v) v
+           with Not_found -> () (* s0 doesn't have an idom *)
+        )
+        cfg
     in
-      H.find_all tree
+    H.find_all tree
 
 
   let idom_to_idoms (idom:idom) x y =
@@ -336,35 +336,35 @@ module Make(G : G) = struct
       match try Some (H.find df_cache n) with Not_found -> None with
       | Some r -> k r
       | None ->
-	let s = df_local n in
-	add_df_ups s n (fun res -> H.add df_cache n res; k res) (children n)
+        let s = df_local n in
+        add_df_ups s n (fun res -> H.add df_cache n res; k res) (children n)
     and add_df_ups s n k = function
       | [] -> k s
       | c :: chl ->
         df c (fun dfc ->
-	  add_df_ups
-            (List.fold_left
-  	        (* the appel errata uses sdom, but Muchnick uses idoms, which
-		   should be a bit faster and is the same *)
-	       (fun s w  -> if idoms n w then s else w :: s) s dfc)
-            n k chl)
+            add_df_ups
+              (List.fold_left
+                 (* the appel errata uses sdom, but Muchnick uses idoms, which
+                    should be a bit faster and is the same *)
+                 (fun s w  -> if idoms n w then s else w :: s) s dfc)
+              n k chl)
     in
     fun n -> df n (fun x -> x)
 
   let idom_to_dominators idom x =
     let rec d y list =
       try
-	let i = idom y in
-	  d i (i::list)
+        let i = idom y in
+        d i (i::list)
       with Not_found ->
-	list
+        list
     in
-      d x []
+    d x []
 
   let rec idom_to_dom idom x y =
     try
       let d = idom y in
-	G.V.equal x d || idom_to_dom idom x d
+      G.V.equal x d || idom_to_dom idom x d
     with Not_found ->
       false
 
@@ -390,10 +390,10 @@ module Make_graph(G: I) = struct
   let compute_dom_graph cfg dom_tree =
     let g = G.create ~size:(G.nb_vertex cfg) () in
     G.iter_vertex (fun p ->
-      try
-        List.iter (G.add_edge g p) (dom_tree p)
-      with Not_found -> ()
-    ) cfg;
+        try
+          List.iter (G.add_edge g p) (dom_tree p)
+        with Not_found -> ()
+      ) cfg;
     g
 
   (** Computes all dominance functions.
@@ -413,15 +413,15 @@ module Make_graph(G: I) = struct
     let dom_frontier =
       lazy(compute_dom_frontier cfg (Lazy.force dom_tree) idom)
     in
-      {
-        idom=idom;
-        idoms=idoms;
-        dom_tree=(fun x -> Lazy.force dom_tree x);
-        dominators=dominators;
-        dom=dom;
-        sdom=sdom;
-        dom_frontier=(fun x -> Lazy.force dom_frontier x);
-        dom_graph=(fun () -> compute_dom_graph cfg (Lazy.force dom_tree));
-      }
+    {
+      idom=idom;
+      idoms=idoms;
+      dom_tree=(fun x -> Lazy.force dom_tree x);
+      dominators=dominators;
+      dom=dom;
+      sdom=sdom;
+      dom_frontier=(fun x -> Lazy.force dom_frontier x);
+      dom_graph=(fun () -> compute_dom_graph cfg (Lazy.force dom_tree));
+    }
 
 end

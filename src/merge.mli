@@ -91,24 +91,24 @@ module type S = sig
   val merge_scc:
     ?loop_killer:bool -> ?specified_vertex:(vertex list -> vertex) -> graph ->
     graph
-(** The vertex of every strongly connected component are identified. If the
-    option [loop_killer] is set to [true] then all the edges between identified
-    vertices are removed. The option [specified_vertex] allows to choose the
-    vertex that replaces the elements of a strongly connected component.*)
+    (** The vertex of every strongly connected component are identified. If the
+        option [loop_killer] is set to [true] then all the edges between identified
+        vertices are removed. The option [specified_vertex] allows to choose the
+        vertex that replaces the elements of a strongly connected component.*)
 
 end
 
 (** Extension for the module [X].*)
 module B(X: Builder.S) : S with type graph = X.G.t
-			   and type vertex := X.G.vertex
-			   and type edge := X.G.edge
-			   and type edge_label = X.G.E.label
+                            and type vertex := X.G.vertex
+                            and type edge := X.G.edge
+                            and type edge_label = X.G.E.label
 
 (**Extension for the module [G].*)
 module P(G: Sig.P): S with type graph = G.t
-		      and type vertex := G.vertex
-		      and type edge := G.edge
-		      and type edge_label = G.E.label
+                       and type vertex := G.vertex
+                       and type edge := G.edge
+                       and type edge_label = G.E.label
 
 (**Extension for the module [G].*)
 module I(G: Sig.I): sig

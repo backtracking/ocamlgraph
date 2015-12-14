@@ -24,16 +24,16 @@ module type S = sig
   (** Persistent Unlabeled Graphs *)
   module Concrete (V: COMPARABLE) :
     Sig.P with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t
-	  and type E.label = unit
+                                                     and type E.label = unit
 
   (** Abstract Persistent Unlabeled Graphs *)
   module Abstract(V: sig type t end) : Sig.P with type V.label = V.t
-					     and type E.label = unit
+                                              and type E.label = unit
 
   (** Persistent Labeled Graphs *)
   module ConcreteLabeled (V: COMPARABLE)(E: ORDERED_TYPE_DFT) :
     Sig.P with type V.t = V.t and type V.label = V.t
-	    and type E.t = V.t * E.t * V.t and type E.label = E.t
+                              and type E.t = V.t * E.t * V.t and type E.label = E.t
 
   (** Abstract Persistent Labeled Graphs *)
   module AbstractLabeled (V: sig type t end)(E: ORDERED_TYPE_DFT) :
@@ -66,69 +66,69 @@ module Digraph = struct
     include P.Digraph.Concrete(V)
     let remove_vertex g v =
       if HM.mem v g then
-	let g = HM.remove v g in
-	HM.fold (fun k s -> HM.add k (S.remove v s)) g empty
+        let g = HM.remove v g in
+        HM.fold (fun k s -> HM.add k (S.remove v s)) g empty
       else
-	g
+        g
   end
 
   module ConcreteLabeled(V:COMPARABLE)(E:ORDERED_TYPE_DFT) = struct
     include P.Digraph.ConcreteLabeled(V)(E)
     let remove_vertex g v =
       if HM.mem v g then
-	let g = HM.remove v g in
-	let remove v = S.filter (fun (v2, _) -> not (V.equal v v2)) in
-	HM.fold (fun k s -> HM.add k (remove v s)) g empty
+        let g = HM.remove v g in
+        let remove v = S.filter (fun (v2, _) -> not (V.equal v v2)) in
+        HM.fold (fun k s -> HM.add k (remove v s)) g empty
       else
-	g
+        g
   end
 
   module ConcreteBidirectional(V: COMPARABLE) = struct
     include P.Digraph.ConcreteBidirectional(V)
     let remove_vertex g v =
       if HM.mem v g then
-	let remove v = S.filter (fun v' -> not (V.equal v v')) in
-	let g =
-	  fold_pred
-	    (fun v' acc ->
-	       let in_set, out_set = HM.find v' acc in
-	       HM.add v' (in_set, remove v out_set) acc)
-	    g v g
-	in
-	let g =
-	  fold_succ
-	    (fun v' acc ->
-	       let in_set, out_set = HM.find v' acc in
-	       HM.add v' (remove v in_set, out_set) acc)
-	    g v g
-	in
-	HM.remove v g
+        let remove v = S.filter (fun v' -> not (V.equal v v')) in
+        let g =
+          fold_pred
+            (fun v' acc ->
+               let in_set, out_set = HM.find v' acc in
+               HM.add v' (in_set, remove v out_set) acc)
+            g v g
+        in
+        let g =
+          fold_succ
+            (fun v' acc ->
+               let in_set, out_set = HM.find v' acc in
+               HM.add v' (remove v in_set, out_set) acc)
+            g v g
+        in
+        HM.remove v g
       else
-	g
+        g
   end
 
   module ConcreteBidirectionalLabeled(V:COMPARABLE)(E:ORDERED_TYPE_DFT) = struct
     include P.Digraph.ConcreteBidirectionalLabeled(V)(E)
     let remove_vertex (g:t) (v:vertex) =
       if HM.mem v g then
-	let remove v = S.filter (fun (v', _) -> not (V.equal v v')) in
-	let g =
-	  fold_pred
-	    (fun v' acc ->
-	       let in_set, out_set = HM.find v' acc in
-	       HM.add v' (in_set, remove v out_set) acc)
-	    g v g
-	in
-	let g =
-	  fold_succ
-	    (fun v' acc ->
-	       let in_set, out_set = HM.find v' acc in
-	       HM.add v' (remove v in_set, out_set) acc)
-	    g v g
-	in
-	HM.remove v g
+        let remove v = S.filter (fun (v', _) -> not (V.equal v v')) in
+        let g =
+          fold_pred
+            (fun v' acc ->
+               let in_set, out_set = HM.find v' acc in
+               HM.add v' (in_set, remove v out_set) acc)
+            g v g
+        in
+        let g =
+          fold_succ
+            (fun v' acc ->
+               let in_set, out_set = HM.find v' acc in
+               HM.add v' (remove v in_set, out_set) acc)
+            g v g
+        in
+        HM.remove v g
       else
-	g
+        g
   end
 
   module Abstract(V: sig type t end) = struct
@@ -139,10 +139,10 @@ module Digraph = struct
 
     let add_vertex g v =
       if mem_vertex g v then
-	g
+        g
       else
-	{ edges = G.unsafe_add_vertex g.edges v;
-	  size = Pervasives.succ g.size }
+        { edges = G.unsafe_add_vertex g.edges v;
+          size = Pervasives.succ g.size }
 
     let add_edge g v1 v2 =
       let g = add_vertex g v1 in
@@ -153,11 +153,11 @@ module Digraph = struct
 
     let remove_vertex g v =
       if HM.mem v g.edges then
-	let e = HM.remove v g.edges in
-	let e = HM.fold (fun k s g -> HM.add k (S.remove v s) g) e HM.empty in
-	{ edges = e; size = Pervasives.pred g.size }
+        let e = HM.remove v g.edges in
+        let e = HM.fold (fun k s g -> HM.add k (S.remove v s) g) e HM.empty in
+        { edges = e; size = Pervasives.pred g.size }
       else
-	g
+        g
 
     let remove_edge g v1 v2 = { g with edges = remove_edge g v1 v2 }
     let remove_edge_e g e = { g with edges = remove_edge_e g e }
@@ -172,10 +172,10 @@ module Digraph = struct
 
     let add_vertex g v =
       if mem_vertex g v then
-	g
+        g
       else
-	{ edges = G.unsafe_add_vertex g.edges v;
-	  size = Pervasives.succ g.size }
+        { edges = G.unsafe_add_vertex g.edges v;
+          size = Pervasives.succ g.size }
 
     let add_edge_e g (v1, l, v2) =
       let g = add_vertex g v1 in
@@ -186,17 +186,17 @@ module Digraph = struct
 
     let remove_vertex g v =
       if HM.mem v g.edges then
-	let remove v s =
-	  S.fold
-	    (fun (v2, _ as e) s -> if not (V.equal v v2) then S.add e s else s)
-	    s S.empty
-	in
-	let edges = HM.remove v g.edges in
-	{ edges =
-	    HM.fold (fun k s g -> HM.add k (remove v s) g) edges HM.empty;
-	  size = Pervasives.pred g.size }
+        let remove v s =
+          S.fold
+            (fun (v2, _ as e) s -> if not (V.equal v v2) then S.add e s else s)
+            s S.empty
+        in
+        let edges = HM.remove v g.edges in
+        { edges =
+            HM.fold (fun k s g -> HM.add k (remove v s) g) edges HM.empty;
+          size = Pervasives.pred g.size }
       else
-	g
+        g
 
     let remove_edge g v1 v2 = { g with edges = remove_edge g v1 v2 }
     let remove_edge_e g e = { g with edges = remove_edge_e g e }

@@ -54,11 +54,11 @@ module Make (S : CCC) = struct
 
   type arc = {
     mutable vert : point;
-      (* v, if this arc goes from u to v *)
+    (* v, if this arc goes from u to v *)
     mutable next : arc;
-      (* the arc from v that shares a triangle with this one *)
+    (* the arc from v that shares a triangle with this one *)
     mutable inst : node ref;
-      (* instruction to change when the triangle is modified *)
+    (* instruction to change when the triangle is modified *)
     mate : int
   }
   and node =
@@ -107,18 +107,18 @@ module Make (S : CCC) = struct
     let arcs = Array.init (6 * n - 6) (make_arc n) in
     let mate i = 6 * n - 7 - i in
 
-  (*i DEBUG
-  let rec dump d l =
-    eprintf "%s" (String.make (2*d) ' ');
-    match !l with
-      | Terminal a ->
-	  eprintf "T %d\n" (mate a.mate)
-      | Branch (u, v, l, r) ->
-	  eprintf "N %d %d\n" u v;
-	  dump (d+1) l;
-	  dump (d+1) r
-  in
-  i*)
+    (*i DEBUG
+      let rec dump d l =
+      eprintf "%s" (String.make (2*d) ' ');
+      match !l with
+        | Terminal a ->
+      eprintf "T %d\n" (mate a.mate)
+        | Branch (u, v, l, r) ->
+      eprintf "N %d %d\n" u v;
+      dump (d+1) l;
+      dump (d+1) r
+      in
+      i*)
 
     (* initialization:
        create a trivial triangulation for the first 2 vertices *)
@@ -145,10 +145,10 @@ module Make (S : CCC) = struct
     for p = 2 to n - 1 do
       (* Step T1 *)
       let rec step_T1 l p = match !l with
-	| Terminal al ->
-	    l, al
-	| Branch (pl, ql, al, bl) ->
-	    step_T1 (if ccw pl ql p then al else bl) p
+        | Terminal al ->
+          l, al
+        | Branch (pl, ql, al, bl) ->
+          step_T1 (if ccw pl ql p then al else bl) p
       in
       let l, al = step_T1 l0 p in
 
@@ -183,63 +183,63 @@ module Make (S : CCC) = struct
 
       (* steps T3 or T4 depending on [q] *)
       let r = match q with
-	| Point q -> (* Step T3 *)
-	    let n = ref (Branch (q, p, l', l'')) in
-	    let n' = ref (Branch (s, p, l''', l')) in
-	    l := Branch (r, p, n, n');
-	    r
-	| Infinity -> (* Step T4 *)
-	    let n = ref (Branch (s, p, l''', l')) in
-	    l := Branch (r, p, l'', n);
-	    let rec loop m a d s t =
-	      if t <> r && ccw p s t then begin
-		let n = ref (Terminal d) in
-		match !m with
-		  | Branch (mu, mv, ml, is_l') ->
-		      assert (is_l' == l');
-		      m := Branch (mu, mv, ml, d.inst);
-		      d.inst := Branch (t, p, n, l');
-		      let m = d.inst in
-		      flip a arcs.(a.mate) d t p n l';
-		      let a = arcs.(a.mate).next in
-		      let d = arcs.(a.mate).next in
-		      let s = t in
-		      let t = finite d.vert in
-		      l' := Terminal a;
-		      loop m a d s t
-		  | Terminal _ ->
-		      assert false
-	      end else begin
-		(* at exit of while loop *)
-		let n = ref (Terminal d.next) in
-		d.inst := Branch (s, p, n, l');
-		d.inst <- n; d.next.inst <- n; d.next.next.inst <- n;
-		s
-	      end
-	    in
-	    let d = arcs.(a.mate).next in
-	    loop n a d s (finite d.vert)
+        | Point q -> (* Step T3 *)
+          let n = ref (Branch (q, p, l', l'')) in
+          let n' = ref (Branch (s, p, l''', l')) in
+          l := Branch (r, p, n, n');
+          r
+        | Infinity -> (* Step T4 *)
+          let n = ref (Branch (s, p, l''', l')) in
+          l := Branch (r, p, l'', n);
+          let rec loop m a d s t =
+            if t <> r && ccw p s t then begin
+              let n = ref (Terminal d) in
+              match !m with
+              | Branch (mu, mv, ml, is_l') ->
+                assert (is_l' == l');
+                m := Branch (mu, mv, ml, d.inst);
+                d.inst := Branch (t, p, n, l');
+                let m = d.inst in
+                flip a arcs.(a.mate) d t p n l';
+                let a = arcs.(a.mate).next in
+                let d = arcs.(a.mate).next in
+                let s = t in
+                let t = finite d.vert in
+                l' := Terminal a;
+                loop m a d s t
+              | Terminal _ ->
+                assert false
+            end else begin
+              (* at exit of while loop *)
+              let n = ref (Terminal d.next) in
+              d.inst := Branch (s, p, n, l');
+              d.inst <- n; d.next.inst <- n; d.next.next.inst <- n;
+              s
+            end
+          in
+          let d = arcs.(a.mate).next in
+          loop n a d s (finite d.vert)
       in
 
       (* Step T5 *)
       let rec loop c =
-	let d = arcs.(c.mate) in
-	let e = d.next in
-	let t = finite d.vert in
-	let t' = finite c.vert in
-	let t'' = e.vert in
-	if t'' <> Infinity && in_circle (finite t'') t' t p then begin
-	  let t'' = finite t'' in
-	  let n = ref (Terminal e) in
-	  let n' = ref (Terminal d) in
-	  c.inst := Branch (t'', p, n, n');
-	  d.inst := Branch (t'', p, n, n');
-	  flip c d e t'' p n n';
-	  loop e
-	end else if t' <> r then
-	  loop arcs.(c.next.mate).next
-	else
-	  () (* break *)
+        let d = arcs.(c.mate) in
+        let e = d.next in
+        let t = finite d.vert in
+        let t' = finite c.vert in
+        let t'' = e.vert in
+        if t'' <> Infinity && in_circle (finite t'') t' t p then begin
+          let t'' = finite t'' in
+          let n = ref (Terminal e) in
+          let n' = ref (Terminal d) in
+          c.inst := Branch (t'', p, n, n');
+          d.inst := Branch (t'', p, n, n');
+          flip c d e t'' p n n';
+          loop e
+        end else if t' <> r then
+          loop arcs.(c.next.mate).next
+        else
+          () (* break *)
       in
       loop c
 
@@ -251,8 +251,8 @@ module Make (S : CCC) = struct
     let n = Array.length t.arcs in
     for i = 0 to t.last_used_arc do
       match t.arcs.(i).vert, t.arcs.(n - 1 - i).vert with
-	| Point u, Point v -> f points.(u) points.(v)
-	| _ -> ()
+      | Point u, Point v -> f points.(u) points.(v)
+      | _ -> ()
     done
 
   let iter_triangles f t =
@@ -262,17 +262,17 @@ module Make (S : CCC) = struct
     let index a = mate a.mate in
     for i = 0 to n-1 do
       if not seen_arc.(i) then begin
-	let a1 = t.arcs.(i) in
-	let a2 = a1.next in
-	let a3 = a2.next in
-	seen_arc.(i) <- true;
-	seen_arc.(index a2) <- true;
-	seen_arc.(index a3) <- true;
-	match a1.vert, a2.vert, a3.vert with
-	  | Point i1, Point i2, Point i3 ->
-	      f t.points.(i1) t.points.(i2) t.points.(i3)
-	  | _ ->
-	      ()
+        let a1 = t.arcs.(i) in
+        let a2 = a1.next in
+        let a3 = a2.next in
+        seen_arc.(i) <- true;
+        seen_arc.(index a2) <- true;
+        seen_arc.(index a3) <- true;
+        match a1.vert, a2.vert, a3.vert with
+        | Point i1, Point i2, Point i3 ->
+          f t.points.(i1) t.points.(i2) t.points.(i3)
+        | _ ->
+          ()
       end
     done
 
@@ -281,11 +281,11 @@ module Make (S : CCC) = struct
     let n = Array.length t.arcs in
     let rec loop i a =
       if i <= t.last_used_arc then
-	match t.arcs.(i).vert, t.arcs.(n - 1 - i).vert with
-	  | Point u, Point v -> loop (succ i) (f points.(u) points.(v) a)
-	  | _ -> loop (succ i) a
+        match t.arcs.(i).vert, t.arcs.(n - 1 - i).vert with
+        | Point u, Point v -> loop (succ i) (f points.(u) points.(v) a)
+        | _ -> loop (succ i) a
       else
-	a
+        a
     in
     loop 0 a
 
@@ -303,55 +303,55 @@ module FloatPoints = struct
 
   let det = function
     | [| [| a00; a01 |];
-	 [| a10; a11 |] |] ->
-	a00 * a11 - a01 * a10
+         [| a10; a11 |] |] ->
+      a00 * a11 - a01 * a10
     | [| [| a00; a01; a02 |];
-	 [| a10; a11; a12 |];
-	 [| a20; a21; a22 |] |] ->
-	a00*a11*a22 - a00*a12*a21 - a10*a01*a22 +
-	a10*a02*a21 + a20*a01*a12 - a20*a02*a11
+         [| a10; a11; a12 |];
+         [| a20; a21; a22 |] |] ->
+      a00*a11*a22 - a00*a12*a21 - a10*a01*a22 +
+      a10*a02*a21 + a20*a01*a12 - a20*a02*a11
     | [| [| a00; a01; a02; a03 |];
-	 [| a10; a11; a12; a13 |];
-	 [| a20; a21; a22; a23 |];
-	 [| a30; a31; a32; a33 |] |] ->
-	a00*a11*a22*a33 - a00*a11*a23*a32 - a00*a21*a12*a33 +
-	a00*a21*a13*a32 + a00*a31*a12*a23 - a00*a31*a13*a22 -
-	a10*a01*a22*a33 + a10*a01*a23*a32 + a10*a21*a02*a33 -
-	a10*a21*a03*a32 - a10*a31*a02*a23 + a10*a31*a03*a22 +
-	a20*a01*a12*a33 - a20*a01*a13*a32 - a20*a11*a02*a33 +
-	a20*a11*a03*a32 + a20*a31*a02*a13 - a20*a31*a03*a12 -
-	a30*a01*a12*a23 + a30*a01*a13*a22 + a30*a11*a02*a23 -
-	a30*a11*a03*a22 - a30*a21*a02*a13 + a30*a21*a03*a12
+         [| a10; a11; a12; a13 |];
+         [| a20; a21; a22; a23 |];
+         [| a30; a31; a32; a33 |] |] ->
+      a00*a11*a22*a33 - a00*a11*a23*a32 - a00*a21*a12*a33 +
+      a00*a21*a13*a32 + a00*a31*a12*a23 - a00*a31*a13*a22 -
+      a10*a01*a22*a33 + a10*a01*a23*a32 + a10*a21*a02*a33 -
+      a10*a21*a03*a32 - a10*a31*a02*a23 + a10*a31*a03*a22 +
+      a20*a01*a12*a33 - a20*a01*a13*a32 - a20*a11*a02*a33 +
+      a20*a11*a03*a32 + a20*a31*a02*a13 - a20*a31*a03*a12 -
+      a30*a01*a12*a23 + a30*a01*a13*a22 + a30*a11*a02*a23 -
+      a30*a11*a03*a22 - a30*a21*a02*a13 + a30*a21*a03*a12
     | _ -> assert false
 
   let ccw (xu,yu) (xv,yv) (xw,yw) =
     det [| [| xu; yu; 1.0 |];
-	   [| xv; yv; 1.0 |];
-	   [| xw; yw; 1.0 |] |] > 0.0
+           [| xv; yv; 1.0 |];
+           [| xw; yw; 1.0 |] |] > 0.0
 
   (*i DEBUG
-  let ccw (xu,yu) (xv,yv) (xw,yw) =
+    let ccw (xu,yu) (xv,yv) (xw,yw) =
     eprintf "ccw((%.0f,%.0f),(%.0f,%.0f),(%.0f,%.0f)) -> "
       xu yu xv yv xw yw;
     let r = ccw (xu,yu) (xv,yv) (xw,yw) in
     eprintf "%b\n" r; flush stderr;
     r
-  i*)
+    i*)
 
   let in_circle (xt,yt) (xu,yu) (xv,yv) (xw,yw) =
     det [| [| xt; yt; (xt * xt + yt * yt); 1.0 |];
-	   [| xu; yu; (xu * xu + yu * yu); 1.0 |];
-	   [| xv; yv; (xv * xv + yv * yv); 1.0 |];
-	   [| xw; yw; (xw * xw + yw * yw); 1.0 |]; |] > 0.0
+           [| xu; yu; (xu * xu + yu * yu); 1.0 |];
+           [| xv; yv; (xv * xv + yv * yv); 1.0 |];
+           [| xw; yw; (xw * xw + yw * yw); 1.0 |]; |] > 0.0
 
   (*i DEBUG
-  let in_circle (xt,yt) (xu,yu) (xv,yv) (xw,yw) =
+    let in_circle (xt,yt) (xu,yu) (xv,yv) (xw,yw) =
     eprintf "in_circle((%.0f,%.0f),(%.0f,%.0f),(%.0f,%.0f),(%.0f,%.0f)) -> "
       xt yt xu yu xv yv xw yw;
     let r = in_circle (xt,yt) (xu,yu) (xv,yv) (xw,yw) in
     eprintf "%b\n" r; flush stderr;
     r
-  i*)
+    i*)
 
 end
 

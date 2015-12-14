@@ -1,18 +1,18 @@
 (**************************************************************************)
-(* 									  *)
-(* Ocamlgraph: a generic graph library for OCaml 			  *)
-(* Copyright (C) 2014-2015 						  *)
-(* Giselle Reis 							  *)
-(* 									  *)
-(* This software is free software; you can redistribute it and/or 	  *)
-(* modify it under the terms of the GNU Library General Public 		  *)
-(* License version 2.1, with the special exception on linking 		  *)
-(* described in file LICENSE. 						  *)
-(* 									  *)
-(* This software is distributed in the hope that it will be useful, 	  *)
-(* but WITHOUT ANY WARRANTY; without even the implied warranty of 	  *)
-(* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 		  *)
-(* 									  *)
+(*                     *)
+(* Ocamlgraph: a generic graph library for OCaml         *)
+(* Copyright (C) 2014-2015               *)
+(* Giselle Reis                 *)
+(*                     *)
+(* This software is free software; you can redistribute it and/or     *)
+(* modify it under the terms of the GNU Library General Public       *)
+(* License version 2.1, with the special exception on linking       *)
+(* described in file LICENSE.               *)
+(*                     *)
+(* This software is distributed in the hope that it will be useful,     *)
+(* but WITHOUT ANY WARRANTY; without even the implied warranty of     *)
+(* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.       *)
+(*                     *)
 (**************************************************************************)
 
 (** Graph cliques *)
@@ -21,7 +21,7 @@
 
 (** {2 Bron-Kerbosch Algorithm}
 
-  This algorithm will find and return all maximal cliques in an undirected graph. *)
+    This algorithm will find and return all maximal cliques in an undirected graph. *)
 
 (** Minimal graph signature for Bron-Kerbosch.
     Sub-signature of {!Sig.G}. *)

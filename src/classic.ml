@@ -35,12 +35,12 @@ module Generic(B : Builder.INT) = struct
     let rec loop g i =
       let sqrt_i = truncate (sqrt (float i)) in
       let rec loop_i g d =
-	if d > sqrt_i then
-	  g
-	else if i mod d == 0 then
-	  loop_i (B.add_edge (B.add_edge g v.(i / d) v.(i)) v.(d) v.(i)) (d+1)
-	else
-	  loop_i g (succ d)
+        if d > sqrt_i then
+          g
+        else if i mod d == 0 then
+          loop_i (B.add_edge (B.add_edge g v.(i / d) v.(i)) v.(d) v.(i)) (d+1)
+        else
+          loop_i g (succ d)
       in
       if i > n then g else loop (loop_i (B.add_vertex g v.(i)) 2) (i+1)
     in
@@ -57,12 +57,12 @@ module Generic(B : Builder.INT) = struct
     let g = fold_for 0 all_1 (fun g i -> B.add_vertex g v.(i)) (B.empty ()) in
     let rec loop g i =
       if i > all_1 then
-	g
+        g
       else
-	let si = (i lsl 1) land all_1 in
-	let g = B.add_edge g v.(i) v.(si) in
-	let g = B.add_edge g v.(i) v.(si lor 1) in
-	loop g (i + 1)
+        let si = (i lsl 1) land all_1 in
+        let g = B.add_edge g v.(i) v.(si) in
+        let g = B.add_edge g v.(i) v.(si lor 1) in
+        loop g (i + 1)
     in
     loop g 0
 
@@ -73,9 +73,9 @@ module Generic(B : Builder.INT) = struct
     let v = Array.init (n + 1) (fun i -> B.G.V.create i) in
     fold_for 1 n
       (fun g i ->
-	 fold_for 1 n
-	   (fun g j -> if self || i <> j then B.add_edge g v.(i) v.(j) else g)
-	   g)
+         fold_for 1 n
+           (fun g j -> if self || i <> j then B.add_edge g v.(i) v.(j) else g)
+           g)
       (fold_for 1 n (fun g i -> B.add_vertex g v.(i)) (B.empty ()))
 
 end

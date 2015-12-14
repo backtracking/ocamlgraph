@@ -48,8 +48,8 @@ module Mark(G : GM) = struct
       count := 0;
       let erase v = incr count; G.Mark.set v (k+1); Stack.push v stack in
       G.iter_vertex
-	(fun v -> if G.Mark.get v = 0 && G.out_degree g v < k then erase v)
-	g;
+        (fun v -> if G.Mark.get v = 0 && G.out_degree g v < k then erase v)
+        g;
       (*Format.printf "eliminating %d nodes@." !count;*)
       nb_to_color := !nb_to_color - !count
     done;
@@ -62,30 +62,30 @@ module Mark(G : GM) = struct
     let uncolor v = G.Mark.set v 0 in
     if !nb_to_color > 0 then begin
       let rec iterate iter =
-	let v = Bfs.get iter in
-	let m = G.Mark.get v in
-	if m > 0 then
-	  iterate (Bfs.step iter)
-	else begin
-	  for i = 1 to k do
-	    try try_color v i; iterate (Bfs.step iter)
-	    with NoColoring -> ()
-	  done;
-	  uncolor v;
-	  raise NoColoring
-	end
+        let v = Bfs.get iter in
+        let m = G.Mark.get v in
+        if m > 0 then
+          iterate (Bfs.step iter)
+        else begin
+          for i = 1 to k do
+            try try_color v i; iterate (Bfs.step iter)
+            with NoColoring -> ()
+          done;
+          uncolor v;
+          raise NoColoring
+        end
       in
       try iterate (Bfs.start g) with Exit -> ()
     end;
     (* third step: we color the eliminated vertices, in reverse order *)
     Stack.iter
       (fun v ->
-	 try
-	   for i = 1 to k do
-	     try try_color v i; raise Exit with NoColoring -> ()
-	   done;
-	   raise NoColoring (* it may still fail on a self edge v->v *)
-	 with Exit -> ())
+         try
+           for i = 1 to k do
+             try try_color v i; raise Exit with NoColoring -> ()
+           done;
+           raise NoColoring (* it may still fail on a self edge v->v *)
+         with Exit -> ())
       stack
 
 end
@@ -112,12 +112,12 @@ module Make(G: G) = struct
     let h = H.create 97 in
     let module M =
       Mark(struct
-	     include G
-	     module Mark = struct
-	       let get v = try H.find h v with Not_found -> 0
-	       let set v n = H.replace h v n
-	     end
-	   end )
+        include G
+        module Mark = struct
+          let get v = try H.find h v with Not_found -> 0
+          let set v n = H.replace h v n
+        end
+      end )
     in
     M.coloring g k;
     h

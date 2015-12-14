@@ -41,72 +41,72 @@ module MaximalCardinalitySearch = struct
       let h = H.create 97 in
       let maxw = NewV.weight u in
       let rec aux x : bool =
-	if H.mem h x then
-	  false
-	else
-	  if x = v then true
-	  else
-	    if NewV.weight x < maxw || x = u then
-	      begin
-		H.add h x ();
-		G.fold_succ
-		  (fun x found ->
-		     if not found then aux x
-		     else found)
-		  g x false
-	      end
-	    else (H.add h x (); false)
+        if H.mem h x then
+          false
+        else
+        if x = v then true
+        else
+        if NewV.weight x < maxw || x = u then
+          begin
+            H.add h x ();
+            G.fold_succ
+              (fun x found ->
+                 if not found then aux x
+                 else found)
+              g x false
+          end
+        else (H.add h x (); false)
       in aux u
 
     module Copy = Gmap.Vertex(Gr)(struct include G include Builder.P(G) end)
 
     let fold f d =
       let rec aux = function
-	  (true, a) -> aux (f a)
-	| (false, a) -> a
+          (true, a) -> aux (f a)
+        | (false, a) -> a
       in aux d
 
     let mcsm g =
       let g' = Copy.map (NewV.create 0) g in
       let (_, _, ord, triang) =
-	fold
-	  (fun ((i, g', a, f) as x)->
-	     if i = 0 then (false, x)
-	     else
-	       let v =
-		 G.fold_vertex
-		   (fun x max ->
-		      if NewV.weight x > NewV.weight max then x else max)
-		   g' (ref 0, snd (Choose.choose_vertex g'))
-	       in
-	       let s =
-		 G.fold_vertex
-		   (fun x s ->
-		      if x = v then s
-		      else
-			if check_path g' x v then
-			  VerticesSet.add x s
-			else s)
-		   g' VerticesSet.empty
-	       in
-	       let f' =
-		 VerticesSet.fold
-		   (fun x f ->
-		      NewV.set_weight x (succ (NewV.weight x));
-		      if not (G.mem_edge g' x v) then
-			EdgeSet.add (x,v) f
-		      else f)
-		   s f
-	       in
-	       let g' = G.remove_vertex g' v in
-	       let a' = (i, NewV.label v) :: a in
-		 (true, (i - 1, g', a', f')))
-	  (true, (Gr.nb_vertex g, g', [], EdgeSet.empty))
+        fold
+          (fun ((i, g', a, f) as x)->
+             if i = 0 then (false, x)
+             else
+               let v =
+                 G.fold_vertex
+                   (fun x max ->
+                      if NewV.weight x > NewV.weight max then x else max)
+                   g' (ref 0, snd (Choose.choose_vertex g'))
+               in
+               let s =
+                 G.fold_vertex
+                   (fun x s ->
+                      if x = v then s
+                      else
+                      if check_path g' x v then
+                        VerticesSet.add x s
+                      else s)
+                   g' VerticesSet.empty
+               in
+               let f' =
+                 VerticesSet.fold
+                   (fun x f ->
+                      NewV.set_weight x (succ (NewV.weight x));
+                      if not (G.mem_edge g' x v) then
+                        EdgeSet.add (x,v) f
+                      else f)
+                   s f
+               in
+               let g' = G.remove_vertex g' v in
+               let a' = (i, NewV.label v) :: a in
+               (true, (i - 1, g', a', f')))
+          (true, (Gr.nb_vertex g, g', [], EdgeSet.empty))
       in
       (List.rev ord,
        EdgeSet.fold
-	 (fun (x, y) e -> (NewV.label x, NewV.label y) :: e)
-	 triang [])
+         (fun (x, y) e -> (NewV.label x, NewV.label y) :: e)
+         triang [])
 
     let triangulate g =
       let (_, triang) = mcsm g in
@@ -129,19 +129,19 @@ module MaximalCardinalitySearch = struct
       let h = H.create 97 in
       let maxw = NewV.weight u in
       let rec aux x : bool =
-	if H.mem h x then
-	  false
-	else
-	  if x = v then true
-	  else
-	    if NewV.weight x < maxw || x = u then begin
-	      H.add h x ();
-	      G.fold_succ
-		(fun x found ->
-		   if not found then aux x
-		   else found)
-		g x false
-	    end else (H.add h x (); false)
+        if H.mem h x then
+          false
+        else
+        if x = v then true
+        else
+        if NewV.weight x < maxw || x = u then begin
+          H.add h x ();
+          G.fold_succ
+            (fun x found ->
+               if not found then aux x
+               else found)
+            g x false
+        end else (H.add h x (); false)
       in aux u
 
     module Copy = Gmap.Vertex(Gr)(struct include G include Builder.I(G) end)
@@ -151,39 +151,39 @@ module MaximalCardinalitySearch = struct
       and a = ref []
       and g' = Copy.map (NewV.create 0) g in
       for i = Gr.nb_vertex g downto 1 do
-	let v =
-	  G.fold_vertex
-	    (fun x max ->
-	       if NewV.weight x > NewV.weight max then x else max)
-	    g' (ref 0, snd (Choose.choose_vertex g'))
-	in
-	let s =
-	  G.fold_vertex
-	    (fun x s ->
-	       if x = v then s
-	       else
-		 if check_path g' x v then
-		   VerticesSet.add x s
-		 else s)
-	    g' VerticesSet.empty
-	in
-	let f' =
-	  VerticesSet.fold
-	    (fun x f ->
-	       NewV.set_weight x (succ (NewV.weight x));
-	       if not (G.mem_edge g' x v) then
-		 EdgeSet.add (x,v) f
-	       else f)
-	    s !f
-	in
-	f := f';
-	G.remove_vertex g' v;
-	a := (i, NewV.label v) :: !a;
+        let v =
+          G.fold_vertex
+            (fun x max ->
+               if NewV.weight x > NewV.weight max then x else max)
+            g' (ref 0, snd (Choose.choose_vertex g'))
+        in
+        let s =
+          G.fold_vertex
+            (fun x s ->
+               if x = v then s
+               else
+               if check_path g' x v then
+                 VerticesSet.add x s
+               else s)
+            g' VerticesSet.empty
+        in
+        let f' =
+          VerticesSet.fold
+            (fun x f ->
+               NewV.set_weight x (succ (NewV.weight x));
+               if not (G.mem_edge g' x v) then
+                 EdgeSet.add (x,v) f
+               else f)
+            s !f
+        in
+        f := f';
+        G.remove_vertex g' v;
+        a := (i, NewV.label v) :: !a;
       done;
       (List.rev !a,
        EdgeSet.fold
-	 (fun (x, y) e -> (NewV.label x, NewV.label y) :: e)
-	 !f [])
+         (fun (x, y) e -> (NewV.label x, NewV.label y) :: e)
+         !f [])
 
     let triangulate g =
       let (_, triang) = mcsm g in

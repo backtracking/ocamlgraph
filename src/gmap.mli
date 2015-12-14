@@ -38,13 +38,13 @@ end
 module Vertex(G_Src : V_SRC)(G_Dst : V_DST) : sig
 
   val map : (G_Src.V.t -> G_Dst.vertex) -> G_Src.t -> G_Dst.t
-    (** [map f g] applies [f] to each vertex of [g] and so builds a new graph
-	based on [g] *)
+  (** [map f g] applies [f] to each vertex of [g] and so builds a new graph
+      based on [g] *)
 
   val filter_map : (G_Src.V.t -> G_Dst.vertex option) -> G_Src.t -> G_Dst.t
-    (** [filter_map f g] applies [f] to each vertex of [g] and so
-        builds a new graph based on [g]; if [None] is returned by [f]
-        the vertex is omitted in the new graph. *)
+  (** [filter_map f g] applies [f] to each vertex of [g] and so
+      builds a new graph based on [g]; if [None] is returned by [f]
+      the vertex is omitted in the new graph. *)
 
 end
 
@@ -69,12 +69,12 @@ end
 module Edge(G_Src: E_SRC)(G_Dst: E_DST) : sig
 
   val map : (G_Src.E.t -> G_Dst.edge) -> G_Src.t -> G_Dst.t
-    (** [map f g] applies [f] to each edge of [g] and so builds a new graph
-	based on [g] *)
+  (** [map f g] applies [f] to each edge of [g] and so builds a new graph
+      based on [g] *)
 
   val filter_map : (G_Src.E.t -> G_Dst.edge option) -> G_Src.t -> G_Dst.t
-    (** [filter_map f g] applies [f] to each edge of [g] and so builds
-        a new graph based on [g]; if [None] is returned by [f] the
-        edge is omitted in the new graph. *)
+  (** [filter_map f g] applies [f] to each edge of [g] and so builds
+      a new graph based on [g]; if [None] is returned by [f] the
+      edge is omitted in the new graph. *)
 
 end

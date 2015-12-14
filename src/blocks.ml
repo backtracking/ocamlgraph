@@ -22,7 +22,7 @@ open Util
 
 let first_value_for_cpt_vertex = 0
 let cpt_vertex = ref first_value_for_cpt_vertex
-  (* global counter for abstract vertex *)
+(* global counter for abstract vertex *)
 
 (* [max_cpt t1 t2] returns the maximum of [t1] and [t2] wrt the total ordering
    induced by tags creation. This ordering is defined as follow:
@@ -56,8 +56,8 @@ module type HM = sig
   val mem : key -> 'a t -> bool
   val find : key -> 'a t -> 'a
   val find_and_raise : key -> 'a t -> string -> 'a
-    (** [find_and_raise k t s] is equivalent to [find k t] but
-       raises [Invalid_argument s] when [find k t] raises [Not_found] *)
+  (** [find_and_raise k t s] is equivalent to [find k t] but
+      raises [Invalid_argument s] when [find k t] raises [Not_found] *)
   val iter : (key -> 'a -> unit) -> 'a t -> unit
   val map : (key -> 'a -> key * 'a) -> 'a t -> 'a t
   val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
@@ -73,8 +73,8 @@ module Make_Hashtbl(X: COMPARABLE) = struct
 
   type 'a return = unit
   let empty = ()
-    (* never call and not visible for the user thank's to signature
-       constraints *)
+  (* never call and not visible for the user thank's to signature
+     constraints *)
 
   let create_from h = create (length h)
   let create ?(size=97) () = create size
@@ -101,15 +101,15 @@ module Make_Map(X: COMPARABLE) = struct
   type 'a return = 'a t
   let is_empty m = (m = empty)
   let create ?size () = assert false
-    (* never call and not visible for the user thank's to
-       signature constraints *)
+  (* never call and not visible for the user thank's to
+     signature constraints *)
   let create_from _ = empty
   let copy m = m
   let map f m = fold (fun k v m -> let k, v = f k v in add k v m) m empty
   let find_and_raise k h s = try find k h with Not_found -> invalid_arg s
   let clear _ = assert false
-    (* never call and not visible for the user thank's to
-       signature constraints *)
+  (* never call and not visible for the user thank's to
+     signature constraints *)
 end
 
 (* ************************************************************************* *)
@@ -148,16 +148,16 @@ end
 
 (** All the predecessor operations from the iterators on the edges *)
 module Pred
-  (S: sig
-     module PV: COMPARABLE
-     module PE: EDGE with type vertex = PV.t
-     type t
-     val mem_vertex : PV.t -> t -> bool
-     val iter_edges : (PV.t -> PV.t -> unit) -> t -> unit
-     val fold_edges : (PV.t -> PV.t -> 'a -> 'a) -> t -> 'a -> 'a
-     val iter_edges_e : (PE.t -> unit) -> t -> unit
-     val fold_edges_e : (PE.t -> 'a -> 'a) -> t -> 'a -> 'a
-   end) =
+    (S: sig
+       module PV: COMPARABLE
+       module PE: EDGE with type vertex = PV.t
+       type t
+       val mem_vertex : PV.t -> t -> bool
+       val iter_edges : (PV.t -> PV.t -> unit) -> t -> unit
+       val fold_edges : (PV.t -> PV.t -> 'a -> 'a) -> t -> 'a -> 'a
+       val iter_edges_e : (PE.t -> unit) -> t -> unit
+       val fold_edges_e : (PE.t -> 'a -> 'a) -> t -> 'a -> 'a
+     end) =
 struct
 
   open S
@@ -289,8 +289,8 @@ struct
   let find_edge g v1 v2 =
     try
       S.iter
-	(fun (v2', l) -> if V.equal v2 v2' then raise (Found (v1, l, v2')))
-	(HM.find v1 g);
+        (fun (v2', l) -> if V.equal v2 v2' then raise (Found (v1, l, v2')))
+        (HM.find v1 g);
       raise Not_found
     with Found e ->
       e
@@ -298,10 +298,10 @@ struct
   let find_all_edges g v1 v2 =
     try
       S.fold
-	(fun (v2', l) acc ->
-	  if V.equal v2 v2' then (v1, l, v2') :: acc else acc)
-	(HM.find v1 g)
-	[]
+        (fun (v2', l) acc ->
+           if V.equal v2 v2' then (v1, l, v2') :: acc else acc)
+        (HM.find v1 g)
+        []
     with Not_found ->
       []
 
@@ -319,8 +319,8 @@ struct
     HM.add
       v1
       (S.filter
-	 (fun (v2', _) -> not (V.equal v2 v2'))
-	 (HM.find_and_raise v1 g "[ocamlgraph] remove_edge"))
+         (fun (v2', _) -> not (V.equal v2 v2'))
+         (HM.find_and_raise v1 g "[ocamlgraph] remove_edge"))
       g
 
   let remove_edge_e g (v1, l, v2) =
@@ -381,28 +381,28 @@ module ConcreteVertex(F : TBL_BUILDER)(V: COMPARABLE) = struct
 end
 
 module Make_Abstract
-  (G: sig
-     module HM: HM
-     module S: Set.S
-     include G with type t = S.t HM.t and type V.t = HM.key
-     val remove_edge: t -> vertex -> vertex -> t
-     val remove_edge_e: t -> edge -> t
-     val unsafe_add_vertex: t -> vertex -> t
-     val unsafe_add_edge: t -> vertex -> S.elt -> t
-     val unsafe_remove_edge: t -> vertex -> vertex -> t
-     val unsafe_remove_edge_e: t -> edge -> t
-     val create: ?size:int -> unit -> t
-     val clear: t -> unit
-   end) =
+    (G: sig
+       module HM: HM
+       module S: Set.S
+       include G with type t = S.t HM.t and type V.t = HM.key
+       val remove_edge: t -> vertex -> vertex -> t
+       val remove_edge_e: t -> edge -> t
+       val unsafe_add_vertex: t -> vertex -> t
+       val unsafe_add_edge: t -> vertex -> S.elt -> t
+       val unsafe_remove_edge: t -> vertex -> vertex -> t
+       val unsafe_remove_edge_e: t -> edge -> t
+       val create: ?size:int -> unit -> t
+       val clear: t -> unit
+     end) =
 struct
 
   module I = struct
     type t = { edges : G.t; mutable size : int }
-	(* BE CAREFUL: [size] is only mutable in the imperative version. As
-	   there is no extensible records in current ocaml version, and for
-	   genericity purpose, [size] is mutable in both imperative and
-	   persistent implementations.
-	   Do not modify size in the persistent implementation! *)
+    (* BE CAREFUL: [size] is only mutable in the imperative version. As
+       there is no extensible records in current ocaml version, and for
+       genericity purpose, [size] is mutable in both imperative and
+       persistent implementations.
+       Do not modify size in the persistent implementation! *)
 
     type vertex = G.vertex
     type edge = G.edge
@@ -467,12 +467,12 @@ struct
     let h = HM.create () in
     let vertex v =
       try
-	HM.find v h
+        HM.find v h
       with Not_found ->
-	let v' = V.create (V.label v) in
-	let h' = HM.add v v' h in
-	assert (h == h');
-	v'
+        let v' = V.create (V.label v) in
+        let h' = HM.add v v' h in
+        assert (h == h');
+        v'
     in
     map_vertex vertex g
 
@@ -498,7 +498,7 @@ module BidirectionalMinimal(S:Set.S)(HM:HM) = struct
   let out_degree g v =
     S.cardinal
       (snd (try HM.find v g
-	    with Not_found -> invalid_arg "[ocamlgraph] out_degree"))
+            with Not_found -> invalid_arg "[ocamlgraph] out_degree"))
 
   let mem_vertex g v = HM.mem v g
 
@@ -564,9 +564,9 @@ module BidirectionalUnlabeled(V:COMPARABLE)(HM:HM with type key = V.t) = struct
   let map_vertex f =
     HM.map
       (fun v (s1,s2) ->
-	 f v,
-	 (S.fold (fun v s -> S.add (f v) s) s1 S.empty,
-	  S.fold (fun v s -> S.add (f v) s) s2 S.empty))
+         f v,
+         (S.fold (fun v s -> S.add (f v) s) s1 S.empty,
+          S.fold (fun v s -> S.add (f v) s) s2 S.empty))
 
   module I = struct
     (* we keep sets for both incoming and outgoing edges *)
@@ -591,7 +591,7 @@ module BidirectionalUnlabeled(V:COMPARABLE)(HM:HM with type key = V.t) = struct
   let in_degree g v =
     S.cardinal
       (fst (try HM.find v g
-	    with Not_found -> invalid_arg "[ocamlgraph] in_degree"))
+            with Not_found -> invalid_arg "[ocamlgraph] in_degree"))
 
   let iter_pred_e f g v = iter_pred (fun v2 -> f (v2, v)) g v
   let fold_pred_e f g v = fold_pred (fun v2 -> f (v2, v)) g v
@@ -601,7 +601,7 @@ module BidirectionalUnlabeled(V:COMPARABLE)(HM:HM with type key = V.t) = struct
 end
 
 module BidirectionalLabeled
-  (V:COMPARABLE)(E:ORDERED_TYPE)(HM:HM with type key = V.t) =
+    (V:COMPARABLE)(E:ORDERED_TYPE)(HM:HM with type key = V.t) =
 struct
 
   module VE = OTProduct(V)(E)
@@ -636,8 +636,8 @@ struct
   let find_edge g v1 v2 =
     try
       S.iter
-	(fun (v2', l) -> if V.equal v2 v2' then raise (Found (v1, l, v2')))
-	(snd (HM.find v1 g));
+        (fun (v2', l) -> if V.equal v2 v2' then raise (Found (v1, l, v2')))
+        (snd (HM.find v1 g));
       raise Not_found
     with Found e ->
       e
@@ -645,10 +645,10 @@ struct
   let find_all_edges g v1 v2 =
     try
       S.fold
-	(fun (v2', l) acc ->
-	  if V.equal v2 v2' then (v1, l, v2') :: acc else acc)
-	(snd (HM.find v1 g))
-	[]
+        (fun (v2', l) acc ->
+           if V.equal v2 v2' then (v1, l, v2') :: acc else acc)
+        (snd (HM.find v1 g))
+        []
     with Not_found ->
       []
 
@@ -666,7 +666,7 @@ struct
     HM.add v2 (S.remove (v1, l) in_set, out_set) g
 
   let remove_edge g v1 v2 =
-(*    if not (HM.mem v2 g) then invalid_arg "[ocamlgraph] remove_edge";*)
+    (*    if not (HM.mem v2 g) then invalid_arg "[ocamlgraph] remove_edge";*)
     let in_set, out_set = HM.find_and_raise v1 g "[ocamlgraph] remove_edge" in
     let del v set = S.filter (fun (v', _) -> not (V.equal v v')) set in
     let g = HM.add v1 (in_set, del v2 out_set) g in
@@ -674,7 +674,7 @@ struct
     HM.add v2 (del v1 in_set, out_set) g
 
   let remove_edge_e g (v1, l, v2) =
-(*    if not (HM.mem v2 g) then invalid_arg "[ocamlgraph] remove_edge_e";*)
+    (*    if not (HM.mem v2 g) then invalid_arg "[ocamlgraph] remove_edge_e";*)
     let in_set, out_set = HM.find_and_raise v1 g "[ocamlgraph] remove_edge_e" in
     let g = HM.add v1 (in_set, S.remove (v2, l) out_set) g in
     let in_set, out_set = HM.find_and_raise v2 g "[ocamlgraph] remove_edge_e" in
@@ -706,22 +706,22 @@ struct
   let map_vertex f =
     HM.map
       (fun v (s1,s2) ->
-	 f v,
-	 (S.fold (fun (v, l) s -> S.add (f v, l) s) s1 S.empty,
-	  S.fold (fun (v, l) s -> S.add (f v, l) s) s2 S.empty))
+         f v,
+         (S.fold (fun (v, l) s -> S.add (f v, l) s) s1 S.empty,
+          S.fold (fun (v, l) s -> S.add (f v, l) s) s2 S.empty))
 
   module I = struct
     type t = (S.t * S.t) HM.t
     module PV = V
     module PE = E
     let iter_edges f = HM.iter (fun v (_,outset) ->
-      S.iter (fun (w, _) -> f v w) outset)
+        S.iter (fun (w, _) -> f v w) outset)
     let fold_edges f = HM.fold (fun v (_,outset) ->
-      S.fold (fun (w, _) -> f v w) outset)
+        S.fold (fun (w, _) -> f v w) outset)
     let iter_edges_e f = HM.iter (fun v (_,outset) ->
-      S.iter (fun (w, l) -> f (v, l, w)) outset)
+        S.iter (fun (w, l) -> f (v, l, w)) outset)
     let fold_edges_e f = HM.fold (fun v (_,outset) ->
-      S.fold (fun (w, l) -> f (v, l, w)) outset)
+        S.fold (fun (w, l) -> f (v, l, w)) outset)
   end
   include I
 
@@ -738,7 +738,7 @@ struct
   let in_degree g v =
     S.cardinal
       (fst (try HM.find v g
-	    with Not_found -> invalid_arg "[ocamlgraph] in_degree"))
+            with Not_found -> invalid_arg "[ocamlgraph] in_degree"))
 
   let iter_pred_e f g v =
     S.iter
@@ -789,7 +789,7 @@ module Make(F : TBL_BUILDER) = struct
         let in_set, out_set = find v1 g in
         let g = HM.add v1 (in_set,S.add v2 out_set) g in
         let in_set, out_set = find v2 g in
-	HM.add v2 (S.add v1 in_set,out_set) g
+        HM.add v2 (S.add v1 in_set,out_set) g
 
       let add_edge g v1 v2 =
         if mem_edge g v1 v2 then g
@@ -817,7 +817,7 @@ module Make(F : TBL_BUILDER) = struct
     end
 
     module ConcreteBidirectionalLabeled
-      (V: COMPARABLE)(Edge: ORDERED_TYPE_DFT) =
+        (V: COMPARABLE)(Edge: ORDERED_TYPE_DFT) =
     struct
 
       include ConcreteVertex(F)(V)
@@ -829,7 +829,7 @@ module Make(F : TBL_BUILDER) = struct
         let in_set, out_set = find v1 g in
         let g = HM.add v1 (in_set,S.add (v2,l) out_set) g in
         let in_set, out_set = find v2 g in
-	HM.add v2 (S.add (v1,l) in_set,out_set) g
+        HM.add v2 (S.add (v1,l) in_set,out_set) g
 
       let add_edge_e g e = if mem_edge_e g e then g else unsafe_add_edge_e g e
 
@@ -839,20 +839,20 @@ module Make(F : TBL_BUILDER) = struct
 
     module Abstract(V: VERTEX) = struct
       module G = struct
-	module V = V
-	module HM = F(V)
-	include Unlabeled(V)(HM)
-	include Minimal(S)(HM)
+        module V = V
+        module HM = F(V)
+        include Unlabeled(V)(HM)
+        include Minimal(S)(HM)
       end
       include Make_Abstract(G)
     end
 
     module AbstractLabeled(V: VERTEX)(E: ORDERED_TYPE_DFT) = struct
       module G = struct
-	module V = V
-	module HM = F(V)
-	include Labeled(V)(E)(HM)
-	include Minimal(S)(HM)
+        module V = V
+        module HM = F(V)
+        include Labeled(V)(E)(HM)
+        include Minimal(S)(HM)
       end
       include Make_Abstract(G)
     end
@@ -864,15 +864,15 @@ end
 (** Implementation of undirected graphs from implementation of directed
     graphs. *)
 module Graph
-  (G: sig
-     include Sig.G
-     val create: ?size:int -> unit -> t
-     val clear: t -> unit
-     val copy: t -> t
-     type return
-     val add_vertex: t -> vertex -> return
-     val remove_vertex: t -> vertex -> return
-   end) =
+    (G: sig
+       include Sig.G
+       val create: ?size:int -> unit -> t
+       val clear: t -> unit
+       val copy: t -> t
+       type return
+       val add_vertex: t -> vertex -> return
+       val remove_vertex: t -> vertex -> return
+     end) =
 struct
 
   include G
@@ -894,7 +894,7 @@ struct
   let fold_edges_e f =
     fold_edges_e
       (fun e acc ->
-	 if V.compare (E.src e) (E.dst e) >= 0 then f e acc else acc)
+         if V.compare (E.src e) (E.dst e) >= 0 then f e acc else acc)
 
   let nb_edges g = fold_edges_e (fun _ -> (+) 1) g 0
 

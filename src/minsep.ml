@@ -35,16 +35,16 @@ module type MINSEP = sig
 end
 
 module Make
-  (G : sig
-     include G
-     val cc: t -> V.t list -> V.t list list
+    (G : sig
+       include G
+       val cc: t -> V.t list -> V.t list list
        (** compute the set of connected components of G(V \ l) *)
-   end) =
+     end) =
 struct
 
   module N = Oper.Neighbourhood(G)
   module Vertex_Set: Set.S with type t = N.Vertex_Set.t
-                           and type elt = G.V.t = N.Vertex_Set
+                            and type elt = G.V.t = N.Vertex_Set
   module VSetset = Set.Make(N.Vertex_Set)
   (* Use [N.Vertex_Set] instead of [Vertex_Set] in order to avoid an error with
      ocamldoc 4.02. However this change requires to add extra type annotations
@@ -57,9 +57,9 @@ struct
     let neighbourhoods = N.set_from_vertices g in
     G.fold_vertex
       (fun v s ->
-	 List.fold_left
-	   (fun s l -> neighbourhoods l :: s)
-	   s (cc (v :: neighbourhood v)))
+         List.fold_left
+           (fun s l -> neighbourhoods l :: s)
+           s (cc (v :: neighbourhood v)))
       g []
 
   let generation g =
@@ -69,21 +69,21 @@ struct
     let rec gen_aux seen bigs = function
       | [] -> bigs
       | s :: tl ->
-	  let l = Vertex_Set.elements s in
-	  let seen = VSetset.add s seen in
-	  let bigs, tl =
-	    Vertex_Set.fold
-	      (fun v c ->
-		 let add_neighbourhoods (bigs, tl) l =
-		   let s = neighbourhoods l in
-		   s :: bigs, if VSetset.mem s seen then tl else s :: tl
-		 in
-		 List.fold_left
-		   add_neighbourhoods
-		   (bigs, tl) (cc (l @ neighbourhood v)))
-	      s (bigs, tl)
-	  in
-	  gen_aux seen bigs tl
+        let l = Vertex_Set.elements s in
+        let seen = VSetset.add s seen in
+        let bigs, tl =
+          Vertex_Set.fold
+            (fun v c ->
+               let add_neighbourhoods (bigs, tl) l =
+                 let s = neighbourhoods l in
+                 s :: bigs, if VSetset.mem s seen then tl else s :: tl
+               in
+               List.fold_left
+                 add_neighbourhoods
+                 (bigs, tl) (cc (l @ neighbourhood v)))
+            s (bigs, tl)
+        in
+        gen_aux seen bigs tl
     in
     fun bigs -> gen_aux VSetset.empty bigs bigs
 
@@ -100,35 +100,35 @@ end
 module P(G : sig include G val remove_vertex : t -> V.t -> t end) = struct
   module G = G
   include Make(struct
-		 include G
-		 let cc =
-		   let module CC = Components.Make(G) in
-		   fun g l ->
-		     let g = List.fold_left remove_vertex g l in
-		     CC.scc_list g
-	       end)
+      include G
+      let cc =
+        let module CC = Components.Make(G) in
+        fun g l ->
+          let g = List.fold_left remove_vertex g l in
+          CC.scc_list g
+    end)
 end
 
 module I(G : sig
-	   include G
-	   module Mark : Sig.MARK with type graph = t and type vertex = V.t
-	 end) =
+    include G
+    module Mark : Sig.MARK with type graph = t and type vertex = V.t
+  end) =
 struct
   module G = G
   include Make(struct
-		 include G
-		 let cc =
-		   let module CC =
-		     Components.Make
-		       (struct
-			  include G
-			  let iter_vertex f =
-			    iter_vertex (fun v -> if Mark.get v=0 then f v)
-			end)
-		   in
-		   fun g l ->
-		     G.Mark.clear g;
-		     List.iter (fun v -> G.Mark.set v 1) l;
-		     CC.scc_list g
-	       end)
+      include G
+      let cc =
+        let module CC =
+          Components.Make
+            (struct
+              include G
+              let iter_vertex f =
+                iter_vertex (fun v -> if Mark.get v=0 then f v)
+            end)
+        in
+        fun g l ->
+          G.Mark.clear g;
+          List.iter (fun v -> G.Mark.set v 1) l;
+          CC.scc_list g
+    end)
 end

@@ -129,12 +129,12 @@ struct
     Gml.Parse
       (Builder)
       (struct
-	 let node l =
-	   try match List.assoc "id" l with Gml.Int n -> n | _ -> -1
-	   with Not_found -> -1
-	 let edge _ =
-	   0
-       end)
+        let node l =
+          try match List.assoc "id" l with Gml.Int n -> n | _ -> -1
+          with Not_found -> -1
+        let edge _ =
+          0
+      end)
 
   let parse_gml_file = GmlParser.parse
 
@@ -142,17 +142,17 @@ struct
     Dot.Parse
       (Builder)
       (struct
- 	 let nodes = Hashtbl.create 97
-	 let new_node = ref 0
-	 let node (id,_) _ =
-	   try
-	     Hashtbl.find nodes id
-	   with Not_found ->
-	     incr new_node;
-	     Hashtbl.add nodes id !new_node;
-	     !new_node
-	 let edge _ =
-	   0
+        let nodes = Hashtbl.create 97
+        let new_node = ref 0
+        let node (id,_) _ =
+          try
+            Hashtbl.find nodes id
+          with Not_found ->
+            incr new_node;
+            Hashtbl.add nodes id !new_node;
+            !new_node
+        let edge _ =
+          0
       end)
 
   let parse_dot_file = DotParser.parse
@@ -163,9 +163,9 @@ struct
     Gml.Print
       (G)
       (struct
-	 let node n = ["label", Gml.Int n]
-	 let edge n = ["label", Gml.Int n]
-       end)
+        let node n = ["label", Gml.Int n]
+        let edge n = ["label", Gml.Int n]
+      end)
 
   let print_gml = GmlPrinter.print
   let print_gml_file g f =
@@ -184,8 +184,8 @@ struct
     Graphml.Print
       (G)
       (struct
-	 let node n = ["label", Gml.Int n]
-	 let edge n = ["label", Gml.Int n]
+   let node n = ["label", Gml.Int n]
+   let edge n = ["label", Gml.Int n]
          module Vhash = Hashtbl.Make(G.V)
          let vertex_uid = uid (Vhash.create 17) Vhash.find Vhash.add
          module Ehash = Hashtbl.Make(G.E)

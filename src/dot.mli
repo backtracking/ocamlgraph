@@ -25,13 +25,13 @@ type clusters_hash = (string, attr list) Hashtbl.t
 
 (** Provide a parser for DOT file format. *)
 module Parse
-  (B : Builder.S)
-  (L : sig
-     val node : node_id -> attr list -> B.G.V.label
+    (B : Builder.S)
+    (L : sig
+       val node : node_id -> attr list -> B.G.V.label
        (** How to build the node label out of the set of attributes *)
-     val edge : attr list -> B.G.E.label
+       val edge : attr list -> B.G.E.label
        (** How to build the edge label out of the set of attributes *)
-   end) :
+     end) :
 sig
 
   (** Parses a dot file *)

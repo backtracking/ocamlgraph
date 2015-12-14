@@ -23,17 +23,17 @@ module type S = sig
   (** Imperative Unlabeled Graphs *)
   module Concrete (V: COMPARABLE) :
     Sig.I with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t
-	  and type E.label = unit
+                                                     and type E.label = unit
 
   (** Abstract Imperative Unlabeled Graphs *)
   module Abstract(V: sig type t end) :
     Sig.IM with type V.label = V.t and type E.label = unit
-	   and type E.label = unit
+                                   and type E.label = unit
 
   (** Imperative Labeled Graphs *)
   module ConcreteLabeled (V: COMPARABLE)(E: ORDERED_TYPE_DFT) :
     Sig.I with type V.t = V.t and type V.label = V.t
-	    and type E.t = V.t * E.t * V.t and type E.label = E.t
+                              and type E.t = V.t * E.t * V.t and type E.label = E.t
 
   (** Abstract Imperative Labeled Graphs *)
   module AbstractLabeled (V: sig type t end)(E: ORDERED_TYPE_DFT) :
@@ -47,11 +47,11 @@ type 'a abstract_vertex = { tag : int; label : 'a; mutable mark : int }
 
 (* Implement module type [MARK]. *)
 module Make_Mark
-  (X: sig
-     type graph
-     type label
-     val iter_vertex : (label abstract_vertex -> unit) -> graph -> unit
-   end) =
+    (X: sig
+       type graph
+       type label
+       val iter_vertex : (label abstract_vertex -> unit) -> graph -> unit
+     end) =
 struct
   type vertex = X.label abstract_vertex
   type graph = X.graph
@@ -87,8 +87,8 @@ module Digraph = struct
     let add_edge_e g e = ignore (add_edge_e g e)
     let remove_vertex g v =
       if HM.mem v g then begin
-	ignore (HM.remove v g);
-	HM.iter (fun k s -> ignore (HM.add k (S.remove v s) g)) g
+        ignore (HM.remove v g);
+        HM.iter (fun k s -> ignore (HM.add k (S.remove v s) g)) g
       end
   end
 
@@ -101,9 +101,9 @@ module Digraph = struct
     let add_edge g v1 v2 = ignore (add_edge g v1 v2)
     let remove_vertex g v =
       if HM.mem v g then begin
-	ignore (HM.remove v g);
-	let remove v = S.filter (fun (v2, _) -> not (V.equal v v2)) in
-	HM.iter (fun k s -> ignore (HM.add k (remove v s) g)) g
+        ignore (HM.remove v g);
+        let remove v = S.filter (fun (v2, _) -> not (V.equal v v2)) in
+        HM.iter (fun k s -> ignore (HM.add k (remove v s) g)) g
       end
   end
 
@@ -120,9 +120,9 @@ module Digraph = struct
 
     let remove_vertex g v =
       if HM.mem v g then begin
-	iter_pred_e (fun e -> remove_edge_e g e) g v;
-	iter_succ_e (fun e -> remove_edge_e g e) g v;
-	ignore (HM.remove v g)
+        iter_pred_e (fun e -> remove_edge_e g e) g v;
+        iter_succ_e (fun e -> remove_edge_e g e) g v;
+        ignore (HM.remove v g)
       end
 
   end
@@ -141,7 +141,7 @@ module Digraph = struct
     let remove_vertex g v =
       if HM.mem v g then begin
         iter_pred_e (fun e -> remove_edge_e g e) g v;
-	iter_succ_e (fun e -> remove_edge_e g e) g v;
+        iter_succ_e (fun e -> remove_edge_e g e) g v;
         ignore (HM.remove v g)
       end
 
@@ -153,8 +153,8 @@ module Digraph = struct
 
     let add_vertex g v =
       if not (HM.mem v g.edges) then begin
-	g.size <- Pervasives.succ g.size;
-	ignore (G.unsafe_add_vertex g.edges v)
+        g.size <- Pervasives.succ g.size;
+        ignore (G.unsafe_add_vertex g.edges v)
       end
 
     let add_edge g v1 v2 =
@@ -166,18 +166,18 @@ module Digraph = struct
 
     let remove_vertex g v =
       if HM.mem v g.edges then
-	let e = g.edges in
-	ignore (HM.remove v e);
-	HM.iter (fun k s -> ignore (HM.add k (S.remove v s) e)) e;
-	g.size <- Pervasives.pred g.size
+        let e = g.edges in
+        ignore (HM.remove v e);
+        HM.iter (fun k s -> ignore (HM.add k (S.remove v s) e)) e;
+        g.size <- Pervasives.pred g.size
 
     module Mark =
       Make_Mark
-	(struct
-	   type graph = t
-	   type label = V.label
-	   let iter_vertex = iter_vertex
-	 end)
+        (struct
+          type graph = t
+          type label = V.label
+          let iter_vertex = iter_vertex
+        end)
 
     let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
     let remove_edge_e g e = ignore (remove_edge_e g e)
@@ -190,8 +190,8 @@ module Digraph = struct
 
     let add_vertex g v =
       if not (HM.mem v g.edges) then begin
-	g.size <- Pervasives.succ g.size;
-	ignore (G.unsafe_add_vertex g.edges v)
+        g.size <- Pervasives.succ g.size;
+        ignore (G.unsafe_add_vertex g.edges v)
       end
 
     let add_edge_e g (v1, l, v2) =
@@ -203,23 +203,23 @@ module Digraph = struct
 
     let remove_vertex g v =
       if HM.mem v g.edges then
-	let remove s =
-	  S.fold
-	    (fun (v2, _ as e) s -> if not (V.equal v v2) then S.add e s else s)
-	    s S.empty
-	in
-	let e = g.edges in
-	ignore (HM.remove v e);
-	HM.iter (fun k s -> ignore (HM.add k (remove s) e)) e;
-	g.size <- Pervasives.pred g.size
+        let remove s =
+          S.fold
+            (fun (v2, _ as e) s -> if not (V.equal v v2) then S.add e s else s)
+            s S.empty
+        in
+        let e = g.edges in
+        ignore (HM.remove v e);
+        HM.iter (fun k s -> ignore (HM.add k (remove s) e)) e;
+        g.size <- Pervasives.pred g.size
 
     module Mark =
       Make_Mark
-	(struct
-	   type graph = t
-	   type label = V.label
-	   let iter_vertex = iter_vertex
-	 end)
+        (struct
+          type graph = t
+          type label = V.label
+          let iter_vertex = iter_vertex
+        end)
 
     let remove_edge g v1 v2 = ignore (remove_edge g v1 v2)
     let remove_edge_e g e = ignore (remove_edge_e g e)
@@ -350,7 +350,7 @@ module Matrix = struct
 
   module type S = sig
     include Sig.I with type V.t = int and type V.label = int
-		  and type E.t = int * int
+                                      and type E.t = int * int
     val make : int -> t
   end
 
@@ -383,7 +383,7 @@ module Matrix = struct
 
     let create ?size () =
       failwith
-	"[ocamlgraph] do not use Matrix.create; please use Matrix.make instead"
+        "[ocamlgraph] do not use Matrix.create; please use Matrix.make instead"
 
     let make n =
       if n < 0 then invalid_arg "[ocamlgraph] Matrix.make";
@@ -428,7 +428,7 @@ module Matrix = struct
 
     let iter_edges f g =
       for i = 0 to nb_vertex g - 1 do
-	Bitv.iteri (fun j b -> if b then f i j) g.(i)
+        Bitv.iteri (fun j b -> if b then f i j) g.(i)
       done
 
     let fold_vertex f g a =
@@ -437,9 +437,9 @@ module Matrix = struct
 
     let fold_edges f g a =
       fold_vertex
-	(fun i a ->
-	   Bitv.foldi_right (fun j b a -> if b then f i j a else a) g.(i) a)
-	g a
+        (fun i a ->
+           Bitv.foldi_right (fun j b a -> if b then f i j a else a) g.(i) a)
+        g a
 
     (* successors and predecessors of a vertex *)
     let succ g i =
@@ -447,16 +447,16 @@ module Matrix = struct
 
     let pred g i =
       fold_vertex
-	(fun j a -> if Bitv.unsafe_get g.(j) i then j :: a else a)
-	g []
+        (fun j a -> if Bitv.unsafe_get g.(j) i then j :: a else a)
+        g []
 
     (* iter/fold on all successor/predecessor of a vertex. *)
     let iter_succ f g i =
       let si = g.(i) in
       for j = 0 to nb_vertex g - 1 do if Bitv.unsafe_get si j then f j done
-      (* optimization w.r.t.
-	 [Bitv.iteri (fun j b -> if b then f j) g.(i)]
-      *)
+    (* optimization w.r.t.
+       [Bitv.iteri (fun j b -> if b then f j) g.(i)]
+    *)
 
     let iter_pred f g i =
       for j = 0 to nb_vertex g - 1 do if Bitv.unsafe_get g.(j) i then f j done
@@ -466,8 +466,8 @@ module Matrix = struct
 
     let fold_pred f g i a =
       fold_vertex
-	(fun j a -> if Bitv.unsafe_get g.(j) i then f j a else a)
-	g a
+        (fun j a -> if Bitv.unsafe_get g.(j) i then f j a else a)
+        g a
 
     (* degree *)
     let out_degree g i = fold_succ (fun _ n -> n + 1) g i 0
@@ -479,13 +479,13 @@ module Matrix = struct
       let n = nb_vertex g in
       let g' = make n in
       iter_edges
-	(fun i j ->
-	   let fi = f i in
-	   let fj = f j in
-	   if fi < 0 || fi >= n || fj < 0 || fj >= n then
-	     invalid_arg "[ocamlgraph] map_vertex";
-	   Bitv.unsafe_set g'.(fi) fj true)
-	g;
+        (fun i j ->
+           let fi = f i in
+           let fj = f j in
+           if fi < 0 || fi >= n || fj < 0 || fj >= n then
+             invalid_arg "[ocamlgraph] map_vertex";
+           Bitv.unsafe_set g'.(fi) fj true)
+        g;
       g'
 
     (* labeled edges going from/to a vertex *)
@@ -495,20 +495,20 @@ module Matrix = struct
 
     let pred_e g i =
       fold_vertex
-	(fun j a -> if Bitv.unsafe_get g.(j) i then (j,i) :: a else a)
-	g []
+        (fun j a -> if Bitv.unsafe_get g.(j) i then (j,i) :: a else a)
+        g []
 
     (* iter/fold on all labeled edges of a graph *)
     let iter_edges_e f g =
       for i = 0 to nb_vertex g - 1 do
-	Bitv.iteri (fun j b -> if b then f (i,j)) g.(i)
+        Bitv.iteri (fun j b -> if b then f (i,j)) g.(i)
       done
 
     let fold_edges_e f g a =
       fold_vertex
-	(fun i a ->
-	   Bitv.foldi_right (fun j b a -> if b then f (i,j) a else a) g.(i) a)
-	g a
+        (fun i a ->
+           Bitv.foldi_right (fun j b a -> if b then f (i,j) a else a) g.(i) a)
+        g a
 
     (* iter/fold on all edges going from/to a vertex *)
     let iter_succ_e f g i =
@@ -517,7 +517,7 @@ module Matrix = struct
 
     let iter_pred_e f g i =
       for j = 0 to nb_vertex g - 1 do
-	if Bitv.unsafe_get g.(j) i then f (j,i)
+        if Bitv.unsafe_get g.(j) i then f (j,i)
       done
 
     let fold_succ_e f g i a =
@@ -525,8 +525,8 @@ module Matrix = struct
 
     let fold_pred_e f g i a =
       fold_vertex
-	(fun j a -> if Bitv.unsafe_get g.(j) i then f (j,i) a else a)
-	g a
+        (fun j a -> if Bitv.unsafe_get g.(j) i then f (j,i) a else a)
+        g a
 
   end
 
@@ -558,18 +558,18 @@ end
 
 (* Faster implementations when vertices are not shared between graphs. *)
 (****
-module UV = struct
+   module UV = struct
 
-  let cpt_vertex = ref min_int
+   let cpt_vertex = ref min_int
 
-  type ('label, 'succ) vertex = {
+   type ('label, 'succ) vertex = {
     tag : int;
     label : 'label;
     mutable mark : int;
     mutable succ : 'succ;
-  }
+   }
 
-  module Digraph = struct
+   module Digraph = struct
 
     module Abstract(L: ANY_TYPE) :
       Sig.IM with type V.label = L.t and type E.label = unit
@@ -579,38 +579,38 @@ module UV = struct
       module rec V :
         VERTEX with type label = L.t and type t = (L.t, S.t) vertex  =
       struct
-	type label = L.t
-	type t = (L.t, S.t) vertex
+   type label = L.t
+   type t = (L.t, S.t) vertex
 
-	let compare x y = compare x.tag y.tag
-	let hash x = Hashtbl.hash x.tag
-	let equal x y = x.tag = y.tag
-	let label x = x.label
+   let compare x y = compare x.tag y.tag
+   let hash x = Hashtbl.hash x.tag
+   let equal x y = x.tag = y.tag
+   let label x = x.label
 
-	let create l =
-	  assert (!cpt_vertex < max_int);
-	  incr cpt_vertex;
-	  { tag = !cpt_vertex; label = l; mark = 0; succ = S.empty }
+   let create l =
+    assert (!cpt_vertex < max_int);
+    incr cpt_vertex;
+    { tag = !cpt_vertex; label = l; mark = 0; succ = S.empty }
       end
       and S : Set.S with type elt = V.t = Set.Make(V)
 
       type vertex = V.t
 
       module E = struct
-	type t = V.t * V.t
-	type vertex = V.t
-	let compare = Pervasives.compare
-	type label = unit
-	let create v1 _ v2 = (v1, v2)
-	let src = fst
-	let dst = snd
-	let label _ = ()
+   type t = V.t * V.t
+   type vertex = V.t
+   let compare = Pervasives.compare
+   type label = unit
+   let create v1 _ v2 = (v1, v2)
+   let src = fst
+   let dst = snd
+   let label _ = ()
       end
 
       type edge = E.t
 
       type t = {
-	mutable vertices : S.t;
+   mutable vertices : S.t;
       }
 
       let create ?size () = { vertices = S.empty }
@@ -657,10 +657,10 @@ module UV = struct
     AbstractLabeled
       (V)(struct type t = unit let compare _ _ = 0 let default = () end)
 
-  end
+   end
 
-(**
-  module Graph = struct
+   (**
+   module Graph = struct
 
     module Abstract(V: ANY_TYPE) :
       Sig.IM with type V.label = V.t and type E.label = unit
@@ -668,10 +668,10 @@ module UV = struct
     module AbstractLabeled (V: ANY_TYPE)(E: ORDERED_TYPE_DFT) :
       Sig.IM with type V.label = V.t and type E.label = E.t
 
-  end
-**)
-end
-****)
+   end
+ **)
+   end
+ ****)
 
 (*
 Local Variables:

@@ -57,9 +57,9 @@ end
 
 
 module Make
-  (G : G)
-  (A : Analysis with type g = G.t with type edge = G.E.t
-with type vertex = G.V.t) =
+    (G : G)
+    (A : Analysis with type g = G.t with type edge = G.E.t
+     with type vertex = G.V.t) =
 struct
 
   module M = Map.Make(G.V)
@@ -79,17 +79,17 @@ struct
     let nodemap : ((A.data -> A.data) * G.V.t) list M.t =
       let add = match A.direction with
         | Forward ->
-            (fun n ->
-               let preds = G.pred_e g n in
-               List.map
-                 (fun edge -> (A.analyze edge, G.E.src edge))
-                 preds)
+          (fun n ->
+             let preds = G.pred_e g n in
+             List.map
+               (fun edge -> (A.analyze edge, G.E.src edge))
+               preds)
         | Backward ->
-            (fun n ->
-               let succs = G.succ_e g n in
-               List.map
-                 (fun edge -> (A.analyze edge, G.E.dst edge))
-                 succs)
+          (fun n ->
+             let succs = G.succ_e g n in
+             List.map
+               (fun edge -> (A.analyze edge, G.E.dst edge))
+               succs)
       in
       G.fold_vertex (fun vertex m -> M.add vertex (add vertex) m) g M.empty
     in
@@ -106,8 +106,8 @@ struct
          as necessary *)
       let analyze_node analysis n d wl =
         match analysis d n with
-          | None -> (d, wl)
-          | Some d' -> (d', N.add n wl)
+        | None -> (d, wl)
+        | Some d' -> (d', N.add n wl)
       in
 
       (* get some node from the node-set -- this will eventually trigger
@@ -119,42 +119,42 @@ struct
         let wl = N.remove n wl in
 
         let (f, ns) = match A.direction with
-            (* analyze all INCOMING edges of all SUCCESSOR nodes of the
-               node to be processed *)
+          (* analyze all INCOMING edges of all SUCCESSOR nodes of the
+             node to be processed *)
           | Forward ->
-              (* process one node: analyze all it's incoming edges
-                 and merge the resulting data;
-                 if the result is different to the previously stored data
-                 for this node, return a new tuple, else None *)
-              let new_node_data (data : A.data M.t) node =
-                let edges = M.find node nodemap in
-                let analysis =
-                  List.map
-                    (fun (f, src) -> f (M.find src data)) edges
-                in
-                let node_data = M.find node data in
-                let node_data' = meet ~default:node_data analysis in
-                if A.equal node_data node_data' then None
-                else Some (M.add node node_data' data)
+            (* process one node: analyze all it's incoming edges
+               and merge the resulting data;
+               if the result is different to the previously stored data
+               for this node, return a new tuple, else None *)
+            let new_node_data (data : A.data M.t) node =
+              let edges = M.find node nodemap in
+              let analysis =
+                List.map
+                  (fun (f, src) -> f (M.find src data)) edges
               in
+              let node_data = M.find node data in
+              let node_data' = meet ~default:node_data analysis in
+              if A.equal node_data node_data' then None
+              else Some (M.add node node_data' data)
+            in
 
-              (new_node_data, G.succ g n)
-                (* analyze all OUTGOING edges of all PREDECESSOR nodes
-                   of the node to be processed *)
+            (new_node_data, G.succ g n)
+          (* analyze all OUTGOING edges of all PREDECESSOR nodes
+             of the node to be processed *)
           | Backward ->
-              let new_node_data (data : A.data M.t) node =
-                let edges = M.find node nodemap in
-                let analysis =
-                  List.map
-                    (fun (f, dst) -> f (M.find dst data)) edges
-                in
-                let node_data = M.find node data in
-                let node_data' = meet ~default:node_data analysis in
-                if A.equal node_data node_data' then None
-                else Some (M.add node node_data' data)
+            let new_node_data (data : A.data M.t) node =
+              let edges = M.find node nodemap in
+              let analysis =
+                List.map
+                  (fun (f, dst) -> f (M.find dst data)) edges
               in
+              let node_data = M.find node data in
+              let node_data' = meet ~default:node_data analysis in
+              if A.equal node_data node_data' then None
+              else Some (M.add node node_data' data)
+            in
 
-              (new_node_data, G.pred g n)
+            (new_node_data, G.pred g n)
         in
         (* analyze all successor nodes by analyzing all of their
            predecessor edges *)

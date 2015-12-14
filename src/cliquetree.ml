@@ -78,7 +78,7 @@ module CliqueTree(Gr : Sig.G) = struct
     let mark x = x.mark
     let incr_mark x =
       (*Printf.printf "Increasing mark of %s to %i\n%!"
-	(Gr.v_to_string x.orig) (succ x.mark);*)
+        (Gr.v_to_string x.orig) (succ x.mark);*)
       x.mark <- succ x.mark
 
     let m x = x.m
@@ -86,13 +86,13 @@ module CliqueTree(Gr : Sig.G) = struct
 
     let last x =
       match x.last with
-	  Some v -> v
-	| None -> failwith "last not set"
+        Some v -> v
+      | None -> failwith "last not set"
 
     let set_last x v = x.last <- Some v
 
   end
-    (* Clique tree vertex set *)
+  (* Clique tree vertex set *)
   and CVS : Set.S with type elt = CliqueV.t = Set.Make(CliqueV)
 
   (* The final clique tree vertex type:
@@ -103,14 +103,14 @@ module CliqueTree(Gr : Sig.G) = struct
     Util.DataV
       (struct type t = CliqueV.t list * CVS.t end)
       (struct
-	 type t = int
-	 type label = int
-         let compare : t -> t -> int = Pervasives.compare
-	 let hash = Hashtbl.hash
-	 let equal x y = x = y
-	 let label x = x
-	 let create lbl = lbl
-       end)
+        type t = int
+        type label = int
+        let compare : t -> t -> int = Pervasives.compare
+        let hash = Hashtbl.hash
+        let equal x y = x = y
+        let label x = x
+        let create lbl = lbl
+      end)
 
   module CliqueTreeE = struct
     type t = int * CVS.t
@@ -126,17 +126,17 @@ module CliqueTree(Gr : Sig.G) = struct
     let width g tri (_, x) =
       let vertices = List.map CliqueV.vertex (CVS.elements x) in
       let w =
-	List.fold_left
-	  (fun w v ->
-	     List.fold_left
-	     (fun w v' ->
-		if v <> v' then
-		  if not (Gr.mem_edge g v v') && Gr.mem_edge tri v v'
-		  then succ w
-		  else w
-		else w)
-	     w vertices)
-	  0 vertices
+        List.fold_left
+          (fun w v ->
+             List.fold_left
+               (fun w v' ->
+                  if v <> v' then
+                    if not (Gr.mem_edge g v v') && Gr.mem_edge tri v v'
+                    then succ w
+                    else w
+                  else w)
+               w vertices)
+          0 vertices
       in
       assert(w mod 2 = 0);
       w / 2
@@ -165,8 +165,8 @@ module CliqueTree(Gr : Sig.G) = struct
     let l = CVS.elements x in
     List.sort
       (fun x y ->
-	 (*let markx = mark x and marky = mark y in*)
-	 (Pervasives.compare : int -> int -> int) (number y) (number x))
+         (*let markx = mark x and marky = mark y in*)
+         (Pervasives.compare : int -> int -> int) (number y) (number x))
       l
 
   let mcs_clique g =
@@ -179,157 +179,157 @@ module CliqueTree(Gr : Sig.G) = struct
     let cliques = Array.make n ([], CVS.empty) in
     let ties = ref [] in
     let j = ref 0 in
-      (* loop, taking each unnumbered vertex in turn *)
-      for i = n downto 1 do
-	(* Find greatest unnumbered vertex
-	   if CVS.is_empty !unnumbered then
-	   Printf.printf "No more unnumbered vertices\n%!"
-	   else
-	   Printf.printf "%i unnumbered vertices remaining\n%!"
-	   (CVS.cardinal !unnumbered);
-	*)
- 	let x, mark =
-	  let choosed = CVS.choose !unnumbered in
- 	    CVS.fold
- 	      (fun x ((maxx, maxv) as max) ->
- 		 let v = mark x in
- 		 if v > maxv then (x, v) else max)
- 	      !unnumbered (choosed, mark choosed)
-  	in
-	  (* peo construction *)
-	  order := x :: !order;
-	  (* now numbered *)
-	  unnumbered := CVS.remove x !unnumbered;
-	  if mark <= !pmark then begin
-	    (* Create a new clique (lemma 8) *)
-	    incr j;
-	    (* m x is the neighborhoud of x in the previous clique *)
-	    cliques.(!j) <- ([x], CVS.add x (m x));
-	    (* Use reverse map of cliques to find what clique
-	       we're connected to. m x is the width of the ties *)
-	    let clast = clique (last x) in
-	    ties := (clast, m x, !j) :: !ties;
-	  end else begin
-	    let l, c = cliques.(!j) in
-	    cliques.(!j) <- (x::l, CVS.add x c);
-	  end;
-	  G.iter_succ
-	    (fun y ->
-	       if number y == 0 then begin
-		 incr_mark y;
-		 set_m y (CVS.add x (m y));
-	       end;
-	       set_last y x)
-	    g' x;
-	  pmark := mark;
-	  set_number x i;
-	  set_clique x !j;
+    (* loop, taking each unnumbered vertex in turn *)
+    for i = n downto 1 do
+      (* Find greatest unnumbered vertex
+         if CVS.is_empty !unnumbered then
+         Printf.printf "No more unnumbered vertices\n%!"
+         else
+         Printf.printf "%i unnumbered vertices remaining\n%!"
+         (CVS.cardinal !unnumbered);
+      *)
+      let x, mark =
+        let choosed = CVS.choose !unnumbered in
+        CVS.fold
+          (fun x ((maxx, maxv) as max) ->
+             let v = mark x in
+             if v > maxv then (x, v) else max)
+          !unnumbered (choosed, mark choosed)
+      in
+      (* peo construction *)
+      order := x :: !order;
+      (* now numbered *)
+      unnumbered := CVS.remove x !unnumbered;
+      if mark <= !pmark then begin
+        (* Create a new clique (lemma 8) *)
+        incr j;
+        (* m x is the neighborhoud of x in the previous clique *)
+        cliques.(!j) <- ([x], CVS.add x (m x));
+        (* Use reverse map of cliques to find what clique
+           we're connected to. m x is the width of the ties *)
+        let clast = clique (last x) in
+        ties := (clast, m x, !j) :: !ties;
+      end else begin
+        let l, c = cliques.(!j) in
+        cliques.(!j) <- (x::l, CVS.add x c);
+      end;
+      G.iter_succ
+        (fun y ->
+           if number y == 0 then begin
+             incr_mark y;
+             set_m y (CVS.add x (m y));
+           end;
+           set_last y x)
+        g' x;
+      pmark := mark;
+      set_number x i;
+      set_clique x !j;
+    done;
+    let cliques =
+      Array.mapi
+        (fun i (l, c) -> CliqueTreeV.create (List.rev l, c) i)
+        (Array.sub cliques 0 (succ !j))
+    in
+    let tree =
+      Array.fold_left CliqueTree.add_vertex CliqueTree.empty cliques
+    in
+    let tree, _ =
+      List.fold_left
+        (fun (g, n) (i, verts, j) ->
+           let label = CliqueTreeE.create n verts in
+           let edge = CliqueTree.E.create cliques.(i) label cliques.(j) in
+           (CliqueTree.add_edge_e g edge, succ n))
+        (tree, 1) !ties
+    in
+    List.map CliqueV.vertex !order, tree, cliques.(0)
+
+  let sons g x = CliqueTree.fold_succ (fun x y -> x :: y) g x []
+
+  exception NotClique
+
+  let rec drop_while p l =
+    match l with
+    | x :: tl ->
+      if p x then drop_while p tl
+      else l
+    | [] -> []
+
+  let test_simpliciality_first l sons =
+    let takeOne l = match !l with
+      | x :: xs -> l := xs; Some x
+      | [] -> None
+    in
+    let vertices = ref l in
+    let sons = ref sons in
+    try
+      while !vertices <> [] && not (List.for_all (fun c -> !c = []) !sons) do
+        (match takeOne vertices with
+           Some v ->
+           let mark = CliqueV.mark v in
+           List.iter
+             (fun s ->
+                match !s with
+                | y :: tl ->
+                  let ymark = CliqueV.mark y in
+                  if ymark > mark then
+                    ()
+                  else if ymark = mark then
+                    s := drop_while
+                        (fun y -> CliqueV.mark y = mark) tl
+                  else raise NotClique
+                | [] -> ())
+             !sons
+         | None -> assert false);
       done;
-      let cliques =
-	Array.mapi
-	  (fun i (l, c) -> CliqueTreeV.create (List.rev l, c) i)
-	  (Array.sub cliques 0 (succ !j))
-      in
-      let tree =
-	Array.fold_left CliqueTree.add_vertex CliqueTree.empty cliques
-      in
-      let tree, _ =
-	List.fold_left
-	  (fun (g, n) (i, verts, j) ->
-	     let label = CliqueTreeE.create n verts in
-	     let edge = CliqueTree.E.create cliques.(i) label cliques.(j) in
-	     (CliqueTree.add_edge_e g edge, succ n))
-	  (tree, 1) !ties
-      in
-      List.map CliqueV.vertex !order, tree, cliques.(0)
+      !vertices <> []
+    with NotClique -> false
 
-   let sons g x = CliqueTree.fold_succ (fun x y -> x :: y) g x []
+  let test_simpliciality_first' l sons =
+    List.for_all
+      (fun son ->
+         match !son with
+         | [] -> false
+         | xi :: tl ->
+           let other = m xi in
+           CVS.subset other l)
+      sons
 
-   exception NotClique
+  let test_simpliciality_next vertices sons =
+    match vertices with
+    | x :: tl ->
+      begin
+        try
+          ignore(
+            List.fold_left
+              (fun vm v' ->
+                 let vm' = CliqueV.m v' in
+                 if CVS.equal vm' vm then
+                   CVS.add v' vm'
+                 else raise NotClique)
+              (CVS.add x (m x)) tl);
+          true
+        with NotClique -> false
+      end
+    | _ -> true
 
-   let rec drop_while p l =
-     match l with
-       | x :: tl ->
-	   if p x then drop_while p tl
-	   else l
-       | [] -> []
+  let is_chordal g =
+    let order, tree, root = mcs_clique g in
+    let rec aux c =
+      let csons = sons tree c in
+      let s = List.map CliqueTreeV.data csons in
+      let l = CliqueTreeV.data c in
+      let sons () = List.map (fun (x,y) -> ref x) s in
+      let first = test_simpliciality_first' (snd l) (sons ()) in
+      let next = test_simpliciality_next (fst l) (sons ()) in
+      first && next && (List.for_all aux csons)
+    in
+    aux root
 
-   let test_simpliciality_first l sons =
-     let takeOne l = match !l with
-       | x :: xs -> l := xs; Some x
-       | [] -> None
-     in
-     let vertices = ref l in
-     let sons = ref sons in
-     try
-       while !vertices <> [] && not (List.for_all (fun c -> !c = []) !sons) do
-	 (match takeOne vertices with
-	      Some v ->
-		let mark = CliqueV.mark v in
-		List.iter
-		  (fun s ->
-		     match !s with
-		       | y :: tl ->
-			   let ymark = CliqueV.mark y in
-			   if ymark > mark then
-			     ()
-			   else if ymark = mark then
-			     s := drop_while
-			       (fun y -> CliqueV.mark y = mark) tl
-			   else raise NotClique
-		       | [] -> ())
-		  !sons
-	      | None -> assert false);
-       done;
-       !vertices <> []
-     with NotClique -> false
-
-   let test_simpliciality_first' l sons =
-     List.for_all
-       (fun son ->
-	  match !son with
-	    | [] -> false
-	    | xi :: tl ->
-		let other = m xi in
-		CVS.subset other l)
-       sons
-
-   let test_simpliciality_next vertices sons =
-     match vertices with
-       | x :: tl ->
-	   begin
-	     try
-	       ignore(
-		 List.fold_left
-			(fun vm v' ->
-			   let vm' = CliqueV.m v' in
-			   if CVS.equal vm' vm then
-			     CVS.add v' vm'
-			   else raise NotClique)
-			(CVS.add x (m x)) tl);
-	       true
-	     with NotClique -> false
-	   end
-       | _ -> true
-
-   let is_chordal g =
-     let order, tree, root = mcs_clique g in
-     let rec aux c =
-       let csons = sons tree c in
-       let s = List.map CliqueTreeV.data csons in
-       let l = CliqueTreeV.data c in
-       let sons () = List.map (fun (x,y) -> ref x) s in
-       let first = test_simpliciality_first' (snd l) (sons ()) in
-       let next = test_simpliciality_next (fst l) (sons ()) in
-       first && next && (List.for_all aux csons)
-     in
-     aux root
-
-   let maxwidth g tri tree =
-     CliqueTree.fold_edges_e
-       (fun e res ->
-	  let w = CliqueTreeE.width g tri (CliqueTree.E.label e) in
-	  max res w)
-       tree 0
+  let maxwidth g tri tree =
+    CliqueTree.fold_edges_e
+      (fun e res ->
+         let w = CliqueTreeE.width g tri (CliqueTree.E.label e) in
+         max res w)
+      tree 0
 
 end

@@ -42,9 +42,9 @@ module type G = sig
 end
 
 module Generic
-  (G: G)
-  (W : Sig.ORDERED_TYPE with type t = G.E.label)
-  (UF: UNIONFIND with type elt = G.V.t) =
+    (G: G)
+    (W : Sig.ORDERED_TYPE with type t = G.E.label)
+    (UF: UNIONFIND with type elt = G.V.t) =
 struct
 
   let spanningtree g =
@@ -59,8 +59,8 @@ struct
     let cover e =
       let u, v = G.E.src e, G.E.dst e in
       if G.V.compare (UF.find u uf) (UF.find v uf) <> 0 then begin
-	UF.union u v uf;
-	s := e :: !s
+        UF.union u v uf;
+        s := e :: !s
       end
     in
     List.iter cover edges;

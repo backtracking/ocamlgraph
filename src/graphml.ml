@@ -25,22 +25,22 @@ module type G = sig
 end
 
 module Print
-  (G: G)
-  (L : sig
-    val vertex_properties : (string * string * string option) list
-    val edge_properties : (string * string * string option) list
-    val map_vertex : G.vertex -> (string * string) list
-    val map_edge : G.E.t -> (string * string) list
-    val vertex_uid : G.vertex -> int
-    val edge_uid : G.E.t -> int
-  end)
+    (G: G)
+    (L : sig
+       val vertex_properties : (string * string * string option) list
+       val edge_properties : (string * string * string option) list
+       val map_vertex : G.vertex -> (string * string) list
+       val map_edge : G.E.t -> (string * string) list
+       val vertex_uid : G.vertex -> int
+       val edge_uid : G.E.t -> int
+     end)
 
 = struct
 
   type t = G.t
 
   let header =
-"<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <graphml xmlns=\"http://graphml.graphdrawing.org/xmlns\"
     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
     xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns
@@ -55,9 +55,9 @@ module Print
     match default with
     |None -> Format.fprintf fmt "</key>\n"
     |Some s -> begin
-      Format.fprintf fmt "\n <default>%s</default>\n" s;
-      Format.fprintf fmt "</key>\n"
-    end
+        Format.fprintf fmt "\n <default>%s</default>\n" s;
+        Format.fprintf fmt "</key>\n"
+      end
 
   let print fmt graph =
 
@@ -79,24 +79,24 @@ module Print
     (* vertex printer *)
     G.iter_vertex
       (fun vertex ->
-	let id = L.vertex_uid vertex in
-	let l = L.map_vertex vertex in
-	Format.fprintf fmt " <node id=\"n%d\">\n" id;
-	List.iter (Format.fprintf fmt "  %a\n" data_pp) l;
-	Format.fprintf fmt " </node>\n")
+         let id = L.vertex_uid vertex in
+         let l = L.map_vertex vertex in
+         Format.fprintf fmt " <node id=\"n%d\">\n" id;
+         List.iter (Format.fprintf fmt "  %a\n" data_pp) l;
+         Format.fprintf fmt " </node>\n")
       graph ;
 
     (* edge printer *)
     G.iter_edges_e
       (fun edge ->
-	let n1 = L.vertex_uid (G.E.src edge) in
-	let n2 = L.vertex_uid (G.E.dst edge) in
-	let eid = L.edge_uid edge in
-	let l = L.map_edge edge in
-	Format.fprintf fmt
-	  " <edge id=\"e%d\" source=\"n%d\" target=\"n%d\">\n" eid n1 n2;
-	List.iter (Format.fprintf fmt "  %a\n" data_pp) l;
-	Format.fprintf fmt " </edge>\n")
+         let n1 = L.vertex_uid (G.E.src edge) in
+         let n2 = L.vertex_uid (G.E.dst edge) in
+         let eid = L.edge_uid edge in
+         let l = L.map_edge edge in
+         Format.fprintf fmt
+           " <edge id=\"e%d\" source=\"n%d\" target=\"n%d\">\n" eid n1 n2;
+         List.iter (Format.fprintf fmt "  %a\n" data_pp) l;
+         Format.fprintf fmt " </edge>\n")
       graph ;
 
     Format.fprintf fmt "</graph>\n";

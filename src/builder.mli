@@ -22,9 +22,9 @@ open Sig
 
 (** {2 Common interface for graph builders}.
 
-   Note: the following functions always return graphs but this is meaningless
-   for imperative implementations (the graph is modified in-place).
-   This is just to provide a common interface. *)
+    Note: the following functions always return graphs but this is meaningless
+    for imperative implementations (the graph is modified in-place).
+    This is just to provide a common interface. *)
 
 module type S = sig
   module G : Sig.G
@@ -43,10 +43,10 @@ module type INT = S with type G.V.label = int
 (** {1 Builders for the various graph implementations} *)
 
 module P(G : Sig.P) : S with module G = G
-  (** Persistent Graphs Builders. *)
+(** Persistent Graphs Builders. *)
 
 module I(G : Sig.I) : S with module G = G
-  (** Imperative Graphs Builders. *)
+(** Imperative Graphs Builders. *)
 
 (*
 Local Variables:

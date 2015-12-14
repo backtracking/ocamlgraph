@@ -64,23 +64,23 @@ module CliqueTree(G : Sig.G) : sig
     val create : int -> CVS.t -> t
 
     (** Vertices in the clique tree edge
-      (intersection of the two clique extremities). *)
+        (intersection of the two clique extremities). *)
     val vertices : t -> CVS.t
   end
 
   (** The clique tree graph type *)
   module CliqueTree : Sig.G with type V.t = CliqueTreeV.t
-			    and type E.label = CliqueTreeE.t
+                             and type E.label = CliqueTreeE.t
 
   (** [mcs_clique g] return an perfect elimination order of [g]
-    (if it is chordal), the clique tree of [g] and its root.  *)
+      (if it is chordal), the clique tree of [g] and its root.  *)
   val mcs_clique : G.t -> G.V.t list * CliqueTree.t * CliqueTree.V.t
 
   (** [is_chordal g] uses the clique tree construction to test if a graph is
-    chordal or not. *)
+      chordal or not. *)
   val is_chordal : G.t -> bool
 
   (** [maxwidth g tri tree] returns the maxwidth characteristic of the
-    triangulation [tri] of graph [g] given the clique tree [tree] of [tri]. *)
+      triangulation [tri] of graph [g] given the clique tree [tree] of [tri]. *)
   val maxwidth : G.t -> G.t -> CliqueTree.t -> int
 end
