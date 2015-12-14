@@ -47,7 +47,7 @@ SRCDIR	= src
 LIBDIR	= lib
 
 INCLUDES= -I $(SRCDIR) -I $(LIBDIR)
-BFLAGS = $(INCLUDES) -g -dtypes -w +a -w -4 -w -44 -w -50
+BFLAGS = $(INCLUDES) -g -dtypes -w +a -w -4 -w -44 -w -50 -w -48 -w -29
 OFLAGS = $(INCLUDES)
 
 # main target
