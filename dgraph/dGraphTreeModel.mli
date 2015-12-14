@@ -40,8 +40,8 @@ module type S = sig
 
   class tree_model :
     XDot.Make(Tree).graph_layout ->
-      TreeManipulation.t ->
-	[ Tree.V.t, Tree.E.t, cluster ] DGraphModel.abstract_model
+    TreeManipulation.t ->
+    [ Tree.V.t, Tree.E.t, cluster ] DGraphModel.abstract_model
 
   val tree : unit -> TreeManipulation.t
 

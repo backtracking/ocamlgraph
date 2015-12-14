@@ -40,32 +40,32 @@ type state = {
 }
 
 let init_state () =
-   let window =
-     GWindow.window
-       ~width:1280 ~height:1024
-       ~title:"Graph Widget"
-       ~allow_shrink:true ~allow_grow:true ()
-   in
-   let status = GMisc.label ~markup:"" () in
-   status#set_use_markup true;
-   let file = ref None in
-   for i=1 to Array.length Sys.argv - 1 do
-     file := Some Sys.argv.(i)
-   done;
-   { file = !file;
-     window = window;
-     content = None }
+  let window =
+    GWindow.window
+      ~width:1280 ~height:1024
+      ~title:"Graph Widget"
+      ~allow_shrink:true ~allow_grow:true ()
+  in
+  let status = GMisc.label ~markup:"" () in
+  status#set_use_markup true;
+  let file = ref None in
+  for i=1 to Array.length Sys.argv - 1 do
+    file := Some Sys.argv.(i)
+  done;
+  { file = !file;
+    window = window;
+    content = None }
 
 (* Top menu *)
 
 let menu_desc = "<ui>\
-  <menubar name='MenuBar'>\
-    <menu action='FileMenu'>\
-      <menuitem action='Open'/>\
-      <menuitem action='Zoom fit'/>\
-      <menuitem action='Quit'/>\
-    </menu>\
-  </menubar>
+                 <menubar name='MenuBar'>\
+                 <menu action='FileMenu'>\
+                 <menuitem action='Open'/>\
+                 <menuitem action='Zoom fit'/>\
+                 <menuitem action='Quit'/>\
+                 </menu>\
+                 </menubar>
 </ui>"
 
 let update_state state ~packing =
@@ -73,11 +73,11 @@ let update_state state ~packing =
   try
     let _, view as content = match state.file with
       | Some file ->
-	  if debug then printf "Building Model...\n";
-	  state.file <- Some file;
-	  Content.from_dot_with_commands ~packing file
+        if debug then printf "Building Model...\n";
+        state.file <- Some file;
+        Content.from_dot_with_commands ~packing file
       | None ->
-	  raise Not_found
+        raise Not_found
     in
     state.content <- Some content;
     state.window#show ();
@@ -103,9 +103,9 @@ let open_file state ~packing () =
   dialog#add_filter (all_files ()) ;
   match dialog#run () with
   | `OPEN ->
-      state.file <- dialog#filename;
-      dialog#destroy ();
-      update_state state ~packing
+    state.file <- dialog#filename;
+    dialog#destroy ();
+    update_state state ~packing
   | `DELETE_EVENT | `CANCEL -> dialog#destroy ()
 
 let create_menu state ~packing =
@@ -118,8 +118,8 @@ let create_menu state ~packing =
     GAction.add_action
       "Zoom fit" ~label:"Zoom fit" ~accel:"<Control>t" ~stock:`ZOOM_FIT
       ~callback:(fun _ -> match state.content with 
-        |None -> ()
-        |Some (_,v) -> v#adapt_zoom ());
+          |None -> ()
+          |Some (_,v) -> v#adapt_zoom ());
     GAction.add_action "Quit" ~label:"Quit" ~accel:"<Control>q" ~stock:`QUIT
       ~callback:(fun _ -> GMain.Main.quit ());
   ];

@@ -112,10 +112,10 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
 
   (** Main layout type *)
   type graph_layout =
-      { vertex_layouts  : node_layout HV.t;
-	edge_layouts    : edge_layout HE.t;
-	cluster_layouts : (string, cluster_layout) Hashtbl.t;
-	bbox : bounding_box }
+    { vertex_layouts  : node_layout HV.t;
+      edge_layouts    : edge_layout HE.t;
+      cluster_layouts : (string, cluster_layout) Hashtbl.t;
+      bbox : bounding_box }
 
   exception DotError of string
 

@@ -135,7 +135,7 @@ end
 module Edge = struct
   type t = XDot.edge_layout
   let default = XDot.mk_edge_layout
-    ~draw:[] ~ldraw:[] ~hdraw:[] ~tdraw:[] ~hldraw:[] ~tldraw:[]
+      ~draw:[] ~ldraw:[] ~hdraw:[] ~tdraw:[] ~hldraw:[] ~tldraw:[]
   let compare : t -> t -> int = Pervasives.compare
 end
 
@@ -149,49 +149,49 @@ module DotParser =
   Dot.Parse
     (DotB)
     (struct
-       (* Read the attributes of a node *)
-       let node = XDot.read_node_layout
+      (* Read the attributes of a node *)
+      let node = XDot.read_node_layout
 
-       (* Read edge attributes *)
-       let edge = XDot.read_edge_layout
+      (* Read edge attributes *)
+      let edge = XDot.read_edge_layout
 
-     end)
+    end)
 
 module DotModel = struct
   type cluster = string
   class model g clusters_hash bounding_box
     : [DotG.vertex, DotG.edge, cluster] abstract_model
     =
-  object
-    (* Iterators *)
-    method iter_edges f = DotG.iter_edges f g
-    method iter_edges_e f = DotG.iter_edges_e f g
-    method iter_pred f v = DotG.iter_pred f g v
-    method iter_pred_e f v = DotG.iter_pred_e f g v
-    method iter_succ f = DotG.iter_succ f g
-    method iter_succ_e f = DotG.iter_succ_e f g
-    method iter_vertex f = DotG.iter_vertex f g
-    method iter_associated_vertex f v = f v
-    method iter_clusters f = Hashtbl.iter (fun k _ -> f k) clusters_hash
+    object
+      (* Iterators *)
+      method iter_edges f = DotG.iter_edges f g
+      method iter_edges_e f = DotG.iter_edges_e f g
+      method iter_pred f v = DotG.iter_pred f g v
+      method iter_pred_e f v = DotG.iter_pred_e f g v
+      method iter_succ f = DotG.iter_succ f g
+      method iter_succ_e f = DotG.iter_succ_e f g
+      method iter_vertex f = DotG.iter_vertex f g
+      method iter_associated_vertex f v = f v
+      method iter_clusters f = Hashtbl.iter (fun k _ -> f k) clusters_hash
 
-    (* Membership functions *)
-    method find_edge = try DotG.find_edge g with Not_found -> assert false
-    method mem_edge = DotG.mem_edge g
-    method mem_edge_e = DotG.mem_edge_e g
-    method mem_vertex = DotG.mem_vertex g
-    method src = DotG.E.src
-    method dst = DotG.E.dst
+      (* Membership functions *)
+      method find_edge = try DotG.find_edge g with Not_found -> assert false
+      method mem_edge = DotG.mem_edge g
+      method mem_edge_e = DotG.mem_edge_e g
+      method mem_vertex = DotG.mem_vertex g
+      method src = DotG.E.src
+      method dst = DotG.E.dst
 
-    (* Layout *)
-    method bounding_box = bounding_box
-    method get_vertex_layout = DotG.V.label
-    method get_edge_layout = DotG.E.label
-    method get_cluster_layout c =
-      let attrs =
-	try Hashtbl.find clusters_hash c with Not_found -> assert false
-      in
-      XDot.read_cluster_layout attrs
-  end
+      (* Layout *)
+      method bounding_box = bounding_box
+      method get_vertex_layout = DotG.V.label
+      method get_edge_layout = DotG.E.label
+      method get_cluster_layout c =
+        let attrs =
+          try Hashtbl.find clusters_hash c with Not_found -> assert false
+        in
+        XDot.read_cluster_layout attrs
+    end
 
   let model = new model
 end
@@ -199,18 +199,18 @@ end
 (* Runs graphviz, parses the graph and instantiates the model *)
 let read_dot ?(cmd="dot") dot_file =
   let basename = try Filename.chop_extension dot_file
-                 with Invalid_argument _ -> dot_file in
+    with Invalid_argument _ -> dot_file in
   let xdot_file = basename ^ ".xdot" in
   let dot_cmd = Printf.sprintf "%s -Txdot %s > %s" cmd dot_file xdot_file in
 
   (* Run graphviz *)
   match Sys.command dot_cmd with
-    | 0 -> begin
-	let graph, bb, clusters_hash =
-	  DotParser.parse_bounding_box_and_clusters xdot_file in
-	DotModel.model graph clusters_hash (XDot.read_bounding_box bb)
-      end
-    | _ -> raise (DotError "Error during dot execution")
+  | 0 -> begin
+      let graph, bb, clusters_hash =
+        DotParser.parse_bounding_box_and_clusters xdot_file in
+      DotModel.model graph clusters_hash (XDot.read_bounding_box bb)
+    end
+  | _ -> raise (DotError "Error during dot execution")
 
 (* Does not run graphviz.
    Parses a graph from an xdot file and instantiates the model. *)

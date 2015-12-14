@@ -93,7 +93,7 @@ exception ParseError of string
 (* MISCELLANEOUS FUNCTIONS *)
 
 let suffix s i = try String.sub s i ((String.length s)-i)
-                 with Invalid_argument("String.sub") -> ""
+  with Invalid_argument("String.sub") -> ""
 
 let read_pos s = Scanf.sscanf s "%f,%f" (fun x y -> x, -.y)
 
@@ -117,39 +117,39 @@ let read_common_layout mk_layout attr_list =
   (* shape, position, width, height, color, filled *)
   let fold ((p,w,h, draw,ldraw) as attrs) = function
     | (Dot_ast.Ident "pos"), Some (Dot_ast.String s) ->
-        (Some s), w, h, draw,ldraw
+      (Some s), w, h, draw,ldraw
     | (Dot_ast.Ident "width"), Some (Dot_ast.String s) ->
-        p, (Some s), h, draw,ldraw
+      p, (Some s), h, draw,ldraw
     | (Dot_ast.Ident "height"), Some (Dot_ast.String s) ->
-        p, w, (Some s), draw,ldraw
+      p, w, (Some s), draw,ldraw
     | (Dot_ast.Ident "_draw_"), Some (Dot_ast.String draw) ->
-	p,w,h, XDotDraw.parse draw, ldraw
+      p,w,h, XDotDraw.parse draw, ldraw
     | (Dot_ast.Ident "_ldraw_"), Some (Dot_ast.String ldraw) ->
-	p,w,h, draw, XDotDraw.parse ldraw
+      p,w,h, draw, XDotDraw.parse ldraw
     | _ -> attrs in
 
   let fold_attr acc attr_list =
     List.fold_left fold acc attr_list in
   let attrs = List.fold_left fold_attr (None, None, None, [], [])
-    attr_list in
+      attr_list in
 
   (* Check if we have position, width and height *)
   match attrs with
-    | Some pos, Some w, Some h, draw,ldraw->
-      let pos = read_pos pos in
-      let coord = bounding_box pos
-	(float_of_string w) (-.(float_of_string h)) in
-	(* Return the node model *)
-      mk_layout ~pos ~bbox:coord ~draw ~ldraw
-    | _,_,_, draw, ldraw ->
-	let pos = (0.,0.) in
-	let bbox = (0.,0.),(0.,0.) in
-	mk_layout ~pos ~bbox ~draw ~ldraw
+  | Some pos, Some w, Some h, draw,ldraw->
+    let pos = read_pos pos in
+    let coord = bounding_box pos
+        (float_of_string w) (-.(float_of_string h)) in
+    (* Return the node model *)
+    mk_layout ~pos ~bbox:coord ~draw ~ldraw
+  | _,_,_, draw, ldraw ->
+    let pos = (0.,0.) in
+    let bbox = (0.,0.),(0.,0.) in
+    mk_layout ~pos ~bbox ~draw ~ldraw
 
 let read_node_layout (id,_) attrs =
   let f = read_common_layout
-    (fun ~pos ~bbox ~draw ~ldraw -> mk_node_layout ~pos ~bbox ~draw ~ldraw)
-     attrs in
+      (fun ~pos ~bbox ~draw ~ldraw -> mk_node_layout ~pos ~bbox ~draw ~ldraw)
+      attrs in
   f ~name:(get_dot_string id)
 let read_cluster_layout = read_common_layout mk_cluster_layout
 
@@ -157,13 +157,13 @@ let read_cluster_layout = read_common_layout mk_cluster_layout
 
 (** Reads the spline control points of a curve in an xdot file
     example : "c 5 -black B 4 65 296 65 288 65 279 65 270 "
- *)
+*)
 
 (* The edge drawing operations are in the following attributes :
-   _hdraw_	Head arrowhead
-   _tdraw_	Tail arrowhead
-   _hldraw_	Head label
-   _tldraw_	Tail label
+   _hdraw_  Head arrowhead
+   _tdraw_  Tail arrowhead
+   _hldraw_  Head label
+   _tldraw_  Tail label
 *)
 
 (** Gets the layout of an edge out of the dot ast *)
@@ -176,17 +176,17 @@ let read_edge_layout attr_list =
   let tldraw = ref [] in
   let fill_draw_ops = function
     | (Dot_ast.Ident "_draw_"),   Some (Dot_ast.String s) ->
-	draw   := XDotDraw.parse s
+      draw   := XDotDraw.parse s
     | (Dot_ast.Ident "_ldraw_"),  Some (Dot_ast.String s) ->
-	ldraw  := XDotDraw.parse s
+      ldraw  := XDotDraw.parse s
     | (Dot_ast.Ident "_hdraw_"),  Some (Dot_ast.String s) ->
-	hdraw  := XDotDraw.parse s
+      hdraw  := XDotDraw.parse s
     | (Dot_ast.Ident "_tdraw_"),  Some (Dot_ast.String s) ->
-	tdraw  := XDotDraw.parse s
+      tdraw  := XDotDraw.parse s
     | (Dot_ast.Ident "_hldraw_"), Some (Dot_ast.String s) ->
-	hldraw := XDotDraw.parse s
+      hldraw := XDotDraw.parse s
     | (Dot_ast.Ident "_tldraw_"), Some (Dot_ast.String s) ->
-	tldraw := XDotDraw.parse s
+      tldraw := XDotDraw.parse s
     | _ -> () in
   List.iter (List.iter fill_draw_ops) attr_list;
   let draw, ldraw = !draw, !ldraw in
@@ -206,22 +206,22 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
   module HE =
     Hashtbl.Make
       (struct
-	type t = G.E.t
-	let equal x y = G.E.compare x y = 0
-	let hash = Hashtbl.hash
-       end)
+        type t = G.E.t
+        let equal x y = G.E.compare x y = 0
+        let hash = Hashtbl.hash
+      end)
 
   module HT =
     Hashtbl.Make
       (Util.HTProduct
-	 (Util.HTProduct(G.V)(G.V))
-	 (struct type t = string let equal = (=) let hash = Hashtbl.hash end))
+         (Util.HTProduct(G.V)(G.V))
+         (struct type t = string let equal = (=) let hash = Hashtbl.hash end))
 
   type graph_layout =
-      { vertex_layouts  : node_layout HV.t;
-	edge_layouts    : edge_layout HE.t;
-	cluster_layouts : (string, cluster_layout) Hashtbl.t;
-	bbox : bounding_box }
+    { vertex_layouts  : node_layout HV.t;
+      edge_layouts    : edge_layout HE.t;
+      cluster_layouts : (string, cluster_layout) Hashtbl.t;
+      bbox : bounding_box }
 
   exception Found of string
 
@@ -236,11 +236,11 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
   let get_dot_comment (al : Dot_ast.attr list) =
     try
       List.iter
-	(List.iter
-	   (function
-	    | Ident "comment", Some c -> raise (Found (get_dot_string c))
-	    | _ -> ()))
-      al;
+        (List.iter
+           (function
+             | Ident "comment", Some c -> raise (Found (get_dot_string c))
+             | _ -> ()))
+        al;
       ""
     with Found c ->
       c
@@ -256,7 +256,7 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
   let parse_graph_attr id conv stmts =
     let read_attr = function
       | Ident ident , Some (String attr) when ident = id ->
-	  raise (Found attr)
+        raise (Found attr)
       | _ -> ()
     in
     let read_stmt = function
@@ -282,18 +282,18 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
 
     G.iter_vertex
       (fun v ->
-	 let name = strip_quotes (G.vertex_name v) in
-	 Hashtbl.add name_to_vertex name v)
+         let name = strip_quotes (G.vertex_name v) in
+         Hashtbl.add name_to_vertex name v)
       g;
 
     G.iter_edges_e
       (fun e ->
-	 let comment = match get_edge_comment e with
-	   | Some c -> strip_quotes c
-	   | None -> ""
-	 in
-	 let vs = G.E.src e, G.E.dst e in
-	 HT.add vertices_comment_to_edge (vs, comment) e)
+         let comment = match get_edge_comment e with
+           | Some c -> strip_quotes c
+           | None -> ""
+         in
+         let vs = G.E.src e, G.E.dst e in
+         HT.add vertices_comment_to_edge (vs, comment) e)
       g;
 
     let find_vertex (id,_) =
@@ -305,71 +305,71 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
     let find_edge v v' comment =
       try HT.find vertices_comment_to_edge ((v, v'), comment)
       with Not_found ->
-(*	Printf.printf "Did not find edge from %s to %s with comment %s\n"
-	  (G.vertex_name v) (G.vertex_name v')
-	  (match comment with Some c -> c | None -> "none");*)
-	raise Not_found
+        (*  Printf.printf "Did not find edge from %s to %s with comment %s\n"
+            (G.vertex_name v) (G.vertex_name v')
+            (match comment with Some c -> c | None -> "none");*)
+        raise Not_found
     in
 
     let rec collect_layouts cluster stmt =
       try
-	match stmt with
-	| Node_stmt (node_id, al) ->
-	    let v = find_vertex node_id in
-	    HV.add vertex_layouts v (read_node_layout node_id al)
-	| Edge_stmt (NodeId id, [NodeId id'], al) ->
-	    let v  = find_vertex id  in
-	    let v' = find_vertex id' in
-	    let comment = get_dot_comment al in
-	    let e = find_edge v v' comment in
-	    HE.add edge_layouts e (read_edge_layout al)
+        match stmt with
+        | Node_stmt (node_id, al) ->
+          let v = find_vertex node_id in
+          HV.add vertex_layouts v (read_node_layout node_id al)
+        | Edge_stmt (NodeId id, [NodeId id'], al) ->
+          let v  = find_vertex id  in
+          let v' = find_vertex id' in
+          let comment = get_dot_comment al in
+          let e = find_edge v v' comment in
+          HE.add edge_layouts e (read_edge_layout al)
         | Subgraph (SubgraphDef (Some id, stmts)) ->
-	    let cluster = get_dot_string id in
-	    List.iter (collect_layouts (Some cluster)) stmts
-              (* Anonymous subgraph *)
-	| Subgraph (SubgraphDef (_, stmts)) ->
-	    List.iter (collect_layouts cluster) stmts
-	| Attr_graph al ->
-	    (match cluster with
-	     | Some c -> Hashtbl.add cluster_layouts c (read_cluster_layout al)
-	     | None -> ())
-	|  _ -> ()
+          let cluster = get_dot_string id in
+          List.iter (collect_layouts (Some cluster)) stmts
+        (* Anonymous subgraph *)
+        | Subgraph (SubgraphDef (_, stmts)) ->
+          List.iter (collect_layouts cluster) stmts
+        | Attr_graph al ->
+          (match cluster with
+           | Some c -> Hashtbl.add cluster_layouts c (read_cluster_layout al)
+           | None -> ())
+        |  _ -> ()
       with Not_found ->
-	()
+        ()
     in
     List.iter (collect_layouts None) stmts;
     vertex_layouts, edge_layouts, cluster_layouts
 
- let parse g dot_ast =
-   let v_layouts, e_layouts, c_layouts = parse_layouts g dot_ast.stmts in
-   let bbox = parse_bounding_box dot_ast.stmts in
-   (* let bgcolor = parse_bgcolor dot_ast.stmts in*)
-   { vertex_layouts  = v_layouts;
-     edge_layouts    = e_layouts;
-     cluster_layouts = c_layouts;
-     bbox = bbox }
+  let parse g dot_ast =
+    let v_layouts, e_layouts, c_layouts = parse_layouts g dot_ast.stmts in
+    let bbox = parse_bounding_box dot_ast.stmts in
+    (* let bgcolor = parse_bgcolor dot_ast.stmts in*)
+    { vertex_layouts  = v_layouts;
+      edge_layouts    = e_layouts;
+      cluster_layouts = c_layouts;
+      bbox = bbox }
 
- exception DotError of string
+  exception DotError of string
 
- let layout_of_xdot ~xdot_file g =
-   let dot_ast = Dot.parse_dot_ast xdot_file in
-   parse g dot_ast
+  let layout_of_xdot ~xdot_file g =
+    let dot_ast = Dot.parse_dot_ast xdot_file in
+    parse g dot_ast
 
- let layout_of_dot ?(cmd="dot") ~dot_file g =
-   let base_name =
-     try Filename.basename (Filename.chop_extension dot_file)
-     with Invalid_argument _ -> dot_file
-   in
-   let xdot_file = Filename.temp_file base_name ".xdot" in
-   (* Run graphviz to get xdot file *)
-   let dot_cmd = sprintf "%s -Txdot %s > %s" cmd dot_file xdot_file in
-   match Sys.command dot_cmd with
-   | 0 ->
-       let l = layout_of_xdot ~xdot_file g in
-       Sys.remove xdot_file;
-       l
-   | _ ->
-       Sys.remove xdot_file;
-       raise (DotError "Error during dot execution")
+  let layout_of_dot ?(cmd="dot") ~dot_file g =
+    let base_name =
+      try Filename.basename (Filename.chop_extension dot_file)
+      with Invalid_argument _ -> dot_file
+    in
+    let xdot_file = Filename.temp_file base_name ".xdot" in
+    (* Run graphviz to get xdot file *)
+    let dot_cmd = sprintf "%s -Txdot %s > %s" cmd dot_file xdot_file in
+    match Sys.command dot_cmd with
+    | 0 ->
+      let l = layout_of_xdot ~xdot_file g in
+      Sys.remove xdot_file;
+      l
+    | _ ->
+      Sys.remove xdot_file;
+      raise (DotError "Error during dot execution")
 
 end

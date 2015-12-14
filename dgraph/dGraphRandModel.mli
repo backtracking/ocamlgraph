@@ -27,7 +27,7 @@ module G: Graph.Sig.G
 
 module GraphAttrs: 
   Graph.Graphviz.GraphWithDotAttrs with type t = G.t
-				   and type V.t = G.V.t
-				   and type E.t = G.E.t
+                                    and type V.t = G.V.t
+                                    and type E.t = G.E.t
 
 val create: unit -> DGraphModel.Make(GraphAttrs).model

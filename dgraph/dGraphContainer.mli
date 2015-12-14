@@ -30,29 +30,29 @@ type cluster = string
 type status = Global | Tree | Both
 
 class type
-    ['vertex, 'edge, 'cluster, 'tree_vertex, 'tree_edge, 'tree_cluster]
-      view_container_type =
-object
+  ['vertex, 'edge, 'cluster, 'tree_vertex, 'tree_edge, 'tree_cluster]
+    view_container_type =
+  object
 
-  method global_view :
-    ('vertex, 'edge, 'cluster) DGraphView.view option
+    method global_view :
+      ('vertex, 'edge, 'cluster) DGraphView.view option
 
-  method tree_view:
-    ('tree_vertex, 'tree_edge, 'tree_cluster) DGraphView.view option
+    method tree_view:
+      ('tree_vertex, 'tree_edge, 'tree_cluster) DGraphView.view option
 
-  method tree_root: 'vertex option
+    method tree_root: 'vertex option
 
-  method depth_backward : int
-  method depth_forward : int
-  method status : status
+    method depth_backward : int
+    method depth_forward : int
+    method status : status
 
-  method set_depth_backward : int -> unit
-  method set_depth_forward : int -> unit
-  method set_tree_root: 'vertex -> unit
-  method switch : status -> unit
+    method set_depth_backward : int -> unit
+    method set_depth_forward : int -> unit
+    method set_tree_root: 'vertex -> unit
+    method switch : status -> unit
 
-  method adapt_zoom: unit -> unit
-end
+    method adapt_zoom: unit -> unit
+  end
 
 module type S = sig
 
@@ -63,12 +63,12 @@ module type S = sig
   module Tree: Sig.G with type V.label = vertex
 
   module GView: DGraphView.S with type vertex = vertex
-			     and type edge = edge
-			     and type cluster = cluster
+                              and type edge = edge
+                              and type cluster = cluster
 
   module TView: DGraphView.S with type vertex = Tree.V.t
-			     and type edge = Tree.E.t
-			     and type cluster = cluster
+                              and type edge = Tree.E.t
+                              and type cluster = cluster
 
   type global_view = (vertex, edge, cluster) DGraphView.view
   type tree_view = (Tree.V.t, Tree.E.t, cluster) DGraphView.view
@@ -77,14 +77,14 @@ module type S = sig
     ?packing:(GObj.widget -> unit)
     -> ?status:status
     -> ?default_callbacks:bool (* register default node callbacks (centering
-                                 and highlighting). True by default *)
+                                  and highlighting). True by default *)
     -> mk_global_view: (unit -> global_view)
-      -> mk_tree_view:
-	(depth_backward:int -> depth_forward:int -> Gtk.widget Gtk.obj -> vertex
-	 -> tree_view)
-	-> vertex option
-	  -> [ vertex, edge, cluster, Tree.V.t, Tree.E.t, cluster]
-	    view_container_type
+    -> mk_tree_view:
+    (depth_backward:int -> depth_forward:int -> Gtk.widget Gtk.obj -> vertex
+     -> tree_view)
+    -> vertex option
+    -> [ vertex, edge, cluster, Tree.V.t, Tree.E.t, cluster]
+      view_container_type
 
 end
 
@@ -127,17 +127,17 @@ module Dot : sig
   open DGraphModel
 
   include S with type graph = DotG.t
-	    and type vertex = DotG.V.t
-	    and type edge = DotG.E.t
+             and type vertex = DotG.V.t
+             and type edge = DotG.E.t
 
   val from_dot :
     ?packing:(GObj.widget -> unit)
     -> ?status:status
     -> ?default_callbacks:bool 
     -> ?mk_global_view:
-    ((DotG.V.t, DotG.E.t, cluster) abstract_model -> global_view)
+      ((DotG.V.t, DotG.E.t, cluster) abstract_model -> global_view)
     -> ?mk_tree_view:
-    ((Tree.V.t, Tree.E.t, cluster) abstract_model -> tree_view)
+      ((Tree.V.t, Tree.E.t, cluster) abstract_model -> tree_view)
     -> string (* dot filename *)
     -> view_container
 
@@ -146,9 +146,9 @@ module Dot : sig
     -> ?status:status
     -> ?default_callbacks:bool 
     -> ?mk_global_view:
-    ((DotG.V.t, DotG.E.t, cluster) abstract_model -> global_view)
+      ((DotG.V.t, DotG.E.t, cluster) abstract_model -> global_view)
     -> ?mk_tree_view:
-    ((Tree.V.t, Tree.E.t, cluster) abstract_model -> tree_view)
+      ((Tree.V.t, Tree.E.t, cluster) abstract_model -> tree_view)
     -> string (* dot filename *)
     -> GPack.table * view_container
 

@@ -68,9 +68,9 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
     XDot.Make(G).graph_layout -> G.t -> [G.V.t, G.E.t, cluster] abstract_model
 
   val from_graph : ?cmd:string -> ?tmp_name:string -> G.t -> model
-(** Creates a model using graphviz.
-    [tmp_name] is the name of the temporary dot files.
-    @raise DotError if issue occurs with the generated dot file *)
+  (** Creates a model using graphviz.
+      [tmp_name] is the name of the temporary dot files.
+      @raise DotError if issue occurs with the generated dot file *)
 
 end
 

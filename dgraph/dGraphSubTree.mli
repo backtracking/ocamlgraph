@@ -73,16 +73,16 @@ module type S = sig
 end
 
 module Make
-  (G : G)
-  (Tree : Tree with type V.label = G.V.t and type E.label = unit) :
+    (G : G)
+    (Tree : Tree with type V.label = G.V.t and type E.label = unit) :
 sig
   include S with module Tree = Tree
   val make : G.t -> G.V.t -> int -> int -> t
 end
 
 module Make_from_dot_model
-  (Tree : Tree with type V.label = DGraphModel.DotG.V.t
-	       and type E.label = unit) :
+    (Tree : Tree with type V.label = DGraphModel.DotG.V.t
+                  and type E.label = unit) :
 sig
   include S with module Tree = Tree
   val make:

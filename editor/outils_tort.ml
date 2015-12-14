@@ -28,10 +28,10 @@ let (w,h)= (600.,600.)
 type coord = float * float 
 
 type turtle =
-    {
-      pos : coord ;  (* with |pos| < 1 *)
-      dir : coord    (* with |dir| = 1 *)
-    } 
+  {
+    pos : coord ;  (* with |pos| < 1 *)
+    dir : coord    (* with |dir| = 1 *)
+  } 
 
 let make_turtle pos angle =
   { 
@@ -47,9 +47,9 @@ let make_turtle_dir pos dir =
 
 
 let advance turt step =
-   { pos = gamma turt.pos turt.dir step ;
-     dir = delta turt.pos turt.dir step }
-   
+  { pos = gamma turt.pos turt.dir step ;
+    dir = delta turt.pos turt.dir step }
+
 
 let turn turtle u =
   { turtle with dir = turtle.dir *& u }
@@ -94,9 +94,9 @@ let tlineto_gtk tor line =
 
 let tdraw_string_gtk tor (ellipse : GnoCanvas.ellipse) =
   let (x,y) = from_tortue tor.pos in
-(*            debug            *)
+  (*            debug            *)
   if !debug_outil_tort then Format.eprintf "tdraw_string_gtk x=%d y=%d@." x y;
-(*            /debug            *)
+  (*            /debug            *)
   moveto_gtk x y;
   ellipse#parent#move ~x:(float x) ~y:(float y);
   ellipse#parent#set  [`X (float x); `Y (float y)]
@@ -109,21 +109,21 @@ let tdraw_edge_gtk tor d etapes line =
   let rec list_points t liste = function
     | 0 -> (t,liste)
     | n ->let t = advance t d in
-	   list_points  t (tlineto_gtk t liste) (n-1)
+      list_points  t (tlineto_gtk t liste) (n-1)
   in
   let l = let (x,y) =from_tortue tor.pos in [(float x); (float y)] in 
   let t,lpoints = list_points tor l etapes in
 
-(*            debug            *)
+  (*            debug            *)
   if (!debug_outil_tort) 
   then
     (let ltext=
-      let rec chaine = function
-	|[]->""
-	|e::l->(string_of_float e)^" "^chaine l
-      in chaine lpoints in
-      Format.eprintf "taille %d %s @." (List.length lpoints) ltext);
-(*            /debug            *)
+       let rec chaine = function
+         |[]->""
+         |e::l->(string_of_float e)^" "^chaine l
+       in chaine lpoints in
+     Format.eprintf "taille %d %s @." (List.length lpoints) ltext);
+  (*            /debug            *)
   let p = Array.of_list lpoints in
   line#set [`POINTS p];
   t

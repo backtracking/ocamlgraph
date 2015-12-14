@@ -28,8 +28,8 @@ open Graph
 let element = function
   | [] -> invalid_arg "empty list in element"
   | l -> 
-      Random.self_init ();
-      List.nth l (Random.int (List.length l))
+    Random.self_init ();
+    List.nth l (Random.int (List.length l))
 
 let black   = 0x000000
 and white   = 0xFFFFFF

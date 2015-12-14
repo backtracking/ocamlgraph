@@ -34,13 +34,13 @@ let _ = GMain.Main.init ()
 module Model = struct
 
   open Gobject.Data
- 
+
   let cols = new GTree.column_list
   let name = cols#add string
   let vertex = cols#add caml
   let model = GTree.tree_store cols
   let rows = H.create 97
-    
+
 
   let find_row v =
     try 
@@ -74,17 +74,17 @@ module Model = struct
       let child = model#iter_children ~nth:(n-1) (Some row_v) in
       let child_vertex = model#get ~row:child ~column:vertex  in
       match n with
-	| 0 -> raise Not_found
-	| n -> 
-	    if (G.V.equal child_vertex  w)
-	    then child
-	    else find (n-1)
+      | 0 -> raise Not_found
+      | n -> 
+        if (G.V.equal child_vertex  w)
+        then child
+        else find (n-1)
     in
     find nb_child
-      
+
   let remove_edge_1 row_v w =
     ignore (model#remove (find_children row_v w))
-      
+
   let remove_edge v w =
     let row_v = find_row v in
     remove_edge_1 row_v w;
@@ -102,10 +102,10 @@ module Model = struct
     model#clear ();
     G.iter_vertex
       (fun v -> 
-	 let row = add_vertex v in
-	 G.iter_succ (add_edge_1 row) !graph v)
+         let row = add_vertex v in
+         G.iter_succ (add_edge_1 row) !graph v)
       !graph
-   
+
 end
 
 
@@ -114,15 +114,15 @@ let () = Model.reset ()
 
 let ed_name = "Ocamlgraph's Editor"
 
-  
+
 (* Main GTK window *)
 let window = GWindow.window ~border_width: 10 ~position: `CENTER () 
 
 
 (* usual function to change window title *)
 let set_window_title () =
-window#set_title
-  (match !graph_name with
+  window#set_title
+    (match !graph_name with
      | None -> ed_name
      | Some name -> ed_name^" : "^(Filename.chop_extension (Filename.basename name)))
 
@@ -135,8 +135,8 @@ let menu_bar_box = GPack.vbox ~packing:v_box#pack ()
 let h_box = GPack.hbox ~homogeneous:false ~spacing:30  ~packing:v_box#add ()
 
 let sw = GBin.scrolled_window ~shadow_type:`ETCHED_IN ~hpolicy:`NEVER
-  ~vpolicy:`AUTOMATIC ~packing:h_box#add () 
- 
+    ~vpolicy:`AUTOMATIC ~packing:h_box#add () 
+
 let canvas =  
   GnoCanvas.canvas 
     ~aa:!aa 
@@ -150,9 +150,9 @@ let canvas_root =
   circle_group#lower_to_bottom ();
   let w2 = 2. in
   let circle = GnoCanvas.ellipse  ~props:[ `X1 (-.w/.2. +.w2); `Y1 (-.h/.2. +.w2); 
-					   `X2  (w/.2. -.w2) ; `Y2 ( h/.2. -.w2) ;
- 					   `FILL_COLOR color_circle ; `OUTLINE_COLOR "black" ; 
-					   `WIDTH_PIXELS (truncate w2) ] circle_group 
+                                           `X2  (w/.2. -.w2) ; `Y2 ( h/.2. -.w2) ;
+                                           `FILL_COLOR color_circle ; `OUTLINE_COLOR "black" ; 
+                                           `WIDTH_PIXELS (truncate w2) ] circle_group 
   in
   circle_group#lower_to_bottom ();
   circle#show();
@@ -182,20 +182,20 @@ let do_refresh () =
 
 (* graph drawing *)
 let draw tortue canvas =
-match !root with
+  match !root with
   | None -> ()
   | Some root -> 
-  Ed_draw.draw_graph root tortue;
-  Ed_display.draw_graph root canvas;
-  if do_refresh () then
-    canvas_root#canvas#update_now ()
+    Ed_draw.draw_graph root tortue;
+    Ed_display.draw_graph root canvas;
+    if do_refresh () then
+      canvas_root#canvas#update_now ()
 
 
 let refresh_draw () =
   refresh := 0;    
   let tor = make_turtle !origine 0.0 in
   draw tor canvas_root
-    
+
 let refresh_display () =
   Ed_display.draw_graph !root canvas_root
 
@@ -228,53 +228,53 @@ type modification = Add | Remove
 (* add a vertex with no successor *)
 let add_node () =
   let window = GWindow.window 
-    ~title: "Choose vertex label" 
-    ~width: 300 
-    ~height: 50 
-    ~position: `MOUSE
-    () in
+      ~title: "Choose vertex label" 
+      ~width: 300 
+      ~height: 50 
+      ~position: `MOUSE
+      () in
   let vbox = GPack.vbox 
-    ~packing: window#add () in
+      ~packing: window#add () in
   let entry = GEdit.entry 
-    ~max_length: 50 
-    ~packing: vbox#add () in
+      ~max_length: 50 
+      ~packing: vbox#add () in
   entry#set_text "Label";
   entry#select_region 
     ~start:0 
     ~stop:entry#text_length;
   (*two check buttons allowing to add node to selection list and to choose this node as root*)
   let hbox = GPack.hbox 
-    ~packing: vbox#add () in
+      ~packing: vbox#add () in
   let is_in_selection = ref false in
   let in_selection = GButton.check_button  
-    ~label: "Add to selection" 
-    ~active:!is_in_selection
-    ~packing: hbox#add () in
+      ~label: "Add to selection" 
+      ~active:!is_in_selection
+      ~packing: hbox#add () in
   ignore (in_selection#connect#toggled 
-	    ~callback:(fun () ->is_in_selection := in_selection#active ));
+            ~callback:(fun () ->is_in_selection := in_selection#active ));
   let is_as_root = ref ((G.nb_vertex !graph)=0) in
   let as_root = GButton.check_button 
-    ~label:"Choose as root" 
-    ~active:!is_as_root 
-    ~packing:hbox#add () in
+      ~label:"Choose as root" 
+      ~active:!is_as_root 
+      ~packing:hbox#add () in
   ignore (as_root#connect#toggled
-	    ~callback:(fun () ->is_as_root := as_root#active ));
+            ~callback:(fun () ->is_as_root := as_root#active ));
   window#show ();
   (*entry's callback*)
   ignore( entry#connect#activate 
-	    ~callback: (fun () ->
-			  let text = entry#text in
-			  window#destroy ();
-			  (* new vertex *)
-			  let vertex = G.V.create (make_node_info text)  in
-			  G.add_vertex !graph  vertex ;
-			  ignore (Model.add_vertex vertex);
-			  Ed_display.add_node canvas_root vertex;
-			  !set_vertex_event_fun vertex;
-			  if !is_as_root  then root_change (Some vertex) () ;
-			  if !is_in_selection then update_vertex vertex Select;
-			  let  tor = make_turtle !origine 0.0 in
-			  draw tor canvas_root))
+            ~callback: (fun () ->
+                let text = entry#text in
+                window#destroy ();
+                (* new vertex *)
+                let vertex = G.V.create (make_node_info text)  in
+                G.add_vertex !graph  vertex ;
+                ignore (Model.add_vertex vertex);
+                Ed_display.add_node canvas_root vertex;
+                !set_vertex_event_fun vertex;
+                if !is_as_root  then root_change (Some vertex) () ;
+                if !is_in_selection then update_vertex vertex Select;
+                let  tor = make_turtle !origine 0.0 in
+                draw tor canvas_root))
 
 
 
@@ -307,30 +307,30 @@ let remove_edge n1 n2 ()=
     Model.remove_edge n1 n2;
     begin
       try
-	let _,n = H2.find intern_edges (n1,n2) in
-	n#destroy ();
-	H2.remove intern_edges (n1,n2) 
+        let _,n = H2.find intern_edges (n1,n2) in
+        n#destroy ();
+        H2.remove intern_edges (n1,n2) 
       with Not_found -> ()
     end;
     begin
       try
-	let _,n = H2.find intern_edges (n2,n1) in
-	n#destroy ();
-	H2.remove intern_edges (n2,n1) 
+        let _,n = H2.find intern_edges (n2,n1) in
+        n#destroy ();
+        H2.remove intern_edges (n2,n1) 
       with Not_found -> ()
     end;
     begin
       try
-	let n = H2.find successor_edges (n1,n2) in
-	n#destroy ();
-	H2.remove successor_edges (n1,n2) 
+        let n = H2.find successor_edges (n1,n2) in
+        n#destroy ();
+        H2.remove successor_edges (n1,n2) 
       with Not_found -> ()
     end;
     begin
       try
-	let n = H2.find successor_edges (n2,n1) in
-	n#destroy ();
-	H2.remove successor_edges (n2,n1) 
+        let n = H2.find successor_edges (n2,n1) in
+        n#destroy ();
+        H2.remove successor_edges (n2,n1) 
       with Not_found -> ()
     end;
     let tor = make_turtle !origine 0.0 in
@@ -350,88 +350,88 @@ let remove_edge_no_refresh n1 n2 ()=
 (* add successor node to selected node *)
 let add_successor node () =
   let window = GWindow.window 
-    ~title: "Choose label name" 
-    ~width: 300 
-    ~height: 50 
-    ~position: `MOUSE
-    () in
+      ~title: "Choose label name" 
+      ~width: 300 
+      ~height: 50 
+      ~position: `MOUSE
+      () in
   let vbox = GPack.vbox 
-    ~packing: window#add 
-    () in
+      ~packing: window#add 
+      () in
   let entry = GEdit.entry 
-    ~max_length: 50 
-    ~packing: vbox#add 
-    () in
+      ~max_length: 50 
+      ~packing: vbox#add 
+      () in
   entry#set_text "Label";
   entry#select_region 
     ~start:0 
     ~stop:entry#text_length;
   window#show ();
   ignore (entry#connect#activate 
-	    ~callback:(fun () ->
-			 let text = entry#text in
-			 window#destroy ();
-			 (* new vertex *)
-			 let vertex = G.V.create (make_node_info text)  in
-			 G.add_vertex !graph  vertex ;
-			 ignore (Model.add_vertex vertex);
-			 Ed_display.add_node canvas_root vertex;
-			 !set_vertex_event_fun vertex;
-			 (* new edge *)
-			 G.add_edge_e !graph (G.E.create node (make_edge_info()) vertex);
-			 Model.add_edge node vertex;
-			 (* redraw *)
-			 let tor = make_turtle !origine 0.0 in
-			 draw tor canvas_root
-		      )
-	 )
+            ~callback:(fun () ->
+                let text = entry#text in
+                window#destroy ();
+                (* new vertex *)
+                let vertex = G.V.create (make_node_info text)  in
+                G.add_vertex !graph  vertex ;
+                ignore (Model.add_vertex vertex);
+                Ed_display.add_node canvas_root vertex;
+                !set_vertex_event_fun vertex;
+                (* new edge *)
+                G.add_edge_e !graph (G.E.create node (make_edge_info()) vertex);
+                Model.add_edge node vertex;
+                (* redraw *)
+                let tor = make_turtle !origine 0.0 in
+                draw tor canvas_root
+              )
+         )
 
 let remove_vertex vertex () =
   G.iter_succ
     (fun w ->
        begin 
-	 try
-	   let _,n = H2.find intern_edges (vertex,w) in
-	   n#destroy ();
-	   H2.remove intern_edges (vertex,w) 
-	 with Not_found -> ()
+         try
+           let _,n = H2.find intern_edges (vertex,w) in
+           n#destroy ();
+           H2.remove intern_edges (vertex,w) 
+         with Not_found -> ()
        end;
        begin
-	 try
-	   let _,n = H2.find intern_edges (w,vertex) in
-	   n#destroy ();	    
-	   H2.remove intern_edges (w,vertex) 
-	 with Not_found -> ()
+         try
+           let _,n = H2.find intern_edges (w,vertex) in
+           n#destroy ();      
+           H2.remove intern_edges (w,vertex) 
+         with Not_found -> ()
        end;
        begin       
-	 try
-	   let n = H2.find successor_edges (vertex,w) in
-	   n#destroy ();
-	   H2.remove successor_edges (vertex,w) 
-	 with Not_found -> ()
+         try
+           let n = H2.find successor_edges (vertex,w) in
+           n#destroy ();
+           H2.remove successor_edges (vertex,w) 
+         with Not_found -> ()
        end;
        begin       
-	 try
-	   let n = H2.find successor_edges (w,vertex) in
-	   n#destroy ();
-	   H2.remove successor_edges (w,vertex) 
-	 with Not_found -> ()
+         try
+           let n = H2.find successor_edges (w,vertex) in
+           n#destroy ();
+           H2.remove successor_edges (w,vertex) 
+         with Not_found -> ()
        end;
     )
     !graph vertex;
   let (n,_,_) =  H.find nodes vertex in
-   n#destroy ();
+  n#destroy ();
   H.remove nodes vertex;
   ignore (Model.remove_vertex vertex);
   G.remove_vertex !graph vertex;
   begin  match !root with
     | None -> ()
     | Some root_v ->
-	if (G.V.equal root_v vertex)
-	then root := choose_root();
+      if (G.V.equal root_v vertex)
+      then root := choose_root();
   end;
   refresh_draw ()
-    
+
 
 
 let sub_edge_to modif_type vertex list =
@@ -444,36 +444,36 @@ let sub_edge_to modif_type vertex list =
     if not (G.V.equal v2 vertex)
     then begin
       match modif_type with
-	| Add -> ignore((!sub_menu)#add_item (string_of_label v2) 
-			  ~callback:( add_edge v2 vertex));
-	| Remove -> ignore((!sub_menu)#add_item (string_of_label v2) 
-			     ~callback:(remove_edge v2 vertex));
+      | Add -> ignore((!sub_menu)#add_item (string_of_label v2) 
+                        ~callback:( add_edge v2 vertex));
+      | Remove -> ignore((!sub_menu)#add_item (string_of_label v2) 
+                           ~callback:(remove_edge v2 vertex));
     end;
   in
   let rec make_sub_menu vertex list nb =
     match list with
-      | [] -> ()
-      | v::list ->
-	  match nb with
-	    | 0 -> 
-		begin
-		  sub_menu :=new GMenu.factory (GMenu.menu()) ;
-		  add_menu_edge vertex v;
-		  let string = string_of_label v in
-		  ignore (menu#add_item (String.sub string 0 (min (String.length string) 3)^"...") 
-			    ~submenu: !sub_menu#menu);
-		  make_sub_menu vertex list (nb+1);
-		end
-	    | n when n= nb_edge-> 
-		begin
-		  add_menu_edge vertex v;
-		  make_sub_menu vertex list 0
-		end
-	    | _ ->
-		begin
-		  add_menu_edge vertex v;
-		  make_sub_menu vertex list (nb+1)
-		end
+    | [] -> ()
+    | v::list ->
+      match nb with
+      | 0 -> 
+        begin
+          sub_menu :=new GMenu.factory (GMenu.menu()) ;
+          add_menu_edge vertex v;
+          let string = string_of_label v in
+          ignore (menu#add_item (String.sub string 0 (min (String.length string) 3)^"...") 
+                    ~submenu: !sub_menu#menu);
+          make_sub_menu vertex list (nb+1);
+        end
+      | n when n= nb_edge-> 
+        begin
+          add_menu_edge vertex v;
+          make_sub_menu vertex list 0
+        end
+      | _ ->
+        begin
+          add_menu_edge vertex v;
+          make_sub_menu vertex list (nb+1)
+        end
   in
   if ll > 10 
   then begin
@@ -483,15 +483,15 @@ let sub_edge_to modif_type vertex list =
   else begin    
     let rec make_sub_bis list =
       match list with
-	| [] -> ();
-	| v::list ->add_menu_edge vertex v; make_sub_bis list
+      | [] -> ();
+      | v::list ->add_menu_edge vertex v; make_sub_bis list
     in
     make_sub_bis list;
     !sub_menu
   end
-    
 
-    
+
+
 let edge_to modif_type vertex list =
   (* add an edge between current vertex and one of selected vertex*)
   sub_edge_to modif_type vertex list
@@ -503,9 +503,9 @@ let all_edges (edge_menu :#GMenu.menu GMenu.factory) vertex list =
   begin
     let add_all_edge vertex list () = 
       List.iter (fun v -> if not (G.V.equal v vertex)
-		 then add_edge_no_refresh v vertex()
-		)
-	list ;
+                  then add_edge_no_refresh v vertex()
+                )
+        list ;
       refresh := 0;    
       let tor = make_turtle !origine 0.0 in
       draw tor canvas_root
@@ -536,7 +536,7 @@ let contextual_menu vertex ev =
   begin
     let add_list = selected_list (ADD_FROM vertex) in
     let rem_list = selected_list (REMOVE_FROM vertex) in
-    let al =List.length add_list in	  
+    let al =List.length add_list in    
     let rl =List.length rem_list in
     let isel = is_selected vertex in
     let menu_bool = ref false in
@@ -544,48 +544,48 @@ let contextual_menu vertex ev =
     begin
       (* add menu *)
       if isel && al=2 
-	|| not isel && al=1
+      || not isel && al=1
       then begin
-	ignore (edge_menu#add_item "Add edge with" ~submenu: (edge_to Add vertex add_list)#menu);
-	menu_bool := true;   
+        ignore (edge_menu#add_item "Add edge with" ~submenu: (edge_to Add vertex add_list)#menu);
+        menu_bool := true;   
       end 
       else begin
-	if isel && al>2 ||
-	  not isel && al>1
-	then  begin
-	  ignore (edge_menu#add_item "Add edge with" ~submenu: (edge_to Add vertex add_list)#menu);
-	  all_edges edge_menu vertex add_list;
-	  menu_bool := true;   
-	end
+        if isel && al>2 ||
+           not isel && al>1
+        then  begin
+          ignore (edge_menu#add_item "Add edge with" ~submenu: (edge_to Add vertex add_list)#menu);
+          all_edges edge_menu vertex add_list;
+          menu_bool := true;   
+        end
       end;
       (* remove menu *)
       if isel && rl>=2 ||
-	not isel && rl>=1
+         not isel && rl>=1
       then begin
-	if !menu_bool then ignore (edge_menu#add_separator ());
-	ignore (edge_menu#add_item "Remove edge with" ~submenu: (edge_to Remove vertex rem_list)#menu);
-	menu_bool := true;   
+        if !menu_bool then ignore (edge_menu#add_separator ());
+        ignore (edge_menu#add_item "Remove edge with" ~submenu: (edge_to Remove vertex rem_list)#menu);
+        menu_bool := true;   
       end;
       if !menu_bool then ignore(menu#add_item "Edge ops" ~submenu: edge_menu#menu);
     end;
-  end;	  
+  end;    
   menu#menu#popup ~button:3 ~time:(GdkEvent.Button.time ev)
-	    
+
 
 
 (* unit circle callback *)
 let circle_event ev =
   begin match ev with
     | `BUTTON_PRESS ev ->
- 	if (GdkEvent.Button.button ev) = 3
-        then
-	  begin
-	    let menu = new GMenu.factory (GMenu.menu ()) in
-	    ignore (menu#add_item " Add node" ~callback:(add_node));
-	    menu#menu#popup
-	      ~button:3
-	      ~time:(GdkEvent.Button.time ev)
-          end
+      if (GdkEvent.Button.button ev) = 3
+      then
+        begin
+          let menu = new GMenu.factory (GMenu.menu ()) in
+          ignore (menu#add_item " Add node" ~callback:(add_node));
+          menu#menu#popup
+            ~button:3
+            ~time:(GdkEvent.Button.time ev)
+        end
     | _ ->()
   end;
   true
@@ -595,77 +595,77 @@ let circle_event ev =
 (* event for each vertex of canvas *)
 let vertex_event vertex item ellispe ev =
 
- (* let vertex_info = G.V.label vertex in*)
+  (* let vertex_info = G.V.label vertex in*)
   begin match ev with
     | `ENTER_NOTIFY _ ->
-	item#grab_focus ();
-	 update_vertex vertex Focus;
-	 refresh_display ()
+      item#grab_focus ();
+      update_vertex vertex Focus;
+      refresh_display ()
 
     | `LEAVE_NOTIFY ev ->
-	if not (Gdk.Convert.test_modifier `BUTTON1 (GdkEvent.Crossing.state ev))
-	then begin
-	  update_vertex vertex Unfocus;
-	  refresh_display ()
-	end
-	  
+      if not (Gdk.Convert.test_modifier `BUTTON1 (GdkEvent.Crossing.state ev))
+      then begin
+        update_vertex vertex Unfocus;
+        refresh_display ()
+      end
+
     | `BUTTON_RELEASE ev ->
-	ellispe#parent#ungrab (GdkEvent.Button.time ev);
-	
+      ellispe#parent#ungrab (GdkEvent.Button.time ev);
+
     | `MOTION_NOTIFY ev ->
-	incr refresh;
-	let state = GdkEvent.Motion.state ev in
-	if Gdk.Convert.test_modifier `BUTTON1 state  then 
-	  begin
-	    let curs = Gdk.Cursor.create `FLEUR in
-	    ellispe#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] 
-	      curs (GdkEvent.Button.time ev);
-	    if do_refresh ()
-	    then begin
-	      let old_origin = !origine in
-	      let turtle = motion_turtle ellispe ev in
-	      if hspace_dist_sqr turtle <= rlimit_sqr then begin
-		draw turtle canvas_root
-	      end else begin
-		origine := old_origin;
-		let turtle = { turtle with pos = old_origin } in
-		draw turtle canvas_root
-	      end
-	    end
-	  end
+      incr refresh;
+      let state = GdkEvent.Motion.state ev in
+      if Gdk.Convert.test_modifier `BUTTON1 state  then 
+        begin
+          let curs = Gdk.Cursor.create `FLEUR in
+          ellispe#parent#grab [`POINTER_MOTION; `BUTTON_RELEASE] 
+            curs (GdkEvent.Button.time ev);
+          if do_refresh ()
+          then begin
+            let old_origin = !origine in
+            let turtle = motion_turtle ellispe ev in
+            if hspace_dist_sqr turtle <= rlimit_sqr then begin
+              draw turtle canvas_root
+            end else begin
+              origine := old_origin;
+              let turtle = { turtle with pos = old_origin } in
+              draw turtle canvas_root
+            end
+          end
+        end
 
     | `BUTTON_PRESS ev ->
- 	if (GdkEvent.Button.button ev) = 3
-        then
-	  begin
-	    contextual_menu vertex ev
-          end
-	    
+      if (GdkEvent.Button.button ev) = 3
+      then
+        begin
+          contextual_menu vertex ev
+        end
+
     | `TWO_BUTTON_PRESS ev->
       if (GdkEvent.Button.button ev) = 1
       then begin
-	if (Gdk.Convert.test_modifier `CONTROL (GdkEvent.Button.state ev))
-	then begin
-	  if ( !nb_selected =0)
-	  then begin
-	    select_all ();
-	    update_vertex vertex Focus
-	  end
-	  else begin
-	    unselect_all ();
-	    update_vertex vertex Focus
-	  end
-	end
-	else begin
-	  if (is_selected vertex)
-	  then update_vertex vertex Unselect
-	  else update_vertex vertex Select;
-	end;
-	refresh_draw ();
+        if (Gdk.Convert.test_modifier `CONTROL (GdkEvent.Button.state ev))
+        then begin
+          if ( !nb_selected =0)
+          then begin
+            select_all ();
+            update_vertex vertex Focus
+          end
+          else begin
+            unselect_all ();
+            update_vertex vertex Focus
+          end
+        end
+        else begin
+          if (is_selected vertex)
+          then update_vertex vertex Unselect
+          else update_vertex vertex Select;
+        end;
+        refresh_draw ();
       end;  
 
     | _ ->
-	()
+      ()
   end;
   true
 
@@ -697,7 +697,7 @@ let add_columns ~(view : GTree.view) ~model =
     begin fun () ->
       List.iter
         (fun p -> node_selection ~model p)
-	view#selection#get_selected_rows;
+        view#selection#get_selected_rows;
     end
 
 
@@ -708,7 +708,7 @@ let treeview = GTree.view ~model:Model.model ~packing:sw#add ()
 let () = treeview#set_rules_hint true
 let () = treeview#selection#set_mode `MULTIPLE
 let _ = add_columns ~view:treeview ~model:Model.model
-  
+
 
 
 
@@ -725,9 +725,9 @@ let reset_table_and_canvas () =
   nb_selected:=0
 
 
-    
+
 (* menu action functions *)
-    
+
 (*  choose a file to load or save to *)
 let ask_for_file (mode: [< `OPEN | `SAVE]) =
   let default_file d = function
@@ -747,26 +747,26 @@ let ask_for_file (mode: [< `OPEN | `SAVE]) =
   let dialog =
     begin match mode with
       | `OPEN ->  
-	  let dialog =
-	    GWindow.file_chooser_dialog 
-	      ~action: `OPEN
-	      ~title:"Open graph file"
-	      ~parent: window () in
-	  dialog#add_button_stock `CANCEL `CANCEL ;
-	  dialog#add_select_button_stock `OPEN `OPEN;
-	  dialog
-	    
+        let dialog =
+          GWindow.file_chooser_dialog 
+            ~action: `OPEN
+            ~title:"Open graph file"
+            ~parent: window () in
+        dialog#add_button_stock `CANCEL `CANCEL ;
+        dialog#add_select_button_stock `OPEN `OPEN;
+        dialog
+
       | `SAVE ->
-	  let dialog =
-	    GWindow.file_chooser_dialog 
-	      ~action: `SAVE
-	      ~title: "Save graph as..."
-	      ~parent: window 
-	      () in
-	  dialog#set_current_name "my_graph.dot";
-	  dialog#add_button_stock `CANCEL `CANCEL ;
-	  dialog#add_select_button_stock `SAVE `SAVE;
-	  dialog  
+        let dialog =
+          GWindow.file_chooser_dialog 
+            ~action: `SAVE
+            ~title: "Save graph as..."
+            ~parent: window 
+            () in
+        dialog#set_current_name "my_graph.dot";
+        dialog#add_button_stock `CANCEL `CANCEL ;
+        dialog#add_select_button_stock `SAVE `SAVE;
+        dialog  
     end;
   in
   dialog#add_filter (graph_filter ()) ;
@@ -783,38 +783,38 @@ let ask_for_file (mode: [< `OPEN | `SAVE]) =
 (* menu action new graph *)      
 let new_graph () =
   let alert_window = GWindow.message_dialog 
-    ~message:("Are you sure you want to start"
-	      ^" a new graph and discard all"
-	      ^" unsaved changes to :\n\n"
-	      ^"<tt>\t"
-	      ^(match !graph_name with
-		  | None -> "unamed"
-		  | Some name -> name)
-	      ^"</tt>")
-    ~use_markup:true
-    ~title:"New graph ?"
-    ~message_type:`QUESTION
-    ~buttons:GWindow.Buttons.yes_no
-    ~parent:window
-    ~resizable:false
-    ~position:`CENTER_ON_PARENT
-    ()
+      ~message:("Are you sure you want to start"
+                ^" a new graph and discard all"
+                ^" unsaved changes to :\n\n"
+                ^"<tt>\t"
+                ^(match !graph_name with
+                   | None -> "unamed"
+                   | Some name -> name)
+                ^"</tt>")
+      ~use_markup:true
+      ~title:"New graph ?"
+      ~message_type:`QUESTION
+      ~buttons:GWindow.Buttons.yes_no
+      ~parent:window
+      ~resizable:false
+      ~position:`CENTER_ON_PARENT
+      ()
   in
   begin 
     match alert_window#run () with
-      | `YES  ->
-	  begin
-	    graph := G.create ();
-	    Model.reset();
-	    reset_table_and_canvas ();
-	    graph_name := None;
-	    set_window_title ()
-	  end 
-      | `DELETE_EVENT | `NO -> ()
+    | `YES  ->
+      begin
+        graph := G.create ();
+        Model.reset();
+        reset_table_and_canvas ();
+        graph_name := None;
+        set_window_title ()
+      end 
+    | `DELETE_EVENT | `NO -> ()
   end;
   alert_window#destroy ()
-  
-  
+
+
 
 (* menu action open graph *)      
 let open_graph ()  =
@@ -841,74 +841,74 @@ let save_graph_as () =
 (* menu action save graph *)
 let save_graph () =
   match !graph_name with
-    | None -> ()
-    | Some name ->
-	begin 
-	  save_graph name;
-	  set_window_title ()
-	end
-	  
+  | None -> ()
+  | Some name ->
+    begin 
+      save_graph name;
+      set_window_title ()
+    end
+
 (* menu action quit *)      
 let quit () =
   let alert_window = GWindow.message_dialog 
-    ~message:("Are you sure you want to quit"
-	      ^"  and discard all"
-	      ^" unsaved changes to :\n\n"
-	      ^"<tt>\t"
-	      ^(match !graph_name with
-		  | None -> "unamed"
-		  | Some name -> name)
-	      ^"</tt>")
-    ~use_markup:true
-    ~title:"Quit ?"
-    ~message_type:`QUESTION
-    ~buttons:GWindow.Buttons.yes_no
-    ~parent:window
-    ~resizable:false
-    ~position:`CENTER_ON_PARENT
-    ()
+      ~message:("Are you sure you want to quit"
+                ^"  and discard all"
+                ^" unsaved changes to :\n\n"
+                ^"<tt>\t"
+                ^(match !graph_name with
+                   | None -> "unamed"
+                   | Some name -> name)
+                ^"</tt>")
+      ~use_markup:true
+      ~title:"Quit ?"
+      ~message_type:`QUESTION
+      ~buttons:GWindow.Buttons.yes_no
+      ~parent:window
+      ~resizable:false
+      ~position:`CENTER_ON_PARENT
+      ()
   in
   begin 
     match alert_window#run () with
-      | `YES  -> window#destroy ()
-      | `DELETE_EVENT | `NO -> ()
-  end	  
-    
+    | `YES  -> window#destroy ()
+    | `DELETE_EVENT | `NO -> ()
+  end    
+
 (* menu action about *)      
 let about () =
   let dialog = GWindow.about_dialog 
-    ~authors:["Ocamlgraph :";
-	      "   Sylvain Conchon";
-	      "   Jean-Christophe Filliatre";
-	      "   Julien Signoles";
-	      "";
-	      ed_name^" :";
-	      "   Vadon Benjamin"]
-    ~comments:" Ocamlgraph: a generic graph library for OCaml"
-    ~copyright:"Copyright (C) 2004-2007 
+      ~authors:["Ocamlgraph :";
+                "   Sylvain Conchon";
+                "   Jean-Christophe Filliatre";
+                "   Julien Signoles";
+                "";
+                ed_name^" :";
+                "   Vadon Benjamin"]
+      ~comments:" Ocamlgraph: a generic graph library for OCaml"
+      ~copyright:"Copyright (C) 2004-2007 
 Sylvain Conchon, Jean-Christophe Filliatre and Julien Signoles"
-    ~license:" This software is free software; you can redistribute it and/or 
+      ~license:" This software is free software; you can redistribute it and/or 
 modify it under the terms of the GNU Library General Public 
 License version 2, with the special exception on linking 
 described in file LICENSE.                                         
-                                                                     
+
 This software is distributed in the hope that it will be useful, 
 but WITHOUT ANY WARRANTY; without even the implied warranty of 
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
-    ~logo:(GdkPixbuf.from_file"ed_icon.xpm" )
-    ~name:ed_name
-    ~version:"0.99"
-    ~website:"http://ocamlgraph.lri.fr/"
-    ~parent:window
-    ~title:"About"
-    ~resizable:false
-    ~position:`CENTER_ON_PARENT
-    ()
+      ~logo:(GdkPixbuf.from_file"ed_icon.xpm" )
+      ~name:ed_name
+      ~version:"0.99"
+      ~website:"http://ocamlgraph.lri.fr/"
+      ~parent:window
+      ~title:"About"
+      ~resizable:false
+      ~position:`CENTER_ON_PARENT
+      ()
   in
   try ignore( dialog#run ())
   with Not_found -> dialog#destroy ()
 
-	
+
 
 let handbook_text (view:GText.view) =
   let buffer = view#buffer in
@@ -927,13 +927,13 @@ let handbook_text (view:GText.view) =
   (* editor's icon *)
   let image_anchor = buffer#create_child_anchor iter in
   let image = GMisc.image 
-    ~pixbuf:(GdkPixbuf.from_file_at_size "ed_icon.xpm" ~width:70 ~height:70) 
-    () in
+      ~pixbuf:(GdkPixbuf.from_file_at_size "ed_icon.xpm" ~width:70 ~height:70) 
+      () in
   view#add_child_at_anchor image#coerce image_anchor;
   buffer#insert ~iter "\n\n\n";
   let start,stop = buffer#bounds in
   buffer#apply_tag_by_name "center" ~start ~stop ; 
-   (* buffer's text *)
+  (* buffer's text *)
   buffer#insert ~iter ~tag_names:["heading"] "First words\n";
   buffer#insert ~iter ~tag_names:["subsection"] 
     ("\tFirst of all, you have to know this is an experimental application. " 
@@ -950,7 +950,7 @@ let handbook_text (view:GText.view) =
   buffer#insert ~iter ~tag_names:["subsection"] 
     "\t It provides standard functionalities. You can create a new graph, open and save graphs from/to the Gml and Dot formats.\n"; 
   buffer#insert ~iter ~tag_names:["italic"] 
-  "Don't forget to save your changes before create or load a new graph.\n\n";
+    "Don't forget to save your changes before create or load a new graph.\n\n";
   buffer#insert ~iter ~tag_names:["heading"] "Vertex list\n";
   buffer#insert ~iter ~tag_names:["subsection"] 
     "\t You can change the root the of graph diagram by clicking on a vertex name. If you expand one, you can see its descendants.\n\n"; 
@@ -980,10 +980,10 @@ let handbook_text (view:GText.view) =
 (* menu action handbook *)
 let handbook () =
   let dialog = GWindow.dialog
-    ~width:450 
-    ~height:450 
-    ~title:"Handbook"
-    () in 
+      ~width:450 
+      ~height:450 
+      ~title:"Handbook"
+      () in 
   let view = GText.view () in
   let sw = GBin.scrolled_window ~packing:dialog#vbox#add ()
   in
@@ -991,38 +991,38 @@ let handbook () =
   handbook_text view;
   dialog#add_button_stock `CLOSE `CLOSE;
   match dialog#run () with
-    | `CLOSE | `DELETE_EVENT -> dialog#destroy ()
-    
+  | `CLOSE | `DELETE_EVENT -> dialog#destroy ()
+
 (* menu bar, based on ui_manager *)
 let ui_info = "<ui>\
-  <menubar name='MenuBar'>\
-    <menu action='FileMenu'>\
-      <menuitem action='New graph'/>\
-      <menuitem action='Open graph'/>\
-      <menuitem action='Save graph'/>\
-      <menuitem action='Save graph as...'/>\
-      <separator/>\
-      <menuitem action='Quit'/>\
-    </menu>\
-    <menu action='HelpMenu'>\
-      <menuitem action='About'/>\
-      <menuitem action='Handbook'/>\
-    </menu>\
-  </menubar>\
-</ui>"
+               <menubar name='MenuBar'>\
+               <menu action='FileMenu'>\
+               <menuitem action='New graph'/>\
+               <menuitem action='Open graph'/>\
+               <menuitem action='Save graph'/>\
+               <menuitem action='Save graph as...'/>\
+               <separator/>\
+               <menuitem action='Quit'/>\
+               </menu>\
+               <menu action='HelpMenu'>\
+               <menuitem action='About'/>\
+               <menuitem action='Handbook'/>\
+               </menu>\
+               </menubar>\
+               </ui>"
 
 (* choose right menu action *)
 let activ_action ac =
   let name = ac#name in
   match name with
-    | "New graph" -> new_graph ()
-    | "Open graph"-> open_graph ()
-    | "Save graph" -> save_graph ()
-    | "Save graph as..." -> save_graph_as ()
-    | "Quit" -> quit ()
-    | "About" -> about ()
-    | "Handbook" -> handbook ()
-    | _ -> Format.eprintf "%s menu is not yet implemented @." name
+  | "New graph" -> new_graph ()
+  | "Open graph"-> open_graph ()
+  | "Save graph" -> save_graph ()
+  | "Save graph as..." -> save_graph_as ()
+  | "Quit" -> quit ()
+  | "About" -> about ()
+  | "Handbook" -> handbook ()
+  | _ -> Format.eprintf "%s menu is not yet implemented @." name
 
 
 let setup_ui window = 
@@ -1031,22 +1031,22 @@ let setup_ui window =
   GAction.add_actions actions
     [ add_action "FileMenu" ~label:"_File" ;
       add_action "HelpMenu" ~label:"_Help" ;
-      
+
       add_action "New graph" ~stock:`NEW ~tooltip:"Create a new graph"
-	~callback:activ_action ;
+        ~callback:activ_action ;
       add_action "Open graph" ~stock:`OPEN ~tooltip:"Open a graph file"
-	~callback:activ_action ;
+        ~callback:activ_action ;
       add_action "Save graph" ~stock:`SAVE ~tooltip:"Save current graph"
-	~callback:activ_action ;
+        ~callback:activ_action ;
       add_action "Save graph as..." ~stock:`SAVE_AS ~accel:"<Control><Shift>S" 
-	~tooltip:"Save current graph to specified file" 
-	~callback:activ_action ;
+        ~tooltip:"Save current graph to specified file" 
+        ~callback:activ_action ;
       add_action "Quit" ~stock:`QUIT ~tooltip:"Quit"
-	~callback:activ_action ;
+        ~callback:activ_action ;
       add_action "About" ~label:"_About" ~tooltip:"Who build this"
-	~callback:activ_action;
+        ~callback:activ_action;
       add_action "Handbook" ~label:"_Handbook" ~accel:"<Control>H" ~tooltip:"How to.."
-	~callback:activ_action;
+        ~callback:activ_action;
     ] ;
   let ui_m = GAction.ui_manager () in
   ui_m#insert_action_group actions 0 ;

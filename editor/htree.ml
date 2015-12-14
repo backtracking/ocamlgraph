@@ -33,15 +33,15 @@ module type HTREE = sig
   type coord = float * float
 
   type driver = {
-      rlimit : float ;
-      moveto : coord -> unit ;
-      lineto : coord -> unit ;
-      curveto : coord -> coord -> coord -> unit ;
-      draw_label : label -> coord -> float -> unit ;
-      init_edge_pass : unit -> unit ;
-      init_label_pass : unit -> unit ;
-      finalize : unit -> unit ;
-    }
+    rlimit : float ;
+    moveto : coord -> unit ;
+    lineto : coord -> unit ;
+    curveto : coord -> coord -> coord -> unit ;
+    draw_label : label -> coord -> float -> unit ;
+    init_edge_pass : unit -> unit ;
+    init_label_pass : unit -> unit ;
+    finalize : unit -> unit ;
+  }
 
   val shrink_factor : coord -> float
   val drag_origin : coord -> coord -> coord -> coord
@@ -117,9 +117,9 @@ let delta a u t =
 type coord = float * float ;;
 
 type turtle = {
-    pos : coord ;  (* with |pos| < 1 *)
-    dir : coord    (* with |dir| = 1 *)
-  } ;;
+  pos : coord ;  (* with |pos| < 1 *)
+  dir : coord    (* with |dir| = 1 *)
+} ;;
 
 let make_turtle pos angle =
   { pos = pos ;
@@ -171,24 +171,24 @@ let hspace_dist_sqr turtle =
   let (ax, ay) = turtle.pos
   and (dx, dy) = turtle.dir in
   if ax*.dx +. ay*.dy < 0.0 then 0.0 else
-  begin
-    let ux = dy and uy = -.dx in
-    let alpha = ax*.ax +. ay*.ay
-    and beta = 2.0*.(ax*.ux +. ay*.uy) in
-    if beta = 0.0 then
-      alpha
-    else
-      begin
-	let gamma = (1.0 +. alpha)/.beta in
-	let delta = gamma*.gamma -. 1.0 in
-	let sol =
-          if beta > 0.0
-          then -.gamma +. sqrt(delta)
-          else -.gamma -. sqrt(delta) in
-	let (zx, zy) = translate (ax, ay) (ux*.sol, uy*.sol) in
-	zx*.zx +. zy*.zy
-      end
-  end ;;
+    begin
+      let ux = dy and uy = -.dx in
+      let alpha = ax*.ax +. ay*.ay
+      and beta = 2.0*.(ax*.ux +. ay*.uy) in
+      if beta = 0.0 then
+        alpha
+      else
+        begin
+          let gamma = (1.0 +. alpha)/.beta in
+          let delta = gamma*.gamma -. 1.0 in
+          let sol =
+            if beta > 0.0
+            then -.gamma +. sqrt(delta)
+            else -.gamma -. sqrt(delta) in
+          let (zx, zy) = translate (ax, ay) (ux*.sol, uy*.sol) in
+          zx*.zx +. zy*.zy
+        end
+    end ;;
 
 (*** The functor ***)
 
@@ -201,15 +201,15 @@ module Make(T : TREE) = struct
   type coord = float * float
 
   type driver = {
-      rlimit : float ;
-      moveto : coord -> unit ;
-      lineto : coord -> unit ;
-      curveto : coord -> coord -> coord -> unit ;
-      draw_label : label -> coord -> float -> unit ;
-      init_edge_pass : unit -> unit ;
-      init_label_pass : unit -> unit ;
-      finalize : unit -> unit ;
-    }
+    rlimit : float ;
+    moveto : coord -> unit ;
+    lineto : coord -> unit ;
+    curveto : coord -> coord -> coord -> unit ;
+    draw_label : label -> coord -> float -> unit ;
+    init_edge_pass : unit -> unit ;
+    init_label_pass : unit -> unit ;
+    finalize : unit -> unit ;
+  }
 
   let shrink_factor = shrink_factor
   let drag_origin = drag_origin
@@ -218,84 +218,84 @@ module Make(T : TREE) = struct
     let rlimit_sqr = drv.rlimit*.drv.rlimit in
     let rec do_tree tur t =
       if hspace_dist_sqr tur <= rlimit_sqr then
-	begin
-	  let list = children t in
-	  let num = List.length list in
-	  if num > 0 then
-	    begin
-	      let step = step_from (2*(max 3 num))
-	      and angle = pi/.float(num) in
-	      let tur' = turn_left tur (angle/.2.0 -. pi_over_2) in
-	      do_list tur' step (expi angle) list
-	    end
-	end
+        begin
+          let list = children t in
+          let num = List.length list in
+          if num > 0 then
+            begin
+              let step = step_from (2*(max 3 num))
+              and angle = pi/.float(num) in
+              let tur' = turn_left tur (angle/.2.0 -. pi_over_2) in
+              do_list tur' step (expi angle) list
+            end
+        end
     and do_list tur step u = function
-      |	[] -> ()
-      |	t :: rest ->
-	  drv.moveto tur.pos ;
-	  let tur' = advance tur step in
-	  drv.lineto tur'.pos ;
-	  do_tree tur' t ;
-	  do_list (turn tur u) step u rest in
+      |  [] -> ()
+      |  t :: rest ->
+        drv.moveto tur.pos ;
+        let tur' = advance tur step in
+        drv.lineto tur'.pos ;
+        do_tree tur' t ;
+        do_list (turn tur u) step u rest in
     do_tree turtle tree
 
   let draw_curved_edges drv tree turtle =
     let rlimit_sqr = drv.rlimit*.drv.rlimit in
     let rec do_tree tur t =
       if hspace_dist_sqr tur <= rlimit_sqr then
-	begin
-	  let list = children t in
-	  let num = List.length list in
-	  if num > 0 then
-	    begin
-	      let step = step_from (2*(max 3 num))
-	      and angle = pi/.float(num) in
-	      let tur' = turn_left tur (angle/.2.0 -. pi_over_2) in
-	      do_list tur' step (expi angle) list
-	    end
-	end
+        begin
+          let list = children t in
+          let num = List.length list in
+          if num > 0 then
+            begin
+              let step = step_from (2*(max 3 num))
+              and angle = pi/.float(num) in
+              let tur' = turn_left tur (angle/.2.0 -. pi_over_2) in
+              do_list tur' step (expi angle) list
+            end
+        end
     and do_list tur step u = function
-      |	[] -> ()
-      |	t :: rest ->
-	  drv.moveto tur.pos ;
-	  let tur' = advance tur step in
-	  let (a0x, a0y) = tur.pos
-	  and (u0x, u0y) = tur.dir
-	  and (a3x, a3y) = tur'.pos
-	  and (u3x, u3y) = tur'.dir in
-	  let dx = a3x -. a0x
-          and dy = a3y -. a0y in
-          let k = sqrt(dx*.dx +. dy*.dy)/.3.0 in
-          let a1 = (a0x +. k*.u0x, a0y +. k*.u0y)
-          and a2 = (a3x -. k*.u3x, a3y -. k*.u3y) in
-          drv.moveto tur.pos ;
-          drv.curveto a1 a2 tur'.pos ;
-	  do_tree tur' t ;
-	  do_list (turn tur u) step u rest in
+      |  [] -> ()
+      |  t :: rest ->
+        drv.moveto tur.pos ;
+        let tur' = advance tur step in
+        let (a0x, a0y) = tur.pos
+        and (u0x, u0y) = tur.dir
+        and (a3x, a3y) = tur'.pos
+        and (u3x, u3y) = tur'.dir in
+        let dx = a3x -. a0x
+        and dy = a3y -. a0y in
+        let k = sqrt(dx*.dx +. dy*.dy)/.3.0 in
+        let a1 = (a0x +. k*.u0x, a0y +. k*.u0y)
+        and a2 = (a3x -. k*.u3x, a3y -. k*.u3y) in
+        drv.moveto tur.pos ;
+        drv.curveto a1 a2 tur'.pos ;
+        do_tree tur' t ;
+        do_list (turn tur u) step u rest in
     do_tree turtle tree
 
   let draw_labels drv tree turtle =
     let rlimit_sqr = drv.rlimit*.drv.rlimit in
     let rec do_tree tur t =
       if hspace_dist_sqr tur <= rlimit_sqr then
-	begin
-	  drv.draw_label (label t) tur.pos (shrink_factor tur.pos) ;
-	  let list = children t in
-	  let num = List.length list in
-	  if num > 0 then
-	    begin
-	      let step = step_from (2*(max 3 num))
-	      and angle = pi/.float(num) in
-	      let tur' = turn_left tur (angle/.2.0 -. pi_over_2) in
-	      do_list tur' step (expi angle) list
-	    end
-	end
+        begin
+          drv.draw_label (label t) tur.pos (shrink_factor tur.pos) ;
+          let list = children t in
+          let num = List.length list in
+          if num > 0 then
+            begin
+              let step = step_from (2*(max 3 num))
+              and angle = pi/.float(num) in
+              let tur' = turn_left tur (angle/.2.0 -. pi_over_2) in
+              do_list tur' step (expi angle) list
+            end
+        end
     and do_list tur step u = function
-      |	[] -> ()
-      |	t :: rest ->
-	  let tur' = advance tur step in
-	  do_tree tur' t ;
-	  do_list (turn tur u) step u rest in
+      |  [] -> ()
+      |  t :: rest ->
+        let tur' = advance tur step in
+        do_tree tur' t ;
+        do_list (turn tur u) step u rest in
     do_tree turtle tree
 
   let draw_linear_tree drv tree start angle =
