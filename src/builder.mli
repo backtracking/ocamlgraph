@@ -18,8 +18,6 @@
 (** Graph builders in order to persistent/imperative graphs sharing a same
     signature. *)
 
-open Sig
-
 (** {2 Common interface for graph builders}.
 
     Note: the following functions always return graphs but this is meaningless

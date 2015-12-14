@@ -141,7 +141,7 @@ end = struct
     G.fold_vertex f g true
 
 
-  let game g p a b =
+  let game _ p a b =
 
     let rec game_aux l pi =
       let continue x =
@@ -159,7 +159,7 @@ end = struct
     game_aux SetV.empty (P.get_initial p)
 
 
-  let rec attract1 g p s l =
+  let attract1 g p s l =
     let f v l1 =
       if not (List.mem v l1) then
         if P.turn p v then
@@ -178,7 +178,7 @@ end = struct
     G.fold_vertex f g l
 
 
-  let rec strategy g p s =
+  let strategy g p s =
 
     let rec strategy_aux l1 l2 =
       let (b1, b2) = eq_mem (P.get_initial p) l1 l2 in
@@ -190,7 +190,7 @@ end = struct
     strategy_aux (attract1 g p s finaux) finaux
 
 
-  let rec attract g p (l, l') =
+  let attract g p (l, l') =
     let f v (l1, l1') =
       if not (List.mem v l1) then
         if P.turn p v then
@@ -214,7 +214,7 @@ end = struct
     G.fold_vertex f g (l, l')
 
 
-  let rec strategyA g p =
+  let strategyA g p =
 
     let rec strategyA_aux l1 l2 f =
       let (b1, b2) = eq_mem (P.get_initial p) l1 l2 in

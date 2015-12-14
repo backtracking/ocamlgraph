@@ -37,7 +37,7 @@ module P(G : Sig.P) = struct
             (fun v' x ->
                let deg' = G.out_degree !gref v' in
                match x with
-                 Some (v,deg) when deg' > deg -> x
+                 Some (_,deg) when deg' > deg -> x
                | _ -> Some (v', deg'))
             !gref None
         in match x with
@@ -107,7 +107,7 @@ module I(G : Sig.I) = struct
             (fun v' x ->
                let deg' = G.out_degree gcur v' in
                match x with
-                 Some (v,deg) when deg' > deg -> x
+                 Some (_,deg) when deg' > deg -> x
                | _ -> Some (v', deg'))
             gcur None
         in match x with

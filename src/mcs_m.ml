@@ -35,8 +35,6 @@ module MaximalCardinalitySearch = struct
     module Choose = Oper.Choose(G)
     module H = Hashtbl.Make(NewV)
 
-    exception Found
-
     let check_path g u v =
       let h = H.create 97 in
       let maxw = NewV.weight u in
@@ -122,8 +120,6 @@ module MaximalCardinalitySearch = struct
     module VerticesSet = Set.Make(NewV)
     module Choose = Oper.Choose(G)
     module H = Hashtbl.Make(NewV)
-
-    exception Found
 
     let check_path g u v =
       let h = H.create 97 in

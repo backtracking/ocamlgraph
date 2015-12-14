@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open Util
-
 module type G = sig
   type t
   module V : Sig.COMPARABLE
@@ -58,7 +56,7 @@ struct
     let q = Q.create 17 in
     Q.add q (W.zero, r);
     while not (Q.is_empty q) do
-      let (w,u) = Q.pop_maximum q in
+      let (_,u) = Q.pop_maximum q in
       if not (H.mem visited u) then begin
         H.add visited u ();
         G.iter_succ_e (fun e ->

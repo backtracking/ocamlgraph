@@ -353,9 +353,6 @@ module CommonAttributes = struct
     | `Style _ -> assert false
     | `Width f -> fprintf ppf "width=%f" f
 
-  let edge_style_str =
-    node_style_str
-
   let fprint_arrow_direction ppf = function
       `Forward -> fprintf ppf "forward"
     | `Back -> fprintf ppf "back"
@@ -406,12 +403,6 @@ module CommonAttributes = struct
       end;
       fprintf ppf "@]"
     end
-
-  let fprint_vertex_list =
-    fprint_attributes fprint_style_list fprint_vertex
-
-  let fprint_edge_list =
-    fprint_attributes fprint_style_list fprint_edge
 
 end
 
@@ -533,7 +524,7 @@ struct
         () (* no more work to do, so terminate *)
       | name :: worklist ->
         let sg, nodes = SG.find name !subgraphs in
-        let children = SG.filter (fun n (sg, nodes) -> sg.EN.Attributes.sg_parent = Some name) !subgraphs in
+        let children = SG.filter (fun _ (sg, _) -> sg.EN.Attributes.sg_parent = Some name) !subgraphs in
         fprintf ppf "@[<v 2>subgraph cluster_%s { %a%t@ %t };@]@\n"
 
           name
@@ -553,7 +544,7 @@ struct
     in
 
     let print_subgraphs ppf =
-      let root_worklist = SG.filter (fun n (sg, nodes) -> sg.EN.Attributes.sg_parent = None) !subgraphs in
+      let root_worklist = SG.filter (fun _ (sg, _) -> sg.EN.Attributes.sg_parent = None) !subgraphs in
       print_nested_subgraphs ppf (List.map fst (SG.bindings root_worklist))
     in
 

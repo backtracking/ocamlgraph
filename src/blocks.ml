@@ -100,7 +100,7 @@ module Make_Map(X: COMPARABLE) = struct
   include Map.Make(X)
   type 'a return = 'a t
   let is_empty m = (m = empty)
-  let create ?size () = assert false
+  let create ?size:_ () = assert false
   (* never call and not visible for the user thank's to
      signature constraints *)
   let create_from _ = empty
@@ -174,7 +174,7 @@ struct
 
   let in_degree g v =
     if not (mem_vertex v g) then invalid_arg "[ocamlgraph] in_degree";
-    fold_pred (fun v n -> n + 1) g v 0
+    fold_pred (fun _ n -> n + 1) g v 0
 
   let iter_pred_e f g v =
     if not (mem_vertex v g) then invalid_arg "[ocamlgraph] iter_pred_e";

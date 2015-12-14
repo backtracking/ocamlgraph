@@ -55,7 +55,7 @@ struct
         | x::[] -> begin match G.succ g x with
             | [] ->
               assert false (* -> inconsistency in the graph implementation *)
-            | y::[] ->
+            | _::[] ->
               false (* this is a straight, continuous control flow *)
             | _ ->
               true (* predecessor has multiple successors *)
@@ -68,7 +68,7 @@ struct
       let rec basic_block x bb =
         match G.succ g x with
         | [] -> x::bb (* no successors -- end of basic block *)
-        | y::ys -> begin match S.mem y entourage with
+        | y::_ -> begin match S.mem y entourage with
             | true ->
               (* successor is not a leader, continue collecting *)
               basic_block y (x::bb)

@@ -243,7 +243,7 @@ struct
       | V.Old v -> G.iter_succ_e (fun e -> f (E.OldE e)) g v
     let fold_edges_e f g acc =
       let acc' =
-        G.fold_vertex (fun x a -> f (E.NewE (V.Old x)) acc) g acc
+        G.fold_vertex (fun x _ -> f (E.NewE (V.Old x)) acc) g acc
       in
       G.fold_edges_e (fun edg ->
           let v1 = G.E.src edg in

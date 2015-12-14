@@ -52,7 +52,7 @@ struct
 
   let fold_booleen f = List.fold_left (fun r x->(f x) || r) false
 
-  let capacite_restante g e =
+  let capacite_restante _ e =
     F.sub (F.max_capacity (G.E.label e)) (E.find flot (G.E.src e, G.E.dst e))
 
   let reste_excedent x = F.compare (V.find excedents x) F.zero > 0
@@ -112,7 +112,7 @@ struct
      V.replace hauteur x (1+min);
      true)
 
-  let init_preflot g s p =
+  let init_preflot g s _ =
     G.iter_vertex (fun x -> V.add excedents x F.zero; V.add hauteur x 0) g;
     G.iter_edges_e
       (fun e ->
@@ -212,7 +212,6 @@ struct
       let e, tag = H.find marked s in
       (match e with None -> assert false | Some e -> e), tag
 
-    exception Empty = Queue.Empty
     let next () = Queue.pop unvisited
   end
 
@@ -314,7 +313,7 @@ struct
       try
         while true do let s = Mark.next () in succ s; pred s done;
         assert false
-      with Mark.Empty ->
+      with Queue.Empty ->
         if Mark.mem t then grow_flow r s t a else a
     in
     let rec external_loop a =

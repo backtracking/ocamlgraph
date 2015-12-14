@@ -60,7 +60,6 @@ struct
           type t = id
           let compare : t -> t -> int = Pervasives.compare
         end)
-    type t = id option M.t
     let empty = M.empty
     let add = List.fold_left (fun a (x,v) -> M.add x v a)
     let addl = List.fold_left add
@@ -129,7 +128,7 @@ struct
     (* pass 2: build the graph and the clusters *)
     let def_edge_attr = ref Attr.empty in
     let nodes = Hashtbl.create 97 in
-    let node g id l =
+    let node g id _ =
       try
         g, Hashtbl.find nodes id
       with Not_found ->
@@ -202,10 +201,6 @@ struct
 
   let parse f =
     fst (create_graph_and_clusters (parse_dot f))
-
-  let parse_with_bb_from_chan c =
-    let dot = parse_dot_from_chan c in
-    create_graph_and_clusters dot, get_graph_bb dot.stmts
 
   let parse_bounding_box_and_clusters f =
     let dot = parse_dot f in

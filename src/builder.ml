@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open Sig
-
 module type S = sig
   module G : Sig.G
   val empty : unit -> G.t

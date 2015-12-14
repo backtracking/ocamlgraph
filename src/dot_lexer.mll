@@ -18,7 +18,6 @@
 (* $Id:$ *)
 
 {
-  open Lexing
   open Dot_ast
   open Dot_parser
 

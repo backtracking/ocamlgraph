@@ -17,8 +17,6 @@
 
 (* $Id: kruskal.ml,v 1.5 2005-06-30 10:48:55 filliatr Exp $ *)
 
-open Util
-
 module type UNIONFIND = sig
   type elt
   type t

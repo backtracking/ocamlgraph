@@ -381,7 +381,7 @@ module Matrix = struct
     type vertex = V.t
     type edge = E.t
 
-    let create ?size () =
+    let create ?size:_ () =
       failwith
         "[ocamlgraph] do not use Matrix.create; please use Matrix.make instead"
 
@@ -414,8 +414,8 @@ module Matrix = struct
     let unsafe_remove_edge g i j =
       Bitv.unsafe_set (Array.unsafe_get g i) j false
 
-    let remove_vertex g _ = ()
-    let add_vertex g _ = ()
+    let remove_vertex _ _ = ()
+    let add_vertex _ _ = ()
 
     let clear g =
       Array.iter (fun b -> Bitv.iteri (fun j _ -> Bitv.set b j false) b) g

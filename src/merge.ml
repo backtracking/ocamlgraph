@@ -139,7 +139,7 @@ module B(B: Builder.S) = struct
         let e1 = B.G.E.create default_vertex l1 default_vertex in
         let e2 = B.G.E.create default_vertex l2 default_vertex in
         B.G.E.compare e1 e2
-    with Exit -> (fun l1 l2 -> 0)
+    with Exit -> (fun _ _ -> 0)
 
   let merge_isolabelled_edges g =
     let module S = Set.Make(B.G.V) in

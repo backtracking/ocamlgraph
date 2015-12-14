@@ -67,8 +67,6 @@ struct
     let add = (+)
     let sub = (-)
     let compare : t -> t -> int = Pervasives.compare
-    let max = max_int
-    let min = 0
     let zero = 0
   end
 
@@ -174,11 +172,6 @@ struct
     fprintf fmt "%a@." GmlPrinter.print g;
     close_out c
 
-  let uid h find add =
-    let n = ref 0 in
-    fun x ->
-      try find h x with Not_found -> incr n; add h x !n; !n
-
 (*
   module GraphmlPrinter =
     Graphml.Print
@@ -205,22 +198,7 @@ end
 module I = struct
   type t = int
   let compare : t -> t -> int = Pervasives.compare
-  let hash = Hashtbl.hash
-  let equal = (=)
   let default = 0
-end
-
-module IW = struct
-  type label = I.t
-  type t = int
-
-  module M = Map.Make(I)
-  let map = M.empty
-
-  let weight lbl = lbl
-  let compare : t -> t -> int = Pervasives.compare
-  let add = (+)
-  let zero = 0
 end
 
 module Digraph = Generic(Imperative.Digraph.AbstractLabeled(I)(I))

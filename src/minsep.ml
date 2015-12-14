@@ -73,7 +73,7 @@ struct
         let seen = VSetset.add s seen in
         let bigs, tl =
           Vertex_Set.fold
-            (fun v c ->
+            (fun v _ ->
                let add_neighbourhoods (bigs, tl) l =
                  let s = neighbourhoods l in
                  s :: bigs, if VSetset.mem s seen then tl else s :: tl

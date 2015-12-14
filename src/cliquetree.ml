@@ -55,7 +55,6 @@ module CliqueTree(Gr : Sig.G) = struct
     let hash x = Gr.V.hash x.orig
     let equal x y = Gr.V.equal x.orig y.orig
 
-    type label = t
     let label x = x
 
     let create o = {
@@ -104,12 +103,9 @@ module CliqueTree(Gr : Sig.G) = struct
       (struct type t = CliqueV.t list * CVS.t end)
       (struct
         type t = int
-        type label = int
         let compare : t -> t -> int = Pervasives.compare
         let hash = Hashtbl.hash
         let equal x y = x = y
-        let label x = x
-        let create lbl = lbl
       end)
 
   module CliqueTreeE = struct
@@ -161,14 +157,6 @@ module CliqueTree(Gr : Sig.G) = struct
 
   open CliqueV
 
-  let vertices_list x =
-    let l = CVS.elements x in
-    List.sort
-      (fun x y ->
-         (*let markx = mark x and marky = mark y in*)
-         (Pervasives.compare : int -> int -> int) (number y) (number x))
-      l
-
   let mcs_clique g =
     (* initializations *)
     let n = Gr.nb_vertex g in
@@ -191,7 +179,7 @@ module CliqueTree(Gr : Sig.G) = struct
       let x, mark =
         let choosed = CVS.choose !unnumbered in
         CVS.fold
-          (fun x ((maxx, maxv) as max) ->
+          (fun x ((_maxx, maxv) as max) ->
              let v = mark x in
              if v > maxv then (x, v) else max)
           !unnumbered (choosed, mark choosed)
@@ -247,54 +235,17 @@ module CliqueTree(Gr : Sig.G) = struct
 
   exception NotClique
 
-  let rec drop_while p l =
-    match l with
-    | x :: tl ->
-      if p x then drop_while p tl
-      else l
-    | [] -> []
-
-  let test_simpliciality_first l sons =
-    let takeOne l = match !l with
-      | x :: xs -> l := xs; Some x
-      | [] -> None
-    in
-    let vertices = ref l in
-    let sons = ref sons in
-    try
-      while !vertices <> [] && not (List.for_all (fun c -> !c = []) !sons) do
-        (match takeOne vertices with
-           Some v ->
-           let mark = CliqueV.mark v in
-           List.iter
-             (fun s ->
-                match !s with
-                | y :: tl ->
-                  let ymark = CliqueV.mark y in
-                  if ymark > mark then
-                    ()
-                  else if ymark = mark then
-                    s := drop_while
-                        (fun y -> CliqueV.mark y = mark) tl
-                  else raise NotClique
-                | [] -> ())
-             !sons
-         | None -> assert false);
-      done;
-      !vertices <> []
-    with NotClique -> false
-
   let test_simpliciality_first' l sons =
     List.for_all
       (fun son ->
          match !son with
          | [] -> false
-         | xi :: tl ->
+         | xi :: _ ->
            let other = m xi in
            CVS.subset other l)
       sons
 
-  let test_simpliciality_next vertices sons =
+  let test_simpliciality_next vertices _sons =
     match vertices with
     | x :: tl ->
       begin
@@ -313,12 +264,12 @@ module CliqueTree(Gr : Sig.G) = struct
     | _ -> true
 
   let is_chordal g =
-    let order, tree, root = mcs_clique g in
+    let _order, tree, root = mcs_clique g in
     let rec aux c =
       let csons = sons tree c in
       let s = List.map CliqueTreeV.data csons in
       let l = CliqueTreeV.data c in
-      let sons () = List.map (fun (x,y) -> ref x) s in
+      let sons () = List.map (fun (x,_) -> ref x) s in
       let first = test_simpliciality_first' (snd l) (sons ()) in
       let next = test_simpliciality_next (fst l) (sons ()) in
       first && next && (List.for_all aux csons)

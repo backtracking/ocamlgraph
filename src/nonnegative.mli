@@ -17,10 +17,6 @@
 
 (* This module is a contribution of Yuto Takei *)
 
-open Sig
-open Blocks
-open Persistent
-
 (** Weighted graphs without negative-cycles. *)
 
 (** This graph maintains the invariant that it is free of such cycles that

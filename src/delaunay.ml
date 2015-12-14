@@ -24,8 +24,6 @@
     file [gb_plane].
 *)
 
-open Printf
-
 module type CCC = sig
   type point
   val ccw : point -> point -> point -> bool

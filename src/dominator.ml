@@ -105,25 +105,6 @@ module Make(G : G) = struct
 
   let set_of_list x = List.fold_left (fun set v -> S.add v set) S.empty x
 
-  (** Fold over the nodes.
-      Function [f] is applied in reverse-topologicalish order. *)
-  let pseudo_topological_fold f x nodes succ =
-    let found = H.create 57 in
-    let rec visit x n =
-      if H.mem found n
-      then (* black or gray *) x
-      else  (* white *)
-        let () = H.add found n () in
-        let x = List.fold_left visit x (succ n) in
-        f n x
-    in
-    List.fold_left visit x nodes
-
-  (** Given the entry nodes into a graph, and a successor function, returns
-      the nodes in pseudo topological order. *)
-  let pseudo_topological_sort nodes succ =
-    pseudo_topological_fold (fun x y -> x::y) [] nodes succ
-
   (** Computes the dominator tree, using the Lengauer-Tarjan algorithm.
       [compute_idom cfg s0] returns a function [idom : V.t -> V.t] s.t.
       [idom x] returns the immediate dominator of [x]

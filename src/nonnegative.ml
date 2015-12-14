@@ -17,10 +17,6 @@
 
 (* This module is a contribution of Yuto Takei *)
 
-open Sig
-open Blocks
-open Printf
-
 module Imperative
     (G: Sig.IM)
     (W: Sig.WEIGHT with type edge = G.E.t) = struct

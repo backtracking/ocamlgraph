@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open Util
-
 module type G = sig
   type t
   module V : Sig.COMPARABLE
@@ -27,41 +25,6 @@ end
 module Make(G: G) = struct
 
   module H = Hashtbl.Make(G.V)
-
-  (* legacy code, as a reference. Raises Stack_overflow on large graphs *)
-  let legacy g =
-    let root = H.create 97 in
-    let hashcomp = H.create 97 in
-    let stack = ref [] in
-    let numdfs = ref 0 in
-    let numcomp = ref 0 in
-    let rec pop x = function
-      | (y, w) :: l when y > x ->
-        H.add hashcomp w !numcomp;
-        pop x l
-      | l -> l
-    in
-    let rec visit v =
-      if not (H.mem root v) then begin
-        let n = incr numdfs; !numdfs in
-        H.add root v n;
-        G.iter_succ
-          (fun w ->
-             visit w;
-             if not (H.mem hashcomp w) then
-               H.replace root v (min (H.find root v) (H.find root w)))
-          g v;
-        if H.find root v = n then begin
-          H.add hashcomp v !numcomp;
-          let s = pop n !stack in
-          stack:= s;
-          incr numcomp
-        end else
-          stack := (n,v) :: !stack;
-      end
-    in
-    G.iter_vertex visit g;
-    !numcomp, (fun v -> H.find hashcomp v)
 
   (* iterative code using a stack (variable [cont] below) *)
 
@@ -107,7 +70,7 @@ module Make(G: G) = struct
               incr numcomp
             end else
               stack := (n, v) :: !stack;
-          | Visit (v, w) -> visit w
+          | Visit (_, w) -> visit w
           | Test (v, w) ->
             if not (H.mem hashcomp w) then
               H.replace root v (min (H.find root v) (H.find root w))

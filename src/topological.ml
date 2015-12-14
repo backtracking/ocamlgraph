@@ -82,8 +82,6 @@ struct
 
   module Q = struct
     module S = Set.Make(G.V)
-    type elt = G.V.t
-    type q = S.t ref
     let create () = ref S.empty
     let push v s = s := S.add v !s
     let pop s =
@@ -95,23 +93,6 @@ struct
       let l, n = choose ~old new_ in
       List.sort G.V.compare l, n
   end
-
-  let rec choose_independent_vertex checker = function
-    | [] -> assert false
-    | [ v ] -> v
-    | v :: l ->
-      (* choose [v] if each other vertex [v'] is in the same cycle
-         (a path from v to v') or is in a separate component
-         (no path from v' to v).
-         So, if there is a path from v' to without any path from v to v',
-         discard v. *)
-      if List.for_all
-          (fun v' -> C.check_path checker v v' || not (C.check_path checker v' v))
-          l
-      then
-        v
-      else
-        choose_independent_vertex checker l
 
   (* in case of multiple cycles, choose one vertex in a cycle which
      does not depend of any other. *)
