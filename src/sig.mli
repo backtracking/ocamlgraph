@@ -17,6 +17,32 @@
 
 (** {b Signatures for graph implementations.} *)
 
+(** {2 Signature for ordered and hashable types} *)
+
+(** Signature with only an abstract type. *)
+module type ANY_TYPE = sig type t end
+
+(** Signature equivalent to [Set.OrderedType]. *)
+module type ORDERED_TYPE = sig type t val compare : t -> t -> int end
+
+(** Signature equivalent to [Set.OrderedType] with a default value. *)
+module type ORDERED_TYPE_DFT = sig include ORDERED_TYPE val default : t end
+
+(** Signature equivalent to [Hashtbl.HashedType]. *)
+module type HASHABLE = sig
+  type t
+  val hash : t -> int
+  val equal : t -> t -> bool
+end
+
+(** Signature merging {!ORDERED_TYPE} and {!HASHABLE}. *)
+module type COMPARABLE = sig
+  type t
+  val compare : t -> t -> int
+  val hash : t -> int
+  val equal : t -> t -> bool
+end
+
 (** {2 Signatures for graph implementations} *)
 
 (** Signature for vertices. *)
@@ -25,9 +51,8 @@ module type VERTEX = sig
   (** Vertices are {!COMPARABLE}. *)
 
   type t
-  val compare : t -> t -> int
-  val hash : t -> int
-  val equal : t -> t -> bool
+
+  include COMPARABLE with type t := t
 
   (** Vertices are labeled. *)
 
@@ -341,32 +366,6 @@ module type IM = sig
       Marks can be used if you want to store some information on vertices:
       it is more efficient to use marks than an external table. *)
   module Mark : MARK with type graph = t and type vertex = vertex
-end
-
-(** {2 Signature for ordered and hashable types} *)
-
-(** Signature with only an abstract type. *)
-module type ANY_TYPE = sig type t end
-
-(** Signature equivalent to [Set.OrderedType]. *)
-module type ORDERED_TYPE = sig type t val compare : t -> t -> int end
-
-(** Signature equivalent to [Set.OrderedType] with a default value. *)
-module type ORDERED_TYPE_DFT = sig include ORDERED_TYPE val default : t end
-
-(** Signature equivalent to [Hashtbl.HashedType]. *)
-module type HASHABLE = sig
-  type t
-  val hash : t -> int
-  val equal : t -> t -> bool
-end
-
-(** Signature merging {!ORDERED_TYPE} and {!HASHABLE}. *)
-module type COMPARABLE = sig
-  type t
-  val compare : t -> t -> int
-  val hash : t -> int
-  val equal : t -> t -> bool
 end
 
 (*
