@@ -18,12 +18,10 @@
 (* This file is a contribution of Benjamin Vadon *)
 
 open Format
-open Graph
 
 open Ed_hyper
 open Ed_graph
 open Ed_display
-open Ed_draw
 
 let debug = ref false
 let trace f x = 
@@ -113,8 +111,6 @@ end
 
 
 let () = Model.reset ()
-
-open GtkTree
 
 let ed_name = "Ocamlgraph's Editor"
 
@@ -676,13 +672,13 @@ let vertex_event vertex item ellispe ev =
 
 let set_vertex_event vertex =
   let item,ell,_ = H.find nodes vertex in
-  ignore (item#connect#event (vertex_event vertex item ell))
+  ignore (item#connect#event ~callback:(vertex_event vertex item ell))
 
 let () = set_vertex_event_fun := set_vertex_event
 
 let set_canvas_event () =
   (* circle event *)
-  ignore(canvas_root#parent#connect#event (circle_event));
+  ignore(canvas_root#parent#connect#event ~callback:(circle_event));
   (* vertex event *)
   G.iter_vertex set_vertex_event !graph
 
@@ -1064,7 +1060,7 @@ let () =
   reset_table_and_canvas ();
   draw (make_turtle_origine ()) canvas_root;
   set_canvas_event ();
-  canvas#set_scroll_region 0. 0. w h ;
+  canvas#set_scroll_region ~x1:0. ~y1:0. ~x2:w ~y2:h ;
   setup_ui window;
   ignore (window#show ());
   GMain.Main.main ()

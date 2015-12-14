@@ -26,7 +26,6 @@
 (** Reading XDot files *)
 
 open Graph
-open GnomeCanvas
 open Dot_ast
 open Printf
 
@@ -93,27 +92,8 @@ exception ParseError of string
 
 (* MISCELLANEOUS FUNCTIONS *)
 
-let rec take n = function
-  | [] -> []
-  | l when n = 0 -> []
-  | h::t -> h::(take (n-1) t)
-
 let suffix s i = try String.sub s i ((String.length s)-i)
                  with Invalid_argument("String.sub") -> ""
-
-let rec group_tuples = function
-  | [] -> []
-  | [x] -> []
-  | h1::h2::t -> (h1, h2) :: group_tuples t
-
-(** Splits a string with a separator
-   returns a list of strings *)
-let split c s =
-  let rec split_from n =
-    try let p = String.index_from s n c
-        in (String.sub s n (p-n)) :: (split_from (p+1))
-    with Not_found -> [ suffix s n ]
-  in if s="" then [] else split_from 0
 
 let read_pos s = Scanf.sscanf s "%f,%f" (fun x y -> x, -.y)
 
@@ -129,24 +109,6 @@ let get_dot_string = function
   | Dot_ast.Html s -> s
 
 (* READING VERTEX LAYOUTS *)
-
-let read_node_label = function
-  | Dot_ast.Ident s
-  | Dot_ast.Number s
-  | Dot_ast.String s
-  | Dot_ast.Html s -> s
-
-let read_points c s =
-  let s' = suffix s (String.index s c) in
-  let tokens = List.filter (fun s -> s <> "") (List.tl (split ' ' s')) in
-  try match tokens with
-    | [] -> None
-    | n::t ->
-      let n = int_of_string n in
-      let floats = List.map float_of_string (take (n*2) t) in
-      let points = group_tuples floats in
-      Some points
-  with Failure "int_of_string" -> None
 
 (** Finds the attributes [pos], [width] and [height] of a node
     in the attribute list *)

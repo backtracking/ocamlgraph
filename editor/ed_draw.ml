@@ -17,7 +17,6 @@
 
 (* This file is a contribution of Benjamin Vadon *)
 
-open Graph
 open Ed_hyper
 open Ed_graph
 

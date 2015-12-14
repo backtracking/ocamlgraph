@@ -23,10 +23,8 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open DGraphModel
 open XDot
 open XDotDraw
-open Printf
 
 let red_color =   0xFF0000FFl
 let blue_color =  0x0000FFFFl
@@ -72,7 +70,7 @@ object (self)
   val original_size = size_points
   val mutable props = props
 
-  method set p =
+  method! set p =
     props <- p;
     text#set p
 
@@ -103,7 +101,7 @@ object (self)
   method resize (zoom_factor:float) =
     let rec change = function
       | [] -> []
-      | `SIZE_POINTS f :: l -> 
+      | `SIZE_POINTS _ :: l -> 
         `SIZE_POINTS (zoom_factor*.original_size) :: change l
       | `FONT _ :: l -> change l
       | p :: l -> p :: change l
@@ -166,10 +164,6 @@ type shape_p =
     | `OUTLINE_COLOR_RGBA of int32
     | `WIDTH_UNITS of float
     | `DASH of float * float array ]
-
-let to_p = function
-  | #shape_p as p -> p
-  | _ -> invalid_arg "to_p"
 
 (* Property list completion *)
 (* In the initial property list of a shape, we need all the properties to hold
@@ -289,7 +283,7 @@ let bspline ~fill draw_st group pts =
   let bpath = GnoCanvas.bpath group ~bpath:path ~props in
   new shape ~fill (SBSpline bpath) props
 
-let text draw_st group (x,y) align anchor label =
+let text draw_st group (x,y) _align anchor label =
   let size_points, font = draw_st.XDotDraw.font in
   let props = [ convert_fill_color draw_st.XDotDraw.pen_color ] in
   let anchor =
@@ -376,8 +370,8 @@ object (self)
 	end)
       ()
 
-  method hide () = self#cache (fun () -> self#iter (fun s -> s#hide ())) ()
-  method show () = self#cache (fun () -> self#iter (fun s -> s#show ())) ()
+  method! hide () = self#cache (fun () -> self#iter (fun s -> s#hide ())) ()
+  method! show () = self#cache (fun () -> self#iter (fun s -> s#show ())) ()
 
   method connect_event ~callback =
     self#cache
@@ -395,7 +389,7 @@ object (self)
       ignore $ view#scroll_to ~x:sx ~y:sy) 
       ()
 
-  method lower_to_bottom () =
+  method! lower_to_bottom () =
     self#cache (fun () -> self#iter (fun s -> s#lower_to_bottom ())) ()
 
   (* Reads a list of list of operations

@@ -133,7 +133,7 @@ struct
     let complete_to_depth v missing =
       let pred_vertex = ref v in
       let next_vertex = ref v in
-      for i = 1 to missing - 1 do
+      for _i = 1 to missing - 1 do
 	next_vertex := Tree.V.create (Tree.V.label v);
 	HT.add tree.ghost_vertices !next_vertex ();
 	let new_ghost_edge =

@@ -27,8 +27,6 @@ open DGraphViewItem
 
 let ($) f x = f x
 
-let distance x y = if x > y then x - y else y - x
-
 class type ['vertex, 'edge, 'cluster] view = object
   inherit GnoCanvas.canvas
   method model : ('vertex, 'edge, 'cluster) DGraphModel.abstract_model
@@ -291,8 +289,8 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
       ignore $ self#set_center_scroll_region true;
       ignore $ self#set_scroll_region ~x1 ~y1 ~x2 ~y2 ;
       (* Attach zoom events *)
-      ignore $ self#event#connect#key_press self#zoom_keys_ev;
-      ignore $ self#event#connect#scroll self#zoom_mouse_ev;
+      ignore $ self#event#connect#key_press ~callback:self#zoom_keys_ev;
+      ignore $ self#event#connect#scroll ~callback:self#zoom_mouse_ev;
 
   end
 
@@ -305,7 +303,7 @@ module Make(V: Sig.HASHABLE)(E: Sig.HASHABLE)(C: Sig.HASHABLE) = struct
     in
     (* Grab focus to process keyboard input *)
     ignore $ canvas#event#connect#enter_notify 
-      (fun _ -> canvas#misc#grab_focus () ; false); 
+      ~callback:(fun _ -> canvas#misc#grab_focus () ; false); 
     let view = 
       new view ?delay_node ?delay_edge ?delay_cluster
         (Gobject.unsafe_cast canvas#as_widget) 

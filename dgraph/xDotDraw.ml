@@ -59,8 +59,6 @@ type draw_state = {
   mutable style : style_attr list
 }
 
-let copy_draw_st ds = { ds with fill_color = ds.fill_color }
-
 let default_draw_state () =
   { fill_color = "#FFFFFF";
     pen_color = "#000000";
@@ -194,7 +192,7 @@ let get_word state =
   get' ()
 
 (* Gets a rendering or attribute operation *)
-let rec get_op_id state =
+let get_op_id state =
   let tok = get_word state in
     match tok with
       | None ->
@@ -205,15 +203,7 @@ let rec get_op_id state =
 	  else
 	    raise NoOperationId
 
-let filter_int s =
-  let is_int = function
-    | '0' | '1' .. '9' -> true
-    | _ -> false in
-  let buf = Buffer.create 30 in
-  String.iter (fun c -> if is_int c then Buffer.add_char buf c) s;
-  Buffer.contents buf
-
-let rec get_int state =
+let get_int state =
   match get_word state with
     | Some w -> begin
 	(*let w' = filter_int w in*)
@@ -223,7 +213,7 @@ let rec get_int state =
       end
     | None -> raise (ParseError "Cannot parse int")
 
-let rec get_float state =
+let get_float state =
   match get_word state with
     | Some w -> begin
 	try float_of_string w
@@ -232,7 +222,7 @@ let rec get_float state =
       end
     | None -> raise (ParseError "Cannot parse float")
 
-let rec get_pos state =
+let get_pos state =
   try
     let x0 = get_float state in
     let y0 = get_float state in

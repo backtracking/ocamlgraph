@@ -130,7 +130,7 @@ module GmlPrinter =
     (G)
     (struct
        let node (v: G.V.label) = ["label", Gml.Int (int_of_string v.label)]
-       let edge (e: G.E.label) = []
+       let edge (_: G.E.label) = []
      end)
     
  

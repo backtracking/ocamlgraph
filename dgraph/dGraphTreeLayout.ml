@@ -25,8 +25,6 @@
 
 open Graph
 
-let ($) f x = f x
-
 let set_if_none field value = match field with
   | None -> Some value
   | Some a -> Some a
@@ -416,7 +414,7 @@ struct
 
   let vattrs_to_draw_operations v vattributes geometry_info =
     let vattrs = try HV.find vattributes v with Not_found -> assert false in
-    let width, height = get_dimensions v geometry_info in
+    let width, _height = get_dimensions v geometry_info in
     (* Vertex shape drawing *)
     XDotDraw.Pen_color (string_color32 (the vattrs.color)) ::
       XDotDraw.Style (List.map (style_to_style_attr) vattrs.style) ::
@@ -520,7 +518,7 @@ struct
       let y2 = y +. h in
       find_corners q [| x1, y1; x1, y2; x2, y2; x2, y1 |];;
 
-  let cluster_to_cluster_layout tree c clusters geometry_info =
+  let cluster_to_cluster_layout _tree c clusters geometry_info =
     let border_padding = 10. in
     let vertices =
       try Hashtbl.find_all clusters c
@@ -559,18 +557,6 @@ struct
         (*cut_corners_array corners_array*)[];
       XDot.c_ldraw = []
     };;
-
-  let build_cluster_layouts tree geometry_info =
-    let cluster_layouts = Hashtbl.create 7 in
-    let clusters = get_clusters tree in
-    let visited = ref [] in
-    Hashtbl.iter
-      (fun c _ ->
-        if not (List.mem c !visited) then
-          let lay = cluster_to_cluster_layout tree c clusters geometry_info in
-          Hashtbl.add cluster_layouts c.sg_name lay)
-    clusters;
-    cluster_layouts;;
 
   (* FOR EDGE *)
 
@@ -751,7 +737,7 @@ struct
       edge_layouts = edge_layouts;
       cluster_layouts = cluster_layouts;
       bbox =
-        let ((x1,y1), (x2,y2) as bb) =
+        let ((_,_), (_,_) as bb) =
           HV.fold
             (fun v (x, y) ((minx, miny),(maxx, maxy) as acc) ->
               if TreeManipulation.is_ghost_node v then acc
@@ -833,7 +819,7 @@ struct
     bind_tree_tables forward_table backward_table root geometry_info
 
   (* VERTICES *)
-  let rec parse_n_draw_operations operations (abs, ord as pos) =
+  let parse_n_draw_operations operations (abs, ord as pos) =
     let polygon pts =
       let length = float (Array.length pts) in
       let oldabssum, oldordsum =
@@ -864,7 +850,7 @@ struct
         let translate_x,translate_y =
           node_pos_x-.initial_node_pos_x,node_pos_y-.initial_node_pos_y
         in
-        let (x,y as pos) = (* same affine move as the attached node has had*)
+        let (_,_ as pos) = (* same affine move as the attached node has had*)
           pos_x+.translate_x,
           pos_y+.translate_y
         in
@@ -872,9 +858,9 @@ struct
       | op -> op)
       operations
 
-  let parse_vertex_layout tree v orig_layout geometry_info =
+  let parse_vertex_layout _tree v orig_layout geometry_info =
     let width, height = get_dimensions v geometry_info in
-    let (abs, ord as pos) = get_position v geometry_info in
+    let (_,_ as pos) = get_position v geometry_info in
     { XDot.n_name = orig_layout.XDot.n_name;
       n_pos = pos;
       n_bbox = XDot.bounding_box pos width height;
@@ -914,7 +900,7 @@ struct
           (parse_e_ldraw_operations tl src dst geometry_info)
       | op :: tl -> op :: (parse_e_ldraw_operations tl src dst geometry_info);;
 
-  let parse_edge_layout tree e layout geometry_info =
+  let parse_edge_layout _tree e layout geometry_info =
     let src = Tree.E.src e and dst = Tree.E.dst e in
     {
       XDot.e_draw =
@@ -928,8 +914,6 @@ struct
     };;
 
   (* CLUSTERS *)
-  let parse_cluster_layout tree c global_layout geometry_info =
-    ();;
 
   let from_model tree root model =
     let geometry_info =
@@ -972,7 +956,7 @@ struct
       edge_layouts = edge_layouts;
       cluster_layouts = cluster_layouts;
       bbox =
-        let ((x1,y1), (x2,y2) as bb) =
+        let ((_,_), (_,_) as bb) =
           HV.fold
             (fun v (x, y) ((minx, miny),(maxx, maxy) as acc) ->
               if TreeManipulation.is_ghost_node v then acc

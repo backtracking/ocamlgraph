@@ -33,8 +33,6 @@ type t_gtk_obj = GnomeCanvas.re_p GnoCanvas.item
 module Node = struct
   type t = string * (t_shape * t_coord * t_gtk_obj) option
   let id n = fst n
-  let shape n = match snd n with None -> None
-    | Some (s, _, _) -> Some s
   let coord n = match snd n with None -> None
     | Some (_, c, _) -> Some c
   let item n = match snd n with None -> None
@@ -69,7 +67,7 @@ let get_info attr_list_list =
     | (Dot_ast.Ident "height"), Some (Dot_ast.String s) ->
         (* Format.printf "found height = %s@." s; *)
         shp, p, w, (Some s)
-    | (Dot_ast.Ident id), Some (Dot_ast.String s) ->
+    | (Dot_ast.Ident _), Some (Dot_ast.String _) ->
         (* Format.printf "found %s = %s -> ignored@." id s; *)
         (shp, p, w, h)
     | _ -> (shp, p,w,h)
@@ -240,8 +238,8 @@ let graph_event env ev =
 
 let node_event env node ev =
   begin match ev with
-    | `ENTER_NOTIFY ev -> Cb.enter_node env node
-    | `LEAVE_NOTIFY ev -> Cb.leave_node env node
+    | `ENTER_NOTIFY _ -> Cb.enter_node env node
+    | `LEAVE_NOTIFY _ -> Cb.leave_node env node
     | `BUTTON_PRESS ev -> 
         begin match GdkEvent.Button.button ev with
           | 1 -> Cb.button_one_press_on_node env node
@@ -258,7 +256,7 @@ let add_node_items env graph =
   let do_it n = 
     match get_obj n with 
       | None -> ()
-      | Some n_rect -> ignore (n_rect#connect#event (node_event env n))
+      | Some n_rect -> ignore (n_rect#connect#event ~callback:(node_event env n))
   in B.G.iter_vertex do_it graph
 
 let remove_node_items graph =
@@ -274,7 +272,7 @@ let install_image (canvas :GnoCanvas.canvas) png_file =
   let w = GdkPixbuf.get_width im in
   let h = GdkPixbuf.get_height im in
     (* Format.printf "GnoCanvas.pixbuf size = %dx%d@." w h; *)
-  let _ = canvas#set_scroll_region 0. 0. (float w) (float h) in
+  let _ = canvas#set_scroll_region ~x1:0. ~y1:0. ~x2:(float w) ~y2:(float h) in
   let px = GnoCanvas.pixbuf ~x:0. ~y:0. ~pixbuf:im canvas#root in
     px 
 
@@ -295,7 +293,7 @@ let open_dot_file env (canvas :GnoCanvas.canvas) ?(dot_cmd="dot") dot_file =
     * *)
   let png_file = png_graph_image dot_cmd dot_file png_file in
   let pixbuf = install_image canvas png_file in
-  let _ = pixbuf#connect#event (graph_event env) in
+  let _ = pixbuf#connect#event ~callback:(graph_event env) in
   let _ = add_node_items env graph in 
   let _ = pixbuf#lower_to_bottom () in
     (graph, pixbuf)

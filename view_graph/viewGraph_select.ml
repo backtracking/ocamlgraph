@@ -18,12 +18,6 @@
 (** This module can be used to add some selection feature to [ViewGraph].
 * see [show_help] for more details. *)
 
-let debug format =
-  if true
-  then Format.printf format
-  else Format.ifprintf Format.std_formatter format
-
-
 (** To manage the lists of neighbours of the selected node.
 * The type [t] is made of a boolean [b] and 3 lists [(l1, l2, l3)].
 * [b] tells is [l1] is a list of predecessors (vs. successors).
@@ -123,19 +117,19 @@ let center_selected_node state =
             let sx = x -. (w /. 2.) in
             let sy = y -. (h /. 2.) in
               (* Format.printf "scroll to = %f x %f (world) @." sx sy; *)
-            let sx, sy = canvas#w2c sx sy in
+            let sx, sy = canvas#w2c ~wx:sx ~wy:sy in
               (* this is to handle zoom factor *)
               (* Format.printf "scroll to = %d x %d (canvas) @." sx sy; *)
-            canvas#scroll_to sx sy
+            canvas#scroll_to ~x:sx ~y:sy
 
 let key_press state ev =
   let canvas = state.w.canvas in
   let (x, y) = canvas#get_scroll_offsets in
   match GdkEvent.Key.keyval ev with
-  | k when k = GdkKeysyms._Up -> canvas#scroll_to x (y-20) ; true
-  | k when k = GdkKeysyms._Down -> canvas#scroll_to x (y+20) ; true
-  | k when k = GdkKeysyms._Left -> canvas#scroll_to (x-10) y ; true
-  | k when k = GdkKeysyms._Right -> canvas#scroll_to (x+10) y ; true
+  | k when k = GdkKeysyms._Up -> canvas#scroll_to ~x ~y:(y-20) ; true
+  | k when k = GdkKeysyms._Down -> canvas#scroll_to ~x ~y:(y+20) ; true
+  | k when k = GdkKeysyms._Left -> canvas#scroll_to ~x:(x-10) ~y ; true
+  | k when k = GdkKeysyms._Right -> canvas#scroll_to ~x:(x+10) ~y ; true
   | k when k = GdkKeysyms._Page_Down -> change_zoom state 0.1; true
   | k when k = GdkKeysyms._Page_Up -> change_zoom state (-0.1); true
   | k when k = GdkKeysyms._Home -> center_selected_node state; true
@@ -152,7 +146,7 @@ let init options (canvas : GnoCanvas.canvas) pack_txt =
   let state = 
     { w = w; opt = options; gui_sel = [| None; None |] ;
       graph = None ; ppu = 1.; selected = None; neighbours = None } in
-  let _ = canvas#event#connect#after#key_press (key_press state) in
+  let _ = canvas#event#connect#after#key_press ~callback:(key_press state) in
     state
 
 let sel_1_bitmap () = Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001"
@@ -268,21 +262,21 @@ module SelectCb (UserCb : ViewGraph_core.SigCb) = struct
     select_node state (Some n);
     UserCb.button_one_press_on_node (u_env) n
 
-  let button_two_press_on_node ((u_env, state) as env) n = 
+  let button_two_press_on_node ((u_env, _state) as env) n = 
     button_two_press_on_graph env;
     UserCb.button_two_press_on_node (u_env) n
 
-  let button_three_press_on_node ((u_env, state) as env) n = 
+  let button_three_press_on_node ((u_env, _state) as env) n = 
     button_three_press_on_graph env;
     UserCb.button_three_press_on_node (u_env) n
 
-  let enter_node (u_env, state) n =
+  let enter_node (u_env, _state) n =
     begin match ViewGraph_core.get_obj n with None -> assert false
       | Some n_item -> n_item#set [`OUTLINE_COLOR "red"]
     end;
     UserCb.enter_node (u_env) n
 
-  let leave_node (u_env, state) n =
+  let leave_node (u_env, _state) n =
     begin match ViewGraph_core.get_obj n with None -> assert false
       | Some n_item -> n_item#set [`NO_OUTLINE_COLOR]
     end;

@@ -62,8 +62,6 @@ end
 (** This functor creates a model from a graph *)
 module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
 
-  open G
-
   type cluster = string
 
   class model:

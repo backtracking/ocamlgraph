@@ -27,7 +27,6 @@
 
 open Graph
 open XDot
-open Printf
 
 exception DotError of string
 
@@ -79,7 +78,7 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
     method iter_vertex f = G.iter_vertex f g
     method iter_associated_vertex f v = f v
     method iter_clusters f =
-      Hashtbl.iter (fun k v -> f k) layout.X.cluster_layouts
+      Hashtbl.iter (fun k _ -> f k) layout.X.cluster_layouts
 
     (* Membership functions *)
     method find_edge = try G.find_edge g with Not_found -> assert false
@@ -160,7 +159,6 @@ module DotParser =
 
 module DotModel = struct
   type cluster = string
-  type clusters_hash = (cluster, Graph.Dot_ast.attr list) Hashtbl.t
   class model g clusters_hash bounding_box
     : [DotG.vertex, DotG.edge, cluster] abstract_model
     =

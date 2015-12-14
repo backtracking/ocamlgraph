@@ -17,7 +17,6 @@
 
 (* This file is a contribution of Benjamin Vadon *)
 
-open Format
 open Ed_hyper
 open Ed_graph
 
@@ -180,7 +179,7 @@ let set_successor_edge turtle distance steps line =
   in
   let start = 
     let (x,y) = from_turtle turtle.pos in [(float x); (float y)] in 
-  let turtle,lpoints = list_points turtle start steps in
+  let _,lpoints = list_points turtle start steps in
    let points = Array.of_list lpoints in
   line#set [`POINTS points]
 
@@ -271,7 +270,7 @@ let color_change_successor_edge (line:GnoCanvas.line) color =
 let draw_intern_edge vw edge tv tw canvas =
   let bpath,line = 
     try
-      let _,line as pl = H2.find intern_edges vw in
+      let _,_ as pl = H2.find intern_edges vw in
       pl
     with Not_found ->
       let bpath = GnomeCanvas.PathDef.new_path () in
@@ -336,7 +335,7 @@ let hide_succesor_edge vw =
 
 
 (* graph drawing *)
-let draw_graph root canvas  =
+let draw_graph _root canvas  =
   (* vertexes *)
   G.iter_vertex
     (fun v -> 

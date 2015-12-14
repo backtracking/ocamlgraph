@@ -24,10 +24,6 @@
 (**************************************************************************)
 
 open Graph
-open DGraphView
-open Printf
-
-let ($) f x = f x
 
 let element = function
   | [] -> invalid_arg "empty list in element"
