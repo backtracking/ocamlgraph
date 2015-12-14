@@ -1,0 +1,5 @@
+S src
+S lib
+B src
+B lib
+FLG -w +a -w -4 -w -44
