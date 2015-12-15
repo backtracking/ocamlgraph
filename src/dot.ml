@@ -44,30 +44,29 @@ let get_string = function
   | Html s -> s
 
 module Parse
-  (B : Builder.S)
-  (L : sig
-     val node : node_id -> attr list -> B.G.V.label
+    (B : Builder.S)
+    (L : sig
+       val node : node_id -> attr list -> B.G.V.label
        (** how to build the node label out of the set of attributes *)
-     val edge : attr list -> B.G.E.label
+       val edge : attr list -> B.G.E.label
        (** how to build the edge label out of the set of attributes *)
-   end) =
+     end) =
 struct
 
   module Attr = struct
     module M = 
       Map.Make
         (struct
-           type t = id
-           let compare : t -> t -> int = Pervasives.compare
-         end)
-    type t = id option M.t
+          type t = id
+          let compare : t -> t -> int = Pervasives.compare
+        end)
     let empty = M.empty
     let add = List.fold_left (fun a (x,v) -> M.add x v a)
     let addl = List.fold_left add
     let list a = M.fold (fun x v l -> (x,v) :: l) a []
   end
 
-    let create_graph_and_clusters dot =
+  let create_graph_and_clusters dot =
     (* pass 1*)
 
     (* collect node attributes *)
@@ -83,45 +82,45 @@ struct
 
     let add_node_attr id al =
       let l = try Hashtbl.find node_attr id
-              with Not_found -> !def_node_attr in
+        with Not_found -> !def_node_attr in
       Hashtbl.replace node_attr id (Attr.addl l al) in
 
     let add_clust_attr id_opt al =
       match id_opt with
-	| Some id ->
-	    let s = get_string id in
-	    let l = try Hashtbl.find clust_attr s
-                    with Not_found -> !def_clust_attr in
-	    Hashtbl.replace clust_attr s (Attr.addl l al)
-	| _ -> () in
+      | Some id ->
+        let s = get_string id in
+        let l = try Hashtbl.find clust_attr s
+          with Not_found -> !def_clust_attr in
+        Hashtbl.replace clust_attr s (Attr.addl l al)
+      | _ -> () in
 
     let add_clust_node id_cluster id_node =
       let id_nodes = try Hashtbl.find clust_nodes id_cluster
-      with Not_found -> [] in
+        with Not_found -> [] in
       Hashtbl.add clust_nodes id_cluster (id_node :: id_nodes) in
 
     let rec collect_node_attr cluster_op stmts =
       List.iter (
         function
-          | Node_stmt (id, al) ->
-	      add_node_attr id al;
-	      begin match cluster_op with
-		| Some id_cluster -> add_clust_node id_cluster id
-		| _ -> ()
-	      end
-          | Attr_node al -> def_node_attr := Attr.addl !def_node_attr al
-          | Edge_stmt (NodeId id, nl, _) ->
-              add_node_attr id [];
-              List.iter (function | NodeId id -> add_node_attr id []
-			          | _ -> ()) nl
-          | Subgraph (SubgraphDef (id, stmts)) ->
-	      collect_node_attr (Some id) stmts
-	  | Attr_graph al ->
-	      begin match cluster_op with
-		| Some id -> add_clust_attr id al
-		| None -> ()
-	      end
-          | _ -> ()
+        | Node_stmt (id, al) ->
+          add_node_attr id al;
+          begin match cluster_op with
+            | Some id_cluster -> add_clust_node id_cluster id
+            | _ -> ()
+          end
+        | Attr_node al -> def_node_attr := Attr.addl !def_node_attr al
+        | Edge_stmt (NodeId id, nl, _) ->
+          add_node_attr id [];
+          List.iter (function | NodeId id -> add_node_attr id []
+                              | _ -> ()) nl
+        | Subgraph (SubgraphDef (id, stmts)) ->
+          collect_node_attr (Some id) stmts
+        | Attr_graph al ->
+          begin match cluster_op with
+            | Some id -> add_clust_attr id al
+            | None -> ()
+          end
+        | _ -> ()
       ) stmts
     in
     collect_node_attr None dot.stmts;
@@ -129,37 +128,37 @@ struct
     (* pass 2: build the graph and the clusters *)
     let def_edge_attr = ref Attr.empty in
     let nodes = Hashtbl.create 97 in
-    let node g id l =
+    let node g id _ =
       try
-	g, Hashtbl.find nodes id
+        g, Hashtbl.find nodes id
       with Not_found ->
-	let l = try Hashtbl.find node_attr id with Not_found -> Attr.empty in
-	let n = B.G.V.create (L.node id [Attr.list l]) in
-	Hashtbl.add nodes id n;
-	B.add_vertex g n, n
+        let l = try Hashtbl.find node_attr id with Not_found -> Attr.empty in
+        let n = B.G.V.create (L.node id [Attr.list l]) in
+        Hashtbl.add nodes id n;
+        B.add_vertex g n, n
     in
     let rec add_stmts g stmts =
       List.fold_left
         (fun g s -> match s with
            | Node_stmt (id, al) ->
-               let g,_ = node g id al in g
+             let g,_ = node g id al in g
            | Edge_stmt (NodeId id, nl, al) ->
-               let al = Attr.addl !def_edge_attr al in
-               let el = L.edge [Attr.list al] in
-               let g,vn = node g id [] in
-                 fst (List.fold_left
-                       (fun (g,pvn) m -> match m with
-                          | NodeId idm ->
-                              let g,vm = node g idm [] in
-                              let e = B.G.E.create pvn el vm in
-                                ((B.add_edge_e g e),vm)
-                          | NodeSub _ ->
-                              (g,pvn))
-                       (g,vn) nl)
+             let al = Attr.addl !def_edge_attr al in
+             let el = L.edge [Attr.list al] in
+             let g,vn = node g id [] in
+             fst (List.fold_left
+                    (fun (g,pvn) m -> match m with
+                       | NodeId idm ->
+                         let g,vm = node g idm [] in
+                         let e = B.G.E.create pvn el vm in
+                         ((B.add_edge_e g e),vm)
+                       | NodeSub _ ->
+                         (g,pvn))
+                    (g,vn) nl)
            | Attr_edge al ->
-               def_edge_attr := Attr.addl !def_edge_attr al; g
+             def_edge_attr := Attr.addl !def_edge_attr al; g
            | Subgraph (SubgraphDef (_, stmts)) ->
-               add_stmts g stmts
+             add_stmts g stmts
            | _ -> g
         )
         g stmts in
@@ -188,10 +187,10 @@ struct
     let lb = Lexing.from_channel c in
     let dot =
       try
-	Dot_parser.file Dot_lexer.token lb
+        Dot_parser.file Dot_lexer.token lb
       with Parsing.Parse_error ->
-	let n = Lexing.lexeme_start lb in
-	failwith (Printf.sprintf "Dot.parse: parse error character %d" n)
+        let n = Lexing.lexeme_start lb in
+        failwith (Printf.sprintf "Dot.parse: parse error character %d" n)
     in
     close_in c;
     dot
@@ -203,17 +202,13 @@ struct
   let parse f =
     fst (create_graph_and_clusters (parse_dot f))
 
-  let parse_with_bb_from_chan c =
-    let dot = parse_dot_from_chan c in
-    create_graph_and_clusters dot, get_graph_bb dot.stmts
-
   let parse_bounding_box_and_clusters f =
     let dot = parse_dot f in
     let graph, clusters = create_graph_and_clusters dot in
     match get_graph_bb dot.stmts with
-      | Some bounding_box ->
-	  graph, bounding_box, clusters
-      | None ->
-	  failwith "Cannot read bounding box in xdot file"
+    | Some bounding_box ->
+      graph, bounding_box, clusters
+    | None ->
+      failwith "Cannot read bounding box in xdot file"
 
 end

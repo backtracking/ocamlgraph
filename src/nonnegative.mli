@@ -17,10 +17,6 @@
 
 (* This module is a contribution of Yuto Takei *)
 
-open Sig
-open Blocks
-open Persistent
-
 (** Weighted graphs without negative-cycles. *)
 
 (** This graph maintains the invariant that it is free of such cycles that
@@ -30,8 +26,8 @@ open Persistent
     introduction of such a cycle is automatically prevented. *)
 
 module Imperative
-  (G: Sig.IM)
-  (W: Sig.WEIGHT with type edge = G.E.t) : sig
+    (G: Sig.IM)
+    (W: Sig.WEIGHT with type edge = G.E.t) : sig
 
   include Sig.IM with module V = G.V and module E = G.E
 
@@ -42,14 +38,14 @@ end
 
 (** Persistent graphs with negative-cycle prevention *)
 module Persistent
-  (G: Sig.P)
-  (W: Sig.WEIGHT with type edge = G.E.t) : sig
+    (G: Sig.P)
+    (W: Sig.WEIGHT with type edge = G.E.t) : sig
 
   include Sig.P with module V = G.V and module E = G.E
 
   exception Negative_cycle of G.E.t list
-    (** Exception [NegativeCycle] is raised whenever a negative cycle
-        is introduced for the first time (either with [add_edge]
-        or [add_edge_e]) *)
+  (** Exception [NegativeCycle] is raised whenever a negative cycle
+      is introduced for the first time (either with [add_edge]
+      or [add_edge_e]) *)
 
 end

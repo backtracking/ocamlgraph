@@ -35,7 +35,7 @@ module type G = sig
 end
 
 module Make
-  (G : G) =
+    (G : G) =
 struct
   module M = Map.Make(G.V)
   module S = Set.Make(G.V)
@@ -63,7 +63,7 @@ struct
         let lookup n = S.min_elt (M.find n m) in
         G.add_edge_e g
           (G.E.create (lookup (G.E.src edge)) (G.E.label edge)
-          (lookup (G.E.dst edge)))
+             (lookup (G.E.dst edge)))
     in
     (* initialize map with singleton-sets for every node (of itself) *)
     let m =

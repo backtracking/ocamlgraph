@@ -16,14 +16,14 @@
 (**************************************************************************)
 
 (** This is only a test file to show how to use 
-* [ViewGraph] and [ViewGraph_select].
-* Just compile and test... (click on the Help button to know how to use it).
+ * [ViewGraph] and [ViewGraph_select].
+ * Just compile and test... (click on the Help button to know how to use it).
 *)
 
 (* Nice tutorial at :
-* http://plus.kaist.ac.kr/~shoh/ocaml/lablgtk2/lablgtk2-tutorial/book1.html
-* See also examples in :
-*  /usr/share/doc/lablgtk-2.6.0/examples/canvas/
+ * http://plus.kaist.ac.kr/~shoh/ocaml/lablgtk2/lablgtk2-tutorial/book1.html
+ * See also examples in :
+ *  /usr/share/doc/lablgtk-2.6.0/examples/canvas/
 *)
 
 (** To test to callbacks : only print messages *)
@@ -65,7 +65,7 @@ let open_file select_init_env file =
   try 
     let env = () in
     let _graph = V.open_dot_file env select_init_env file in 
-      ()
+    ()
   with ViewGraph.DotError cmd ->
     GToolbox.message_box "Error" 
       (Printf.sprintf 
@@ -73,8 +73,8 @@ let open_file select_init_env file =
 
 let open_cb select_init_env () = 
   match GToolbox.select_file ~title:"Select a dot file" () with
-    | None -> ()
-    | Some filename -> open_file select_init_env filename
+  | None -> ()
+  | Some filename -> open_file select_init_env filename
 
 let help_act_cb _ac = ViewGraph_select.show_help ()
 
@@ -87,36 +87,36 @@ let quit_cb () = GMain.Main.quit ()
 let quit_act_cb _a = quit_cb ()
 
 let menu_desc = "<ui>\
-  <menubar name='MenuBar'>\
-    <menu action='FileMenu'>\
-      <menuitem action='Open'/>\
-      <separator/>\
-      <menuitem action='Quit'/>\
-    </menu>\
-    <menu action='HelpMenu'>\
-      <menuitem action='Help'/>\
-    </menu>\
-  </menubar>\
-</ui>"
+                 <menubar name='MenuBar'>\
+                 <menu action='FileMenu'>\
+                 <menuitem action='Open'/>\
+                 <separator/>\
+                 <menuitem action='Quit'/>\
+                 </menu>\
+                 <menu action='HelpMenu'>\
+                 <menuitem action='Help'/>\
+                 </menu>\
+                 </menubar>\
+                 </ui>"
 
 let create_menu () =
   let ui_m = GAction.ui_manager () in
   let actions = GAction.action_group ~name:"Actions" () in
-    GAction.add_actions actions [
-      GAction.add_action "FileMenu" ~label:"File" ;
-      GAction.add_action "Open" ~label:"Open" ~accel:"o" 
-                         (* callback connected later *);
-      GAction.add_action "Quit" ~label:"Quit" ~accel:"q" ~callback:quit_act_cb;
-      GAction.add_action "HelpMenu" ~label:"Help" ;
-      GAction.add_action "Help" ~label:"Help" ~accel:"h" ~callback:help_act_cb;
-    ];
-    ui_m#insert_action_group actions 0 ;
-    let _ = ui_m#add_ui_from_string menu_desc in
+  GAction.add_actions actions [
+    GAction.add_action "FileMenu" ~label:"File" ;
+    GAction.add_action "Open" ~label:"Open" ~accel:"o" 
+    (* callback connected later *);
+    GAction.add_action "Quit" ~label:"Quit" ~accel:"q" ~callback:quit_act_cb;
+    GAction.add_action "HelpMenu" ~label:"Help" ;
+    GAction.add_action "Help" ~label:"Help" ~accel:"h" ~callback:help_act_cb;
+  ];
+  ui_m#insert_action_group actions 0 ;
+  let _ = ui_m#add_ui_from_string menu_desc in
 
-    let help_item = ui_m#get_widget "/MenuBar/HelpMenu" in
-    let help_item =  GtkMenu.MenuItem.cast help_item#as_widget in
-      GtkMenu.MenuItem.set_right_justified help_item true ;
-    ui_m
+  let help_item = ui_m#get_widget "/MenuBar/HelpMenu" in
+  let help_item =  GtkMenu.MenuItem.cast help_item#as_widget in
+  GtkMenu.MenuItem.set_right_justified help_item true ;
+  ui_m
 
       (*
 let create_menu2 packing open_cb =
@@ -140,16 +140,16 @@ let create_menu2 packing open_cb =
 
 let create_gui () =
   let window = GWindow.window ~title:"ViewGraph" 
-                 ~allow_shrink:true  ~allow_grow:true ()  in
+      ~allow_shrink:true  ~allow_grow:true ()  in
   let vbox = GPack.vbox ~border_width:4 ~spacing:4 ~packing:window#add () in
 
   let ui_m = create_menu () in
-    window#add_accel_group ui_m#get_accel_group ;
-    vbox#pack ~expand:false (ui_m#get_widget "/MenuBar") ;
+  window#add_accel_group ui_m#get_accel_group ;
+  vbox#pack ~expand:false (ui_m#get_widget "/MenuBar") ;
 
   let frame = GBin.frame ~label:"How to use this :" ~packing:vbox#pack () in
   let _ = GMisc.label ~text:"\n Open the Help window to know more...\n"
-            ~packing:frame#add () in
+      ~packing:frame#add () in
 
   let pack = vbox#pack ~expand:true ~fill:true in
   let canvas = ViewGraph_utils.create_scrolled_canvas pack in
@@ -162,12 +162,12 @@ let create_gui () =
   let actions = match ui_m#get_action_groups with
     | a::[] -> a | _ -> assert false
   in
-   let open_action = actions#get_action "Open" in 
+  let open_action = actions#get_action "Open" in 
   let _ = open_action#connect#activate ~callback:(open_cb select_init_env) in
-  
+
   let _ = window#connect#destroy ~callback:quit_cb in
   let _ = window#show () in
-    (canvas, select_init_env)
+  (canvas, select_init_env)
 
 let main () =
   let _ = GMain.Main.init () in

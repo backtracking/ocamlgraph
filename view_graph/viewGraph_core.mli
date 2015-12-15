@@ -16,15 +16,15 @@
 (**************************************************************************)
 
 (** ViewGraph : a library to view .dot graphs and interact with the GUI. 
-* To use it you have :
-* - first to define callbacks (see {!modtype:ViewGraph.SigCb})
-* - then instanciate the module {!module:ViewGraph.M} with your callbacks,
-* - then use {!ViewGraph.M.open_dot_file}
-* - don't forget to call {!ViewGraph.M.clear} when changing the file.
+ * To use it you have :
+ * - first to define callbacks (see {!modtype:ViewGraph.SigCb})
+ * - then instanciate the module {!module:ViewGraph.M} with your callbacks,
+ * - then use {!ViewGraph.M.open_dot_file}
+ * - don't forget to call {!ViewGraph.M.clear} when changing the file.
 *)
 
 (** raised when the call to a dot command fails.
-* The string gives the command that failed *)
+ * The string gives the command that failed *)
 exception DotError of string
 
 type t_point = float * float
@@ -63,7 +63,7 @@ module EmptyCb : SigCb with type t_env=unit
 module M (Cb : SigCb) : sig
 
   (** Open the dot file in the canvas.
-  * @raise Error if either the image or the graph fail to build *)
+   * @raise Error if either the image or the graph fail to build *)
   val open_dot_file : Cb.t_env -> GnoCanvas.canvas -> 
     ?dot_cmd:string -> string -> t_graph
 

@@ -72,7 +72,7 @@ class type ['vertex, 'edge, 'cluster] view = object
   method dst: 'edge view_item -> 'vertex view_item
 
   (** {2 Zooming} *)
-    
+
   method zoom_factor : float
   (** The current zoom factor.*)
 
@@ -94,20 +94,20 @@ class type ['vertex, 'edge, 'cluster] view = object
 
   method center_node: 'vertex view_item -> unit
   (** Center canvas on a node. *)
-    
+
   (** {2 Highlighting} *)
 
   method connect_highlighting_event: unit -> unit
 
   method highlight: ?color: int32 * int32 -> 'vertex view_item -> unit
-    (** Change the color of the given vertex item.
-	May be cancelled by [dehighlight].
-	If [color] is [primary,secondary], then
-	[primary] is used except if the current color is [primary]. In this
-	case, [secondary] is used. *)
+  (** Change the color of the given vertex item.
+      May be cancelled by [dehighlight].
+      If [color] is [primary,secondary], then
+      [primary] is used except if the current color is [primary]. In this
+      case, [secondary] is used. *)
 
   method dehighlight: 'vertex view_item -> unit
-    (** Cancel [highlight]. *)
+  (** Cancel [highlight]. *)
 
 end
 
@@ -129,8 +129,8 @@ module type S = sig
     ?show:bool ->
     (vertex, edge, cluster) DGraphModel.abstract_model ->
     (vertex, edge, cluster) view
-(** View as a Gnome Canvas.
-    Support zooming and scrolling. *)
+    (** View as a Gnome Canvas.
+        Support zooming and scrolling. *)
 
 end
 

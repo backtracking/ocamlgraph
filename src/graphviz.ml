@@ -56,13 +56,13 @@ let fprint_color_with_transparency ppf color =
 
 let fprint_string ppf s = fprintf ppf "\"%s\"" s
 (*  let s' = String.escaped s in
-  if s' = s && s <> ""
-  then fprintf ppf "%s" s
-  else fprintf ppf "\"%s\"" s'*)
+    if s' = s && s <> ""
+    then fprintf ppf "%s" s
+    else fprintf ppf "\"%s\"" s'*)
 
 let fprint_string_user ppf s =
-(*  let s = String.escaped s in*)
-    fprintf ppf "\"%s\"" s
+  (*  let s = String.escaped s in*)
+  fprintf ppf "\"%s\"" s
 
 let fprint_htmlstring_user ppf s = fprintf ppf "<%s>" s
 
@@ -119,131 +119,131 @@ module CommonAttributes = struct
   (** Attributes of graphs. *)
   type graph =
     [ `Center of bool
-        (** Centers the drawing on the page.  Default value is [false]. *)
+    (** Centers the drawing on the page.  Default value is [false]. *)
     | `Fontcolor of color
-        (** Sets the font color.  Default value is [black]. *)
+    (** Sets the font color.  Default value is [black]. *)
     | `Fontname of string
-        (** Sets the font family name.  Default value is ["Times-Roman"]. *)
+    (** Sets the font family name.  Default value is ["Times-Roman"]. *)
     | `Fontsize of int
-        (** Sets the type size (in points).  Default value is [14]. *)
+    (** Sets the type size (in points).  Default value is [14]. *)
     | `Label of string
-        (** Caption for graph drawing. *)
+    (** Caption for graph drawing. *)
     | `HtmlLabel of string
     | `Orientation of [ `Portrait | `Landscape ]
-        (** Sets the page orientation.  Default value is [`Portrait]. *)
+    (** Sets the page orientation.  Default value is [`Portrait]. *)
     | `Page of float * float
-        (** Sets the PostScript pagination unit, e.g [8.5, 11.0]. *)
+    (** Sets the PostScript pagination unit, e.g [8.5, 11.0]. *)
     | `Pagedir of [ `TopToBottom | `LeftToRight ]
-        (** Traversal order of pages.  Default value is [`TopToBottom]. *)
+    (** Traversal order of pages.  Default value is [`TopToBottom]. *)
     | `Size of float * float
-        (** Sets the bounding box of drawing (in inches). *)
+    (** Sets the bounding box of drawing (in inches). *)
     | `OrderingOut
-        (** Constrains  order of out-edges in a subgraph according to
+      (** Constrains  order of out-edges in a subgraph according to
           their file sequence *)
     ]
 
   (** Attributes of nodes. *)
   type vertex =
     [ `Color of color
-        (** Sets the color of the border of the node. Default value is [black]
-         *)
+    (** Sets the color of the border of the node. Default value is [black]
+    *)
     | `ColorWithTransparency of color_with_transparency
-        (** Sets the color of the border of the vertex with a transparency
-            component. Default value is fully opaque [black] *)
+    (** Sets the color of the border of the vertex with a transparency
+        component. Default value is fully opaque [black] *)
     | `Fontcolor of color
-        (** Sets the label font color.  Default value is [black]. *)
+    (** Sets the label font color.  Default value is [black]. *)
     | `Fontname of string
-        (** Sets the label font family name.  Default value is
-            ["Times-Roman"]. *)
+    (** Sets the label font family name.  Default value is
+        ["Times-Roman"]. *)
     | `Fontsize of int
-        (** Sets the label type size (in points).  Default value is [14]. *)
+    (** Sets the label type size (in points).  Default value is [14]. *)
     | `Height of float
-        (** Sets the minimum height.  Default value is [0.5]. *)
+    (** Sets the minimum height.  Default value is [0.5]. *)
     | `Label of string
-        (** Sets the label printed in the node. The string may include escaped
-            newlines [\n], [\l], or [\r] for center, left, and right justified
-            lines.
-            Record labels may contain recursive box lists delimited by { | }.
-        *)
+    (** Sets the label printed in the node. The string may include escaped
+        newlines [\n], [\l], or [\r] for center, left, and right justified
+        lines.
+        Record labels may contain recursive box lists delimited by { | }.
+    *)
     | `HtmlLabel of string
     | `Orientation of float
-        (** Node rotation angle, in degrees.  Default value is [0.0]. *)
+    (** Node rotation angle, in degrees.  Default value is [0.0]. *)
     | `Penwidth of float
-        (** Width of the pen (in points) used to draw the border of the node.
-            Default value is [1.0]. *)
+    (** Width of the pen (in points) used to draw the border of the node.
+        Default value is [1.0]. *)
     | `Peripheries of int
-        (** Sets  the  number  of periphery lines drawn around the polygon. *)
+    (** Sets  the  number  of periphery lines drawn around the polygon. *)
     | `Regular of bool
-        (** If [true], then the polygon is made regular, i.e. symmetric about
-            the x and y axis, otherwise  the polygon   takes   on   the  aspect
-            ratio of the label.  Default value is [false]. *)
+    (** If [true], then the polygon is made regular, i.e. symmetric about
+        the x and y axis, otherwise  the polygon   takes   on   the  aspect
+        ratio of the label.  Default value is [false]. *)
     | `Shape of
         [`Ellipse | `Box | `Circle | `Doublecircle | `Diamond
-         | `Oval | `Egg | `Triangle | `Invtriangle
-         | `Trapezium | `Invtrapezium
-         | `House | `Invhouse
-         | `Parallelogram | `Doubleoctagon | `Tripleoctagon
-         | `Mdiamond | `Mcircle | `Msquare
-         | `Star | `Underline
-         | `Note | `Tab | `Folder
-         | `Box3d | `Component  | `Promoter
-         | `Cds
-         | `Terminator | `Utr | `Primersite
-         | `Restrictionsite
-         | `Fivepoverhang | `Threepoverhang | `Noverhang
-         | `Assembly | `Signature | `Insulator | `Ribosite | `Rnastab
-         | `Proteasesite | `Proteinstab | `Rpromoter | `Rarrow
-         | `Larrow | `Lpromoter
-         | `Plaintext | `Record | `Polygon of int * float]
-        (** Sets the shape of the node.  Default value is [`Ellipse].
-            [`Polygon (i, f)] draws a polygon with [n] sides and a skewing
-            of [f]. *)
+        | `Oval | `Egg | `Triangle | `Invtriangle
+        | `Trapezium | `Invtrapezium
+        | `House | `Invhouse
+        | `Parallelogram | `Doubleoctagon | `Tripleoctagon
+        | `Mdiamond | `Mcircle | `Msquare
+        | `Star | `Underline
+        | `Note | `Tab | `Folder
+        | `Box3d | `Component  | `Promoter
+        | `Cds
+        | `Terminator | `Utr | `Primersite
+        | `Restrictionsite
+        | `Fivepoverhang | `Threepoverhang | `Noverhang
+        | `Assembly | `Signature | `Insulator | `Ribosite | `Rnastab
+        | `Proteasesite | `Proteinstab | `Rpromoter | `Rarrow
+        | `Larrow | `Lpromoter
+        | `Plaintext | `Record | `Polygon of int * float]
+    (** Sets the shape of the node.  Default value is [`Ellipse].
+        [`Polygon (i, f)] draws a polygon with [n] sides and a skewing
+        of [f]. *)
     | `Style of
         [ `Rounded | `Filled | `Solid | `Dashed | `Dotted | `Bold | `Invis ]
-        (** Sets the layout style of the node.  Several styles may be combined
-            simultaneously. *)
+    (** Sets the layout style of the node.  Several styles may be combined
+        simultaneously. *)
     | `Width of float
-        (** Sets the minimum width.  Default value is [0.75]. *)
+      (** Sets the minimum width.  Default value is [0.75]. *)
     ]
 
   (** Attributes of edges. *)
   type edge =
     [ `Color of color
-        (** Sets the edge stroke color.  Default value is [black]. *)
+    (** Sets the edge stroke color.  Default value is [black]. *)
     | `ColorWithTransparency of color_with_transparency
-        (** Sets the color of the border of the vertex with a transparency
-            component. Default value is fully opaque [black] *)
+    (** Sets the color of the border of the vertex with a transparency
+        component. Default value is fully opaque [black] *)
     | `Decorate of bool
-        (** If [true], draws a line connecting labels with their edges. *)
+    (** If [true], draws a line connecting labels with their edges. *)
     | `Dir of [ `Forward | `Back | `Both | `None ]
-        (** Sets arrow direction.  Default value is [`Forward]. *)
+    (** Sets arrow direction.  Default value is [`Forward]. *)
     | `Fontcolor of color
-        (** Sets the label font color.  Default value is [black]. *)
+    (** Sets the label font color.  Default value is [black]. *)
     | `Fontname of string
-        (** Sets the label font family name.  Default value is
-            ["Times-Roman"]. *)
+    (** Sets the label font family name.  Default value is
+        ["Times-Roman"]. *)
     | `Fontsize of int
-        (** Sets the label type size (in points).  Default value is [14]. *)
+    (** Sets the label type size (in points).  Default value is [14]. *)
     | `Label of string
-        (** Sets the label to be attached to the edge.  The string may include
-            escaped newlines [\n], [\l], or [\r] for centered, left, or right
-            justified lines. *)
+    (** Sets the label to be attached to the edge.  The string may include
+        escaped newlines [\n], [\l], or [\r] for centered, left, or right
+        justified lines. *)
     | `HtmlLabel of string
     | `Labelfontcolor of color
-        (** Sets the font color for head and tail labels.  Default value is
-            [black]. *)
+    (** Sets the font color for head and tail labels.  Default value is
+        [black]. *)
     | `Labelfontname of string
-        (** Sets the font family name for head and tail labels.  Default
-            value is ["Times-Roman"]. *)
+    (** Sets the font family name for head and tail labels.  Default
+        value is ["Times-Roman"]. *)
     | `Labelfontsize of int
-        (** Sets the font size for head and tail labels (in points).
-            Default value is [14]. *)
+    (** Sets the font size for head and tail labels (in points).
+        Default value is [14]. *)
     | `Penwidth of float
-        (** Width of the pen (in points) used to draw the edge. Default value
-            is [1.0].  *)
+    (** Width of the pen (in points) used to draw the edge. Default value
+        is [1.0].  *)
     | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ]
-        (** Sets the layout style of the edge.  Several styles may be combined
-            simultaneously. *)
+      (** Sets the layout style of the edge.  Several styles may be combined
+          simultaneously. *)
     ]
 
   (** Pretty-print. *)
@@ -338,7 +338,7 @@ module CommonAttributes = struct
   let fprint_vertex ppf = function
     | `Color a -> fprintf ppf "color=%a" fprint_color a
     | `ColorWithTransparency a ->
-        fprintf ppf "color=%a" fprint_color_with_transparency a
+      fprintf ppf "color=%a" fprint_color_with_transparency a
     | `Fontcolor a -> fprintf ppf "fontcolor=%a" fprint_color a
     | `Fontname s -> fprintf ppf "fontname=%a"  fprint_string s
     | `Fontsize i -> fprintf ppf "fontsize=%i" i
@@ -353,9 +353,6 @@ module CommonAttributes = struct
     | `Style _ -> assert false
     | `Width f -> fprintf ppf "width=%f" f
 
-  let edge_style_str =
-    node_style_str
-
   let fprint_arrow_direction ppf = function
       `Forward -> fprintf ppf "forward"
     | `Back -> fprintf ppf "back"
@@ -365,7 +362,7 @@ module CommonAttributes = struct
   let fprint_edge ppf = function
     | `Color a -> fprintf ppf "color=%a" fprint_color a
     | `ColorWithTransparency a ->
-        fprintf ppf "color=%a" fprint_color_with_transparency a
+      fprintf ppf "color=%a" fprint_color_with_transparency a
     | `Decorate b -> fprintf ppf "decorate=%b" b
     | `Dir a -> fprintf ppf "dir=%a" fprint_arrow_direction a
     | `Fontcolor a -> fprintf ppf "fontcolor=%a" fprint_color a
@@ -375,7 +372,7 @@ module CommonAttributes = struct
     | `HtmlLabel s -> fprintf ppf "label=%a" fprint_htmlstring_user s
     | `Labelfontcolor a -> fprintf ppf "labelfontcolor=%a" fprint_color a
     | `Labelfontname s -> fprintf ppf "labelfontname=\"%s\"" s
-        (* (String.escaped s) *)
+    (* (String.escaped s) *)
     | `Labelfontsize i -> fprintf ppf "labelfontsize=%i" i
     | `Penwidth f -> fprintf ppf "penwidth=%f" f
     | `Style _ -> assert false
@@ -395,10 +392,10 @@ module CommonAttributes = struct
       let rec fprint_attributes_rec ppf = function
         | [] -> ()
         | hd :: tl ->
-            fprintf ppf "%a%a@ "
-                fprint_attribute hd
-                fprint_symbseq sep;
-            fprint_attributes_rec ppf tl
+          fprintf ppf "%a%a@ "
+            fprint_attribute hd
+            fprint_symbseq sep;
+          fprint_attributes_rec ppf tl
       in
       fprintf ppf "@[<hov>%a" fprint_attributes_rec list;
       if styles <> [] then begin
@@ -406,12 +403,6 @@ module CommonAttributes = struct
       end;
       fprintf ppf "@]"
     end
-
-    let fprint_vertex_list =
-      fprint_attributes fprint_style_list fprint_vertex
-
-    let fprint_edge_list =
-      fprint_attributes fprint_style_list fprint_edge
 
 end
 
@@ -445,25 +436,25 @@ module type GRAPH = sig
 end
 
 module MakeEngine
-  (EN: ENGINE)
-  (X : sig
-     type t
-     module V : sig type t end
-     module E : sig type t val src : t -> V.t val dst : t -> V.t end
+    (EN: ENGINE)
+    (X : sig
+       type t
+       module V : sig type t end
+       module E : sig type t val src : t -> V.t val dst : t -> V.t end
 
-     val iter_vertex : (V.t -> unit) -> t -> unit
-     val iter_edges_e : (E.t -> unit) -> t -> unit
+       val iter_vertex : (V.t -> unit) -> t -> unit
+       val iter_edges_e : (E.t -> unit) -> t -> unit
 
-     val graph_attributes: t -> EN.Attributes.graph list
+       val graph_attributes: t -> EN.Attributes.graph list
 
-     val default_vertex_attributes: t -> EN.Attributes.vertex list
-     val vertex_name : V.t -> string
-     val vertex_attributes: V.t -> EN.Attributes.vertex list
+       val default_vertex_attributes: t -> EN.Attributes.vertex list
+       val vertex_name : V.t -> string
+       val vertex_attributes: V.t -> EN.Attributes.vertex list
 
-     val default_edge_attributes: t -> EN.Attributes.edge list
-     val edge_attributes: E.t -> EN.Attributes.edge list
-     val get_subgraph : V.t -> EN.Attributes.subgraph option
-   end) =
+       val default_edge_attributes: t -> EN.Attributes.edge list
+       val edge_attributes: E.t -> EN.Attributes.edge list
+       val get_subgraph : V.t -> EN.Attributes.subgraph option
+     end) =
 struct
 
   let command = ref EN.name
@@ -476,124 +467,124 @@ struct
     try
       f arg
     with
-        Error msg ->
-          Printf.eprintf "%s: %s failure\n   %s\n"
-          Sys.argv.(0) EN.name msg;
-          flush stderr;
-          exit 2
+      Error msg ->
+      Printf.eprintf "%s: %s failure\n   %s\n"
+        Sys.argv.(0) EN.name msg;
+      flush stderr;
+      exit 2
 
-    (** [fprint_graph_attributes ppf list] pretty prints a list of
-        graph attributes on the formatter [ppf].  Attributes are separated
-        by a ";". *)
-    let fprint_graph_attributes ppf list =
-       List.iter (function att ->
-         fprintf ppf "%a;@ " EN.Attributes.fprint_graph att
-       ) list
+  (** [fprint_graph_attributes ppf list] pretty prints a list of
+      graph attributes on the formatter [ppf].  Attributes are separated
+      by a ";". *)
+  let fprint_graph_attributes ppf list =
+    List.iter (function att ->
+        fprintf ppf "%a;@ " EN.Attributes.fprint_graph att
+      ) list
 
-    (** [fprint_graph ppf graph] pretty prints the graph [graph] in
-        the CGL language on the formatter [ppf]. *)
-    let fprint_graph ppf graph =
-      let module SG = Map.Make(String) in
-      let subgraphs = ref SG.empty in
+  (** [fprint_graph ppf graph] pretty prints the graph [graph] in
+      the CGL language on the formatter [ppf]. *)
+  let fprint_graph ppf graph =
+    let module SG = Map.Make(String) in
+    let subgraphs = ref SG.empty in
 
-      (* Printing nodes. *)
+    (* Printing nodes. *)
 
-      let print_nodes ppf =
-        let default_node_attributes = X.default_vertex_attributes graph in
-          if default_node_attributes  <> [] then
-            fprintf ppf "node%a;@ "
-              (fprint_square_not_empty (EN.Attributes.fprint_vertex_list COMMA))
-              default_node_attributes;
+    let print_nodes ppf =
+      let default_node_attributes = X.default_vertex_attributes graph in
+      if default_node_attributes  <> [] then
+        fprintf ppf "node%a;@ "
+          (fprint_square_not_empty (EN.Attributes.fprint_vertex_list COMMA))
+          default_node_attributes;
 
-            X.iter_vertex
-              (function node ->
-                begin match X.get_subgraph node with
-                | None -> ()
-                | Some sg ->
-                    let (sg, nodes) =
-                      if SG.mem sg.EN.Attributes.sg_name !subgraphs then
-                        SG.find sg.EN.Attributes.sg_name !subgraphs
-                      else
-                        (sg, [])
-                    in
-                      subgraphs := SG.add sg.EN.Attributes.sg_name (sg, node :: nodes) !subgraphs
-                end;
-                fprintf ppf "%s%a;@ "
-                  (X.vertex_name node)
-                  (fprint_square_not_empty (EN.Attributes.fprint_vertex_list COMMA))
-                  (X.vertex_attributes node)
-              )
-              graph
-      in
+      X.iter_vertex
+        (function node ->
+          begin match X.get_subgraph node with
+            | None -> ()
+            | Some sg ->
+              let (sg, nodes) =
+                if SG.mem sg.EN.Attributes.sg_name !subgraphs then
+                  SG.find sg.EN.Attributes.sg_name !subgraphs
+                else
+                  (sg, [])
+              in
+              subgraphs := SG.add sg.EN.Attributes.sg_name (sg, node :: nodes) !subgraphs
+          end;
+          fprintf ppf "%s%a;@ "
+            (X.vertex_name node)
+            (fprint_square_not_empty (EN.Attributes.fprint_vertex_list COMMA))
+            (X.vertex_attributes node)
+        )
+        graph
+    in
 
-      (* Printing subgraphs *)
+    (* Printing subgraphs *)
 
-      let rec print_nested_subgraphs ppf = function
-        | [] ->
-            () (* no more work to do, so terminate *)
-        | name :: worklist ->
-            let sg, nodes = SG.find name !subgraphs in
-            let children = SG.filter (fun n (sg, nodes) -> sg.EN.Attributes.sg_parent = Some name) !subgraphs in
-              fprintf ppf "@[<v 2>subgraph cluster_%s { %a%t@ %t };@]@\n"
+    let rec print_nested_subgraphs ppf = function
+      | [] ->
+        () (* no more work to do, so terminate *)
+      | name :: worklist ->
+        let sg, nodes = SG.find name !subgraphs in
+        let children = SG.filter (fun _ (sg, _) -> sg.EN.Attributes.sg_parent = Some name) !subgraphs in
+        fprintf ppf "@[<v 2>subgraph cluster_%s { %a%t@ %t };@]@\n"
 
-              name
+          name
 
-              (EN.Attributes.fprint_vertex_list SEMI)
-              sg.EN.Attributes.sg_attributes
+          (EN.Attributes.fprint_vertex_list SEMI)
+          sg.EN.Attributes.sg_attributes
 
-              (fun ppf ->
-                (List.iter (fun n -> fprintf ppf "%s;" (X.vertex_name n)) nodes)
-              )
+          (fun ppf ->
+             (List.iter (fun n -> fprintf ppf "%s;" (X.vertex_name n)) nodes)
+          )
 
-              (fun ppf ->
-                print_nested_subgraphs ppf (List.map fst (SG.bindings children))
-              );
+          (fun ppf ->
+             print_nested_subgraphs ppf (List.map fst (SG.bindings children))
+          );
 
-              print_nested_subgraphs ppf worklist
-      in
+        print_nested_subgraphs ppf worklist
+    in
 
-      let print_subgraphs ppf =
-        let root_worklist = SG.filter (fun n (sg, nodes) -> sg.EN.Attributes.sg_parent = None) !subgraphs in
-          print_nested_subgraphs ppf (List.map fst (SG.bindings root_worklist))
-      in
+    let print_subgraphs ppf =
+      let root_worklist = SG.filter (fun _ (sg, _) -> sg.EN.Attributes.sg_parent = None) !subgraphs in
+      print_nested_subgraphs ppf (List.map fst (SG.bindings root_worklist))
+    in
 
-      (* Printing edges *)
+    (* Printing edges *)
 
-      let print_edges ppf =
+    let print_edges ppf =
 
-        let default_edge_attributes = X.default_edge_attributes graph in
-        if default_edge_attributes <> [] then
-          fprintf ppf "edge%a;@ "
+      let default_edge_attributes = X.default_edge_attributes graph in
+      if default_edge_attributes <> [] then
+        fprintf ppf "edge%a;@ "
+          (fprint_square_not_empty (EN.Attributes.fprint_edge_list COMMA))
+          default_edge_attributes;
+
+      X.iter_edges_e (function edge ->
+          fprintf ppf "%s %s %s%a;@ "
+            (X.vertex_name (X.E.src edge))
+            EN.edge_arrow
+            (X.vertex_name (X.E.dst edge))
             (fprint_square_not_empty (EN.Attributes.fprint_edge_list COMMA))
-            default_edge_attributes;
+            (X.edge_attributes edge)
+        ) graph
 
-        X.iter_edges_e (function edge ->
-                          fprintf ppf "%s %s %s%a;@ "
-                            (X.vertex_name (X.E.src edge))
-                            EN.edge_arrow
-                            (X.vertex_name (X.E.dst edge))
-                            (fprint_square_not_empty (EN.Attributes.fprint_edge_list COMMA))
-                            (X.edge_attributes edge)
-                       ) graph
+    in
 
-      in
+    fprintf ppf "@[<v>%s G {@ @[<v 2>  %a"
+      EN.opening
+      fprint_graph_attributes (X.graph_attributes graph);
+    fprintf ppf "%t@ " print_nodes;
+    fprintf ppf "%t@ " print_subgraphs;
+    fprintf ppf "%t@ " print_edges;
+    fprintf ppf "@]}@]"
 
-      fprintf ppf "@[<v>%s G {@ @[<v 2>  %a"
-        EN.opening
-        fprint_graph_attributes (X.graph_attributes graph);
-      fprintf ppf "%t@ " print_nodes;
-      fprintf ppf "%t@ " print_subgraphs;
-      fprintf ppf "%t@ " print_edges;
-      fprintf ppf "@]}@]"
+  (** [output_graph oc graph] pretty prints the graph [graph] in the dot
+      language on the channel [oc]. *)
+  let output_graph oc graph =
+    let ppf = formatter_of_out_channel oc in
+    fprint_graph ppf graph;
+    pp_print_flush ppf ()
 
-    (** [output_graph oc graph] pretty prints the graph [graph] in the dot
-        language on the channel [oc]. *)
-    let output_graph oc graph =
-      let ppf = formatter_of_out_channel oc in
-      fprint_graph ppf graph;
-      pp_print_flush ppf ()
-
-  end
+end
 
 (***************************************************************************)
 (** {2 Interface with the dot engine} *)
@@ -607,227 +598,227 @@ module DotAttributes = struct
       Manual, February 4, 2002" are handled, excepted: clusterank, color,
       compound, labeljust, labelloc, ordering, rank, remincross, rotate,
       searchsize and style.
-   *)
+  *)
   type graph =
     [ CommonAttributes.graph
     | `Bgcolor of color
-        (** Sets the background color and the inital fill color. *)
+    (** Sets the background color and the inital fill color. *)
     | `BgcolorWithTransparency of color_with_transparency
-        (** Sets the background color and the inital fill color with
-            a transparency component. *)
+    (** Sets the background color and the inital fill color with
+        a transparency component. *)
     | `Comment of string
-        (** Comment string. *)
+    (** Comment string. *)
     | `Concentrate of bool
-        (** If [true], enables edge concentrators.  Default value is [false]. *)
+    (** If [true], enables edge concentrators.  Default value is [false]. *)
     | `Fontpath of string
-        (** List of directories for fonts. *)
+    (** List of directories for fonts. *)
     | `Layers of string list
-        (** List of layers. *)
+    (** List of layers. *)
     | `Margin of float
-        (** Sets the page margin (included in the page size).  Default value is
-            [0.5]. *)
+    (** Sets the page margin (included in the page size).  Default value is
+        [0.5]. *)
     | `Mclimit of float
-        (** Scale factor for mincross iterations.  Default value is [1.0]. *)
+    (** Scale factor for mincross iterations.  Default value is [1.0]. *)
     | `Nodesep of float
-        (** Sets the minimum separation between nodes, in inches.  Default
-            value is [0.25]. *)
+    (** Sets the minimum separation between nodes, in inches.  Default
+        value is [0.25]. *)
     | `Nslimit of int
-        (** If set of [f], bounds network simplex iterations by [f *
-            <number of nodes>] when ranking nodes. *)
+    (** If set of [f], bounds network simplex iterations by [f *
+        <number of nodes>] when ranking nodes. *)
     | `Nslimit1 of int
-        (** If set of [f], bounds network simplex iterations by [f *
-            <number of nodes>] when setting x-coordinates. *)
+    (** If set of [f], bounds network simplex iterations by [f *
+        <number of nodes>] when setting x-coordinates. *)
     | `Ranksep of float
-        (** Sets the minimum separation between ranks. *)
+    (** Sets the minimum separation between ranks. *)
     | `Quantum of float
-        (** If not [0.0], node label dimensions will be rounded to integral
-            multiples of it.  Default value is [0.0]. *)
+    (** If not [0.0], node label dimensions will be rounded to integral
+        multiples of it.  Default value is [0.0]. *)
     | `Rankdir of [ `TopToBottom | `LeftToRight ]
-        (** Direction of rank ordering.  Default value is [`TopToBottom]. *)
+    (** Direction of rank ordering.  Default value is [`TopToBottom]. *)
     | `Ratio of [ `Float of float | `Fill | `Compress| `Auto ]
-        (** Sets the aspect ratio. *)
+    (** Sets the aspect ratio. *)
     | `Samplepoints of int
-        (** Number of points used to represent ellipses and circles on output.
-            Default value is [8]. *)
+    (** Number of points used to represent ellipses and circles on output.
+        Default value is [8]. *)
     | `Url of string
-        (** URL associated with graph (format-dependent). *)
+      (** URL associated with graph (format-dependent). *)
     ]
 
   (** Attributes of nodes.  They include all common node attributes and
       several specific ones.  All attributes described in the "dot User's
       Manual, February 4, 2002" are handled, excepted: bottomlabel, group,
       shapefile and toplabel.
-   *)
+  *)
   type vertex =
     [ CommonAttributes.vertex
     | `Comment of string
-        (** Comment string. *)
+    (** Comment string. *)
     | `Distortion of float
-        (* TEMPORARY *)
+    (* TEMPORARY *)
     | `Fillcolor of color
-        (** Sets the fill color (used when `Style filled).  Default value
-            is [lightgrey]. *)
+    (** Sets the fill color (used when `Style filled).  Default value
+        is [lightgrey]. *)
     | `FillcolorWithTransparency of color_with_transparency
-        (** Sets the fill color (used when `Style filled) with a transparency
-            component.  Default value is fully opaque [lightgrey]. *)
+    (** Sets the fill color (used when `Style filled) with a transparency
+        component.  Default value is fully opaque [lightgrey]. *)
     | `Fixedsize of bool
-        (** If [true], forces the given dimensions to be the actual ones.
-            Default value is [false]. *)
+    (** If [true], forces the given dimensions to be the actual ones.
+        Default value is [false]. *)
     | `Layer of string
-        (** Overlay. *)
+    (** Overlay. *)
     | `Url of string
-        (** The  default  url  for  image  map  files; in PostScript files,
-            the base URL for all relative URLs, as recognized by Acrobat
-            Distiller 3.0 and up. *)
+    (** The  default  url  for  image  map  files; in PostScript files,
+        the base URL for all relative URLs, as recognized by Acrobat
+        Distiller 3.0 and up. *)
     | `Z of float
-        (** z coordinate for VRML output. *)
+      (** z coordinate for VRML output. *)
     ]
 
   (** Attributes of edges.  They include all common edge attributes and
       several specific ones.  All attributes described in the "dot User's
       Manual, February 4, 2002" are handled, excepted: lhead and ltail.
-   *)
+  *)
   type edge =
     [ CommonAttributes.edge
     | `Arrowhead of arrow_style
-        (** Sets the style of the head arrow.  Default value is [`Normal]. *)
+    (** Sets the style of the head arrow.  Default value is [`Normal]. *)
     | `Arrowsize of float
-        (** Sets the scaling factor of arrowheads.  Default value is [1.0]. *)
+    (** Sets the scaling factor of arrowheads.  Default value is [1.0]. *)
     | `Arrowtail of arrow_style
-        (** Sets the style of the tail arrow.  Default value is [`Normal]. *)
+    (** Sets the style of the tail arrow.  Default value is [`Normal]. *)
     | `Comment of string
-        (** Comment string. *)
+    (** Comment string. *)
     | `Constraint of bool
-        (** If [false], causes an edge to be ignored for rank assignment.
-            Default value is [true]. *)
+    (** If [false], causes an edge to be ignored for rank assignment.
+        Default value is [true]. *)
     | `Headlabel of string
-        (** Sets the label attached to the head arrow. *)
+    (** Sets the label attached to the head arrow. *)
     | `Headport of [ `N | `NE | `E | `SE | `S | `SW | `W | `NW ]
-        (* TEMPORARY *)
+    (* TEMPORARY *)
     | `Headurl of string
-        (** Url attached to head label if output format is ismap. *)
+    (** Url attached to head label if output format is ismap. *)
     | `Labelangle of float
-        (** Angle in degrees which head or tail label is rotated off edge.
-            Default value is [-25.0]. *)
+    (** Angle in degrees which head or tail label is rotated off edge.
+        Default value is [-25.0]. *)
     | `Labeldistance of float
-        (** Scaling factor for distance of head or tail label from node.
-            Default value is [1.0]. *)
+    (** Scaling factor for distance of head or tail label from node.
+        Default value is [1.0]. *)
     | `Labelfloat of bool
-        (** If [true], lessen constraints on edge label placement.
-            Default value is [false]. *)
+    (** If [true], lessen constraints on edge label placement.
+        Default value is [false]. *)
     | `Layer of string
-        (** Overlay. *)
+    (** Overlay. *)
     | `Minlen of int
-        (** Minimum rank distance between head an tail.  Default value is [1]. *)
+    (** Minimum rank distance between head an tail.  Default value is [1]. *)
     | `Samehead of string
-        (** Tag for head node; edge heads with the same tag are merged onto the
-            same port. *)
+    (** Tag for head node; edge heads with the same tag are merged onto the
+        same port. *)
     | `Sametail of string
-        (** Tag for tail node; edge tails with the same tag are merged onto the
-            same port. *)
+    (** Tag for tail node; edge tails with the same tag are merged onto the
+        same port. *)
     | `Taillabel of string
-        (** Sets the label attached to the tail arrow. *)
+    (** Sets the label attached to the tail arrow. *)
     | `Tailport of [ `N | `NE | `E | `SE | `S | `SW | `W | `NW ]
-        (* TEMPORARY *)
+    (* TEMPORARY *)
     | `Tailurl of string
-        (** Url attached to tail label if output format is ismap. *)
+    (** Url attached to tail label if output format is ismap. *)
     | `Weight of int
-        (** Sets the integer cost of stretching the edge.  Default value is
-            [1]. *)
+      (** Sets the integer cost of stretching the edge.  Default value is
+          [1]. *)
     ]
 
-    type subgraph = {
-      sg_name : string;
-      sg_attributes : vertex list;
-      sg_parent : string option;
-    }
+  type subgraph = {
+    sg_name : string;
+    sg_attributes : vertex list;
+    sg_parent : string option;
+  }
 
-    (** {4 Pretty-print of attributes} *)
+  (** {4 Pretty-print of attributes} *)
 
-    let rec fprint_string_list ppf = function
+  let rec fprint_string_list ppf = function
       [] -> ()
-      | [hd] -> fprintf ppf "%s" hd
-      | hd :: tl -> fprintf ppf "%s,%a" hd fprint_string_list tl
+    | [hd] -> fprintf ppf "%s" hd
+    | hd :: tl -> fprintf ppf "%s,%a" hd fprint_string_list tl
 
-    let fprint_ratio ppf = function
-        `Float f -> fprintf ppf "%f" f
-      | `Fill -> fprintf ppf "fill"
-      | `Compress -> fprintf ppf "compress"
-      | `Auto -> fprintf ppf "auto"
+  let fprint_ratio ppf = function
+      `Float f -> fprintf ppf "%f" f
+    | `Fill -> fprintf ppf "fill"
+    | `Compress -> fprintf ppf "compress"
+    | `Auto -> fprintf ppf "auto"
 
-    let fprint_graph ppf = function
-        #CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
-      | `Bgcolor a -> fprintf ppf "bgcolor=%a" fprint_color a
-      | `BgcolorWithTransparency a ->
-          fprintf ppf "bgcolor=%a" fprint_color_with_transparency a
-      | `Comment s -> fprintf ppf "comment=%a" fprint_string s
-      | `Concentrate b -> fprintf ppf "concentrate=%b" b
-      | `Fontpath s -> fprintf ppf "fontpath=%a" fprint_string s
-      | `Layers s -> fprintf ppf "layers=%a" fprint_string_list s
-      | `Margin f -> fprintf ppf "margin=%f" f
-      | `Mclimit f -> fprintf ppf "mclimit=%f" f
-      | `Nodesep f -> fprintf ppf "nodesep=%f" f
-      | `Nslimit i -> fprintf ppf "nslimit=%i" i
-      | `Nslimit1 i -> fprintf ppf "nslimit1=%i" i
-      | `Ranksep f -> fprintf ppf "ranksep=%f" f
-      | `Quantum f -> fprintf ppf "quantum=%f" f
-      | `Rankdir a -> fprintf ppf "rankdir=%a" fprint_dir a
-      | `Ratio a -> fprintf ppf "ratio=%a" fprint_ratio a
-      | `Samplepoints i -> fprintf ppf "samplepoints=%i" i
-      | `Url s -> fprintf ppf "URL=\"%s\"" s (*(String.escaped s)*)
+  let fprint_graph ppf = function
+    #CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
+    | `Bgcolor a -> fprintf ppf "bgcolor=%a" fprint_color a
+    | `BgcolorWithTransparency a ->
+      fprintf ppf "bgcolor=%a" fprint_color_with_transparency a
+    | `Comment s -> fprintf ppf "comment=%a" fprint_string s
+    | `Concentrate b -> fprintf ppf "concentrate=%b" b
+    | `Fontpath s -> fprintf ppf "fontpath=%a" fprint_string s
+    | `Layers s -> fprintf ppf "layers=%a" fprint_string_list s
+    | `Margin f -> fprintf ppf "margin=%f" f
+    | `Mclimit f -> fprintf ppf "mclimit=%f" f
+    | `Nodesep f -> fprintf ppf "nodesep=%f" f
+    | `Nslimit i -> fprintf ppf "nslimit=%i" i
+    | `Nslimit1 i -> fprintf ppf "nslimit1=%i" i
+    | `Ranksep f -> fprintf ppf "ranksep=%f" f
+    | `Quantum f -> fprintf ppf "quantum=%f" f
+    | `Rankdir a -> fprintf ppf "rankdir=%a" fprint_dir a
+    | `Ratio a -> fprintf ppf "ratio=%a" fprint_ratio a
+    | `Samplepoints i -> fprintf ppf "samplepoints=%i" i
+    | `Url s -> fprintf ppf "URL=\"%s\"" s (*(String.escaped s)*)
 
-    let fprint_vertex ppf = function
-        #CommonAttributes.vertex as att ->
-          CommonAttributes.fprint_vertex ppf att
-      | `Comment s -> fprintf ppf "comment=%a" fprint_string s
-      | `Distortion f -> fprintf ppf "distortion=%f" f
-      | `Fillcolor a -> fprintf ppf "fillcolor=%a" fprint_color a
-      | `FillcolorWithTransparency a ->
-          fprintf ppf "fillcolor=%a" fprint_color_with_transparency a
-      | `Fixedsize b -> fprintf ppf "fixedsize=%b" b
-      | `Layer s -> fprintf ppf "layer=%a" fprint_string s
-      | `Url s -> fprintf ppf "URL=\"%s\"" s (*(String.escaped s)*)
-      | `Z f -> fprintf ppf "z=%f" f
+  let fprint_vertex ppf = function
+    #CommonAttributes.vertex as att ->
+    CommonAttributes.fprint_vertex ppf att
+    | `Comment s -> fprintf ppf "comment=%a" fprint_string s
+    | `Distortion f -> fprintf ppf "distortion=%f" f
+    | `Fillcolor a -> fprintf ppf "fillcolor=%a" fprint_color a
+    | `FillcolorWithTransparency a ->
+      fprintf ppf "fillcolor=%a" fprint_color_with_transparency a
+    | `Fixedsize b -> fprintf ppf "fixedsize=%b" b
+    | `Layer s -> fprintf ppf "layer=%a" fprint_string s
+    | `Url s -> fprintf ppf "URL=\"%s\"" s (*(String.escaped s)*)
+    | `Z f -> fprintf ppf "z=%f" f
 
-    let fprint_port ppf = function
-        `N -> fprintf ppf "n"
-      | `NE -> fprintf ppf "ne"
-      | `E -> fprintf ppf "e"
-      | `SE -> fprintf ppf "se"
-      | `S -> fprintf ppf "s"
-      | `SW -> fprintf ppf "sw"
-      | `W -> fprintf ppf "w"
-      | `NW -> fprintf ppf "nw"
+  let fprint_port ppf = function
+      `N -> fprintf ppf "n"
+    | `NE -> fprintf ppf "ne"
+    | `E -> fprintf ppf "e"
+    | `SE -> fprintf ppf "se"
+    | `S -> fprintf ppf "s"
+    | `SW -> fprintf ppf "sw"
+    | `W -> fprintf ppf "w"
+    | `NW -> fprintf ppf "nw"
 
-    let fprint_edge ppf = function
-        #CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att
-      | `Arrowhead a -> fprintf ppf "arrowhead=%a" fprint_arrow_style a
-      | `Arrowsize f -> fprintf ppf "arrowsize=%f" f
-      | `Arrowtail a -> fprintf ppf "arrowtail=%a" fprint_arrow_style a
-      | `Comment s -> fprintf ppf "comment=%a" fprint_string s
-      | `Constraint b -> fprintf ppf "constraint=%b" b
-      | `Headlabel s -> fprintf ppf "headlabel=%a" fprint_string s
-      | `Headport a -> fprintf ppf "headport=%a" fprint_port a
-      | `Headurl s -> fprintf ppf "headURL=%a" fprint_string s
-      | `Labelangle f -> fprintf ppf "labelangle=%f" f
-      | `Labeldistance f -> fprintf ppf "labeldistance=%f" f
-      | `Labelfloat b -> fprintf ppf "labelfloat=%b" b
-      | `Layer s -> fprintf ppf "layer=%a" fprint_string s
-      | `Minlen i -> fprintf ppf "minlen=%i" i
-      | `Samehead s -> fprintf ppf "samehead=%a" fprint_string s
-      | `Sametail s -> fprintf ppf "sametail=%a" fprint_string s
-      | `Taillabel s -> fprintf ppf "taillabel=%a" fprint_string s
-      | `Tailport a -> fprintf ppf "tailport=%a" fprint_port a
-      | `Tailurl s -> fprintf ppf "tailURL=%a" fprint_string s
-      | `Weight i -> fprintf ppf "weight=%i" i
+  let fprint_edge ppf = function
+    #CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att
+    | `Arrowhead a -> fprintf ppf "arrowhead=%a" fprint_arrow_style a
+    | `Arrowsize f -> fprintf ppf "arrowsize=%f" f
+    | `Arrowtail a -> fprintf ppf "arrowtail=%a" fprint_arrow_style a
+    | `Comment s -> fprintf ppf "comment=%a" fprint_string s
+    | `Constraint b -> fprintf ppf "constraint=%b" b
+    | `Headlabel s -> fprintf ppf "headlabel=%a" fprint_string s
+    | `Headport a -> fprintf ppf "headport=%a" fprint_port a
+    | `Headurl s -> fprintf ppf "headURL=%a" fprint_string s
+    | `Labelangle f -> fprintf ppf "labelangle=%f" f
+    | `Labeldistance f -> fprintf ppf "labeldistance=%f" f
+    | `Labelfloat b -> fprintf ppf "labelfloat=%b" b
+    | `Layer s -> fprintf ppf "layer=%a" fprint_string s
+    | `Minlen i -> fprintf ppf "minlen=%i" i
+    | `Samehead s -> fprintf ppf "samehead=%a" fprint_string s
+    | `Sametail s -> fprintf ppf "sametail=%a" fprint_string s
+    | `Taillabel s -> fprintf ppf "taillabel=%a" fprint_string s
+    | `Tailport a -> fprintf ppf "tailport=%a" fprint_port a
+    | `Tailurl s -> fprintf ppf "tailURL=%a" fprint_string s
+    | `Weight i -> fprintf ppf "weight=%i" i
 
-    let fprint_vertex_list =
-      CommonAttributes.fprint_attributes
-        CommonAttributes.fprint_style_list fprint_vertex
+  let fprint_vertex_list =
+    CommonAttributes.fprint_attributes
+      CommonAttributes.fprint_style_list fprint_vertex
 
-    let fprint_edge_list =
-      CommonAttributes.fprint_attributes
-        CommonAttributes.fprint_style_list fprint_edge
+  let fprint_edge_list =
+    CommonAttributes.fprint_attributes
+      CommonAttributes.fprint_style_list fprint_edge
 
 end
 
@@ -835,7 +826,7 @@ end
 module type GraphWithDotAttrs = sig
   include Sig.G
 
- (** Graph, vertex and edge attributes. *)
+  (** Graph, vertex and edge attributes. *)
   val graph_attributes: t -> DotAttributes.graph list
 
   (** Vertex attributes *)
@@ -848,18 +839,18 @@ module type GraphWithDotAttrs = sig
   val edge_attributes: E.t -> DotAttributes.edge list
 
   val get_subgraph : V.t -> DotAttributes.subgraph option
-    (** The box (if exists) which the vertex belongs to. Boxes with same
-           names are not distinguished and so they should have the same
-           attributes. *)
+  (** The box (if exists) which the vertex belongs to. Boxes with same
+         names are not distinguished and so they should have the same
+         attributes. *)
 end
 
 module Dot =
   MakeEngine (struct
-                module Attributes = DotAttributes
-                let name = "dot"
-                let opening = "digraph"
-                let edge_arrow = "->"
-              end)
+    module Attributes = DotAttributes
+    let name = "dot"
+    let opening = "digraph"
+    let edge_arrow = "->"
+  end)
 
 (***************************************************************************)
 (** {2 Interface with the neato engine} *)
@@ -874,18 +865,18 @@ module NeatoAttributes = struct
   type graph =
     [ CommonAttributes.graph
     | `Margin of float * float
-        (** Sets the page margin (included in the page size).  Default value is
-            [0.5, 0.5]. *)
+    (** Sets the page margin (included in the page size).  Default value is
+        [0.5, 0.5]. *)
     | `Start of int
-        (** Seed for random number generator. *)
+    (** Seed for random number generator. *)
     | `Overlap of bool
-        (** Default value is [true]. *)
+    (** Default value is [true]. *)
     | `Spline of bool
-        (** [true] makes edge splines if nodes don't overlap.
-            Default value is [false]. *)
+    (** [true] makes edge splines if nodes don't overlap.
+        Default value is [false]. *)
     | `Sep of float
-        (** Edge spline separation factor from nodes.  Default value
-            is [0.0]. *)
+      (** Edge spline separation factor from nodes.  Default value
+          is [0.0]. *)
     ]
 
   (** Attributes of nodes.  They include all common node attributes and
@@ -894,7 +885,7 @@ module NeatoAttributes = struct
   type vertex =
     [ CommonAttributes.vertex
     | `Pos of float * float
-        (** Initial coordinates of the node. *)
+      (** Initial coordinates of the node. *)
     ]
 
   (** Attributes of edges.  They include all common edge attributes and
@@ -903,57 +894,57 @@ module NeatoAttributes = struct
   type edge =
     [ CommonAttributes.edge
     | `Id of string
-        (** Optional value to distinguish multiple edges. *)
+    (** Optional value to distinguish multiple edges. *)
     | `Len of float
-        (** Preferred length of edge.  Default value is [1.0]. *)
+    (** Preferred length of edge.  Default value is [1.0]. *)
     | `Weight of float
-        (** Strength of edge spring.  Default value is [1.0]. *)
+      (** Strength of edge spring.  Default value is [1.0]. *)
     ]
 
-    type subgraph = {
-      sg_name : string;
-      sg_attributes : vertex list;
-      sg_parent : string option;
-    }
+  type subgraph = {
+    sg_name : string;
+    sg_attributes : vertex list;
+    sg_parent : string option;
+  }
 
   (** {4 Pretty-print of attributes} *)
 
-    let fprint_graph ppf = function
-        #CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
-      | `Margin (f1, f2) -> fprintf ppf "margin=\"%f,%f\"" f1 f2
-      | `Start i -> fprintf ppf "start=%i" i
-      | `Overlap b -> fprintf ppf "overlap=%b" b
-      | `Spline b -> fprintf ppf "spline=%b" b
-      | `Sep f -> fprintf ppf "sep=%f" f
+  let fprint_graph ppf = function
+    #CommonAttributes.graph as att -> CommonAttributes.fprint_graph ppf att
+    | `Margin (f1, f2) -> fprintf ppf "margin=\"%f,%f\"" f1 f2
+    | `Start i -> fprintf ppf "start=%i" i
+    | `Overlap b -> fprintf ppf "overlap=%b" b
+    | `Spline b -> fprintf ppf "spline=%b" b
+    | `Sep f -> fprintf ppf "sep=%f" f
 
-    let fprint_vertex ppf = function
-        #CommonAttributes.vertex as att ->
-          CommonAttributes.fprint_vertex ppf att
-      | `Pos (f1, f2) -> fprintf ppf "pos=\"%f,%f\"" f1 f2
+  let fprint_vertex ppf = function
+    #CommonAttributes.vertex as att ->
+    CommonAttributes.fprint_vertex ppf att
+    | `Pos (f1, f2) -> fprintf ppf "pos=\"%f,%f\"" f1 f2
 
-    let fprint_edge ppf = function
-        #CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att
-      | `Id s -> fprintf ppf "id=%a" fprint_string s
-      | `Len f -> fprintf ppf "len=%f" f
-      | `Weight f -> fprintf ppf "weight=%f" f
+  let fprint_edge ppf = function
+    #CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att
+    | `Id s -> fprintf ppf "id=%a" fprint_string s
+    | `Len f -> fprintf ppf "len=%f" f
+    | `Weight f -> fprintf ppf "weight=%f" f
 
-    let fprint_vertex_list =
-      CommonAttributes.fprint_attributes
-        CommonAttributes.fprint_style_list fprint_vertex
+  let fprint_vertex_list =
+    CommonAttributes.fprint_attributes
+      CommonAttributes.fprint_style_list fprint_vertex
 
-    let fprint_edge_list =
-      CommonAttributes.fprint_attributes
-        CommonAttributes.fprint_style_list fprint_edge
+  let fprint_edge_list =
+    CommonAttributes.fprint_attributes
+      CommonAttributes.fprint_style_list fprint_edge
 
 end
 
 module Neato =
   MakeEngine (struct
-                module Attributes = NeatoAttributes
-                let name = "neato"
-                let opening = "graph"
-                let edge_arrow = "--"
-              end)
+    module Attributes = NeatoAttributes
+    let name = "neato"
+    let opening = "graph"
+    let edge_arrow = "--"
+  end)
 
 (*
 Local Variables:

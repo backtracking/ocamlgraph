@@ -40,11 +40,11 @@ end
 module Make(G: G) : sig
 
   module H : Hashtbl.S with type key = G.V.t
-    (** Hash tables used to store the coloring *)
+  (** Hash tables used to store the coloring *)
 
   val coloring : G.t -> int -> int H.t
-    (** [coloring g k] colors the graph [g] with [k] colors and returns the
-        coloring as a hash table mapping nodes to their colors. *)
+  (** [coloring g k] colors the graph [g] with [k] colors and returns the
+      coloring as a hash table mapping nodes to their colors. *)
 
 end
 
@@ -76,16 +76,16 @@ module Mark(G : GM) : sig
   exception NoColoring
 
   val coloring : G.t -> int -> unit
-    (** [coloring g k] colors the nodes of graph [g] using k colors,
-	assigning the marks integer values between 1 and k.
-        raises [NoColoring] when there is no possible coloring.
+  (** [coloring g k] colors the nodes of graph [g] using k colors,
+      assigning the marks integer values between 1 and k.
+      raises [NoColoring] when there is no possible coloring.
 
-        The graph marks may be partially set before starting; the meaning of
-        initial values is as follows:
-	- 0: a node to be colored
-	- any value between 1 and k: a color already assigned
-	- any value greater than k: a node to be ignored 
+      The graph marks may be partially set before starting; the meaning of
+      initial values is as follows:
+      - 0: a node to be colored
+      - any value between 1 and k: a color already assigned
+      - any value greater than k: a node to be ignored 
 
-	@raise NoColoring if [g] cannot be [k]-colored. *)
+      @raise NoColoring if [g] cannot be [k]-colored. *)
 
 end

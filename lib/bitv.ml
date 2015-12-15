@@ -262,7 +262,7 @@ let blit_zeros v ofs len =
     else begin
       blit_bits 0 bj (bpi - bj) v ofs;
       let n = ref (ofs + bpi - bj) in
-      for i = succ bi to pred ei do
+      for _i = succ bi to pred ei do
         blit_int 0 v !n;
         n := !n + bpi
       done;
@@ -278,7 +278,7 @@ let blit_ones v ofs len =
     else begin
       blit_bits max_int bj (bpi - bj) v ofs;
       let n = ref (ofs + bpi - bj) in
-      for i = succ bi to pred ei do
+      for _i = succ bi to pred ei do
         blit_int max_int v !n;
         n := !n + bpi
       done;
@@ -343,16 +343,6 @@ let foldi_right f v x =
     r := f i (unsafe_get v i) !r
   done;
   !r
-
-let iteri_true f v =
-  Array.iteri
-    (fun i n -> if n != 0 then begin
-       let i_bpi = i * bpi in
-       for j = 0 to bpi - 1 do
-         if n land (Array.unsafe_get bit_j j) > 0 then f (i_bpi + j)
-       done
-     end)
-    v.bits
 
 (*s Bitwise operations. It is straigthforward, since bitwise operations
     can be realized by the corresponding bitwise operations over integers.
@@ -600,10 +590,10 @@ let of_int64_us i = match Sys.word_size with
                       let hi = Int64.shift_right_logical i 62 in
                       (Int64.to_int hi) land 1 |] }
   | _ -> assert false
-let to_int64_us v = failwith "todo"
+let to_int64_us _ = failwith "todo"
 
-let of_int64_s i = failwith "todo"
-let to_int64_s v = failwith "todo"
+let of_int64_s _ = failwith "todo"
+let to_int64_s _ = failwith "todo"
 
 (* [Nativeint] *)
 let select_of f32 f64 = match Sys.word_size with

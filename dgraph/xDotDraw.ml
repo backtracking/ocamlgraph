@@ -59,8 +59,6 @@ type draw_state = {
   mutable style : style_attr list
 }
 
-let copy_draw_st ds = { ds with fill_color = ds.fill_color }
-
 let default_draw_state () =
   { fill_color = "#FFFFFF";
     pen_color = "#000000";
@@ -75,14 +73,14 @@ let set_style st s = st.style <- s
 (* STRING OPERATIONS *)
 
 let suffix s i = try String.sub s i ((String.length s)-i)
-                 with Invalid_argument("String.sub") -> ""
+  with Invalid_argument("String.sub") -> ""
 
 (** Splits a string with a separator
-   returns a list of strings *)
+    returns a list of strings *)
 let split c s =
   let rec split_from n =
     try let p = String.index_from s n c
-        in (String.sub s n (p-n)) :: (split_from (p+1))
+      in (String.sub s n (p-n)) :: (split_from (p+1))
     with Not_found -> [ suffix s n ]
   in if s="" then [] else split_from 0 ;;
 
@@ -170,8 +168,8 @@ let skip_spaces state =
   let rec loop () =
     if not (over state) then
       if is_space (char state) then begin
-	incr state;
-	loop ()
+        incr state;
+        loop ()
       end
   in loop ()
 
@@ -182,57 +180,49 @@ let get_word state =
   let rec get' () =
     if over state then
       if start = String.length state.str then
-	None
+        None
       else
-	Some (String.sub state.str start (state.cur - start))
+        Some (String.sub state.str start (state.cur - start))
     else
-      if not (is_space (char state)) then begin
-	incr state;
-	get' ()
-      end else
-	Some (String.sub state.str start (state.cur - start)) in
+    if not (is_space (char state)) then begin
+      incr state;
+      get' ()
+    end else
+      Some (String.sub state.str start (state.cur - start)) in
   get' ()
 
 (* Gets a rendering or attribute operation *)
-let rec get_op_id state =
+let get_op_id state =
   let tok = get_word state in
-    match tok with
-      | None ->
-	  raise NoOperationId
-      | Some tok' ->
-	  if is_token tok' then
-	    tok'
-	  else
-	    raise NoOperationId
+  match tok with
+  | None ->
+    raise NoOperationId
+  | Some tok' ->
+    if is_token tok' then
+      tok'
+    else
+      raise NoOperationId
 
-let filter_int s =
-  let is_int = function
-    | '0' | '1' .. '9' -> true
-    | _ -> false in
-  let buf = Buffer.create 30 in
-  String.iter (fun c -> if is_int c then Buffer.add_char buf c) s;
-  Buffer.contents buf
-
-let rec get_int state =
+let get_int state =
   match get_word state with
-    | Some w -> begin
-	(*let w' = filter_int w in*)
-	try int_of_string w
-	with Failure "int_of_string" ->
-	  raise (ParseError "Cannot parse int")
-      end
-    | None -> raise (ParseError "Cannot parse int")
+  | Some w -> begin
+      (*let w' = filter_int w in*)
+      try int_of_string w
+      with Failure "int_of_string" ->
+        raise (ParseError "Cannot parse int")
+    end
+  | None -> raise (ParseError "Cannot parse int")
 
-let rec get_float state =
+let get_float state =
   match get_word state with
-    | Some w -> begin
-	try float_of_string w
-	with Failure "float_of_string" ->
-	  raise (ParseError "Cannot parse float")
-      end
-    | None -> raise (ParseError "Cannot parse float")
+  | Some w -> begin
+      try float_of_string w
+      with Failure "float_of_string" ->
+        raise (ParseError "Cannot parse float")
+    end
+  | None -> raise (ParseError "Cannot parse float")
 
-let rec get_pos state =
+let get_pos state =
   try
     let x0 = get_float state in
     let y0 = get_float state in
@@ -244,10 +234,10 @@ let rec get_pos state =
 let get_anchor state =
   let i = get_int state in
   match i with
-    | -1 -> Left
-    | 0  -> Center
-    | 1  -> Right
-    | _  -> raise (ParseError "Cannot parse anchor")
+  | -1 -> Left
+  | 0  -> Center
+  | 1  -> Right
+  | _  -> raise (ParseError "Cannot parse anchor")
 
 let parse_bytes st =
   skip_spaces st;
@@ -268,7 +258,7 @@ let parse_ellipse constr state =
   constr (pos, w, h)
 
 let invert_y_pos (x,y) = (x,-.y)
-  
+
 let parse_filled_ellipse =
   parse_ellipse (fun (p,w,h) -> Filled_ellipse (invert_y_pos p,w,h))
 
@@ -313,7 +303,7 @@ let parse_font state =
   Font (size, font)
 
 let parse_style state =
-    let read = function
+  let read = function
     | "filled" ->  Filled
     | "invisible" ->  Invisible
     | "diagonals" ->  Diagonals
@@ -360,12 +350,12 @@ let remove_backslashes s =
   let rec loop i =
     if i = String.length s then ()
     else
-      if s.[i] = '\\' && i < String.length s - 1 && s.[i+1] = '\n' then
-	loop (i+2)
-      else begin
-	Buffer.add_char buf s.[i];
-	loop (i+1)
-      end in
+    if s.[i] = '\\' && i < String.length s - 1 && s.[i+1] = '\n' then
+      loop (i+2)
+    else begin
+      Buffer.add_char buf s.[i];
+      loop (i+1)
+    end in
   loop 0;
   Buffer.contents buf
 
@@ -377,17 +367,17 @@ let draw_with (f : draw_state -> operation -> unit) operations =
   let draw_op = function
     (* The 4 following instructions modify the drawing state *)
     | Fill_color c as op ->
-	set_fill_color st c;
-	f st op
+      set_fill_color st c;
+      f st op
     | Pen_color c as op ->
-	set_pen_color st c;
-	f st op
+      set_pen_color st c;
+      f st op
     | Font (sty,font) as op ->
-	set_font st (sty,font);
-	f st op
+      set_font st (sty,font);
+      f st op
     | Style stys as op ->
-	set_style st stys;
-	f st op
+      set_style st stys;
+      f st op
     (* No state effects on the other operations *)
     | op -> f st op
   in List.iter draw_op operations
@@ -401,5 +391,5 @@ let draw_with (f : draw_state -> operation -> unit) operations =
 (* let d7 = parse "S 6 -filled c 7 -salmon2 C 7 -salmon2 P 9 865 1177 877 1193 841 1200 760 1192 695 1178 700 1167 756 1161 810 1160 841 1165 " *)
 (* let d8 = parse "F 14.000000 17 -Helvetica-Outline c 5 -black T 529 1005 0 65 9 -Mini Unix " *)
 (* let d9 = parse "S 6 -filled c 11 -greenyellow C 11 -greenyellow P 10 1254 819 1263 834 1247 843 1197 841 1137 830 1110 817 1131 808 1177 805 121\ *)
-(* 6 804 1238 809 " *)
+   (* 6 804 1238 809 " *)
 (* let d10 = parse "S 6 -filled c 11 -greenyellow C 11 -greenyellow P 10 255 282 264 297 248 306 198 304 138 293 111 280 132 271 178 268 217 267 239\\\n 272 " *)

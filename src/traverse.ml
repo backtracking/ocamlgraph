@@ -55,23 +55,7 @@ module Dfs(G : G) = struct
     in
     visit v
 
-  let prefix_component pre g = iter_component ~pre g
   let postfix_component post g = iter_component ~post g
-
-  (* invariant: not in [h] means not visited at all; [h v = true] means
-     already visited in the current component; [h v = false] means
-     already visited in another tree *)
-  let has_cycle g =
-    let h = H.create 97 in
-    let rec visit v =
-      H.add h v true;
-      G.iter_succ
-        (fun w -> try if H.find h w then raise Exit with Not_found -> visit w)
-        g v;
-      H.replace h v false
-    in
-    try G.iter_vertex (fun v -> if not (H.mem h v) then visit v) g; false
-    with Exit -> true
 
   let has_cycle_undirected g =
     let h = H.create 97 in
@@ -91,9 +75,6 @@ module Dfs(G : G) = struct
     in
     try G.iter_vertex (fun v -> if not (H.mem h v) then visit v) g; false
     with Exit -> true
-
-  let has_cycle g =
-    if G.is_directed then has_cycle g else has_cycle_undirected g
 
   module Tail = struct
 
@@ -183,7 +164,7 @@ module Dfs(G : G) = struct
       in
       G.iter_vertex
         (fun v ->
-          if not (H.mem h v) then begin Stack.push v stack; loop () end)
+           if not (H.mem h v) then begin Stack.push v stack; loop () end)
         g
 
     let iter_component f g v0 =
@@ -209,28 +190,28 @@ module Dfs(G : G) = struct
   module S = Set.Make(G.V)
 
   type iterator = S.t * G.V.t list * G.t
-      (** (h, st, g) where h is the set of marked vertices and st the stack
-          invariant: the first element of st is not in h i.e. to be visited *)
+  (** (h, st, g) where h is the set of marked vertices and st the stack
+      invariant: the first element of st is not in h i.e. to be visited *)
 
   let start g =
     let st = G.fold_vertex (fun v st -> v :: st) g [] in
     S.empty, st, g
 
-  let get (s,st,_) = match st with
+  let get (_,st,_) = match st with
     | [] -> raise Exit
     | v :: _  -> v
 
   let step (s,st,g) = match st with
     | [] ->
-        raise Exit
+      raise Exit
     | v :: st ->
-        let s' = S.add v s in
-        let st' = G.fold_succ (fun w st -> w :: st) g v st in
-        let rec clean = function
-          | w :: st when S.mem w s' -> clean st
-          | st -> st
-        in
-        (s', clean st', g)
+      let s' = S.add v s in
+      let st' = G.fold_succ (fun w st -> w :: st) g v st in
+      let rec clean = function
+        | w :: st when S.mem w s' -> clean st
+        | st -> st
+      in
+      (s', clean st', g)
 
 end
 
@@ -292,8 +273,8 @@ module Bfs(G : G) = struct
       | i, y :: o -> y, (i,o)
       | [], [] -> raise Empty
       | i, [] -> match List.rev i with
-          | x :: o -> x, ([], o)
-          | [] -> assert false
+        | x :: o -> x, ([], o)
+        | [] -> assert false
     let peek q = fst (pop q)
   end
 
@@ -306,7 +287,7 @@ module Bfs(G : G) = struct
     let s = G.fold_vertex S.add g S.empty in
     s, Q.empty, g
 
-  let get (s,q,g) =
+  let get (s,q,_) =
     if Q.is_empty q then
       if S.is_empty s then raise Exit else S.choose s
     else

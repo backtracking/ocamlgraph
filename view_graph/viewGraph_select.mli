@@ -16,8 +16,8 @@
 (**************************************************************************)
 
 (** This module can be used to add some selection feature to {!ViewGraph}. 
-* See {!ViewGraph_test} to see how to use it.
-* *)
+ * See {!ViewGraph_test} to see how to use it.
+ * *)
 
 (** object returned by [init] and used by [open_dot_file] *)
 type t_env
@@ -26,17 +26,17 @@ type t_options = {
   sel_1_color : string; (** color of the selected node (default "red") *)
   sel_2_color : string; (** color of the selected neighbour (default "green") *)
   center_node_when_selected :bool; 
-    (** automatically center a node when it is selected (default true) *)
+  (** automatically center a node when it is selected (default true) *)
 }
 
 (** some default values for the options.
-* It is a good idea to use it and overwrite the one that have to be changed,
-* just in case some more options appear *)
+ * It is a good idea to use it and overwrite the one that have to be changed,
+ * just in case some more options appear *)
 val default_options : t_options
 
 (** should be called only once because it creates widgets.
-* The packing function is the place to put the messages about selection.
- *)
+ * The packing function is the place to put the messages about selection.
+*)
 val init : t_options -> GnoCanvas.canvas -> (GObj.widget -> unit) -> t_env
 
 (** functor to instanciate with your callbacks *)

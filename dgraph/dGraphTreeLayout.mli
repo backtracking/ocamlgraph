@@ -28,8 +28,8 @@ open Graph
 type cluster = string
 
 module Make
-  (Tree: Graphviz.GraphWithDotAttrs)
-  (TreeManipulation: sig val is_ghost_node: Tree.V.t -> bool end):
+    (Tree: Graphviz.GraphWithDotAttrs)
+    (TreeManipulation: sig val is_ghost_node: Tree.V.t -> bool end):
 sig
 
   val from_tree:
@@ -38,14 +38,14 @@ sig
 end
 
 module MakeFromDotModel
-  (Tree : Sig.G with type V.label = DGraphModel.DotG.V.t
-		and type E.label = unit)
-  (TreeManipulation: sig val is_ghost_node: Tree.V.t -> bool end):
+    (Tree : Sig.G with type V.label = DGraphModel.DotG.V.t
+                   and type E.label = unit)
+    (TreeManipulation: sig val is_ghost_node: Tree.V.t -> bool end):
 sig
 
   module Tree: Graphviz.GraphWithDotAttrs with module V = Tree.V
-					  and module E = Tree.E
-					  and type t = Tree.t
+                                           and module E = Tree.E
+                                           and type t = Tree.t
 
   val from_model:
     Tree.t -> Tree.V.t -> DGraphModel.dotg_model -> XDot.Make(Tree).graph_layout

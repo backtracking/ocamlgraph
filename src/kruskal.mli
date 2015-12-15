@@ -57,9 +57,9 @@ end
     algorithm using a user-defined union-find algorithm.
     Parameter [W] ensures that label on edges are comparable. *)
 module Generic
-  (G: G)
-  (W: Sig.ORDERED_TYPE with type t = G.E.label)
-  (UF: UNIONFIND with type elt = G.V.t) :
+    (G: G)
+    (W: Sig.ORDERED_TYPE with type t = G.E.label)
+    (UF: UNIONFIND with type elt = G.V.t) :
 sig
   val spanningtree : G.t -> G.E.t list
 end

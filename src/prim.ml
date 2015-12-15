@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open Util
-
 module type G = sig
   type t
   module V : Sig.COMPARABLE
@@ -34,8 +32,8 @@ module type G = sig
 end
 
 module Make
-  (G: G)
-  (W: Sig.WEIGHT with type edge = G.E.t) =
+    (G: G)
+    (W: Sig.WEIGHT with type edge = G.E.t) =
 struct
   open G.E
   module H = Hashtbl.Make(G.V)
@@ -58,21 +56,21 @@ struct
     let q = Q.create 17 in
     Q.add q (W.zero, r);
     while not (Q.is_empty q) do
-      let (w,u) = Q.pop_maximum q in
+      let (_,u) = Q.pop_maximum q in
       if not (H.mem visited u) then begin
-	H.add visited u ();
-	G.iter_succ_e (fun e ->
-	  let v = dst e in
-	  if not (H.mem visited v) then begin
-	    let wuv = W.weight e in
-	    let improvement =
-              try W.compare wuv (fst (H.find key v)) < 0 with Not_found -> true
-            in
-            if improvement then begin
-              H.replace key v (wuv, e);
-              Q.add q (wuv, v)
-            end;
-	  end) g u
+        H.add visited u ();
+        G.iter_succ_e (fun e ->
+            let v = dst e in
+            if not (H.mem visited v) then begin
+              let wuv = W.weight e in
+              let improvement =
+                try W.compare wuv (fst (H.find key v)) < 0 with Not_found -> true
+              in
+              if improvement then begin
+                H.replace key v (wuv, e);
+                Q.add q (wuv, v)
+              end;
+            end) g u
       end
     done;
     H.fold (fun _ (_, e) acc -> e :: acc) key []
@@ -83,8 +81,8 @@ struct
       G.iter_vertex (fun v -> r := Some v; raise Exit) g;
       invalid_arg "spanningtree"
     with Exit ->
-      match !r with
-	| None -> assert false
-	| Some r -> spanningtree_from g r
+    match !r with
+    | None -> assert false
+    | Some r -> spanningtree_from g r
 
 end

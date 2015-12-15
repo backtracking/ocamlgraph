@@ -31,18 +31,18 @@ end
 module Make (G: G) : sig
 
   val scc : G.t -> int * (G.V.t -> int)
-    (** [scc g] computes the strongly connected components of [g].
-	The result is a pair [(n,f)] where [n] is the number of
-	components. Components are numbered from [0] to [n-1], and
-	[f] is a function mapping each vertex to its component
-	number. In particular, [f u = f v] if and only if [u] and
-	[v] are in the same component. Another property of the
-	numbering is that components are numbered in a topological
-	order: if there is an arc from [u] to [v], then [f u >= f u]
+  (** [scc g] computes the strongly connected components of [g].
+      The result is a pair [(n,f)] where [n] is the number of
+      components. Components are numbered from [0] to [n-1], and
+      [f] is a function mapping each vertex to its component
+      number. In particular, [f u = f v] if and only if [u] and
+      [v] are in the same component. Another property of the
+      numbering is that components are numbered in a topological
+      order: if there is an arc from [u] to [v], then [f u >= f u]
 
-        Not tail-recursive.
-        Complexity: O(V+E)
-        The function returned has complexity O(1) *)
+      Not tail-recursive.
+      Complexity: O(V+E)
+      The function returned has complexity O(1) *)
 
   val scc_array : G.t -> G.V.t list array
   (** [scc_array g] computes the strongly connected components of [g].

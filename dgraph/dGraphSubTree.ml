@@ -73,13 +73,13 @@ module type S = sig
 end
 
 module Build
-  (G : G)
-  (Tree : Tree with type V.label = G.V.t and type E.label = unit)
-  (GA: sig
-    type t
-    val iter_succ: (G.V.t -> unit) -> t -> G.V.t -> unit
-    val iter_pred: (G.V.t -> unit) -> t -> G.V.t -> unit
-  end) =
+    (G : G)
+    (Tree : Tree with type V.label = G.V.t and type E.label = unit)
+    (GA: sig
+       type t
+       val iter_succ: (G.V.t -> unit) -> t -> G.V.t -> unit
+       val iter_pred: (G.V.t -> unit) -> t -> G.V.t -> unit
+     end) =
 struct
 
   module Tree = Tree
@@ -88,10 +88,10 @@ struct
   module HE =
     Hashtbl.Make
       (struct
-	type t = Tree.E.t
-	let equal x y = Tree.E.compare x y = 0
-	let hash = Hashtbl.hash
-       end)
+        type t = Tree.E.t
+        let equal x y = Tree.E.compare x y = 0
+        let hash = Hashtbl.hash
+      end)
 
   type t = {
     structure: Tree.t; (* the tree itself *)
@@ -133,15 +133,15 @@ struct
     let complete_to_depth v missing =
       let pred_vertex = ref v in
       let next_vertex = ref v in
-      for i = 1 to missing - 1 do
-	next_vertex := Tree.V.create (Tree.V.label v);
-	HT.add tree.ghost_vertices !next_vertex ();
-	let new_ghost_edge =
-	  if backward_flag then Tree.E.create !next_vertex () !pred_vertex
-	  else Tree.E.create !pred_vertex () !next_vertex
-	in Tree.add_edge_e tree.structure new_ghost_edge;
-	HE.add tree.ghost_edges new_ghost_edge ();
-	pred_vertex := !next_vertex;
+      for _i = 1 to missing - 1 do
+        next_vertex := Tree.V.create (Tree.V.label v);
+        HT.add tree.ghost_vertices !next_vertex ();
+        let new_ghost_edge =
+          if backward_flag then Tree.E.create !next_vertex () !pred_vertex
+          else Tree.E.create !pred_vertex () !next_vertex
+        in Tree.add_edge_e tree.structure new_ghost_edge;
+        HE.add tree.ghost_edges new_ghost_edge ();
+        pred_vertex := !next_vertex;
       done
     in
     let has_succ = ref false in
@@ -151,108 +151,108 @@ struct
     (* Initialize queue *)
     if depth <> 0 then
       if backward_flag then
-	GA.iter_pred
-	  (fun a -> Queue.add (a, tree_root, depth) queue)
-	  src_graph
-	  src_vertex
+        GA.iter_pred
+          (fun a -> Queue.add (a, tree_root, depth) queue)
+          src_graph
+          src_vertex
       else
-	GA.iter_succ
-	  (fun a -> Queue.add (a, tree_root, depth) queue)
-	  src_graph
-	  src_vertex;
+        GA.iter_succ
+          (fun a -> Queue.add (a, tree_root, depth) queue)
+          src_graph
+          src_vertex;
     (* Empty queue *)
     let rec empty_queue () =
       if not(Queue.is_empty queue) then begin
-	let vertex, origin_vertex, depth = Queue.take queue in
-	if depth > 0 then begin
-	  let new_vertex = Tree.V.create vertex in
-	  H.add tree.assoc_vertex_table vertex new_vertex;
-	  if backward_flag then begin
-	    let new_edge = Tree.E.create new_vertex () origin_vertex in
-	    Tree.add_edge_e tree.structure new_edge
-	  end else begin
-	    let new_edge = Tree.E.create origin_vertex () new_vertex in
-	    Tree.add_edge_e tree.structure new_edge
-	  end;
-	  if not(H.mem vertex_visited vertex) then begin
-	    H.add vertex_visited vertex true;
-	    let iter f =
-	      f
-		(fun a ->
-		  Queue.add (a, new_vertex, depth - 1) queue;
-		  has_succ := true)
-		src_graph
-		vertex
-	    in
-	    if backward_flag then iter GA.iter_pred else iter GA.iter_succ;
-	    if not !has_succ then complete_to_depth new_vertex depth;
-	    has_succ := false;
-	  end else if depth <> 1 then begin
-	    if backward_flag then
-	      GA.iter_pred (fun _ -> has_succ := true) src_graph vertex
-	    else
-	      GA.iter_succ (fun _ -> has_succ := true) src_graph vertex;
-	    if !has_succ then begin
-	      let ghost_vertex = Tree.V.create vertex in
-	      HT.add tree.ghost_vertices ghost_vertex ();
-	      let new_edge =
-		if backward_flag then Tree.E.create ghost_vertex () new_vertex
-		else Tree.E.create new_vertex () ghost_vertex
-	      in Tree.add_edge_e tree.structure new_edge;
-	      complete_to_depth ghost_vertex (depth-1)
-	    end else
-	      complete_to_depth new_vertex depth;
-	    has_succ := false;
-	  end
-	end;
-	empty_queue ()
+        let vertex, origin_vertex, depth = Queue.take queue in
+        if depth > 0 then begin
+          let new_vertex = Tree.V.create vertex in
+          H.add tree.assoc_vertex_table vertex new_vertex;
+          if backward_flag then begin
+            let new_edge = Tree.E.create new_vertex () origin_vertex in
+            Tree.add_edge_e tree.structure new_edge
+          end else begin
+            let new_edge = Tree.E.create origin_vertex () new_vertex in
+            Tree.add_edge_e tree.structure new_edge
+          end;
+          if not(H.mem vertex_visited vertex) then begin
+            H.add vertex_visited vertex true;
+            let iter f =
+              f
+                (fun a ->
+                   Queue.add (a, new_vertex, depth - 1) queue;
+                   has_succ := true)
+                src_graph
+                vertex
+            in
+            if backward_flag then iter GA.iter_pred else iter GA.iter_succ;
+            if not !has_succ then complete_to_depth new_vertex depth;
+            has_succ := false;
+          end else if depth <> 1 then begin
+            if backward_flag then
+              GA.iter_pred (fun _ -> has_succ := true) src_graph vertex
+            else
+              GA.iter_succ (fun _ -> has_succ := true) src_graph vertex;
+            if !has_succ then begin
+              let ghost_vertex = Tree.V.create vertex in
+              HT.add tree.ghost_vertices ghost_vertex ();
+              let new_edge =
+                if backward_flag then Tree.E.create ghost_vertex () new_vertex
+                else Tree.E.create new_vertex () ghost_vertex
+              in Tree.add_edge_e tree.structure new_edge;
+              complete_to_depth ghost_vertex (depth-1)
+            end else
+              complete_to_depth new_vertex depth;
+            has_succ := false;
+          end
+        end;
+        empty_queue ()
       end
     in
     empty_queue ()
   (* [JS 2010/11/10] trying to simplify the algorithm. Not finish yet
-  let new_build graph tree root troot depth backward =
-    let first = ref true in
-    let q = Queue.create () in
-    (* invariant: [h] contains exactly the vertices which have been pushed *)
-    let must_add_ghost = ref true in
-    let add_tree_vertex v =
+     let new_build graph tree root troot depth backward =
+     let first = ref true in
+     let q = Queue.create () in
+     (* invariant: [h] contains exactly the vertices which have been pushed *)
+     let must_add_ghost = ref true in
+     let add_tree_vertex v =
       let tv = if !first then troot else Tree.V.create v in
       first := false;
       Tree.add_vertex tree.structure tv;
       H.add tree.assoc_vertex_table v tv;
       tv
-    in
-    let add_tree_edge tsrc dst =
+     in
+     let add_tree_edge tsrc dst =
       let tdst = add_tree_vertex dst in
       let tsrc, tdst = if backward then tdst, tsrc else tsrc, tdst in
       let e = Tree.E.create tsrc () tdst in
       Tree.add_edge_e tree.structure e;
       tdst, e
-    in
-    let push n src dst =
+     in
+     let push n src dst =
       if n < depth then Queue.add (dst, n + 1) q;
       ignore (add_tree_edge src dst);
       must_add_ghost := false
-    in
-    let loop () =
+     in
+     let loop () =
       while not (Queue.is_empty q) do
-	let v, n = Queue.pop q in
-	let tv = add_tree_vertex v in
-	must_add_ghost := true;
-	(if backward then GA.iter_pred else GA.iter_succ) (push n tv) graph v;
-	if !must_add_ghost then
-	  let tsrc = ref tv in
-	  for i = n to depth do
-	    let tdst, te = add_tree_edge !tsrc v in
-	    HT.add tree.ghost_vertices tdst ();
-	    HE.add tree.ghost_edges te ();
-	    tsrc := tdst
-	  done
+     let v, n = Queue.pop q in
+     let tv = add_tree_vertex v in
+     must_add_ghost := true;
+     (if backward then GA.iter_pred else GA.iter_succ) (push n tv) graph v;
+     if !must_add_ghost then
+     let tsrc = ref tv in
+     for i = n to depth do
+      let tdst, te = add_tree_edge !tsrc v in
+      HT.add tree.ghost_vertices tdst ();
+      HE.add tree.ghost_edges te ();
+      tsrc := tdst
+     done
       done
-    in
-    Queue.add (root, 0) q;
-    loop ()
- *)
+     in
+     Queue.add (root, 0) q;
+     loop ()
+  *)
   (** Build a tree graph centered on a vertex and containing its
       predecessors and successors *)
   let make src_graph src_vertex depth_forward depth_backward =
@@ -268,20 +268,20 @@ struct
     Tree.add_vertex tree.structure tree.root;
     build src_graph tree src_vertex tree.root false depth_forward;
     build src_graph tree src_vertex tree.root true depth_backward;
-(*    new_build src_graph tree src_vertex tree.root depth_forward false;
-    new_build src_graph tree src_vertex tree.root depth_backward true;*)
+    (*    new_build src_graph tree src_vertex tree.root depth_forward false;
+          new_build src_graph tree src_vertex tree.root depth_backward true;*)
     tree
 
 end
 
 module Make
-  (G : G)
-  (Tree : Tree with type V.label = G.V.t and type E.label = unit) =
+    (G : G)
+    (Tree : Tree with type V.label = G.V.t and type E.label = unit) =
   Build(G)(Tree)(G)
 
 module Make_from_dot_model
-  (Tree : Tree with type V.label = DGraphModel.DotG.V.t
-	       and type E.label = unit) =
+    (Tree : Tree with type V.label = DGraphModel.DotG.V.t
+                  and type E.label = unit) =
   Build
     (DGraphModel.DotG)
     (Tree)
@@ -289,4 +289,4 @@ module Make_from_dot_model
       type t =  DGraphModel.dotg_model
       let iter_succ f g = g#iter_succ f
       let iter_pred f g = g#iter_pred f
-     end)
+    end)

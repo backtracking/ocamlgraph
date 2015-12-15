@@ -52,8 +52,8 @@ module Vertex(G_Src : V_SRC)(G_Dst : V_DST ) = struct
   let filter_map f g =
     G_Src.fold_vertex
       (fun x g -> match f x with
-        | Some e -> G_Dst.add_vertex g e
-        | None -> g
+         | Some e -> G_Dst.add_vertex g e
+         | None -> g
       ) g (G_Dst.empty ())
 end
 
@@ -93,8 +93,8 @@ module Edge(G_Src: E_SRC)(G_Dst: E_DST) = struct
   let filter_map f g =
     G_Src.fold_edges_e
       (fun x g -> match f x with
-        | Some e -> G_Dst.add_edge_e g e
-        | None -> g
+         | Some e -> G_Dst.add_edge_e g e
+         | None -> g
       ) g (G_Dst.empty ())
 end
 

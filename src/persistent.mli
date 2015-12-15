@@ -45,16 +45,16 @@ module type S = sig
   (** Persistent Unlabeled Graphs. *)
   module Concrete (V: COMPARABLE) :
     Sig.P with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t
-	  and type E.label = unit
+                                                     and type E.label = unit
 
   (** Abstract Persistent Unlabeled Graphs. *)
   module Abstract(V: ANY_TYPE) : Sig.P with type V.label = V.t
-				       and type E.label = unit
+                                        and type E.label = unit
 
   (** Persistent Labeled Graphs. *)
   module ConcreteLabeled (V: COMPARABLE)(E: ORDERED_TYPE_DFT) :
     Sig.P with type V.t = V.t and type V.label = V.t
-	    and type E.t = V.t * E.t * V.t and type E.label = E.t
+                              and type E.t = V.t * E.t * V.t and type E.label = E.t
 
   (** Abstract Persistent Labeled Graphs. *)
   module AbstractLabeled (V: ANY_TYPE)(E: ORDERED_TYPE_DFT) :
@@ -76,12 +76,12 @@ module Digraph : sig
   (** Imperative Unlabeled, bidirectional graph. *)
   module ConcreteBidirectional (V: COMPARABLE) :
     Sig.P with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t
-          and type E.label = unit
+                                                     and type E.label = unit
 
   (** Imperative Labeled and bidirectional graph. *)
   module ConcreteBidirectionalLabeled(V:COMPARABLE)(E:ORDERED_TYPE_DFT) :
     Sig.P with type V.t = V.t and type V.label = V.t
-          and type E.t = V.t * E.t * V.t and type E.label = E.t
+                              and type E.t = V.t * E.t * V.t and type E.label = E.t
 
 end
 

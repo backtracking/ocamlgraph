@@ -22,7 +22,7 @@ let _ = GMain.Main.init ()
 
 let print msg () = ()
 (*  print_endline msg;
-  flush stdout*)
+    flush stdout*)
 
 
 let create_menu label menubar =
@@ -30,7 +30,7 @@ let create_menu label menubar =
   GMenu.menu ~packing:item#set_submenu ()
 
 let main () =
-  
+
   (* Initialisation du fichier de graph *)
 
   if Sys.argv.(1) = "--help" then
@@ -53,11 +53,11 @@ let main () =
   let _ =
     window#connect#destroy~callback:GMain.Main.quit in
 
- 
+
   (* une Verticale Box  pour contenir le menu de la fenetre principale *)
   let v_box =
     GPack.vbox ~homogeneous:false ~spacing:30  ~packing:window#add () in
-  
+
   (* la barre de Menu ajoutée dans la V_box *)
   let menu_bar =
     GMenu.menu_bar ~packing:v_box#pack () in
@@ -72,10 +72,10 @@ let main () =
       `S;
       `I ("_Quit", GMain.Main.quit )
     ]
-  
+
   and menu = 
     create_menu "File" menu_bar in
-  
+
   GToolbox.build_menu menu ~entries:menu_files ;
 
 
@@ -85,10 +85,10 @@ let main () =
     GnoCanvas.canvas ~aa:true ~width:800 ~height:600 ~packing:v_box#add () 
   in
   let root = canvas#root in
-  
+
   (* l'affichage de la fenetre principale *)
 
-  
+
   window#show ();
 
 

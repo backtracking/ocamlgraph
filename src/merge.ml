@@ -67,7 +67,7 @@ module B(B: Builder.S) = struct
      let to_be_added = identify_extremities g vl in
      let g = List.fold_left B.remove_vertex g vl' in
      List.fold_left B.add_edge_e g to_be_added
-   *)
+  *)
 
   let merge_vertex g vl = match vl with
     | [] -> g
@@ -94,16 +94,16 @@ module B(B: Builder.S) = struct
            let v = match src with
              | None ->
                (match dst with
-               | None -> List.hd sources
-               | Some w -> w)
+                | None -> List.hd sources
+                | Some w -> w)
              | Some v -> v in
            let g = merge_vertex g (v :: sources @ destinations) in
            B.add_edge_e g B.G.E.(create v (label e) v)
          else
            let v = match src with None -> List.hd sources | Some v -> v in
            let w = match src with
-	     | None -> List.hd destinations
-	     | Some w -> w in
+             | None -> List.hd destinations
+             | Some w -> w in
            let g = merge_vertex g sources in
            let g = merge_vertex g destinations in
            B.add_edge_e g B.G.E.(create v (label e) w))
@@ -131,7 +131,7 @@ module B(B: Builder.S) = struct
       let default_vertex =
         let a_vertex_of_g = ref None in
         (try B.G.iter_vertex (fun v -> a_vertex_of_g := Some v ; raise Exit) g
-	 with Exit -> ());
+         with Exit -> ());
         match !a_vertex_of_g with
         | Some v -> v
         | None -> raise Exit (*hence g is empty*) in
@@ -139,15 +139,15 @@ module B(B: Builder.S) = struct
         let e1 = B.G.E.create default_vertex l1 default_vertex in
         let e2 = B.G.E.create default_vertex l2 default_vertex in
         B.G.E.compare e1 e2
-    with Exit -> (fun l1 l2 -> 0)
+    with Exit -> (fun _ _ -> 0)
 
   let merge_isolabelled_edges g =
     let module S = Set.Make(B.G.V) in
     let do_meet s1 s2 = S.exists (fun x -> S.mem x s2) s1 in
     let module M =
-	  (* TODO: using [compare] here is really suspicious ...
-	     DONE – yet not so clean *)
-	  Map.Make(struct type t = B.G.E.label let compare = compare_label g end)
+      (* TODO: using [compare] here is really suspicious ...
+         DONE – yet not so clean *)
+      Map.Make(struct type t = B.G.E.label let compare = compare_label g end)
     in
     let accumulating e accu =
       let l = B.G.E.label e in
@@ -156,14 +156,14 @@ module B(B: Builder.S) = struct
         let s , d = B.G.E.(S.add (src e) s , S.add (dst e) d) in
         M.add l (s, d) accu
       with Not_found ->
-	M.add l B.G.E.(S.singleton (src e), S.singleton (dst e)) accu
+        M.add l B.G.E.(S.singleton (src e), S.singleton (dst e)) accu
     in
     let to_be_identified = B.G.fold_edges_e accumulating g M.empty in
     let gathering _ (s, d) accu =
       let to_be_gathered, others = List.partition (do_meet s) accu in
       let accu =
-	List.fold_left (fun accu x -> S.union accu x) s to_be_gathered
-	:: others
+        List.fold_left (fun accu x -> S.union accu x) s to_be_gathered
+        :: others
       in
       let to_be_gathered , others = List.partition (do_meet d) accu in
       List.fold_left (fun accu x -> S.union accu x) d to_be_gathered :: others
@@ -179,7 +179,7 @@ module B(B: Builder.S) = struct
       if
         let out_d = B.G.out_degree g v in
         out_d = 0 ||
-	    ((not strict) && out_d = List.length (B.G.find_all_edges g v v))
+        ((not strict) && out_d = List.length (B.G.find_all_edges g v v))
       then v :: accu
       else accu
     in
@@ -196,7 +196,7 @@ module B(B: Builder.S) = struct
       if
         let in_d = B.G.in_degree g v in
         in_d = 0 ||
-	    ((not strict) && in_d = List.length (B.G.find_all_edges g v v))
+        ((not strict) && in_d = List.length (B.G.find_all_edges g v v))
       then v :: accu
       else accu
     in
@@ -213,9 +213,9 @@ module B(B: Builder.S) = struct
     let components = C.scc_list g in
     let alter accu to_be_identified =
       let to_be_identified =
-       match specified_vertex with
-       | None -> to_be_identified
-       | Some f -> (f to_be_identified) :: to_be_identified in
+        match specified_vertex with
+        | None -> to_be_identified
+        | Some f -> (f to_be_identified) :: to_be_identified in
       let v = List.hd to_be_identified in
       let accu = merge_vertex accu to_be_identified in
       if loop_killer

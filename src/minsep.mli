@@ -16,16 +16,16 @@
 (**************************************************************************)
 
 (**
-  Minimal separators of a graph
+   Minimal separators of a graph
 
-  Based on the article:
-  Generating all the minimal separators of a graph.
-  by A. Berry, J.-P. Bordat and O.Cogis
-  http://www.isima.fr/berry/generating.html
+   Based on the article:
+   Generating all the minimal separators of a graph.
+   by A. Berry, J.-P. Bordat and O.Cogis
+   http://www.isima.fr/berry/generating.html
 
-  A set [S] of vertices is a minimal separator if it exists 2 distinct
-  connected components [C] and [D] in [G \ S] such that each vertex of [S] has
-  a successor in [C] and [D]. *)
+   A set [S] of vertices is a minimal separator if it exists 2 distinct
+   connected components [C] and [D] in [G \ S] such that each vertex of [S] has
+   a successor in [C] and [D]. *)
 
 (** Minimal signature for computing the minimal separators *)
 module type G = sig
@@ -40,18 +40,18 @@ end
 
 module type MINSEP = sig
   module G : G
-    (** Implementation of a graph *)
+  (** Implementation of a graph *)
   module Vertex_Set : Set.S with type elt = G.V.t
-    (** Implementation of a set of vertex *)
+  (** Implementation of a set of vertex *)
   module VSetset : Set.S with type elt = Vertex_Set.t
-    (** Implementation of a set of [Vertex_Set] *)
+  (** Implementation of a set of [Vertex_Set] *)
 
   val allminsep : G.t -> Vertex_Set.t list
-    (** [allminsep g] computes the list of all minimal separators of g. *)
+  (** [allminsep g] computes the list of all minimal separators of g. *)
   val list_of_allminsep : G.t -> G.V.t list list
-    (** Less efficient that [allminsep] *)
+  (** Less efficient that [allminsep] *)
   val set_of_allminsep : G.t -> VSetset.t
-    (** Less efficient that [allminsep] *)
+  (** Less efficient that [allminsep] *)
 end
 
 (** Implementation for a persistent graph *)
@@ -59,10 +59,10 @@ module P(G : sig include G val remove_vertex : t -> V.t -> t end) :
   MINSEP with module G = G
 
 (** Implementation for an imperative graph.
-  Less efficient that the implementation for a persistent graph *)
+    Less efficient that the implementation for a persistent graph *)
 module I(G : sig
-	   include G
-	   module Mark : Sig.MARK with type graph = t and type vertex = V.t
-	 end) :
+    include G
+    module Mark : Sig.MARK with type graph = t and type vertex = V.t
+  end) :
   MINSEP with module G = G
 

@@ -32,27 +32,27 @@
 (** Shape properties *)
 type shape_p = [ `FILL_COLOR_RGBA of int32
                | `OUTLINE_COLOR_RGBA of int32
-	       | `WIDTH_UNITS of float
-	       | `DASH of float * float array ]
+               | `WIDTH_UNITS of float
+               | `DASH of float * float array ]
 
 class type textshape = object
 
   method highlight: ?color:int32 * int32 -> unit -> unit
-    (** Change the color of the text. May be cancelled by [dehighlight].
-	If [color] is [primary,secondary], then
-	[primary] is used except if the current color is [primary]. In this
-	case, [secondary] is used. *)
+  (** Change the color of the text. May be cancelled by [dehighlight].
+      If [color] is [primary,secondary], then
+      [primary] is used except if the current color is [primary]. In this
+      case, [secondary] is used. *)
 
   method dehighlight: unit -> unit
-    (** Cancel [highlight]. *)
+  (** Cancel [highlight]. *)
 
   method hide: unit -> unit
   method show: unit -> unit
   method lower_to_bottom: unit -> unit
   method connect:
     < event : callback:(GnoCanvas.item_event -> bool) -> GtkSignal.id;
-    after : GnoCanvas.item_signals;
-    destroy : callback:(unit -> unit) -> GtkSignal.id; >
+      after : GnoCanvas.item_signals;
+      destroy : callback:(unit -> unit) -> GtkSignal.id; >
 
 end
 
@@ -72,11 +72,11 @@ class graph_text :
   GnomeCanvas.text Gtk.obj ->
   size_points:float ->
   props:GnomeCanvas.text_p list ->
-object
-  inherit GnoCanvas.text
-  inherit textshape
-  method resize: float -> unit
-end
+  object
+    inherit GnoCanvas.text
+    inherit textshape
+    method resize: float -> unit
+  end
 
 (* ********************************************************************** *)
 (** {2 View items} *)
@@ -97,27 +97,27 @@ class ['a ] view_item :
   pos:float * float ->
   ops_list:XDotDraw.operation list list ->
   item:'a ->
-object
-  inherit GnoCanvas.group
-  method item: 'a
-  method zoom_text: float -> unit
+  object
+    inherit GnoCanvas.group
+    method item: 'a
+    method zoom_text: float -> unit
 
-  method highlight: ?color: int32 * int32 -> unit -> unit
+    method highlight: ?color: int32 * int32 -> unit -> unit
     (** Change the color of the item. May be cancelled by [dehighlight].
-	If [color] is [primary,secondary], then
-	[primary] is used except if the current color is [primary]. In this
-	case, [secondary] is used. *)
+        If [color] is [primary,secondary], then
+        [primary] is used except if the current color is [primary]. In this
+        case, [secondary] is used. *)
 
-  method dehighlight: unit -> unit
+    method dehighlight: unit -> unit
     (** Cancel [highlight]. *)
 
-  method show : unit -> unit
-  method hide : unit -> unit
-  method center : unit -> unit
-  method connect_event: callback:(GnoCanvas.item_event -> bool) -> unit
-  method compute: unit -> unit (** apply all delayed operations *)
-  method lower_to_bottom: unit -> unit
-end
+    method show : unit -> unit
+    method hide : unit -> unit
+    method center : unit -> unit
+    method connect_event: callback:(GnoCanvas.item_event -> bool) -> unit
+    method compute: unit -> unit (** apply all delayed operations *)
+    method lower_to_bottom: unit -> unit
+  end
 
 exception Cannot_convert_color of string
 

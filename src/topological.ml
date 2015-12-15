@@ -51,15 +51,15 @@ module Make(G: G) = struct
       if Queue.is_empty todo then
         acc
       else
-	let i = Queue.pop todo in
-	let acc = List.fold_right f vertices.(i) acc in
+        let i = Queue.pop todo in
+        let acc = List.fold_right f vertices.(i) acc in
         List.iter
-	  (fun j ->
-            let d = degree.(j) in
-            assert (d > 0); (* no back edge *)
-	    if d = 1 then Queue.push j todo else degree.(j) <- d-1)
-	  edges.(i);
-	walk acc
+          (fun j ->
+             let d = degree.(j) in
+             assert (d > 0); (* no back edge *)
+             if d = 1 then Queue.push j todo else degree.(j) <- d-1)
+          edges.(i);
+        walk acc
     in
     for i = 0 to n-1 do if degree.(i) = 0 then Queue.push i todo done;
     walk acc
@@ -82,8 +82,6 @@ struct
 
   module Q = struct
     module S = Set.Make(G.V)
-    type elt = G.V.t
-    type q = S.t ref
     let create () = ref S.empty
     let push v s = s := S.add v !s
     let pop s =
@@ -96,23 +94,6 @@ struct
       List.sort G.V.compare l, n
   end
 
-  let rec choose_independent_vertex checker = function
-    | [] -> assert false
-    | [ v ] -> v
-    | v :: l ->
-      (* choose [v] if each other vertex [v'] is in the same cycle
-	 (a path from v to v') or is in a separate component
-	 (no path from v' to v).
-	 So, if there is a path from v' to without any path from v to v',
-	 discard v. *)
-      if List.for_all
-	(fun v' -> C.check_path checker v v' || not (C.check_path checker v' v))
-	l
-      then
-	v
-      else
-	choose_independent_vertex checker l
-
   (* in case of multiple cycles, choose one vertex in a cycle which
      does not depend of any other. *)
   let find_top_cycle checker vl =
@@ -123,9 +104,9 @@ struct
        discard v. *)
     let on_top_cycle v =
       List.for_all
-	(fun v' ->
-          G.V.equal v v' ||
-          C.check_path checker v v' || not (C.check_path checker v' v))
+        (fun v' ->
+           G.V.equal v v' ||
+           C.check_path checker v v' || not (C.check_path checker v' v))
         vl
     in
     List.filter on_top_cycle vl
@@ -141,35 +122,35 @@ struct
     let rec walk acc =
       if Q.is_empty todo then
         (* let's find any node of minimal degree *)
-	let min, _ =
-	  H.fold (fun v d old -> Q.choose ~old (v, d)) degree ([], max_int)
-	in
-	match min with
-	| [] -> acc
-	| _ ->
-	  let vl = find_top_cycle checker min in
-	  List.iter push vl;
+        let min, _ =
+          H.fold (fun v d old -> Q.choose ~old (v, d)) degree ([], max_int)
+        in
+        match min with
+        | [] -> acc
+        | _ ->
+          let vl = find_top_cycle checker min in
+          List.iter push vl;
           (* let v = choose_independent_vertex checker min in push v; *)
-	  walk acc
+          walk acc
       else
-	let v = Q.pop todo in
-	let acc = f v acc in
-	G.iter_succ
-	  (fun x->
+        let v = Q.pop todo in
+        let acc = f v acc in
+        G.iter_succ
+          (fun x->
              try
                let d = H.find degree x in
-	       if d = 1 then push x else H.replace degree x (d-1)
+               if d = 1 then push x else H.replace degree x (d-1)
              with Not_found ->
-	       (* [x] already visited *)
-	       ())
-	  g v;
-	walk acc
+               (* [x] already visited *)
+               ())
+          g v;
+        walk acc
     in
     G.iter_vertex
       (fun v ->
-	 let d = G.in_degree g v in
-	 if d = 0 then Q.push v todo
-	 else H.add degree v d)
+         let d = G.in_degree g v in
+         if d = 0 then Q.push v todo
+         else H.add degree v d)
       g;
     walk acc
 

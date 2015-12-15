@@ -47,7 +47,7 @@ SRCDIR	= src
 LIBDIR	= lib
 
 INCLUDES= -I $(SRCDIR) -I $(LIBDIR)
-BFLAGS = $(INCLUDES) -g -dtypes
+BFLAGS = $(INCLUDES) -g -dtypes -w +a -w -4 -w -44 -w -50 -w -48 -w -29
 OFLAGS = $(INCLUDES)
 
 # main target
@@ -479,7 +479,7 @@ headers:
 	headache \
 	   -c misc/headache_config.txt \
 	   -h misc/header.txt \
-	   Makefile.in configure.in README \
+	   Makefile.in configure.in README.adoc \
 	   $(LIBDIR)/*.ml $(LIBDIR)/*.ml[ily] \
 	   $(SRCDIR)/*.ml $(SRCDIR)/*.ml[ily] \
 	   $(ED_DIR)/*.ml $(ED_DIR)/*.mli
@@ -503,7 +503,7 @@ FILES = src/*.ml* lib/*.ml* Makefile.in configure configure.in META.in  \
 	view_graph/README view_graph/Makefile \
 	dgraph/*.ml dgraph/*.mli \
 	examples/*.ml tests/*.ml \
-	README FAQ CREDITS INSTALL COPYING LICENSE CHANGES
+	README.adoc FAQ CREDITS INSTALL.adoc COPYING LICENSE CHANGES
 
 export: source export-doc export-web export-delaunay
 
@@ -514,7 +514,7 @@ source:
 	cp --parents $(FILES) export/$(EXPORTDIR)
 	cd export ; tar cf $(TAR) $(EXPORTDIR) ; gzip -f --best $(TAR)
 	cp export/$(TAR).gz $(FTP)
-	cp README FAQ CREDITS COPYING LICENSE CHANGES $(EXAMPLES) $(FTP)
+	cp README.adoc FAQ CREDITS COPYING LICENSE CHANGES $(EXAMPLES) $(FTP)
 
 # Build and install the .tar.gz requiered by Frama-C
 framac: EXPORTDIR=ocamlgraph

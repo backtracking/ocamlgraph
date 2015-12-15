@@ -60,14 +60,14 @@ module type STRAT = sig
   val add : t -> vertex -> vertex -> t
 
   val next : t -> vertex -> vertex
-    (* Raises Invalid_argument if vertex's image is not defined *)
+  (* Raises Invalid_argument if vertex's image is not defined *)
 
 end
 
 
 (* Implements strategy algorithms on graphs *)
 module Algo (G : G) (P : PLAYER with type vertex = G.vertex)
-  (S : STRAT with type vertex = G.vertex) :
+    (S : STRAT with type vertex = G.vertex) :
 sig
 
   (* coherent_player g p returns true iff
@@ -97,135 +97,135 @@ sig
   val strategyA : G.t -> P.t -> (bool * S.t)
 end = struct
 
-    module SetV = Set.Make (G.V)
+  module SetV = Set.Make (G.V)
 
 
-    let rec eq l1 l2 = match l1, l2 with
-	[], [] -> true
-      | e1 :: l1', e2 :: l2' ->
-	  (e1 = e2) && (eq l1' l2')
-      | _ -> false
+  let rec eq l1 l2 = match l1, l2 with
+      [], [] -> true
+    | e1 :: l1', e2 :: l2' ->
+      (e1 = e2) && (eq l1' l2')
+    | _ -> false
 
-    let rec eq_mem i l1 l2 = match l1, l2 with
-	[], [] -> (true, false)
-      | e1 :: l1', e2 :: l2' ->
-	  if e1 = e2 then
-	    if e1 = i then (eq l1' l2', true)
-	    else eq_mem i l1' l2'
-	  else (false, false)
-      | _ -> (false, false)
+  let rec eq_mem i l1 l2 = match l1, l2 with
+      [], [] -> (true, false)
+    | e1 :: l1', e2 :: l2' ->
+      if e1 = e2 then
+        if e1 = i then (eq l1' l2', true)
+        else eq_mem i l1' l2'
+      else (false, false)
+    | _ -> (false, false)
 
-    let puit g v = match G.succ g v with
-	[] -> true
-      | _ -> false
-
-
-    let get_finals g p =
-      let f a l =
-	if P.is_final p a then a :: l
-	else l
-      in G.fold_vertex f g []
+  let puit g v = match G.succ g v with
+      [] -> true
+    | _ -> false
 
 
-    let coherent_player g p =
-      G.mem_vertex g (P.get_initial p)
+  let get_finals g p =
+    let f a l =
+      if P.is_final p a then a :: l
+      else l
+    in G.fold_vertex f g []
 
 
-    let coherent_strat g s =
-      let f v b =
-	try
-	  let v' = S.next s v in
-	    b && (G.mem_vertex g v')
-	with Invalid_argument _ -> true
+  let coherent_player g p =
+    G.mem_vertex g (P.get_initial p)
+
+
+  let coherent_strat g s =
+    let f v b =
+      try
+        let v' = S.next s v in
+        b && (G.mem_vertex g v')
+      with Invalid_argument _ -> true
+    in
+    G.fold_vertex f g true
+
+
+  let game _ p a b =
+
+    let rec game_aux l pi =
+      let continue x =
+        try
+          game_aux (SetV.add pi l) (S.next x pi)
+        with Invalid_argument _ -> false
       in
-	G.fold_vertex f g true
+      (P.is_final p pi) ||
+      (if SetV.mem pi l then false
+       else
+       if P.turn p pi then continue a
+       else continue b)
+
+    in
+    game_aux SetV.empty (P.get_initial p)
 
 
-    let game g p a b =
-
-      let rec game_aux l pi =
-	let continue x =
-	  try
-	    game_aux (SetV.add pi l) (S.next x pi)
-	  with Invalid_argument _ -> false
-	in
-	  (P.is_final p pi) ||
-	    (if SetV.mem pi l then false
-	     else
-	       if P.turn p pi then continue a
-	       else continue b)
-
-      in
-	game_aux SetV.empty (P.get_initial p)
-
-
-    let rec attract1 g p s l =
-      let f v l1 =
-	if not (List.mem v l1) then
-	  if P.turn p v then
-	    try
-	      if List.mem (S.next s v) l1 then v :: l1
-	      else l1
-	    with Invalid_argument _ -> l1
-	  else
-	    if puit g v then l1
-	    else
-	      if G.fold_succ (fun v' b -> b && (List.mem v' l1)) g v true
-	      then v :: l1
-	      else l1
-	else l1
-      in
-	G.fold_vertex f g l
+  let attract1 g p s l =
+    let f v l1 =
+      if not (List.mem v l1) then
+        if P.turn p v then
+          try
+            if List.mem (S.next s v) l1 then v :: l1
+            else l1
+          with Invalid_argument _ -> l1
+        else
+        if puit g v then l1
+        else
+        if G.fold_succ (fun v' b -> b && (List.mem v' l1)) g v true
+        then v :: l1
+        else l1
+      else l1
+    in
+    G.fold_vertex f g l
 
 
-    let rec strategy g p s =
+  let strategy g p s =
 
-      let rec strategy_aux l1 l2 =
-	let (b1, b2) = eq_mem (P.get_initial p) l1 l2 in
-	  if b1 then b2
-	  else strategy_aux (attract1 g p s l1) l1
+    let rec strategy_aux l1 l2 =
+      let (b1, b2) = eq_mem (P.get_initial p) l1 l2 in
+      if b1 then b2
+      else strategy_aux (attract1 g p s l1) l1
 
-      in
-      let finaux = get_finals g p in
-	strategy_aux (attract1 g p s finaux) finaux
-	  
-
-    let rec attract g p (l, l') =
-      let f v (l1, l1') =
-	if not (List.mem v l1) then
-	  if P.turn p v then
-	    let f' v' l2 =
-	      (match l2 with
-		   [] ->
-		     if List.mem v' l1 then [v']
-		     else []
-		 | _ -> l2) in
-	      (match G.fold_succ f' g v [] with
-		   [] -> (l1, l1')
-		 | v' :: _ -> (v :: l1, S.add l1' v v' ))
-	  else
-	    if puit g v then (l1, l1')
-	    else
-	      if G.fold_succ (fun v' b -> b && (List.mem v' l1)) g v true
-	      then (v :: l1, l1')
-	      else (l1, l1')
-	else (l1, l1')
-      in
-	G.fold_vertex f g (l, l')
+    in
+    let finaux = get_finals g p in
+    strategy_aux (attract1 g p s finaux) finaux
 
 
-    let rec strategyA g p =
+  let attract g p (l, l') =
+    let f v (l1, l1') =
+      if not (List.mem v l1) then
+        if P.turn p v then
+          let f' v' l2 =
+            (match l2 with
+               [] ->
+               if List.mem v' l1 then [v']
+               else []
+             | _ -> l2) in
+          (match G.fold_succ f' g v [] with
+             [] -> (l1, l1')
+           | v' :: _ -> (v :: l1, S.add l1' v v' ))
+        else
+        if puit g v then (l1, l1')
+        else
+        if G.fold_succ (fun v' b -> b && (List.mem v' l1)) g v true
+        then (v :: l1, l1')
+        else (l1, l1')
+      else (l1, l1')
+    in
+    G.fold_vertex f g (l, l')
 
-      let rec strategyA_aux l1 l2 f =
-	let (b1, b2) = eq_mem (P.get_initial p) l1 l2 in
-	  if b1 then (b2, f)
-	  else
-	    let (new_l1, new_f) = attract g p (l1, f) in
-	      strategyA_aux new_l1 l1 new_f
 
-      in
-      let finaux = get_finals g p in
-      let (l, r) = attract g p (finaux, S.empty) in
-	strategyA_aux l finaux r;;
+  let strategyA g p =
 
-  end
+    let rec strategyA_aux l1 l2 f =
+      let (b1, b2) = eq_mem (P.get_initial p) l1 l2 in
+      if b1 then (b2, f)
+      else
+        let (new_l1, new_f) = attract g p (l1, f) in
+        strategyA_aux new_l1 l1 new_f
+
+    in
+    let finaux = get_finals g p in
+    let (l, r) = attract g p (finaux, S.empty) in
+    strategyA_aux l finaux r;;
+
+end

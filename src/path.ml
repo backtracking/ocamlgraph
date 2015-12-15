@@ -40,12 +40,12 @@ end
 module type WJ = sig
   include Sig.WEIGHT
   val sub : t -> t -> t
-    (** Subtraction of weights. *)
+  (** Subtraction of weights. *)
 end
 
 module Dijkstra
-  (G: G)
-  (W: Sig.WEIGHT with type edge = G.E.t) =
+    (G: G)
+    (W: Sig.WEIGHT with type edge = G.E.t) =
 struct
 
   open G.E
@@ -85,7 +85,7 @@ struct
                    try W.compare dev (H.find dist ev) < 0 with Not_found -> true
                  in
                  if improvement then begin
-                     H.replace dist ev dev;
+                   H.replace dist ev dev;
                    PQ.add q (dev, ev, e :: p)
                  end
                end)
@@ -103,8 +103,8 @@ end
 (* The following module is a contribution of Yuto Takei (University of Tokyo) *)
 
 module BellmanFord
-  (G: G)
-  (W: Sig.WEIGHT with type edge = G.E.t) =
+    (G: G)
+    (W: Sig.WEIGHT with type edge = G.E.t) =
 struct
 
   open G.E
@@ -119,43 +119,43 @@ struct
     let admissible = H.create 97 in
     let build_cycle_from x0 =
       let rec traverse_parent x ret =
-	let e = H.find admissible x in
-	let s = src e in
-	if G.V.equal s x0 then e :: ret else traverse_parent s (e :: ret)
+        let e = H.find admissible x in
+        let s = src e in
+        if G.V.equal s x0 then e :: ret else traverse_parent s (e :: ret)
       in
       traverse_parent x0 []
     in
     let find_cycle x0 =
       let visited = H.create 97 in
       let rec visit x =
-	if H.mem visited x then
-	  build_cycle_from x
-	else begin
-	  H.add visited x ();
-	  let e = H.find admissible x in
-	  visit (src e)
-	end
+        if H.mem visited x then
+          build_cycle_from x
+        else begin
+          H.add visited x ();
+          let e = H.find admissible x in
+          visit (src e)
+        end
       in
       visit x0
     in
     let rec relax i =
       let update = G.fold_edges_e
-        (fun e x ->
-          let ev1 = src e in
-          let ev2 = dst e in
-          try begin
-            let dev1 = H.find dist ev1 in
-            let dev2 = W.add dev1 (W.weight e) in
-            let improvement =
-              try W.compare dev2 (H.find dist ev2) < 0
-              with Not_found -> true
-            in
-            if improvement then begin
-              H.replace dist ev2 dev2;
-	      H.replace admissible ev2 e;
-              Some ev2
-            end else x
-          end with Not_found -> x) g None in
+          (fun e x ->
+             let ev1 = src e in
+             let ev2 = dst e in
+             try begin
+               let dev1 = H.find dist ev1 in
+               let dev2 = W.add dev1 (W.weight e) in
+               let improvement =
+                 try W.compare dev2 (H.find dist ev2) < 0
+                 with Not_found -> true
+               in
+               if improvement then begin
+                 H.replace dist ev2 dev2;
+                 H.replace admissible ev2 e;
+                 Some ev2
+               end else x
+             end with Not_found -> x) g None in
       match update with
       | Some x ->
         if i == G.nb_vertex g then raise (NegativeCycle (find_cycle x))
@@ -179,19 +179,19 @@ struct
   let find_negative_cycle g =
     let rec iter = function
       | [] ->
-          raise Not_found
+        raise Not_found
       | (x :: _) :: cl ->
-          begin try find_negative_cycle_from g x with Not_found -> iter cl end
+        begin try find_negative_cycle_from g x with Not_found -> iter cl end
       | [] :: _ ->
-          assert false (* a component is not empty *)
+        assert false (* a component is not empty *)
     in
     iter (Comp.scc_list g)
 
 end
 
 module Johnson
-  (G: G)
-  (W: WJ with type edge = G.E.t) =
+    (G: G)
+    (W: WJ with type edge = G.E.t) =
 struct
 
   module HVV = Hashtbl.Make(Util.HTProduct(G.V)(G.V))
@@ -201,34 +201,34 @@ struct
     module V = struct
       type t = New | Old of G.V.t
       let compare v u = match v, u with
-	| New, New -> 0
-	| New, Old _ -> -1
-	| Old _, New -> 1
-	| Old v, Old u -> G.V.compare v u
+        | New, New -> 0
+        | New, Old _ -> -1
+        | Old _, New -> 1
+        | Old v, Old u -> G.V.compare v u
       let hash v = match v with
-	| Old v -> G.V.hash v
-	| New -> 42
+        | Old v -> G.V.hash v
+        | New -> 42
       let equal v u = match v, u with
-	| New, New -> true
-	| New, Old _ | Old _, New -> false
-	| Old v, Old u -> G.V.equal v u
+        | New, New -> true
+        | New, Old _ | Old _, New -> false
+        | Old v, Old u -> G.V.equal v u
     end
     module E = struct
       type label = G.E.label
       type t = NewE of V.t | OldE of G.E.t
       let src e = match e with
-	| NewE _ -> V.New
-	| OldE e -> V.Old (G.E.src e)
+        | NewE _ -> V.New
+        | OldE e -> V.Old (G.E.src e)
       let dst e = match e with
-	| NewE v -> v
-	| OldE e -> V.Old (G.E.dst e)
+        | NewE v -> v
+        | OldE e -> V.Old (G.E.dst e)
       let label e = match e with
-	| NewE _ -> assert false
-	| OldE e -> G.E.label e
+        | NewE _ -> assert false
+        | OldE e -> G.E.label e
       let create v l u = match v, u with
-	| V.New, V.Old u -> NewE (V.Old u)
-	| V.Old v, V.Old u -> OldE (G.E.create v l u)
-	| _, _ -> assert false
+        | V.New, V.Old u -> NewE (V.Old u)
+        | V.Old v, V.Old u -> OldE (G.E.create v l u)
+        | _, _ -> assert false
     end
     let iter_vertex f g = f V.New; G.iter_vertex (fun v -> f (V.Old v)) g
     let fold_vertex f g acc =
@@ -239,17 +239,17 @@ struct
       | V.Old v -> G.iter_succ (fun u -> f (V.Old u)) g v
     let iter_succ_e f g v = match v with
       | V.New ->
-	 G.iter_vertex (fun u -> f (E.NewE (V.Old u))) g
+        G.iter_vertex (fun u -> f (E.NewE (V.Old u))) g
       | V.Old v -> G.iter_succ_e (fun e -> f (E.OldE e)) g v
     let fold_edges_e f g acc =
       let acc' =
-	G.fold_vertex (fun x a -> f (E.NewE (V.Old x)) acc) g acc
+        G.fold_vertex (fun x _ -> f (E.NewE (V.Old x)) acc) g acc
       in
       G.fold_edges_e (fun edg ->
-		      let v1 = G.E.src edg in
-		      let v2 = G.E.dst edg in
-		      let l = G.E.label edg in
-		      f (E.create (V.Old v1) l (V.Old v2))) g acc'
+          let v1 = G.E.src edg in
+          let v2 = G.E.dst edg in
+          let l = G.E.label edg in
+          f (E.create (V.Old v1) l (V.Old v2))) g acc'
     let nb_vertex g = G.nb_vertex g + 1
   end
 
@@ -272,44 +272,44 @@ struct
     let pairs_dist = HVV.create 97 in
     let bf_res = BF.all_shortest_paths g G'.V.New in
     let module W'' = struct
-	type edge = W.edge
-	type t = W.t
-	let add = W.add
-	let sub = W.sub
-	let weight e =
-	  let v1 = G.E.src e in
-	  let v2 = G.E.dst e in
-	  add (W.weight e)
-	      (W.sub (BF.H.find bf_res (G'.V.Old v1))
-		     (BF.H.find bf_res (G'.V.Old v2)))
-	let compare = W.compare
-	let zero = W.zero
-      end
+      type edge = W.edge
+      type t = W.t
+      let add = W.add
+      let sub = W.sub
+      let weight e =
+        let v1 = G.E.src e in
+        let v2 = G.E.dst e in
+        add (W.weight e)
+          (W.sub (BF.H.find bf_res (G'.V.Old v1))
+             (BF.H.find bf_res (G'.V.Old v2)))
+      let compare = W.compare
+      let zero = W.zero
+    end
     in
     let module D = Dijkstra(G)(W'') in
     G.iter_vertex
       (fun v ->
-       G.iter_vertex
-	 (fun u ->
-	  try
-	    let (_, d) = D.shortest_path g v u in
-	    HVV.add pairs_dist (v, u)
-		    (W''.add d
-			     (W''.sub (BF.H.find bf_res (G'.V.Old u))
-				      (BF.H.find bf_res (G'.V.Old v))
-			     ))
-	  with Not_found -> () ) g) g;
+         G.iter_vertex
+           (fun u ->
+              try
+                let (_, d) = D.shortest_path g v u in
+                HVV.add pairs_dist (v, u)
+                  (W''.add d
+                     (W''.sub (BF.H.find bf_res (G'.V.Old u))
+                        (BF.H.find bf_res (G'.V.Old v))
+                     ))
+              with Not_found -> () ) g) g;
     pairs_dist
 
 end
 
 module Check
-  (G :
-    sig
-      type t
-      module V : Sig.COMPARABLE
-      val iter_succ : (V.t -> unit) -> t -> V.t -> unit
-    end) =
+    (G :
+     sig
+       type t
+       module V : Sig.COMPARABLE
+       val iter_succ : (V.t -> unit) -> t -> V.t -> unit
+     end) =
 struct
 
   module HV = Hashtbl.Make(G.V)

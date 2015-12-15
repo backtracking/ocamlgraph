@@ -54,20 +54,20 @@ module Make (G : G) = struct
 
     and step3 successors top rest_of_stack = match successors with
       | successor :: other_successors ->
-          if not (is_already_processed successor)
-          (* step 4 *)
-          then step2 successor ((top,successors)::rest_of_stack)
-          (* step 5 *)
-          else begin
-            let x =
-              if is_on_the_stack successor
-              then H.find n_labels successor
-              else H.find l_labels successor
-            in
-            H.add l_labels top
-              (max (H.find l_labels top) x) ;
-            step3 other_successors top rest_of_stack
-          end
+        if not (is_already_processed successor)
+        (* step 4 *)
+        then step2 successor ((top,successors)::rest_of_stack)
+        (* step 5 *)
+        else begin
+          let x =
+            if is_on_the_stack successor
+            then H.find n_labels successor
+            else H.find l_labels successor
+          in
+          H.add l_labels top
+            (max (H.find l_labels top) x) ;
+          step3 other_successors top rest_of_stack
+        end
 
       | [] -> begin
           (* step 7 *)

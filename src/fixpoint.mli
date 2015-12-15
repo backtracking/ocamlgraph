@@ -26,19 +26,19 @@
     Given a directed graph module [G], its analysis can be implemented
     as follows:
 
-{[
-module Reachability = Graph.Fixpoint.Make(G)
-(struct
-  type vertex = G.E.vertex
-  type edge = G.E.t
-  type g = G.t
-  type data = bool
-  let direction = Graph.Fixpoint.Forward
-  let equal = (=)
-  let join = (||)
-  let analyze _ = (fun x -> x)
-end)
-]}
+    {[
+      module Reachability = Graph.Fixpoint.Make(G)
+          (struct
+            type vertex = G.E.vertex
+            type edge = G.E.t
+            type g = G.t
+            type data = bool
+            let direction = Graph.Fixpoint.Forward
+            let equal = (=)
+            let join = (||)
+            let analyze _ = (fun x -> x)
+          end)
+    ]}
 
     The types for [vertex], [edge] and [g] are those of the graph to be
     analyzed.  The [data] type is [bool]: It will tell if the
@@ -54,8 +54,8 @@ end)
     [true] and of all other vertices to [false].
 
     {[
-    let g = ...
-    let result = Reachability.analyze is_root_vertex g
+      let g = ...
+        let result = Reachability.analyze is_root_vertex g
     ]}
 
     The [result] is a map of type [G.E.vertex -> bool] that can be
@@ -90,28 +90,28 @@ type direction = Forward | Backward
 
 module type Analysis = sig
   type data
-    (** information stored at each vertex *)
+  (** information stored at each vertex *)
   type edge
-    (** type of edges of the underlying graph *)
+  (** type of edges of the underlying graph *)
   type vertex
-    (** type of vertices of the underlying graph *)
+  (** type of vertices of the underlying graph *)
   type g
-    (** type of the underlying graph *)
+  (** type of the underlying graph *)
   val direction : direction
-    (** the direction of the analysis *)
+  (** the direction of the analysis *)
   val join : data -> data -> data
-    (** operation how to join data when paths meet *)
+  (** operation how to join data when paths meet *)
   val equal : data -> data -> bool
-    (** predicate to determine the fixpoint *)
+  (** predicate to determine the fixpoint *)
   val analyze : edge -> data -> data
-    (** the actual analysis of one edge; provided the edge and the incoming
-        data, it needs to compute the outgoing data *)
-  end
+  (** the actual analysis of one edge; provided the edge and the incoming
+      data, it needs to compute the outgoing data *)
+end
 
 module Make
-  (G : G)
-  (A : Analysis with type g = G.t with type edge = G.E.t
-                with type vertex = G.V.t) :
+    (G : G)
+    (A : Analysis with type g = G.t with type edge = G.E.t
+     with type vertex = G.V.t) :
 sig
   val analyze : (G.V.t -> A.data) -> A.g -> (G.V.t -> A.data)
   (** [analyze f g] computes the fixpoint on the given graph using the

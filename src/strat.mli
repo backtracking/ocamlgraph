@@ -64,35 +64,35 @@ module type STRAT = sig
   val add : t -> vertex -> vertex -> t
 
   val next : t -> vertex -> vertex
-    (** @raise Invalid_argument if vertex's image is not defined *)
+  (** @raise Invalid_argument if vertex's image is not defined *)
 
 end
 
 (** Implements strategy algorithms on graphs *)
 module Algo
-  (G : G)
-  (P : PLAYER with type vertex = G.vertex)
-  (S : STRAT with type vertex = G.vertex) :
+    (G : G)
+    (P : PLAYER with type vertex = G.vertex)
+    (S : STRAT with type vertex = G.vertex) :
 sig
 
   (** [coherent_player g p] returns [true] iff
-     the completion [p] is coherent w.r.t.
-     the graph g *)
+      the completion [p] is coherent w.r.t.
+      the graph g *)
   val coherent_player : G.t -> P.t -> bool
 
   (** [coherent_strat g s] returns [true] iff
-     the strategy [s] is coherent w.r.t.
-     the graph [g] *)
+      the strategy [s] is coherent w.r.t.
+      the graph [g] *)
   val coherent_strat : G.t -> S.t -> bool
 
   (** [game g p a b] returns [true] iff [a] wins in [g]
-     given the completion [p] (i.e. the game
-     goes through a final state). *)
+      given the completion [p] (i.e. the game
+      goes through a final state). *)
   val game : G.t -> P.t -> S.t -> S.t -> bool
 
   (** [strategy g p s] returns [true] iff [s] wins in [g]
-     given the completion [p], whatever strategy
-     plays the other player. *)
+      given the completion [p], whatever strategy
+      plays the other player. *)
   val strategy : G.t -> P.t -> S.t -> bool
 
   (** [strategyA g p] returns [true] iff there

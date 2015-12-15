@@ -43,18 +43,18 @@ module type S = sig
   class tree_model :
     XDot.Make(Tree).graph_layout ->
     TreeManipulation.t ->
-      [Tree.V.t, Tree.E.t, cluster] DGraphModel.abstract_model
+    [Tree.V.t, Tree.E.t, cluster] DGraphModel.abstract_model
 
   val tree : unit -> TreeManipulation.t
 
 end
 
 module Build
-  (G: Sig.G)
-  (T: Graphviz.GraphWithDotAttrs with type V.label = G.V.t)
-  (TM: DGraphSubTree.S with type Tree.t = T.t
-		       and type Tree.V.t = T.V.t
-		       and type Tree.E.t = T.E.t) =
+    (G: Sig.G)
+    (T: Graphviz.GraphWithDotAttrs with type V.label = G.V.t)
+    (TM: DGraphSubTree.S with type Tree.t = T.t
+                          and type Tree.V.t = T.V.t
+                          and type Tree.E.t = T.E.t) =
 struct
 
   module TreeManipulation = TM
@@ -66,82 +66,82 @@ struct
     : [ T.V.t, T.E.t, cluster ] DGraphModel.abstract_model
     =
     let tree_structure = TM.get_structure tree in
-  object
+    object
 
-    (* Iterators *)
-    method iter_edges f =
-      T.iter_edges
-	(fun v1 v2 ->
-	  if not (TM.is_ghost_node v1 tree && TM.is_ghost_node v2 tree) then
-	    f v1 v2)
-	tree_structure
+      (* Iterators *)
+      method iter_edges f =
+        T.iter_edges
+          (fun v1 v2 ->
+             if not (TM.is_ghost_node v1 tree && TM.is_ghost_node v2 tree) then
+               f v1 v2)
+          tree_structure
 
-    method iter_edges_e f =
-      T.iter_edges_e
-	(fun e -> if not (TM.is_ghost_edge e tree) then f e)
-	tree_structure
+      method iter_edges_e f =
+        T.iter_edges_e
+          (fun e -> if not (TM.is_ghost_edge e tree) then f e)
+          tree_structure
 
-    method iter_pred f v =
-      T.iter_pred
-	(fun v -> if not (TM.is_ghost_node v tree) then f v)
-	tree_structure v
+      method iter_pred f v =
+        T.iter_pred
+          (fun v -> if not (TM.is_ghost_node v tree) then f v)
+          tree_structure v
 
-    method iter_pred_e f v =
-      T.iter_pred_e
-	(fun e -> if not (TM.is_ghost_edge e tree) then f e)
-	tree_structure v
+      method iter_pred_e f v =
+        T.iter_pred_e
+          (fun e -> if not (TM.is_ghost_edge e tree) then f e)
+          tree_structure v
 
-    method iter_succ f =
-      T.iter_succ
-	(fun v -> if not (TM.is_ghost_node v tree) then f v)
-	tree_structure
+      method iter_succ f =
+        T.iter_succ
+          (fun v -> if not (TM.is_ghost_node v tree) then f v)
+          tree_structure
 
-    method iter_succ_e f =
-      T.iter_succ_e
-	(fun e -> if not (TM.is_ghost_edge e tree) then f e)
-	tree_structure
+      method iter_succ_e f =
+        T.iter_succ_e
+          (fun e -> if not (TM.is_ghost_edge e tree) then f e)
+          tree_structure
 
-    method iter_vertex f =
-      T.iter_vertex
-	(fun v -> if not (TM.is_ghost_node v tree) then f v)
-	tree_structure
+      method iter_vertex f =
+        T.iter_vertex
+          (fun v -> if not (TM.is_ghost_node v tree) then f v)
+          tree_structure
 
-    method iter_associated_vertex f v =
-      let origin_vertex = TM.get_graph_vertex v tree in
-      List.iter
-	(fun v -> if not (TM.is_ghost_node v tree) then f v)
-	(TM.get_tree_vertices origin_vertex tree)
+      method iter_associated_vertex f v =
+        let origin_vertex = TM.get_graph_vertex v tree in
+        List.iter
+          (fun v -> if not (TM.is_ghost_node v tree) then f v)
+          (TM.get_tree_vertices origin_vertex tree)
 
-    method iter_clusters f =
-      Hashtbl.iter (fun k _ -> f k) layout.X.cluster_layouts
+      method iter_clusters f =
+        Hashtbl.iter (fun k _ -> f k) layout.X.cluster_layouts
 
-    (* Membership functions *)
-    method find_edge =
-      try T.find_edge tree_structure
-      with Not_found -> assert false
+      (* Membership functions *)
+      method find_edge =
+        try T.find_edge tree_structure
+        with Not_found -> assert false
 
-    method mem_edge = T.mem_edge tree_structure
-    method mem_edge_e = T.mem_edge_e tree_structure
-    method mem_vertex = T.mem_vertex tree_structure
-    method src = T.E.src
-    method dst = T.E.dst
+      method mem_edge = T.mem_edge tree_structure
+      method mem_edge_e = T.mem_edge_e tree_structure
+      method mem_vertex = T.mem_vertex tree_structure
+      method src = T.E.src
+      method dst = T.E.dst
 
-    (* Layout *)
-    method bounding_box = layout.X.bbox
+      (* Layout *)
+      method bounding_box = layout.X.bbox
 
-    method get_vertex_layout v =
-      try X.HV.find layout.X.vertex_layouts v
-      with Not_found -> assert false
+      method get_vertex_layout v =
+        try X.HV.find layout.X.vertex_layouts v
+        with Not_found -> assert false
 
-    method get_edge_layout e =
-      try X.HE.find layout.X.edge_layouts e
-      with Not_found -> assert false
+      method get_edge_layout e =
+        try X.HE.find layout.X.edge_layouts e
+        with Not_found -> assert false
 
-    method get_cluster_layout c =
-      try Hashtbl.find layout.X.cluster_layouts c
-      with Not_found -> assert false
+      method get_cluster_layout c =
+        try Hashtbl.find layout.X.cluster_layouts c
+        with Not_found -> assert false
 
-  end
+    end
 
 end
 
@@ -169,9 +169,9 @@ module SubTreeMake(G: Graphviz.GraphWithDotAttrs) = struct
     let vertex_name v =
       try Hashtbl.find name_table v
       with Not_found ->
-	incr cpt;
-	Hashtbl.add name_table v (string_of_int !cpt);
-	string_of_int !cpt
+        incr cpt;
+        Hashtbl.add name_table v (string_of_int !cpt);
+        string_of_int !cpt
 
     let vertex_attributes v =
       let t = tree () in
@@ -181,13 +181,13 @@ module SubTreeMake(G: Graphviz.GraphWithDotAttrs) = struct
     let edge_attributes e =
       let t = tree () in
       if TM.is_ghost_node (T.E.src e) t || TM.is_ghost_node (T.E.dst e) t then
-	[ `Style `Dashed; `Dir `None ]
+        [ `Style `Dashed; `Dir `None ]
       else
-	G.edge_attributes
-	  (G.find_edge
-	     (graph ())
-	     (TM.get_graph_vertex (T.E.src e) t)
-	     (TM.get_graph_vertex (T.E.dst e) t))
+        G.edge_attributes
+          (G.find_edge
+             (graph ())
+             (TM.get_graph_vertex (T.E.src e) t)
+             (TM.get_graph_vertex (T.E.dst e) t))
 
     let get_subgraph v =
       let t = tree () in
@@ -209,7 +209,7 @@ module SubTreeMake(G: Graphviz.GraphWithDotAttrs) = struct
       context
       g
       v
-      =
+    =
     (* Generate subtree *)
     let t = TM.make g v depth_forward depth_backward in
     tree_ref := Some t;

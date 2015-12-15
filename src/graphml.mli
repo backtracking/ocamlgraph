@@ -31,34 +31,34 @@ end
 
 (** Graphml Printer given a graph and required info *)
 module Print
-  (G: G)
-  (L : sig
-    val vertex_properties : (string * string * string option) list
-    (** List of the type of the vertex proprierties.
-        The format is (id,type,default). *)
+    (G: G)
+    (L : sig
+       val vertex_properties : (string * string * string option) list
+       (** List of the type of the vertex proprierties.
+           The format is (id,type,default). *)
 
-    val edge_properties : (string * string * string option) list
-    (** List of the type of the edge proprierties. *)
+       val edge_properties : (string * string * string option) list
+       (** List of the type of the edge proprierties. *)
 
-    val map_vertex : G.vertex -> (string * string) list
-    (** Associates to each vertex a key/value list where
-        the key is the id of a vertex attribute and the value is the value
-        associated to this vertex *)
+       val map_vertex : G.vertex -> (string * string) list
+       (** Associates to each vertex a key/value list where
+           the key is the id of a vertex attribute and the value is the value
+           associated to this vertex *)
 
-    val map_edge : G.E.t -> (string * string) list
-    (** Associates to each edge a key/value list *)
+       val map_edge : G.E.t -> (string * string) list
+       (** Associates to each edge a key/value list *)
 
-    val vertex_uid : G.vertex -> int
-    (** @return a unique integer identifier for the vertex *)
+       val vertex_uid : G.vertex -> int
+       (** @return a unique integer identifier for the vertex *)
 
-    val edge_uid : G.E.t -> int
-    (** @return a unique integer identifier for the edge *)
-  end) :
-  sig
-    val print : Format.formatter -> G.t -> unit
-    (** [print fmt graph] print the GraphMl representation of the given graph
-        on the given formatter *)
-  end
+       val edge_uid : G.E.t -> int
+       (** @return a unique integer identifier for the edge *)
+     end) :
+sig
+  val print : Format.formatter -> G.t -> unit
+  (** [print fmt graph] print the GraphMl representation of the given graph
+      on the given formatter *)
+end
 
 
 (*

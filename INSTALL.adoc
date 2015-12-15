@@ -1,7 +1,5 @@
 
-===========================
-How to create the library ?
-===========================
+= How to create the library ?
 
 You need Objective Caml >= 3.10.2 to compile this library.
 
@@ -21,9 +19,7 @@ findlib users may also do
 
 	make install-findlib
 
-=================================
-How to create the documentation ?
-=================================
+== How to create the documentation ?
 
 create a local documentation with
 

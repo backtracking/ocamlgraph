@@ -23,10 +23,8 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open DGraphModel
 open XDot
 open XDotDraw
-open Printf
 
 let red_color =   0xFF0000FFl
 let blue_color =  0x0000FFFFl
@@ -41,21 +39,21 @@ let rgba_to_int32 col =
      those. The list might be incomplete though; if it is, we might need to
      translate http://www.w3.org/TR/SVG/types.html#ColorKeywords *)
   match col with
-    | "black" -> black_color
-    | "white" -> white_color
-    | "red" -> red_color
-    | "green" -> green_color
-    | "blue" -> blue_color
-    | _ ->
-        try
-          match String.length col with
-            | 7 -> Graph.Graphviz.color_to_color_with_transparency
-                (int_of_string ("0x" ^ String.sub col 1 6))
-            | 9 -> Int32.of_string ("0x" ^ String.sub col 1 8)
-            | _ -> failwith ""
-        with Failure _ ->
-          (* Can fail either in the failed match above, or in int*of_string *)
-          raise (Cannot_convert_color (col^" but int32 expected"))
+  | "black" -> black_color
+  | "white" -> white_color
+  | "red" -> red_color
+  | "green" -> green_color
+  | "blue" -> blue_color
+  | _ ->
+    try
+      match String.length col with
+      | 7 -> Graph.Graphviz.color_to_color_with_transparency
+               (int_of_string ("0x" ^ String.sub col 1 6))
+      | 9 -> Int32.of_string ("0x" ^ String.sub col 1 8)
+      | _ -> failwith ""
+    with Failure _ ->
+      (* Can fail either in the failed match above, or in int*of_string *)
+      raise (Cannot_convert_color (col^" but int32 expected"))
 
 let convert_fill_color col = `FILL_COLOR_RGBA (rgba_to_int32 col)
 let convert_outline_color col = `OUTLINE_COLOR_RGBA (rgba_to_int32 col)
@@ -66,54 +64,54 @@ let ($) f x = f x
 (* Derived text class. *)
 class graph_text txt_obj ~size_points ~(props:GnomeCanvas.text_p list) =
   let props = `SIZE_POINTS size_points :: props in
-object (self)
+  object (self)
 
-  inherit GnoCanvas.text txt_obj as text
-  val original_size = size_points
-  val mutable props = props
+    inherit GnoCanvas.text txt_obj as text
+    val original_size = size_points
+    val mutable props = props
 
-  method set p =
-    props <- p;
-    text#set p
+    method! set p =
+      props <- p;
+      text#set p
 
-  method highlight ?(color=red_color,green_color) () =
-    let primary, secondary = color in
-    let color = ref primary in
-    let rec hi_props = function
-      | [] -> []
-      | `SIZE_POINTS p :: l ->
-	let p = if p >= 12. then p else max 6. (p *. 1.5) in
-	`SIZE_POINTS p :: hi_props l
-      | `WEIGHT d :: l ->
-	`WEIGHT (max 600 (int_of_float (float d *. 1.5))) :: hi_props l
-      | `FILL_COLOR_RGBA c :: l ->
-	if c = primary then color := secondary;
-	hi_props l
-      | p :: l -> p :: hi_props l
-    in
-    (* as inserted in head, `WEIGHT 600 will not apply if there is already a
-       specified weight *)
-    text#set (`FILL_COLOR_RGBA !color :: `WEIGHT 600 :: hi_props props)
+    method highlight ?(color=red_color,green_color) () =
+      let primary, secondary = color in
+      let color = ref primary in
+      let rec hi_props = function
+        | [] -> []
+        | `SIZE_POINTS p :: l ->
+          let p = if p >= 12. then p else max 6. (p *. 1.5) in
+          `SIZE_POINTS p :: hi_props l
+        | `WEIGHT d :: l ->
+          `WEIGHT (max 600 (int_of_float (float d *. 1.5))) :: hi_props l
+        | `FILL_COLOR_RGBA c :: l ->
+          if c = primary then color := secondary;
+          hi_props l
+        | p :: l -> p :: hi_props l
+      in
+      (* as inserted in head, `WEIGHT 600 will not apply if there is already a
+         specified weight *)
+      text#set (`FILL_COLOR_RGBA !color :: `WEIGHT 600 :: hi_props props)
 
-  method dehighlight () =
-    (* as inserted in head, properties will not apply if they are already
-       specified *)
-    text#set (`WEIGHT 400 :: `FILL_COLOR_RGBA black_color :: props)
+    method dehighlight () =
+      (* as inserted in head, properties will not apply if they are already
+         specified *)
+      text#set (`WEIGHT 400 :: `FILL_COLOR_RGBA black_color :: props)
 
-  method resize (zoom_factor:float) =
-    let rec change = function
-      | [] -> []
-      | `SIZE_POINTS f :: l -> 
-        `SIZE_POINTS (zoom_factor*.original_size) :: change l
-      | `FONT _ :: l -> change l
-      | p :: l -> p :: change l
-    in
-    self#set (change props)
+    method resize (zoom_factor:float) =
+      let rec change = function
+        | [] -> []
+        | `SIZE_POINTS _ :: l -> 
+          `SIZE_POINTS (zoom_factor*.original_size) :: change l
+        | `FONT _ :: l -> change l
+        | p :: l -> p :: change l
+      in
+      self#set (change props)
 
-  initializer
-    text#set props
+    initializer
+      text#set props
 
-end
+  end
 
 (* Constructor copied and adapted from gnoCanvas.ml *)
 let graph_text ?x ?y ?text ?font ?anchor ~size_points ?(props=[]) p =
@@ -162,14 +160,10 @@ let shape_item = function
 
 (* Shape properties (used by canvas items ellipse, polygon and bpath) *)
 type shape_p =
-    [ `FILL_COLOR_RGBA of int32
-    | `OUTLINE_COLOR_RGBA of int32
-    | `WIDTH_UNITS of float
-    | `DASH of float * float array ]
-
-let to_p = function
-  | #shape_p as p -> p
-  | _ -> invalid_arg "to_p"
+  [ `FILL_COLOR_RGBA of int32
+  | `OUTLINE_COLOR_RGBA of int32
+  | `WIDTH_UNITS of float
+  | `DASH of float * float array ]
 
 (* Property list completion *)
 (* In the initial property list of a shape, we need all the properties to hold
@@ -200,9 +194,9 @@ class shape ~fill shape init_props = object (self)
   inherit GnoCanvas.base_item (shape_item shape)
 
   method private set_props props = match shape with
-  | SPolygon p -> p#set (props :> GnomeCanvas.polygon_p list)
-  | SEllipse e -> e#set (props :> GnomeCanvas.re_p list)
-  | SBSpline b -> b#set (props :> GnomeCanvas.bpath_p list)
+    | SPolygon p -> p#set (props :> GnomeCanvas.polygon_p list)
+    | SEllipse e -> e#set (props :> GnomeCanvas.re_p list)
+    | SBSpline b -> b#set (props :> GnomeCanvas.bpath_p list)
 
   (* Properties queue *)
   val mutable props = []
@@ -218,11 +212,11 @@ class shape ~fill shape init_props = object (self)
       | [] -> []
       | `WIDTH_UNITS u :: l -> `WIDTH_UNITS (max 3. (u *. 3.)) :: hi_props l
       | `FILL_COLOR_RGBA c :: l when fill ->
-	  if c = primary then color := secondary;
-	  hi_props l
+        if c = primary then color := secondary;
+        hi_props l
       | `OUTLINE_COLOR_RGBA c :: l ->
-	  if c = primary then color := secondary;
-	  hi_props l
+        if c = primary then color := secondary;
+        hi_props l
       | p :: l -> p :: hi_props l
     in
     (* as inserted in head, `WIDTH_UNITS 3. will not apply if there is already
@@ -271,8 +265,8 @@ let pathdef pts =
     (* Rest of the spline *)
     let rec curveto = function
       | (x1,y1) :: (x2,y2) :: (x3,y3) :: t ->
-	  GnomeCanvas.PathDef.curveto pathdef x1 y1 x2 y2 x3 y3;
-	  curveto t
+        GnomeCanvas.PathDef.curveto pathdef x1 y1 x2 y2 x3 y3;
+        curveto t
       | _ -> ()
     in
     curveto (List.tl pts);
@@ -289,7 +283,7 @@ let bspline ~fill draw_st group pts =
   let bpath = GnoCanvas.bpath group ~bpath:path ~props in
   new shape ~fill (SBSpline bpath) props
 
-let text draw_st group (x,y) align anchor label =
+let text draw_st group (x,y) _align anchor label =
   let size_points, font = draw_st.XDotDraw.font in
   let props = [ convert_fill_color draw_st.XDotDraw.pen_color ] in
   let anchor =
@@ -319,8 +313,8 @@ class type textshape = object
   method lower_to_bottom: unit -> unit
   method connect:
     < event : callback:(GnoCanvas.item_event -> bool) -> GtkSignal.id;
-    after : GnoCanvas.item_signals;
-    destroy : callback:(unit -> unit) -> GtkSignal.id; >
+      after : GnoCanvas.item_signals;
+      destroy : callback:(unit -> unit) -> GtkSignal.id; >
 end
 
 (* DGraph item
@@ -332,106 +326,106 @@ end
    ~ops_list : list of list of operations
    ~hl_vip : highlight properties, set when method highlight is called *)
 class [ 'a ] view_item ~fill ~delay ~(view: common_view) ~pos ~ops_list
-  ~(item:'a) =
-object (self)
+    ~(item:'a) =
+  object (self)
 
-  inherit GnoCanvas.group view#root#as_group
+    inherit GnoCanvas.group view#root#as_group
 
-  val mutable hilighted = false
-  val mutable texts = []
-  val mutable shapes = []
-  val mutable computed = not delay
-  val mutable cached_events = []
+    val mutable hilighted = false
+    val mutable texts = []
+    val mutable shapes = []
+    val mutable computed = not delay
+    val mutable cached_events = []
 
-  method item = item
+    method item = item
 
-  method private cache : 'a. ('a -> unit) -> 'a -> unit =
-    fun f x ->
-      if computed then f x
-      else cached_events <- (fun () -> f x) :: cached_events
+    method private cache : 'a. ('a -> unit) -> 'a -> unit =
+      fun f x ->
+        if computed then f x
+        else cached_events <- (fun () -> f x) :: cached_events
 
-  method zoom_text (zf:float) =
-    self#cache (fun zf -> List.iter (fun t -> t#resize zf) texts) zf
+    method zoom_text (zf:float) =
+      self#cache (fun zf -> List.iter (fun t -> t#resize zf) texts) zf
 
-  method private iter f =
-    List.iter (fun t -> f (t :> textshape)) texts;
-    List.iter f (shapes :> textshape list)
+    method private iter f =
+      List.iter (fun t -> f (t :> textshape)) texts;
+      List.iter f (shapes :> textshape list)
 
-  method highlight ?color () =
-    self#cache
-      (fun () ->
-	if not hilighted then begin
-	  hilighted <- true;
-	  self#iter (fun s -> s#highlight ?color ());
-	  List.iter (fun t -> t#raise_to_top ()) texts;
-	end)
-      ()
+    method highlight ?color () =
+      self#cache
+        (fun () ->
+           if not hilighted then begin
+             hilighted <- true;
+             self#iter (fun s -> s#highlight ?color ());
+             List.iter (fun t -> t#raise_to_top ()) texts;
+           end)
+        ()
 
-  method dehighlight () =
-    self#cache
-      (fun () ->
-	if hilighted then begin
-	  hilighted <- false;
-	  self#iter (fun s -> s#dehighlight ());
-	end)
-      ()
+    method dehighlight () =
+      self#cache
+        (fun () ->
+           if hilighted then begin
+             hilighted <- false;
+             self#iter (fun s -> s#dehighlight ());
+           end)
+        ()
 
-  method hide () = self#cache (fun () -> self#iter (fun s -> s#hide ())) ()
-  method show () = self#cache (fun () -> self#iter (fun s -> s#show ())) ()
+    method! hide () = self#cache (fun () -> self#iter (fun s -> s#hide ())) ()
+    method! show () = self#cache (fun () -> self#iter (fun s -> s#show ())) ()
 
-  method connect_event ~callback =
-    self#cache
-      (fun () -> self#iter (fun s -> ignore (s#connect#event ~callback)))
-      ()
+    method connect_event ~callback =
+      self#cache
+        (fun () -> self#iter (fun s -> ignore (s#connect#event ~callback)))
+        ()
 
-  method center () =
-    self#cache(fun () -> 
-      let x, y = pos in
-      let w = view#hadjustment#page_size /. view#zoom_factor in
-      let h = view#vadjustment#page_size /. view#zoom_factor in
-      let sx = x -. (w /. 2.) in
-      let sy = y -. (h /. 2.) in
-      let sx, sy = view#w2c ~wx:sx ~wy:sy in
-      ignore $ view#scroll_to ~x:sx ~y:sy) 
-      ()
+    method center () =
+      self#cache(fun () -> 
+          let x, y = pos in
+          let w = view#hadjustment#page_size /. view#zoom_factor in
+          let h = view#vadjustment#page_size /. view#zoom_factor in
+          let sx = x -. (w /. 2.) in
+          let sy = y -. (h /. 2.) in
+          let sx, sy = view#w2c ~wx:sx ~wy:sy in
+          ignore $ view#scroll_to ~x:sx ~y:sy) 
+        ()
 
-  method lower_to_bottom () =
-    self#cache (fun () -> self#iter (fun s -> s#lower_to_bottom ())) ()
+    method! lower_to_bottom () =
+      self#cache (fun () -> self#iter (fun s -> s#lower_to_bottom ())) ()
 
-  (* Reads a list of list of operations
-     Updates the shapes and texts lists *)
-  method private read_operations () =
-    let read_op draw_st = function
-      (* Create shapes *)
-      | XDotDraw.Filled_ellipse (pos, w, h)
-      | XDotDraw.Unfilled_ellipse (pos, w, h) ->
-        shapes <- ellipse ~fill draw_st self pos w h :: shapes
-      | XDotDraw.Filled_polygon pts | XDotDraw.Unfilled_polygon pts ->
-	shapes <- polygon ~fill draw_st self pts :: shapes
-      | XDotDraw.Bspline pts | XDotDraw.Filled_bspline pts ->
-	shapes <- bspline ~fill draw_st self pts :: shapes
-      | XDotDraw.Text (pos, align, anchor, label) ->
-	texts <- text draw_st self pos align anchor label :: texts
-      | _ -> ()
-    in
-    List.iter (draw_with read_op) ops_list;
-    List.iter (fun t -> t#raise_to_top ()) texts;
-    List.fold_right (* preserve order *) (fun f () -> f ()) cached_events ()
+    (* Reads a list of list of operations
+       Updates the shapes and texts lists *)
+    method private read_operations () =
+      let read_op draw_st = function
+        (* Create shapes *)
+        | XDotDraw.Filled_ellipse (pos, w, h)
+        | XDotDraw.Unfilled_ellipse (pos, w, h) ->
+          shapes <- ellipse ~fill draw_st self pos w h :: shapes
+        | XDotDraw.Filled_polygon pts | XDotDraw.Unfilled_polygon pts ->
+          shapes <- polygon ~fill draw_st self pts :: shapes
+        | XDotDraw.Bspline pts | XDotDraw.Filled_bspline pts ->
+          shapes <- bspline ~fill draw_st self pts :: shapes
+        | XDotDraw.Text (pos, align, anchor, label) ->
+          texts <- text draw_st self pos align anchor label :: texts
+        | _ -> ()
+      in
+      List.iter (draw_with read_op) ops_list;
+      List.iter (fun t -> t#raise_to_top ()) texts;
+      List.fold_right (* preserve order *) (fun f () -> f ()) cached_events ()
 
-  method compute () =
-    if not computed then begin
-      computed <- true;
-      self#read_operations ()
-    end
+    method compute () =
+      if not computed then begin
+        computed <- true;
+        self#read_operations ()
+      end
 
-  initializer
-    if delay then
-      let prio = Glib.int_of_priority `LOW in
-      ignore (Glib.Idle.add ~prio (fun () -> self#compute (); false))
-    else
-      self#read_operations ()
+    initializer
+      if delay then
+        let prio = Glib.int_of_priority `LOW in
+        ignore (Glib.Idle.add ~prio (fun () -> self#compute (); false))
+      else
+        self#read_operations ()
 
-end
+  end
 
 let view_node ~delay ~view ~vertex ~layout () =
   let pos = layout.n_pos in

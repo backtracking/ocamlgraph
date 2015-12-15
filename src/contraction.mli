@@ -38,12 +38,12 @@ module type G = sig
 end
 
 module Make
-  (G : G) :
+    (G : G) :
 sig
   val contract : (G.E.t -> bool) -> G.t -> G.t
-    (** [contract p g] will perform edge contraction on the graph [g].
-        The edges for which the property [p] holds/is true will get contracted:
-        The resulting graph will not have these edges; the start- and end-node
-        of these edges will get united. *)
+  (** [contract p g] will perform edge contraction on the graph [g].
+      The edges for which the property [p] holds/is true will get contracted:
+      The resulting graph will not have these edges; the start- and end-node
+      of these edges will get united. *)
 end
 

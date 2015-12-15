@@ -27,10 +27,10 @@
 module type FLOW = sig
 
   type t
-    (** Type of edges. *)
+  (** Type of edges. *)
 
   type label
-    (** Type of labels on edges. *)
+  (** Type of labels on edges. *)
 
   (** Maximum and minimum capacities for a label on an edge. *)
 
@@ -74,9 +74,9 @@ end
 module Goldberg(G: G_GOLDBERG)(F: FLOW with type label = G.E.label) : sig
 
   val maxflow : G.t -> G.V.t -> G.V.t -> (G.E.t -> F.t) * F.t
-    (** [maxflow g v1 v2] searchs the maximal flow from source [v1] to
-	terminal [v2] using the Goldberg algorithm. It returns the new
-	flows on each edges and the growth of the flow. *)
+  (** [maxflow g v1 v2] searchs the maximal flow from source [v1] to
+      terminal [v2] using the Goldberg algorithm. It returns the new
+      flows on each edges and the growth of the flow. *)
 
 end
 
@@ -99,14 +99,14 @@ module type G_FORD_FULKERSON = sig
 end
 
 module Ford_Fulkerson
-  (G: G_FORD_FULKERSON)
-  (F: FLOW with type label = G.E.label) :
+    (G: G_FORD_FULKERSON)
+    (F: FLOW with type label = G.E.label) :
 sig
 
   val maxflow : G.t -> G.V.t -> G.V.t -> (G.E.t -> F.t) * F.t
-      (** [maxflow g v1 v2] searchs the maximal flow from source [v1]
-	  to terminal [v2] using the Ford-Fulkerson algorithm. It
-	  returns the new flows on each edges and the growth of the
-	  flow. *)
+  (** [maxflow g v1 v2] searchs the maximal flow from source [v1]
+      to terminal [v2] using the Ford-Fulkerson algorithm. It
+      returns the new flows on each edges and the growth of the
+      flow. *)
 
 end

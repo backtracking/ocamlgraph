@@ -31,15 +31,15 @@ module type HTREE = sig
   type coord = float * float
 
   type driver = {
-      rlimit : float ;
-      moveto : coord -> unit ;
-      lineto : coord -> unit ;
-      curveto : coord -> coord -> coord -> unit ;
-      draw_label : label -> coord -> float -> unit ;
-      init_edge_pass : unit -> unit ;
-      init_label_pass : unit -> unit ;
-      finalize : unit -> unit ;
-    }
+    rlimit : float ;
+    moveto : coord -> unit ;
+    lineto : coord -> unit ;
+    curveto : coord -> coord -> coord -> unit ;
+    draw_label : label -> coord -> float -> unit ;
+    init_edge_pass : unit -> unit ;
+    init_label_pass : unit -> unit ;
+    finalize : unit -> unit ;
+  }
 
   val shrink_factor : coord -> float
   val drag_origin : coord -> coord -> coord -> coord
@@ -49,4 +49,4 @@ module type HTREE = sig
 end ;;
 
 module Make(T : TREE) :
-    HTREE with type t = T.t and type label = T.label ;;
+  HTREE with type t = T.t and type label = T.label ;;

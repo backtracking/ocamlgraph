@@ -104,10 +104,10 @@ let shrink_factor (x, y) =
 type coord = float * float 
 
 type turtle =
-    {
-      pos : coord ;  (* with |pos| < 1 *)
-      dir : coord    (* with |dir| = 1 *)
-    } 
+  {
+    pos : coord ;  (* with |pos| < 1 *)
+    dir : coord    (* with |dir| = 1 *)
+  } 
 
 let make_turtle pos angle =
   { 
@@ -131,13 +131,13 @@ let dir_to tdep tdest t =
   let a = tdep.pos in
   let d = tdest.pos in
   ((d -& a) /& (th t *.&( one -& (~&a) *& d))) 
-  
+
 
 
 (* return a turtle for a distance from original *)
 let advance turtle step =
-   { pos = gamma turtle.pos turtle.dir step ;
-     dir = delta turtle.pos turtle.dir step }
+  { pos = gamma turtle.pos turtle.dir step ;
+    dir = delta turtle.pos turtle.dir step }
 
 (* return a turtle for a distance d from original with steps  *)
 let advance_many turtle d steps =
@@ -186,7 +186,7 @@ let hspace_dist_sqr turtle  =
   let (ax, ay) = turtle.pos
   and (dx, dy) = turtle.dir in
   if ax*.dx +. ay*.dy < 0.0
-   then begin 
+  then begin 
     0.0 
   end else begin
     let ux = dy and uy = -.dx in
@@ -196,15 +196,15 @@ let hspace_dist_sqr turtle  =
       alpha
     else
       begin
-	let gamma = (1.0 +. alpha)/.beta in
-	let delta = gamma*.gamma -. 1.0 in
-	let sol =
+        let gamma = (1.0 +. alpha)/.beta in
+        let delta = gamma*.gamma -. 1.0 in
+        let sol =
           if beta > 0.0
           then -.gamma +. sqrt(delta)
           else -.gamma -. sqrt(delta) in
-	let (zx, zy) = translate (ax, ay) (ux*.sol, uy*.sol) in
-	let res = zx*.zx +. zy*.zy in
-	res
+        let (zx, zy) = translate (ax, ay) (ux*.sol, uy*.sol) in
+        let res = zx*.zx +. zy*.zy in
+        res
       end
   end
 

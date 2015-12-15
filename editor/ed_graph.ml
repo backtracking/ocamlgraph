@@ -25,14 +25,14 @@ type visibility = Visible | BorderNode | Hidden
 type mode = Normal | Selected | Focused | Selected_Focused
 
 type node_info = 
-    { 
-      label : string;
-      mutable visible : visibility;
-      mutable depth : int;
-      mutable vertex_mode : mode;
-      mutable turtle : turtle;
-    }
-      
+  { 
+    label : string;
+    mutable visible : visibility;
+    mutable depth : int;
+    mutable vertex_mode : mode;
+    mutable turtle : turtle;
+  }
+
 let make_node_info s = 
   { 
     label = s; 
@@ -43,14 +43,14 @@ let make_node_info s =
   }
 
 type edge_info = 
-    {
-      mutable visited : bool;
-      mutable edge_mode : mode;
-      mutable edge_turtle : turtle;
-      mutable edge_distance : float;
-      mutable edge_steps : int;
-    }
-      
+  {
+    mutable visited : bool;
+    mutable edge_mode : mode;
+    mutable edge_turtle : turtle;
+    mutable edge_distance : float;
+    mutable edge_steps : int;
+  }
+
 let make_edge_info () =
   { 
     visited = false; 
@@ -94,11 +94,11 @@ module GmlParser =
     (B)
     (struct 
       let node l = 
-	make_node_info
-	  (try 
-	      match List.assoc "id" l 
-	      with Gml.Int n -> string_of_int n | _ -> "<no id>"
-	    with Not_found -> "<no id>")
+        make_node_info
+          (try 
+             match List.assoc "id" l 
+             with Gml.Int n -> string_of_int n | _ -> "<no id>"
+           with Not_found -> "<no id>")
       let edge _ = make_edge_info ()
     end)
 
@@ -107,10 +107,10 @@ module DotParser =
     (B)
     (struct 
       let node (id,_) _ = match id with
-	| Dot_ast.Ident s
-	| Dot_ast.Number s
-	| Dot_ast.String s
-	| Dot_ast.Html s -> make_node_info s
+        | Dot_ast.Ident s
+        | Dot_ast.Number s
+        | Dot_ast.String s
+        | Dot_ast.Html s -> make_node_info s
       let edge _ = make_edge_info ()
     end)
 
@@ -129,11 +129,11 @@ module GmlPrinter =
   Gml.Print
     (G)
     (struct
-       let node (v: G.V.label) = ["label", Gml.Int (int_of_string v.label)]
-       let edge (e: G.E.label) = []
-     end)
-    
- 
+      let node (v: G.V.label) = ["label", Gml.Int (int_of_string v.label)]
+      let edge (_: G.E.label) = []
+    end)
+
+
 module DotPrinter =
   Graphviz.Dot
     ( struct
@@ -146,31 +146,31 @@ module DotPrinter =
       let edge_attributes _ = []
       let get_subgraph _ = None
     end )
- 
- 
+
+
 
 
 (* two outputs functions, and a save graph function *)
- let gml_output g f =
-    let c = open_out f in
-    let fmt = Format.formatter_of_out_channel c in
-    Format.fprintf fmt "%a@." GmlPrinter.print g;
-    close_out c
+let gml_output g f =
+  let c = open_out f in
+  let fmt = Format.formatter_of_out_channel c in
+  Format.fprintf fmt "%a@." GmlPrinter.print g;
+  close_out c
 
 
- let dot_output g f = 
-   let oc = open_out f in
-   DotPrinter.output_graph oc g;
-   close_out oc
+let dot_output g f = 
+  let oc = open_out f in
+  DotPrinter.output_graph oc g;
+  close_out oc
 
- let save_graph name =
-   if Filename.check_suffix name "gml"
-   then ( gml_output !graph name;  graph_name := Some name)
-   else if Filename.check_suffix name "dot"
-   then ( dot_output !graph name;  graph_name := Some name)
-   else ( let name = name^".dot" in 
-	  dot_output !graph name;
-	  graph_name := Some name )
+let save_graph name =
+  if Filename.check_suffix name "gml"
+  then ( gml_output !graph name;  graph_name := Some name)
+  else if Filename.check_suffix name "dot"
+  then ( dot_output !graph name;  graph_name := Some name)
+  else ( let name = name^".dot" in 
+         dot_output !graph name;
+         graph_name := Some name )
 
 
 module Components = Components.Make(G)
@@ -209,7 +209,7 @@ let () =
     load_graph 
     "editor [options] <graph file>"
 
-    
+
 (* successor edges *)
 
 module H2 = 
@@ -245,15 +245,15 @@ type mode_select_list  =
 let selected_list mode  =
   let vertex_selection =ref [] in
   G.iter_vertex (fun v -> 
-		   if (is_selected v) 
-		   && (match mode with
-			 | ADD_FROM  vertex -> not (edge v vertex)
-			 | REMOVE_FROM vertex -> (edge v vertex)
-			 | NONE -> true)
-		   then vertex_selection := v::(!vertex_selection)) !graph;
+      if (is_selected v) 
+      && (match mode with
+          | ADD_FROM  vertex -> not (edge v vertex)
+          | REMOVE_FROM vertex -> (edge v vertex)
+          | NONE -> true)
+      then vertex_selection := v::(!vertex_selection)) !graph;
   let compare s1 s2 = String.compare (string_of_label s1) (string_of_label s2) in
   List.sort compare !vertex_selection
-  
+
 
 
 
@@ -263,63 +263,63 @@ let update_vertex vertex event =
   let vertex_info = G.V.label vertex in
   begin
     match vertex_info.vertex_mode, event with
-      | Normal, Select -> vertex_info.vertex_mode <- Selected; incr nb_selected
-      | Normal, Focus -> vertex_info.vertex_mode <- Focused
-      | Normal, _ -> ()
-      | Selected, Focus -> vertex_info.vertex_mode <- Selected_Focused
-      | Selected, Unselect -> vertex_info.vertex_mode <- Normal; decr nb_selected
-      | Selected, _ -> ()
-      | Focused, Select -> vertex_info.vertex_mode <- Selected_Focused; incr nb_selected
-      | Focused, Unfocus -> vertex_info.vertex_mode <- Normal
-      | Focused, _ -> ()
-      | Selected_Focused, Unselect -> vertex_info.vertex_mode <- Focused; decr nb_selected
-      | Selected_Focused, Unfocus -> vertex_info.vertex_mode <- Selected
-      | Selected_Focused, _ -> ()
+    | Normal, Select -> vertex_info.vertex_mode <- Selected; incr nb_selected
+    | Normal, Focus -> vertex_info.vertex_mode <- Focused
+    | Normal, _ -> ()
+    | Selected, Focus -> vertex_info.vertex_mode <- Selected_Focused
+    | Selected, Unselect -> vertex_info.vertex_mode <- Normal; decr nb_selected
+    | Selected, _ -> ()
+    | Focused, Select -> vertex_info.vertex_mode <- Selected_Focused; incr nb_selected
+    | Focused, Unfocus -> vertex_info.vertex_mode <- Normal
+    | Focused, _ -> ()
+    | Selected_Focused, Unselect -> vertex_info.vertex_mode <- Focused; decr nb_selected
+    | Selected_Focused, Unfocus -> vertex_info.vertex_mode <- Selected
+    | Selected_Focused, _ -> ()
   end;
   G.iter_succ_e
     ( fun edge ->
-	let edge_info = G.E.label edge in
-	let dest_vertex = G.E.dst edge in 
-	begin match  edge_info.edge_mode, event with
-	  | Normal, Select -> edge_info.edge_mode <- Selected
-	  | Normal, Focus -> edge_info.edge_mode <- Focused
-	  | Normal, _ -> ()
-	  | Selected, Focus -> edge_info.edge_mode <- Selected_Focused
-	  | Selected, Unselect -> if not(is_selected dest_vertex) then edge_info.edge_mode <- Normal
-	  | Selected, _ -> ()
-	  | Focused, Select -> edge_info.edge_mode <- Selected_Focused
-	  | Focused, Unfocus -> edge_info.edge_mode <- Normal
-	  | Focused, _ -> ()
-	  | Selected_Focused, Unselect -> if not(is_selected dest_vertex) then edge_info.edge_mode <- Focused; decr nb_selected
-	  | Selected_Focused, Unfocus -> edge_info.edge_mode <- Selected
-	  | Selected_Focused, _ -> ()
-	end;		   
+        let edge_info = G.E.label edge in
+        let dest_vertex = G.E.dst edge in 
+        begin match  edge_info.edge_mode, event with
+          | Normal, Select -> edge_info.edge_mode <- Selected
+          | Normal, Focus -> edge_info.edge_mode <- Focused
+          | Normal, _ -> ()
+          | Selected, Focus -> edge_info.edge_mode <- Selected_Focused
+          | Selected, Unselect -> if not(is_selected dest_vertex) then edge_info.edge_mode <- Normal
+          | Selected, _ -> ()
+          | Focused, Select -> edge_info.edge_mode <- Selected_Focused
+          | Focused, Unfocus -> edge_info.edge_mode <- Normal
+          | Focused, _ -> ()
+          | Selected_Focused, Unselect -> if not(is_selected dest_vertex) then edge_info.edge_mode <- Focused; decr nb_selected
+          | Selected_Focused, Unfocus -> edge_info.edge_mode <- Selected
+          | Selected_Focused, _ -> ()
+        end;       
     ) !graph vertex
-      
+
 
 
 (* to select and unselect all vertices *)
 
 let select_all () =  
   G.iter_vertex (fun v -> 
-		   if not(is_selected v) 
-		   then begin 
-		     let v = G.V.label v in
-		     v.vertex_mode <- Selected;
-		     incr nb_selected 
-		   end
-		) !graph;
+      if not(is_selected v) 
+      then begin 
+        let v = G.V.label v in
+        v.vertex_mode <- Selected;
+        incr nb_selected 
+      end
+    ) !graph;
   G.iter_edges_e (fun e -> let e = G.E.label e in e.edge_mode <- Selected) !graph
 
 
 let unselect_all () =  
   G.iter_vertex (fun v -> 
-		   if (is_selected v)
-		   then begin 
-		     let l = G.V.label v in
-		     l.vertex_mode <- Normal;
-		     decr nb_selected 
-		   end
-		) !graph;
+      if (is_selected v)
+      then begin 
+        let l = G.V.label v in
+        l.vertex_mode <- Normal;
+        decr nb_selected 
+      end
+    ) !graph;
   G.iter_edges_e (fun e -> let e = G.E.label e in e.edge_mode <- Normal) !graph
 

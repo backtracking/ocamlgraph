@@ -31,15 +31,15 @@ and value_list = (string * value) list
 
 (** Provide a parser for GML file format. *)
 module Parse
-  (B : Builder.S)
-  (L : sig
-     val node : value_list -> B.G.V.label
+    (B : Builder.S)
+    (L : sig
+       val node : value_list -> B.G.V.label
        (** How to build the node label out of the set of GML attributes.
-	   For example {v node [ id 12 label "foo" ] v}  will call this
-	   function with [["id", Int 12; "label", String "foo"]] *)
-     val edge : value_list -> B.G.E.label
+           For example {v node [ id 12 label "foo" ] v}  will call this
+           function with [["id", Int 12; "label", String "foo"]] *)
+       val edge : value_list -> B.G.E.label
        (** How to build the edge label out of the set of GML attributes *)
-   end) :
+     end) :
 sig
   val parse : string -> B.G.t
 end
@@ -70,11 +70,11 @@ end
 
 (** Provide a pretty-printer for GML file format. *)
 module Print
-  (G: G)
-  (L: sig
-     val node : G.V.label -> value_list
-     val edge : G.E.label -> value_list
-   end) :
+    (G: G)
+    (L: sig
+       val node : G.V.label -> value_list
+       val edge : G.E.label -> value_list
+     end) :
 sig
   val print : Format.formatter -> G.t -> unit
 end
