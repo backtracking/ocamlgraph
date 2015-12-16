@@ -68,21 +68,3 @@ let () = G.iter_edges (fun u v -> printf "%d -> %d@." u v) g
 let () = printf "%d components@." n
 let () = G.iter_vertex (fun v -> printf "  %d -> %d@." v (f v)) g
 
-(* dominators *)
-
-module G = Imperative.Digraph.ConcreteLabeled(Int)(Int)
-module D = Dominator.Make(G)
-module R = Rand.Make(Builder.I(G))
-module C = Components.Make(G)
-let g = R.graph ~v:200_000 ~e:200_000 ()
-let n, f = C.scc g
-let () = printf "%d@." n
-let () = for i = 0 to 9 do printf "%d " (f i) done; printf "@."
-(*
-199958
-92100 26941 198885 157971 91597 87047 141830 173559 68202 77266
-*)
-
-let g = R.graph ~v:200_000 ~e:1_000_000 ()
-let n, f = C.scc g
-
