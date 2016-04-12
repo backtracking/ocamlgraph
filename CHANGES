@@ -1,6 +1,8 @@
 
 * marks some incompatible change
 
+version 1.8.7, April 12, 2016
+-----------------------------
  o fixed examples/demo.ml so that it also compiles with an installed OCamlGraph
  o [Components] fixed stack overflow with [scc] (patch by Albin Coquereau)
  o [Dominator] fixed stack overflow (patch by Albin Coquereau)
