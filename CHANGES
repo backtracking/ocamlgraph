@@ -1,6 +1,7 @@
 
 * marks some incompatible change
 
+ o fixed examples/demo.ml so that it also compiles with an installed OCamlGraph
  o [Components] fixed stack overflow with [scc] (patch by Albin Coquereau)
  o [Dominator] fixed stack overflow (patch by Albin Coquereau)
  o new functor [Path.Johnson] to compute all pairs of shortest paths
