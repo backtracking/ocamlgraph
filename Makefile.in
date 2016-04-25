@@ -67,12 +67,12 @@ endif
 LIB= unionfind heap bitv
 LIB:=$(patsubst %, $(LIBDIR)/%.cmo, $(LIB))
 
-CMO = 	version util blocks persistent imperative \
+CMO =	version util blocks persistent imperative \
 	delaunay builder classic rand oper \
 	components path nonnegative traverse coloring topological kruskal flow \
-        prim dominator graphviz gml dot_parser dot_lexer dot pack \
+	prim dominator graphviz gml dot_parser dot_lexer dot pack \
 	gmap minsep cliquetree mcs_m md strat fixpoint leaderlist contraction \
-	graphml merge mincut clique
+	graphml merge mincut clique weakTopological chaoticIteration
 CMO := $(LIB) $(patsubst %, $(SRCDIR)/%.cmo, $(CMO))
 
 CMX = $(CMO:.cmo=.cmx)
@@ -432,9 +432,9 @@ ifeq (@LABLGNOMECANVAS@,yes)
 		graph$(OBJEXT) graph$(LIBEXT) graph.cmx graph.cmo graph.cmi \
 		$(CMA) $(CMXA) \
 		$(VIEWER_CMXLIB) $(VIEWER_CMOLIB) $(VIEWER_CMILIB) \
-                $(VIEWER_CMXLIB:.cmx=.o) \
-                $(DGRAPH_CMXLIB) $(DGRAPH_CMOLIB) $(DGRAPH_CMILIB) \
-                $(DGRAPH_CMXLIB:.cmx=.o)
+		$(VIEWER_CMXLIB:.cmx=.o) \
+		$(DGRAPH_CMXLIB) $(DGRAPH_CMOLIB) $(DGRAPH_CMILIB) \
+		$(DGRAPH_CMXLIB:.cmx=.o)
 else
 	$(OCAMLFIND) install $(OCAMLFINDDEST) ocamlgraph META \
 		$(SRCDIR)/*.mli $(VIEWER_DIR)/*.mli $(DGRAPH_DIR)/*.mli \
@@ -458,12 +458,14 @@ DOC_SRC	= $(CMI:.cmi=.mli) $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
 ifeq (@LABLGNOMECANVAS@,yes)
 DOC_SRC := $(DOC_SRC) $(DGRAPH_CMI:.cmi=.mli)
 endif
+DOC_CHARSET = utf-8
 
 .PHONY: doc
 doc: $(DOC_CMO)
 	mkdir -p doc
 	rm -f doc/*
-	$(OCAMLDOC) -d doc -html $(DGRAPH_INCLUDES) -I lib -I src $(DOC_SRC)
+	$(OCAMLDOC) -charset $(DOC_CHARSET) -d doc -html $(DGRAPH_INCLUDES) \
+		-I lib -I src $(DOC_SRC)
 
 # literate programming
 $(NAME).tex: $(DOC_SRC)
@@ -484,7 +486,7 @@ headers:
 	   $(SRCDIR)/*.ml $(SRCDIR)/*.ml[ily] \
 	   $(ED_DIR)/*.ml $(ED_DIR)/*.mli
 	headache \
-           -c misc/headache_config.txt \
+	   -c misc/headache_config.txt \
 	   -h $(DGRAPH_DIR)/headers/CEA_LGPL \
 	   $(DGRAPH_DIR)/*.ml $(DGRAPH_DIR)/*.mli
 # export
@@ -498,7 +500,7 @@ WWW = /users/www-perso/projets/ocamlgraph
 
 FILES = src/*.ml* lib/*.ml* Makefile.in configure configure.in META.in  \
 	.depend editor/ed_*.ml* editor/Makefile \
-        editor/tests/*.dot editor/tests/*.gml \
+	editor/tests/*.dot editor/tests/*.gml \
 	view_graph/*.ml view_graph/*.mli \
 	view_graph/README view_graph/Makefile \
 	dgraph/*.ml dgraph/*.mli \
@@ -591,7 +593,7 @@ tags:
 	      "--regex=/let[ \t]+rec[ \t]+\([^ \t]+\)/\1/" \
 	      "--regex=/and[ \t]+\([^ \t]+\)/\1/" \
 	      "--regex=/type[ \t]+\([^ \t]+\)/\1/" \
-              "--regex=/exception[ \t]+\([^ \t]+\)/\1/" \
+	      "--regex=/exception[ \t]+\([^ \t]+\)/\1/" \
 	      "--regex=/val[ \t]+\([^ \t]+\)/\1/" \
 	      "--regex=/module[ \t]+\([^ \t]+\)/\1/"
 
