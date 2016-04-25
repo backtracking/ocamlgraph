@@ -1,6 +1,10 @@
 
 * marks some incompatible change
 
+ o new functors [WeakTopological] and [ChaoticIteration] to compute
+   fixpoints with widening, following Bourdoncle's algorithms (contributed
+   by Thibault Suzanne)
+
 version 1.8.7, April 12, 2016
 -----------------------------
  o fixed examples/demo.ml so that it also compiles with an installed OCamlGraph
