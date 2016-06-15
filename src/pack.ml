@@ -76,8 +76,8 @@ struct
       invalid_arg "ford_fulkerson: not a directed graph";
     FF.maxflow g
 
-  module Goldberg = Flow.Goldberg(G)(F)
-  let goldberg g =
+  module Goldberg = Flow.Goldberg_Tarjan(G)(F)
+  let goldberg_tarjan g =
     if not G.is_directed then invalid_arg "goldberg: not a directed graph";
     Goldberg.maxflow g
 

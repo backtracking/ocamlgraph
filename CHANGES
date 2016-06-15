@@ -1,6 +1,11 @@
 
 * marks some incompatible change
 
+ * fixed implementation of Golberg-Tarjan maximal flow algorithm
+   (contributed by Guyslain Naves)
+   No more function min_capacity in the input interface.
+   Renaming as follows: Flow.Goldberg -> Flow.Goldberg_Tarjan
+   and Pack.goldberg -> Pack.goldberg_tarjan
  o new functors [WeakTopological] and [ChaoticIteration] to compute
    fixpoints with widening, following Bourdoncle's algorithms (contributed
    by Thibault Suzanne)

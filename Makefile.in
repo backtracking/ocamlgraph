@@ -64,7 +64,7 @@ endif
 # bytecode and native-code compilation
 ######################################
 
-LIB= unionfind heap bitv
+LIB= unionfind heap bitv persistentQueue
 LIB:=$(patsubst %, $(LIBDIR)/%.cmo, $(LIB))
 
 CMO =	version util blocks persistent imperative \

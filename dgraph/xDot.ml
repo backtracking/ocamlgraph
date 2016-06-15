@@ -92,9 +92,6 @@ exception ParseError of string
 
 (* MISCELLANEOUS FUNCTIONS *)
 
-let suffix s i = try String.sub s i ((String.length s)-i)
-  with Invalid_argument("String.sub") -> ""
-
 let read_pos s = Scanf.sscanf s "%f,%f" (fun x y -> x, -.y)
 
 let bounding_box (x, y) w h =

@@ -367,8 +367,8 @@ module type S = sig
   val ford_fulkerson : t -> V.t -> V.t -> (E.t -> int) * int
   (** Ford Fulkerson maximum flow algorithm *)
 
-  val goldberg : t -> V.t -> V.t -> (E.t -> int) * int
-  (** Goldberg maximum flow algorithm *)
+  val goldberg_tarjan : t -> V.t -> V.t -> (E.t -> int) * int
+  (** Goldberg-Tarjan maximum flow algorithm *)
 
   val bellman_ford : t -> V.t -> E.t list
   (** [bellman_ford g v] finds a negative cycle from [v], and returns it,
