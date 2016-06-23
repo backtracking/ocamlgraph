@@ -77,8 +77,9 @@ sig
 
   val maxflow : G.t -> G.V.t -> G.V.t -> (G.E.t -> F.t) * F.t
   (** [maxflow g v1 v2] searchs the maximal flow from source [v1] to
-      terminal [v2] using Goldberg-Tarjan algorithm. It returns the new
-      flows on each edges and the growth of the flow. *)
+      terminal [v2] using Goldberg-Tarjan algorithm (with gap detection
+      heuristic).
+      It returns the flow on each edge and the growth of the flow. *)
 
 end
 
