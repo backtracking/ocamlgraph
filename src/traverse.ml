@@ -93,25 +93,6 @@ module Dfs(G : G) = struct
 
   let postfix_component post g = iter_component ~post g
 
-  let has_cycle_undirected g =
-    let h = H.create 97 in
-    let father = H.create 97 in
-    let is_father u v = (* u is the father of v in the DFS descent *)
-      try G.V.equal (H.find father v) u with Not_found -> false
-    in
-    let rec visit v =
-      H.add h v true;
-      G.iter_succ
-        (fun w ->
-           try if H.find h w && not (is_father w v) then raise Exit
-           with Not_found -> H.add father w v; visit w)
-        g v;
-      H.remove father v;
-      H.replace h v false
-    in
-    try G.iter_vertex (fun v -> if not (H.mem h v) then visit v) g; false
-    with Exit -> true
-
   module Tail = struct
 
     let has_cycle g =
