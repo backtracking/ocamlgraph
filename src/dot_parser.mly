@@ -21,7 +21,6 @@
 
 %{
   open Dot_ast
-  open Parsing
 
   let compass_pt = function
     | Ident "n" -> N
