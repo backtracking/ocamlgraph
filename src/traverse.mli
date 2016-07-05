@@ -40,6 +40,11 @@ end
 (** Depth-first search *)
 module Dfs(G : G) : sig
 
+  (** {2 Classical folds} *)
+
+  val fold : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> 'a
+  val fold_component : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> G.V.t -> 'a
+
   (** {2 Classical big-step iterators} *)
 
   val iter : ?pre:(G.V.t -> unit) ->
