@@ -40,11 +40,6 @@ end
 (** Depth-first search *)
 module Dfs(G : G) : sig
 
-  (** {2 Classical folds} *)
-
-  val fold : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> 'a
-  val fold_component : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> G.V.t -> 'a
-
   (** {2 Classical big-step iterators} *)
 
   val iter : ?pre:(G.V.t -> unit) ->
@@ -68,6 +63,14 @@ module Dfs(G : G) : sig
     ?post:(G.V.t -> unit) -> G.t -> G.V.t -> unit
   val prefix_component : (G.V.t -> unit) -> G.t -> G.V.t -> unit
   val postfix_component : (G.V.t -> unit) -> G.t -> G.V.t -> unit
+
+  (** {2 Classical folds} *)
+
+  val fold : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> 'a
+  (** The function is applied each time a node is reached for the first time,
+      before idoterating over its successors. Tail-recursive. *)
+  val fold_component : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> G.V.t -> 'a
+  (** Idem, but limited to a single root vertex. *)
 
   (** {2 Step-by-step iterator}
 
@@ -101,6 +104,7 @@ module Bfs(G : G) : sig
   val iter_component : (G.V.t -> unit) -> G.t -> G.V.t -> unit
 
   (** {2 Classical folds} *)
+
   val fold : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> 'a
   val fold_component : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> G.V.t -> 'a
 

@@ -1,6 +1,8 @@
 
 * marks some incompatible change
 
+ o [Traverse/Pack] added Dfs.fold and Dfs.fold_component (tail-recursive)
+   (contributed by Guillaume Chelfi)
  * fixed implementation of Golberg-Tarjan maximal flow algorithm
    (contributed by Guyslain Naves)
    No more function min_capacity in the input interface.

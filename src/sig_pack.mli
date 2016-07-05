@@ -277,6 +277,7 @@ module type S = sig
     (** applies only a prefix function *)
     val postfix : (V.t -> unit) -> t -> unit
     (** applies only a postfix function *)
+    val fold : (V.t -> 'a -> 'a) -> 'a -> t -> 'a
 
     (** Same thing, but for a single connected component *)
 
@@ -285,6 +286,7 @@ module type S = sig
       ?post:(V.t -> unit) -> t -> V.t -> unit
     val prefix_component : (V.t -> unit) -> t -> V.t -> unit
     val postfix_component : (V.t -> unit) -> t -> V.t -> unit
+    val fold_component : (V.t -> 'a -> 'a) -> 'a -> t -> V.t -> 'a
 
     val has_cycle : t -> bool
   end
