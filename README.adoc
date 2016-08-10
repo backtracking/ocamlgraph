@@ -11,7 +11,7 @@ Have a look at this module first in order to get an overview of what
 this library provides. See also `demo.ml`.
 
 2. Then OCamlgraph provides several other graph implementations for those
-   not satisfied with the one above. Some are persistent (imutable) and other
+   not satisfied with the one above. Some are persistent (immutable) and other
    imperative (mutable). Some are directed and other are not.
    Some have labels for vertices, or labels for edges, or both.
    Some have abstract types for vertices. etc.
