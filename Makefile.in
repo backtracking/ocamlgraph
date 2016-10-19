@@ -43,10 +43,10 @@ LIBEXT = @LIBEXT@
 OBJEXT = @OBJEXT@
 
 # Others global variables
-SRCDIR	= src
-LIBDIR	= lib
+OCAMLGRAPH_SRCDIR	= src
+OCAMLGRAPH_LIBDIR	= lib
 
-INCLUDES= -I $(SRCDIR) -I $(LIBDIR)
+INCLUDES= -I $(OCAMLGRAPH_SRCDIR) -I $(OCAMLGRAPH_LIBDIR)
 BFLAGS = $(INCLUDES) -g -dtypes -w +a -w -4 -w -44 -w -50 -w -48 -w -29
 OFLAGS = $(INCLUDES)
 
@@ -64,8 +64,8 @@ endif
 # bytecode and native-code compilation
 ######################################
 
-LIB= unionfind heap bitv persistentQueue
-LIB:=$(patsubst %, $(LIBDIR)/%.cmo, $(LIB))
+OCAMLGRAPH_LIB= unionfind heap bitv persistentQueue
+OCAMLGRAPH_LIB:=$(patsubst %, $(OCAMLGRAPH_LIBDIR)/%.cmo, $(OCAMLGRAPH_LIB))
 
 CMO =	version util blocks persistent imperative \
 	delaunay builder classic rand oper \
@@ -73,7 +73,7 @@ CMO =	version util blocks persistent imperative \
 	prim dominator graphviz gml dot_parser dot_lexer dot pack \
 	gmap minsep cliquetree mcs_m md strat fixpoint leaderlist contraction \
 	graphml merge mincut clique weakTopological chaoticIteration
-CMO := $(LIB) $(patsubst %, $(SRCDIR)/%.cmo, $(CMO))
+CMO := $(OCAMLGRAPH_LIB) $(patsubst %, $(OCAMLGRAPH_SRCDIR)/%.cmo, $(CMO))
 
 CMX = $(CMO:.cmo=.cmx)
 CMA = graph.cma
@@ -246,12 +246,12 @@ graph.cmx: | $(DGRAPH_DIR)/dgraph.byte \
 	$(ED_DIR)/editor.byte
 endif
 
-$(CMX): | $(SRCDIR)/blocks.cmo
+$(CMX): | $(OCAMLGRAPH_SRCDIR)/blocks.cmo
 
 # No .mli for blocks.ml: so, to avoid clash when generating block.cmi
 # from both ocamlc and ocamlopt, force to fully compile the bytecode library
 # before the native one
-$(SRCDIR)/blocks.cmx: | graph.cmo
+$(OCAMLGRAPH_SRCDIR)/blocks.cmx: | graph.cmo
 
 # Examples
 ##########
@@ -394,7 +394,7 @@ endif
 install-byte:
 	mkdir -p $(INSTALL_LIBDIR)
 	cp -f graph.cmo graph.cmi $(CMA) $(INSTALL_LIBDIR)
-	cp -f $(SRCDIR)/*.mli $(INSTALL_LIBDIR)
+	cp -f $(OCAMLGRAPH_SRCDIR)/*.mli $(INSTALL_LIBDIR)
 ifeq (@LABLGNOMECANVAS@,yes)
 	mkdir -p $(BINDIR)
 	cp -f $(ED_DIR)/editor.byte $(BINDIR)/graph-editor.byte
@@ -408,7 +408,7 @@ install-opt: install-byte
 	mkdir -p $(INSTALL_LIBDIR)
 	cp -f graph$(OBJEXT) graph$(LIBEXT) graph.cmi graph.cmx \
 		$(CMXA) $(CMXS) $(INSTALL_LIBDIR)
-	cp -f $(SRCDIR)/*.mli $(INSTALL_LIBDIR)
+	cp -f $(OCAMLGRAPH_SRCDIR)/*.mli $(INSTALL_LIBDIR)
 ifeq (@LABLGNOMECANVAS@,yes)
 	mkdir -p $(BINDIR)
 	cp -f $(ED_DIR)/editor.opt $(BINDIR)/graph-editor.opt
@@ -428,7 +428,7 @@ install-findlib: META
 ifdef OCAMLFIND
 ifeq (@LABLGNOMECANVAS@,yes)
 	$(OCAMLFIND) install $(OCAMLFINDDEST) ocamlgraph META \
-		$(SRCDIR)/*.mli $(VIEWER_DIR)/*.mli $(DGRAPH_DIR)/*.mli \
+		$(OCAMLGRAPH_SRCDIR)/*.mli $(VIEWER_DIR)/*.mli $(DGRAPH_DIR)/*.mli \
 		graph$(OBJEXT) graph$(LIBEXT) graph.cmx graph.cmo graph.cmi \
 		$(CMA) $(CMXA) \
 		$(VIEWER_CMXLIB) $(VIEWER_CMOLIB) $(VIEWER_CMILIB) \
@@ -437,7 +437,7 @@ ifeq (@LABLGNOMECANVAS@,yes)
 		$(DGRAPH_CMXLIB:.cmx=.o)
 else
 	$(OCAMLFIND) install $(OCAMLFINDDEST) ocamlgraph META \
-		$(SRCDIR)/*.mli $(VIEWER_DIR)/*.mli $(DGRAPH_DIR)/*.mli \
+		$(OCAMLGRAPH_SRCDIR)/*.mli $(VIEWER_DIR)/*.mli $(DGRAPH_DIR)/*.mli \
 		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA)
 endif
 endif
@@ -452,8 +452,8 @@ META: META.in Makefile
 DOCFILES=$(NAME).ps $(NAME).html
 
 NODOC	= blocks dot_parser dot_lexer version
-NODOC	:= $(patsubst %, $(SRCDIR)/%.cmo, $(NODOC))
-DOC_CMO	= $(filter-out $(NODOC) $(LIB), $(CMO))
+NODOC	:= $(patsubst %, $(OCAMLGRAPH_SRCDIR)/%.cmo, $(NODOC))
+DOC_CMO	= $(filter-out $(NODOC) $(OCAMLGRAPH_LIB), $(CMO))
 DOC_SRC	= $(CMI:.cmi=.mli) $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
 ifeq (@LABLGNOMECANVAS@,yes)
 DOC_SRC := $(DOC_SRC) $(DGRAPH_CMI:.cmi=.mli)
@@ -472,7 +472,7 @@ $(NAME).tex: $(DOC_SRC)
 	$(OCAMLWEB) -o $@ $^
 
 wc:
-	ocamlwc -p $(SRCDIR)/*.mli $(SRCDIR)/*.ml
+	ocamlwc -p $(OCAMLGRAPH_SRCDIR)/*.mli $(OCAMLGRAPH_SRCDIR)/*.ml
 
 # file headers
 ##############
@@ -482,8 +482,8 @@ headers:
 	   -c misc/headache_config.txt \
 	   -h misc/header.txt \
 	   Makefile.in configure.in README.adoc \
-	   $(LIBDIR)/*.ml $(LIBDIR)/*.ml[ily] \
-	   $(SRCDIR)/*.ml $(SRCDIR)/*.ml[ily] \
+	   $(OCAMLGRAPH_LIBDIR)/*.ml $(OCAMLGRAPH_LIBDIR)/*.ml[ily] \
+	   $(OCAMLGRAPH_SRCDIR)/*.ml $(OCAMLGRAPH_SRCDIR)/*.ml[ily] \
 	   $(ED_DIR)/*.ml $(ED_DIR)/*.mli
 	headache \
 	   -c misc/headache_config.txt \
@@ -616,12 +616,12 @@ configure: configure.in
 
 clean:
 	rm -f *~
-	for d in $(SRCDIR) $(LIBDIR) $(ED_DIR) $(VIEWER_DIR) $(DGRAPH_DIR) \
+	for d in $(OCAMLGRAPH_SRCDIR) $(OCAMLGRAPH_LIBDIR) $(ED_DIR) $(VIEWER_DIR) $(DGRAPH_DIR) \
 		tests examples; \
 	do \
 	  rm -f $$d/*.cm[iox] $$d/*$(OBJEXT) $$d/*~ $$d/*.annot; \
 	done
-	rm -f $(GENERATED) $(SRCDIR)/dot_parser.output
+	rm -f $(GENERATED) $(OCAMLGRAPH_SRCDIR)/dot_parser.output
 	rm -f graph.*a graph.cm* graph.o graph$(LIBEXT)
 	rm -f $(ED_DIR)/editor.byte $(ED_DIR)/editor.opt
 	rm -f $(VIEWER_DIR)/viewgraph.byte $(VIEWER_DIR)/viewgraph.opt
@@ -643,8 +643,8 @@ svnclean svn-clean:: dist-clean
 .depend depend: $(GENERATED)
 	rm -f .depend
 	$(OCAMLDEP) $(INCLUDES) -I $(ED_DIR) -I $(VIEWER_DIR) -I $(DGRAPH_DIR)\
-		$(LIBDIR)/*.ml $(LIBDIR)/*.mli \
-		$(SRCDIR)/*.ml $(SRCDIR)/*.mli \
+		$(OCAMLGRAPH_LIBDIR)/*.ml $(OCAMLGRAPH_LIBDIR)/*.mli \
+		$(OCAMLGRAPH_SRCDIR)/*.ml $(OCAMLGRAPH_SRCDIR)/*.mli \
 		$(ED_DIR)/*.mli $(ED_DIR)/*.ml \
 		$(VIEWER_DIR)/*.mli $(VIEWER_DIR)/*.ml \
 		$(DGRAPH_DIR)/*.mli $(DGRAPH_DIR)/*.ml > .depend
