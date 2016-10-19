@@ -156,8 +156,8 @@ struct
 
   (* Convert an int in hexadecimal representing a color in rgb format to a
      string prefixed by # *)
-  let string_color i = Printf.sprintf "#%06X" i;;
-  let string_color32 i = Printf.sprintf "#%08lX" i;;
+  let string_color i = Printf.sprintf "#%06X" i
+  let string_color32 i = Printf.sprintf "#%08lX" i
 
   (** @return an array of positions to draw an edge from positions and
       dimensions of vertices *)
@@ -174,7 +174,7 @@ struct
     [| xsrc, ystart;
        xsrc +. xdec, ystart +. ydec;
        xdst -. xdec, yend -. ydec;
-       xdst, yend |];;
+       xdst, yend |]
 
   (** @return an array to draw an arrow from start and end positions of the
       edge *)
@@ -364,7 +364,7 @@ struct
     | `Dotted -> XDotDraw.Dotted
     | `Bold -> XDotDraw.Bold
     | `Invis -> XDotDraw.Invisible
-    | `Rounded -> XDotDraw.Rounded;;
+    | `Rounded -> XDotDraw.Rounded
 
   (* FOR VERTEX *)
 
@@ -410,7 +410,7 @@ struct
       let pos_array = [|(x,y1);(x1,y);(x,y2);(x2,y)|] in
       if filled then [ XDotDraw.Filled_polygon pos_array ]
       else [ XDotDraw.Unfilled_polygon pos_array ]
-    |_ -> [ XDotDraw.Unfilled_ellipse ((0.,0.),0.,0.) ];;
+    |_ -> [ XDotDraw.Unfilled_ellipse ((0.,0.),0.,0.) ]
 
   let vattrs_to_draw_operations v vattributes geometry_info =
     let vattrs = try HV.find vattributes v with Not_found -> assert false in
@@ -453,110 +453,6 @@ struct
   (* FOR CLUSTER *)
 
   open Graphviz.DotAttributes
-
-  let get_clusters tree =
-    let clusters = Hashtbl.create 20 in
-    Tree.iter_vertex
-      (fun v -> match Tree.get_subgraph v with
-         | None -> ()
-         | Some c -> Hashtbl.add clusters c v)
-      tree;
-    clusters;;
-
-  let rec get_cluster_color = function
-    | [] -> 0x000000
-    | `Color c :: _ -> c
-    | _ :: q -> get_cluster_color q;;
-
-  let find_cluster_corners l geometry_info =
-    let max_x_distance = 2. *. geometry_info.x_offset in
-    let max_y_distance = 2. *. float geometry_info.y_offset in
-    let rec find_corners l corners_array =
-      let (minx,miny) = corners_array.(0) in
-      let (maxx,maxy) = corners_array.(3) in
-      match l with
-      |[] -> corners_array
-      |v :: tl ->
-        let x, y = get_position v geometry_info in
-        let w, h = get_dimensions v geometry_info in
-        let halfw = w /. 2. in
-        let x1 = x -. halfw and x2 = x +. halfw in
-        let y1 = y -. h and y2 = y +. h in
-        (* Should cluster be split in two *)
-        let x1_distance = minx -. x1 in
-        let x2_distance = x2 -. maxx in
-        let y1_distance = miny -. y1 in
-        let y2_distance = y2 -. maxy in
-        if x1_distance > max_x_distance ||
-           x2_distance > max_x_distance ||
-           y1_distance > max_y_distance ||
-           y2_distance > max_y_distance ||
-           ((x1_distance <> 0. || x2_distance <> 0.) &&
-            (y1_distance <> 0. || y2_distance <> 0.))
-        then
-          Array.append (find_corners tl corners_array)
-            (find_corners tl [| x1, y1; x1, y2; x2, y2; x2, y1 |])
-        else
-          let newminx = min x1 minx in
-          let newminy = min y1 miny in
-          let newmaxx = max x2 maxx in
-          let newmaxy = max y2 maxy in
-          find_corners tl [|(newminx,newminy);(newminx,newmaxy);
-                            (newmaxx,newmaxy);(newmaxx,newminy)|]
-    in
-    match l with
-    | [] ->
-      let z = 0., 0. in
-      Array.make 4 z
-    | v :: q ->
-      let x, y = get_position v geometry_info in
-      let w, h = get_dimensions v geometry_info in
-      let halfw = w /. 2. in
-      let x1 = x -. halfw in
-      let x2 = x +. halfw in
-      let y1 = y -. h in
-      let y2 = y +. h in
-      find_corners q [| x1, y1; x1, y2; x2, y2; x2, y1 |];;
-
-  let cluster_to_cluster_layout _tree c clusters geometry_info =
-    let border_padding = 10. in
-    let vertices =
-      try Hashtbl.find_all clusters c
-      with Not_found -> assert false
-    in
-    let corners_array = find_cluster_corners vertices geometry_info in
-    let add_padding corners_array =
-      let (x1,y1) = corners_array.(0) in
-      let (x2,y2) = corners_array.(3) in
-      let x1_padded = x1 -. border_padding in
-      let x2_padded = x2 +. border_padding in
-      let y1_padded = y1 -. border_padding in
-      let y2_padded = y2 +. border_padding in
-      [|(x1_padded,y1_padded);(x1_padded,y2_padded);
-        (x2_padded,y2_padded);(x2_padded,y1_padded)|]
-    in
-    let rec _cut_corners_array corners_array =
-      ignore (assert false);
-      (* [JS 2010/09/09] does not work:
-         exponential time seems to be required! *)
-      let length = Array.length corners_array in
-      if length > 4 then
-        XDotDraw.Unfilled_polygon (add_padding (Array.sub corners_array 0 4)) ::
-        (_cut_corners_array (Array.sub corners_array 4 (length-4)))
-      else
-        [ XDotDraw.Unfilled_polygon (add_padding corners_array) ]
-    in
-    let (x1,y1) = corners_array.(0) in
-    let (x2,y2) = corners_array.(3) in
-    {
-      XDot.c_pos = ((x1 +. x2) /. 2., (y1 +. y2) /. 2.);
-      XDot.c_bbox = ((x1,y1),(x2,y2));
-      XDot.c_draw =
-        XDotDraw.Pen_color
-          (string_color (get_cluster_color c.sg_attributes)) ::
-        (*cut_corners_array corners_array*)[];
-      XDot.c_ldraw = []
-    };;
 
   (* FOR EDGE *)
 
@@ -623,7 +519,7 @@ struct
       |`Labeldistance _ | `Labelfloat _ | `Layer _ | `Minlen _ | `Penwidth _
       | `Samehead _  | `Sametail _ | `Taillabel _ | `Tailport _ | `Tailurl _
       | `Weight _ ) :: q ->
-      attributes_list_to_eattributes eattrs q;;
+      attributes_list_to_eattributes eattrs q
 
   let eattrs_to_operation tree e geometry_info =
     let eattrs = {
@@ -887,7 +783,7 @@ struct
     | XDotDraw.Pen_color c :: tl ->
       XDotDraw.Pen_color c :: XDotDraw.Fill_color c ::
       (parse_e_draw_operations tl src dst geometry_info)
-    | op :: tl -> op :: (parse_e_draw_operations tl src dst geometry_info);;
+    | op :: tl -> op :: (parse_e_draw_operations tl src dst geometry_info)
 
   let rec parse_e_ldraw_operations operations src dst geometry_info =
     match operations with
@@ -898,7 +794,7 @@ struct
       let pos = ((xsrc +. xdst) /. 2., (ysrc +. ydst) /. 2.) in
       XDotDraw.Text (pos, align, w, s) ::
       (parse_e_ldraw_operations tl src dst geometry_info)
-    | op :: tl -> op :: (parse_e_ldraw_operations tl src dst geometry_info);;
+    | op :: tl -> op :: (parse_e_ldraw_operations tl src dst geometry_info)
 
   let parse_edge_layout _tree e layout geometry_info =
     let src = Tree.E.src e and dst = Tree.E.dst e in
@@ -911,7 +807,7 @@ struct
       e_tdraw = [];
       e_hldraw = [];
       e_tldraw = []
-    };;
+    }
 
   (* CLUSTERS *)
 
