@@ -360,7 +360,7 @@ bin/testunix.opt: $(CMXA) myTest/testunix.ml
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa $^
 
 check: $(CMA) tests/check.ml bin/test-ts
-	ocaml $(CMA) tests/test_clique.ml tests/check.ml
+	ocaml -I . $(CMA) tests/test_clique.ml tests/check.ml
 	bin/test-ts 10
 
 # Additional rules
