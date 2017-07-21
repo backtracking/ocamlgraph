@@ -64,9 +64,13 @@ struct
 
   module PQ = Heap.Imperative(Elt)
 
+  (* Gets the shortest path between v1 and v2 in graph g *)
   let shortest_path g v1 v2 =
+    (* Create a hashtable (which is essentially a set...) of visited nodes *)
     let visited = H.create 97 in
+    (* Create a hashtable of distances from each of the nodes *)
     let dist = H.create 97 in
+    (* Create a priority queue *)
     let q = PQ.create 17 in
     let rec loop () =
       if PQ.is_empty q then raise Not_found;
@@ -97,6 +101,16 @@ struct
     PQ.add q (W.zero, v1, []);
     H.add dist v1 W.zero;
     loop ()
+
+  let all_shortest_paths g i =
+    let paths = Hashtbl.create 8192 in
+    G.iter_vertex
+      (fun j ->
+        let _, length = shortest_path g i j in
+        Hashtbl.add paths j length)
+      g;
+    paths
+
 
 end
 

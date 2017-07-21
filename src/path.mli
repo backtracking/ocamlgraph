@@ -45,6 +45,8 @@ module Dijkstra
     (W: Sig.WEIGHT with type edge = G.E.t) :
 sig
 
+  module H : Hashtbl.S with type key = G.V.t
+
   val shortest_path : G.t -> G.V.t -> G.V.t -> G.E.t list * W.t
   (** [shortest_path g v1 v2] computes the shortest path from vertex [v1]
       to vertex [v2] in graph [g]. The path is returned as the list of
@@ -52,6 +54,9 @@ sig
       raise [Not_found] if the path from [v1] to [v2] does not exist.
 
       Complexity: at most O((V+E)log(V)) *)
+
+  val all_shortest_paths : G.t -> G.V.t -> (G.V.t, W.t) Hashtbl.t
+
 
 end
 
