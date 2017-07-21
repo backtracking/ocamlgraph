@@ -55,7 +55,7 @@ sig
 
       Complexity: at most O((V+E)log(V)) *)
 
-  val all_shortest_paths : G.t -> G.V.t -> (G.V.t, W.t) Hashtbl.t
+  val all_shortest_paths : G.t -> G.V.t -> W.t H.t
 
 
 end

@@ -102,16 +102,44 @@ struct
     H.add dist v1 W.zero;
     loop ()
 
-  let all_shortest_paths g i =
-    let paths = Hashtbl.create 8192 in
-    G.iter_vertex
-      (fun j ->
-        let _, length = shortest_path g i j in
-        Hashtbl.add paths j length)
-      g;
-    paths
 
 
+  let all_shortest_paths g v1 =
+    (* Create a hashtable (which is essentially a set...) of visited nodes *)
+    let visited = H.create 97 in
+    (* Create a hashtable of distances from each of the nodes *)
+    let dist = H.create 97 in
+    (* Create a priority queue *)
+    let q = PQ.create 17 in
+    let rec loop () =
+      if PQ.is_empty q then
+        dist
+      else
+        let (w,v,p) = PQ.pop_maximum q in
+        begin
+          if not (H.mem visited v) then begin
+            H.add visited v ();
+            G.iter_succ_e
+              (fun e ->
+                 let ev = dst e in
+                 if not (H.mem visited ev) then begin
+                   let dev = W.add w (W.weight e) in
+                   let improvement =
+                     try W.compare dev (H.find dist ev) < 0 with Not_found -> true
+                   in
+                   if improvement then begin
+                     H.replace dist ev dev;
+                     PQ.add q (dev, ev, e :: p)
+                   end
+                 end)
+              g v
+          end;
+          loop ()
+        end
+    in
+    PQ.add q (W.zero, v1, []);
+    H.add dist v1 W.zero;
+    loop ()
 end
 
 (* The following module is a contribution of Yuto Takei (University of Tokyo) *)
