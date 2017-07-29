@@ -53,6 +53,7 @@ struct
   end
 
   include Path.Dijkstra(G)(W)
+  include Path.SSSP_Dijkstra(G)(W)
   include Path.Johnson(G)(W)
 
   module BF = Path.BellmanFord(G)(W)
