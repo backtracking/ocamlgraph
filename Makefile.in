@@ -430,21 +430,32 @@ ifdef DESTDIR
 OCAMLFINDDEST := -destdir $(DESTDIR)
 endif
 
+ifeq ($(OCAMLBEST),byte)
+  OCAMLFIND_OPT_FILES=
+else
+  OCAMLFIND_OPT_FILES=graph$(OBJEXT) graph$(LIBEXT) graph.cmx $(CMXA)
+  ifeq (@LABLGNOMECANVAS@,yes)
+    OCAMLFIND_OPT_FILES+=\
+      $(VIEWER_CMXLIB) $(VIEWER_CMXLIB:.cmx=.o) \
+      $(DGRAPH_CMXLIB) $(DGRAPH_CMXLIB:.cmx=.o)
+  endif
+endif
+
 install-findlib: META
 ifdef OCAMLFIND
 ifeq (@LABLGNOMECANVAS@,yes)
 	$(OCAMLFIND) install $(OCAMLFINDDEST) ocamlgraph META \
 		$(OCAMLGRAPH_SRCDIR)/*.mli $(VIEWER_DIR)/*.mli $(DGRAPH_DIR)/*.mli \
-		graph$(OBJEXT) graph$(LIBEXT) graph.cmx graph.cmo graph.cmi \
-		$(CMA) $(CMXA) \
-		$(VIEWER_CMXLIB) $(VIEWER_CMOLIB) $(VIEWER_CMILIB) \
-		$(VIEWER_CMXLIB:.cmx=.o) \
-		$(DGRAPH_CMXLIB) $(DGRAPH_CMOLIB) $(DGRAPH_CMILIB) \
-		$(DGRAPH_CMXLIB:.cmx=.o)
+		graph.cmo graph.cmi \
+		$(CMA) \
+		$(VIEWER_CMOLIB) $(VIEWER_CMILIB) \
+                $(DGRAPH_CMOLIB) $(DGRAPH_CMILIB) \
+                $(OCAMLFIND_OPT_FILES)
 else
 	$(OCAMLFIND) install $(OCAMLFINDDEST) ocamlgraph META \
 		$(OCAMLGRAPH_SRCDIR)/*.mli $(VIEWER_DIR)/*.mli $(DGRAPH_DIR)/*.mli \
-		graph$(LIBEXT) graph.cmx graph.cmo graph.cmi $(CMA) $(CMXA)
+		graph$(LIBEXT) graph.cmo graph.cmi $(CMA) \
+	        $(OCAMLFIND_OPT_FILES)
 endif
 endif
 
