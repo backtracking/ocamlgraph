@@ -55,6 +55,9 @@ class type ['vertex, 'edge, 'cluster] abstract_model = object
   (** Dot layout *)
   method bounding_box : bounding_box
   method get_edge_layout : 'edge -> edge_layout
+  (** @raise Multiple_layouts when there are several possible layouts for the
+      given edge *)
+
   method get_vertex_layout : 'vertex -> node_layout
   method get_cluster_layout : 'cluster -> cluster_layout
 end
@@ -63,6 +66,7 @@ end
 module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
 
   type cluster = string
+  exception Multiple_layouts of (G.E.t * edge_layout) list
 
   class model:
     XDot.Make(G).graph_layout -> G.t -> [G.V.t, G.E.t, cluster] abstract_model

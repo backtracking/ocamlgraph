@@ -1,6 +1,8 @@
 
 * marks some incompatible change
 
+ * fixed method get_edge_layout of class abstract_model of DGraphModel.Make. The
+   bug could have occured when there are several edges between two vertices.
  o [Traverse/Pack] added Dfs.fold and Dfs.fold_component (tail-recursive)
    (contributed by Guillaume Chelfi)
  * fixed implementation of Golberg-Tarjan maximal flow algorithm

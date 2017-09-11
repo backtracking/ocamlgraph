@@ -200,12 +200,13 @@ let read_bounding_box str =
 module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
 
   module HV = Hashtbl.Make(G.V)
+
+  (* cannot use an hashtable because no hash function for edges *)
   module HE =
-    Hashtbl.Make
+    Map.Make
       (struct
         type t = G.E.t
-        let equal x y = G.E.compare x y = 0
-        let hash = Hashtbl.hash
+        let compare = G.E.compare
       end)
 
   module HT =
@@ -274,7 +275,7 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
     let vertices_comment_to_edge = HT.create 97 in
 
     let vertex_layouts = HV.create 97 in
-    let edge_layouts = HE.create 97 in
+    let edge_layouts = ref HE.empty in
     let cluster_layouts = Hashtbl.create 97 in
 
     G.iter_vertex
@@ -319,7 +320,7 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
           let v' = find_vertex id' in
           let comment = get_dot_comment al in
           let e = find_edge v v' comment in
-          HE.add edge_layouts e (read_edge_layout al)
+          edge_layouts := HE.add e (read_edge_layout al) !edge_layouts
         | Subgraph (SubgraphDef (Some id, stmts)) ->
           let cluster = get_dot_string id in
           List.iter (collect_layouts (Some cluster)) stmts
@@ -342,7 +343,7 @@ module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
     let bbox = parse_bounding_box dot_ast.stmts in
     (* let bgcolor = parse_bgcolor dot_ast.stmts in*)
     { vertex_layouts  = v_layouts;
-      edge_layouts    = e_layouts;
+      edge_layouts    = !e_layouts;
       cluster_layouts = c_layouts;
       bbox = bbox }
 

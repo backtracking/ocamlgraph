@@ -108,7 +108,7 @@ exception ParseError of string
 module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
 
   module HV: Hashtbl.S with type key = G.V.t
-  module HE: Hashtbl.S with type key = G.E.t
+  module HE: Map.S with type key = G.E.t
 
   (** Main layout type *)
   type graph_layout =

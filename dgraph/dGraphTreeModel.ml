@@ -39,9 +39,10 @@ module type S = sig
   end
 
   type cluster = string
+  type graph_layout
 
   class tree_model :
-    XDot.Make(Tree).graph_layout ->
+    graph_layout ->
     TreeManipulation.t ->
     [Tree.V.t, Tree.E.t, cluster] DGraphModel.abstract_model
 
@@ -61,6 +62,7 @@ struct
   type cluster = string
 
   module X = XDot.Make(T)
+  type graph_layout = X.graph_layout
 
   class tree_model layout tree
     : [ T.V.t, T.E.t, cluster ] DGraphModel.abstract_model
@@ -134,7 +136,7 @@ struct
         with Not_found -> assert false
 
       method get_edge_layout e =
-        try X.HE.find layout.X.edge_layouts e
+        try X.HE.find e layout.X.edge_layouts
         with Not_found -> assert false
 
       method get_cluster_layout c =

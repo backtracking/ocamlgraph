@@ -37,9 +37,10 @@ module type S = sig
   end
 
   type cluster = string
+  type graph_layout
 
   class tree_model :
-    XDot.Make(Tree).graph_layout ->
+    graph_layout ->
     TreeManipulation.t ->
     [ Tree.V.t, Tree.E.t, cluster ] DGraphModel.abstract_model
 

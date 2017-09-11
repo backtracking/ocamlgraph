@@ -472,7 +472,9 @@ struct
     mutable style : [ `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
   }
 
-  let rec attributes_list_to_eattributes eattrs : edge list -> _ = function
+  let rec attributes_list_to_eattributes (eattrs:eattributes)
+      : edge list -> _
+    = function
     |[] -> ()
     | `Color c :: q ->
       eattrs.color <-
@@ -618,11 +620,11 @@ struct
          HV.add vertex_layouts v n_layout)
       tree;
 
-    let edge_layouts = HE.create 97 in
+    let edge_layouts = ref HE.empty in
     Tree.iter_edges_e
       (fun e ->
          let e_layout = edge_to_edge_layout tree e geometry_info in
-         HE.add edge_layouts e e_layout)
+         edge_layouts := HE.add e e_layout !edge_layouts)
       tree;
 
     let cluster_layouts = Hashtbl.create 7
@@ -630,7 +632,7 @@ struct
     (*  build_cluster_layouts tree geometry_info*)
     in
     { vertex_layouts = vertex_layouts;
-      edge_layouts = edge_layouts;
+      edge_layouts = !edge_layouts;
       cluster_layouts = cluster_layouts;
       bbox =
         let ((_,_), (_,_) as bb) =
@@ -828,7 +830,7 @@ struct
          let v_layout = parse_vertex_layout tree v old_layout geometry_info in
          HV.add vertex_layouts v v_layout)
       tree;
-    let edge_layouts = HE.create 97 in
+    let edge_layouts = ref HE.empty in
     Tree.iter_edges_e
       (fun e ->
          let src = Tree.V.label (Tree.E.src e) in
@@ -844,12 +846,12 @@ struct
                e_tldraw = [] }
          in
          let e_layout = parse_edge_layout tree e old_layout geometry_info in
-         HE.add edge_layouts e e_layout)
+         edge_layouts := HE.add e e_layout !edge_layouts)
       tree;
     let cluster_layouts = Hashtbl.create 7 in
     let root_pos = get_position root geometry_info in
     { vertex_layouts = vertex_layouts;
-      edge_layouts = edge_layouts;
+      edge_layouts = !edge_layouts;
       cluster_layouts = cluster_layouts;
       bbox =
         let ((_,_), (_,_) as bb) =

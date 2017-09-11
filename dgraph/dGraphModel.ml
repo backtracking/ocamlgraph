@@ -61,12 +61,16 @@ end
 
 (* BUILDING A MODEL WITH AN OCAML GRAPH *)
 
-module Make(G : Graphviz.GraphWithDotAttrs) = struct
+module Make(G : Graphviz.GraphWithDotAttrs)
+ = struct
+
+   exception Multiple_layouts of (G.E.t * edge_layout) list
 
   type cluster = string
   module X = XDot.Make(G)
 
-  class model layout g : [G.vertex, G.edge, cluster] abstract_model = object
+  class model layout g : [G.vertex, G.edge, cluster] abstract_model =
+  object (self)
 
     (* Iterators *)
     method iter_edges f = G.iter_edges f g
@@ -96,8 +100,28 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
       with Not_found -> assert false
 
     method get_edge_layout e =
-      try X.HE.find layout.X.edge_layouts e
-      with Not_found -> assert false
+      try X.HE.find e layout.X.edge_layouts
+      with Not_found ->
+        (* if there are several edges from a vertex [v1] to a vertex [v2], they
+           can share the same layout. In that case, one these edges is
+           unfortunately not in the layout table because of key sharing. Try to
+           recover it when possible by creating a list of all possible layouts
+           for the given edge. If there is only one, easy win, otherwise return
+           them all in an exception and let the caller decide what to do *)
+        let layouts = ref [] in
+        self#iter_succ_e
+          (fun e' ->
+            if G.V.equal (self#dst e) (self#dst e') then
+              try
+                let layout = X.HE.find e' layout.X.edge_layouts in
+                if not (List.exists (fun (_, l) -> layout = l) !layouts) then
+                  layouts := (e', layout) :: !layouts
+              with Not_found -> ())
+          (self#src e);
+        match !layouts with
+        | [] -> assert false
+        | [ _, x ] -> x
+        | _ :: _ :: _ -> raise (Multiple_layouts !layouts)
 
     method get_cluster_layout c =
       try Hashtbl.find layout.X.cluster_layouts c
@@ -112,9 +136,8 @@ module Make(G : Graphviz.GraphWithDotAttrs) = struct
     DumpDot.output_graph out g;
     close_out out;
     (* Get layout from dot file *)
-    let layout = 
-      try
-        X.layout_of_dot ~cmd ~dot_file g 
+    let layout =
+      try X.layout_of_dot ~cmd ~dot_file g
       with X.DotError err -> raise (DotError err)
     in
     let model = new model layout g in
