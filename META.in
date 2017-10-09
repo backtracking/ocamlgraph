@@ -2,7 +2,9 @@ version = "VERSION"
 description = "Generic Graph Library"
 requires=""
 archive(byte) = "CMA"
+archive(byte,plugin) = "CMA"
 archive(native) = "CMXA"
+archive(native,plugin) = "CMXS"
 
 package "dgraph" (
   exists_if = "dgraph.cmi"

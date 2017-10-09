@@ -433,7 +433,7 @@ endif
 ifeq ($(OCAMLBEST),byte)
   OCAMLFIND_OPT_FILES=
 else
-  OCAMLFIND_OPT_FILES=graph$(OBJEXT) graph$(LIBEXT) graph.cmx $(CMXA)
+  OCAMLFIND_OPT_FILES=graph$(OBJEXT) graph$(LIBEXT) graph.cmx $(CMXA) $(CMXS)
   ifeq (@LABLGNOMECANVAS@,yes)
     OCAMLFIND_OPT_FILES+=\
       $(VIEWER_CMXLIB) $(VIEWER_CMXLIB:.cmx=.o) \
@@ -460,7 +460,7 @@ endif
 endif
 
 META: META.in Makefile
-	sed -e s/VERSION/$(VERSION)/ -e s/CMA/$(CMA)/ -e s/CMXA/$(CMXA)/ \
+	sed -e s/VERSION/$(VERSION)/ -e s/CMA/$(CMA)/ -e s/CMXA/$(CMXA)/ -e s/CMXS/$(CMXS)/ \
 		$@.in > $@
 
 # documentation
