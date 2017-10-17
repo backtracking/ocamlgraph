@@ -7,6 +7,9 @@ Configure with
 
 	./configure
 
+(If the `./configure` file does not exist,
+run `autoconf` first.)
+
 Compile with
 
 	make
