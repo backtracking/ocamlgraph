@@ -1,6 +1,10 @@
 
 * marks some incompatible change
 
+version 1.8.8, October 17, 2017
+-------------------------------
+ o fixed installation (Virgile Prevosto, Jacques-Pascal Deplaix)
+ o safe-string compatible (Jacques-Pascal Deplaix)
  * fixed method get_edge_layout of class abstract_model of DGraphModel.Make. The
    bug could have occured when there are several edges between two vertices.
  o [Traverse/Pack] added Dfs.fold and Dfs.fold_component (tail-recursive)
