@@ -33,7 +33,14 @@ result.
 
 == How to link with OCamlgraph
 
-OCamlgraph is packaged as a single module `Graph`. Link is done as follows:
+You can use the `ocamlgraph` ocamlfind package:
+
+	ocamlfind ocamlopt -package ocamlgraph ...
+
+(To produce an executable, also add the `-linkpkg` option.)
+
+If you want to invoke the compiler directly, OCamlgraph is packaged as
+a single module `Graph`. Linking is done as follows:
 
 bytecode::
 
@@ -42,7 +49,6 @@ bytecode::
 native code::
 
 	ocamlopt graph.cmxa <other files>
-
 
 == Examples
 
