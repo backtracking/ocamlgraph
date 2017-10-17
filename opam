@@ -25,7 +25,10 @@ build: [
   [make "install-findlib"]
 ]
 remove: [["ocamlfind" "remove" "ocamlgraph"]]
-depends: ["ocamlfind"]
+depends: [
+  "conf-autoconf"
+  "ocamlfind" {build}
+]
 depopts: [
   "lablgtk"
   "conf-gnomecanvas"
