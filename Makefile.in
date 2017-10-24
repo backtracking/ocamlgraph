@@ -322,6 +322,9 @@ test: $(CMA) tests/test.ml
 test-bf: $(CMA) tests/test_bf.ml
 	ocaml unix.cma graphics.cma $^
 
+test-fixpoint: $(CMA) tests/test_fixpoint.ml
+	ocaml $^
+
 test-johnson: $(CMA) tests/test_johnson.ml
 	ocaml unix.cma graphics.cma $^
 
