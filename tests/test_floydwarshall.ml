@@ -31,6 +31,7 @@ module F = Path.FloydWarshall(G)(W)
 let g = G.create ()
 
 let () =
+  (*
   G.add_edge_e g (G.E.create 1 3 2);
   G.add_edge_e g (G.E.create 1 3 4);
   G.add_edge_e g (G.E.create 2 2 1);
@@ -40,16 +41,16 @@ let () =
   G.add_edge_e g (G.E.create  3 1 4);
   G.add_edge_e g (G.E.create  4 4 2);
   G.add_edge_e g (G.E.create  4 4 3)
-  (*
+  *)
   G.add_edge_e g (G.E.create 1 3  2);
   G.add_edge_e g (G.E.create 1 (-4)  5);
   G.add_edge_e g (G.E.create 1 8  3);
   G.add_edge_e g (G.E.create 2 7  5);
-  G.add_edge_e g (G.E.create  2 1  4);
+  G.add_edge_e g (G.E.create  2 1  4);                  
   G.add_edge_e g (G.E.create  3 4  2);
   G.add_edge_e g (G.E.create  4 (-5)  3);
   G.add_edge_e g (G.E.create  4 2  1);
   G.add_edge_e g (G.E.create  5 6  4)
-*)
+
 let () = let test = F.all_pairs_shortest_paths g in
   F.HVV.iter (fun (v, u) d -> Printf.printf "[%d -> %d : %d]\n" v u d) test
