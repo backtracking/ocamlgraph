@@ -99,6 +99,30 @@ module type WJ = sig
   (** Subtraction of weights. *)
 end
 
+(** Weight signature for Floyd's algorithm. *)
+module type WF = sig
+  include Sig.WEIGHT
+  val infinity : t
+  (** Infini value*)
+end
+
+module FloydWarshall
+    (G: G)
+    (W: WF with type edge = G.E.t) :
+sig
+
+  module HVV : Hashtbl.S with type key = (G.V.t * G.V.t)
+
+  val all_pairs_shortest_paths : G.t -> W.t HVV.t
+  (** [all_pairs_shortest_paths g] computes the distance of shortest
+      path between all pairs of vertices in [g]. They are returned as
+      a hash table mapping each pair of vertices to their
+      distance. If [g] contains a negative-cycle, raises
+      [NegativeCycle l] where [l] is such a cycle.*)
+end
+
+
+
 module Johnson
     (G: G)
     (W: WJ with type edge = G.E.t) :

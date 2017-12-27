@@ -99,7 +99,6 @@ struct
     loop ()
 
 end
-
 (* The following module is a contribution of Yuto Takei (University of Tokyo) *)
 
 module BellmanFord
@@ -186,6 +185,77 @@ struct
         assert false (* a component is not empty *)
     in
     iter (Comp.scc_list g)
+
+end
+
+(** Weight signature for Floyd's algorithm. *)
+module type WF = sig
+  include Sig.WEIGHT
+  val infinity : t
+  (** Infini value*)
+end
+
+(** The Floyd–Warshall algorithm is an algorithm for finding shortest paths in
+    a weighted graph with positive or negative edge weights
+    (but with no negative cycles)*)
+module FloydWarshall
+    (G: G)
+    (W: WF with type edge = G.E.t) =
+struct
+  open G.E
+  module HVV = Hashtbl.Make(Util.HTProduct(G.V)(G.V))
+
+  module W' = struct
+    open G.E
+
+    type edge = G.E.t
+    type t = W.t
+    let zero = W.zero
+    let infinity = W.infinity
+    let weight e = W.weight e
+    let compare = W.compare
+    let add wi wj =
+      let a = W.add wi wj in
+      if a > infinity then
+        infinity
+      else
+        a
+  end
+
+  let all_pairs_shortest_paths g =
+    let msp = HVV.create 100 in
+    let psp = HVV.create 100 in
+    (* initialization *)
+    G.iter_vertex
+      (fun v ->
+         G.iter_vertex
+           (fun  u ->
+              HVV.add msp (v,u) W.infinity;
+              HVV.add psp (v,u) W.zero
+           ) g
+      ) g;
+    (*first step*)
+    G.iter_vertex
+      (fun v ->
+         G.iter_succ_e
+           (fun e ->
+              HVV.replace msp (v, (dst e)) (W.weight e)
+           ) g v
+      ) g;
+    G.iter_vertex
+      (fun k ->
+         G.iter_vertex
+           (fun i ->
+              G.iter_vertex
+                (fun j ->
+                   let p = W'.add (HVV.find msp (i,k)) (HVV.find msp (k,j)) in
+                   if p < (HVV.find msp (i,j)) then begin
+                     HVV.replace msp (i,j) p ;
+                     HVV.replace psp (i,j) (HVV.find psp (k,j))
+                   end
+                ) g
+           ) g ) g;
+    msp
 
 end
 
