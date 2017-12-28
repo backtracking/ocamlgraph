@@ -113,6 +113,8 @@ sig
 
   module HVV : Hashtbl.S with type key = (G.V.t * G.V.t)
 
+  exception NegativeCycle
+
   val all_pairs_shortest_paths : G.t -> W.t HVV.t
   (** [all_pairs_shortest_paths g] computes the distance of shortest
       path between all pairs of vertices in [g]. They are returned as

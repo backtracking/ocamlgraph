@@ -205,24 +205,15 @@ struct
   open G.E
   module HVV = Hashtbl.Make(Util.HTProduct(G.V)(G.V))
 
-  module W' = struct
-    open G.E
-
-    type edge = G.E.t
-    type t = W.t
-    let zero = W.zero
-    let infinity = W.infinity
-    let weight e = W.weight e
-    let compare = W.compare
-    let add wi wj =
-      let a = W.add wi wj in
-      if a > infinity then
-        infinity
-      else
-        a
-  end
+  exception NegativeCycle
 
   let all_pairs_shortest_paths g =
+    let add wi wj =
+        let a = W.add wi wj in
+        if a > W.infinity then
+          W.infinity
+        else
+          a in
     let msp = HVV.create 100 in
     let psp = HVV.create 100 in
     (* initialization *)
@@ -248,13 +239,17 @@ struct
            (fun i ->
               G.iter_vertex
                 (fun j ->
-                   let p = W'.add (HVV.find msp (i,k)) (HVV.find msp (k,j)) in
+                   let p = add (HVV.find msp (i,k)) (HVV.find msp (k,j)) in
                    if p < (HVV.find msp (i,j)) then begin
                      HVV.replace msp (i,j) p ;
                      HVV.replace psp (i,j) (HVV.find psp (k,j))
                    end
                 ) g
            ) g ) g;
+    G.iter_vertex
+      (fun i ->
+         let m = HVV.find msp (i, i) in
+             if m < W.zero then raise NegativeCycle) g;
     msp
 
 end
