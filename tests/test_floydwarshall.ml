@@ -32,11 +32,13 @@ let test has_cycle tab =
   let build (s,w,t) = G.add_edge_e g (G.E.create s w t) in
   List.iter build tab;
   begin try
-    let m = F.all_pairs_shortest_paths g in
-    F.HVV.iter (fun (v, u) d -> Printf.printf "[%d -> %d : %d] " v u d) m;
-    (*assert (has_cycle)*)
+      let (m,p) = F.all_pairs_shortest_paths g in
+      F.HVV.iter (fun (v, u) d -> Printf.printf "\n[%d -> %d : %d] " v u d;
+                     List.iter (fun vs -> Printf.printf "V %d, " vs) (F.shortest_path p v u)) m;
+
+    assert (not has_cycle)
     with
-    | F.NegativeCycle -> printf "Negative cycle found \n" (*assert (not has_cycle)*)
+    | F.NegativeCycle -> printf "Negative cycle found \n"; assert (has_cycle)
     (*| _ -> failwith "Unknown"*)
 end
 

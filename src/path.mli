@@ -115,12 +115,16 @@ sig
 
   exception NegativeCycle
 
-  val all_pairs_shortest_paths : G.t -> W.t HVV.t
+  val all_pairs_shortest_paths : G.t -> (W.t HVV.t * G.V.t HVV.t)
   (** [all_pairs_shortest_paths g] computes the distance of shortest
-      path between all pairs of vertices in [g]. They are returned as
-      a hash table mapping each pair of vertices to their
-      distance. If [g] contains a negative-cycle, raises
-      [NegativeCycle l] where [l] is such a cycle.*)
+      path between all pairs of vertex in [g]. They are returned as
+      a tuple of hash table. The first map each pair of vertex to their
+      distance and the seconde map each pair of vertices to the predecessor of
+      the seconde vertex. If [g] contains a negative-cycle, raises
+      [NegativeCycle].*)
+  val shortest_path : G.V.t HVV.t -> G.V.t -> G.V.t -> G.V.t list
+  (**[shortest_path p vs ve] from a hash table of predecessors return the list of
+   vertex that are reachable from vertex [vs] to [ve]*)
 end
 
 

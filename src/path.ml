@@ -222,7 +222,7 @@ struct
          G.iter_vertex
            (fun  u ->
               HVV.add msp (v,u) W.infinity;
-              HVV.add psp (v,u) W.zero
+              HVV.add psp (v,u) u
            ) g
       ) g;
     (*first step*)
@@ -230,7 +230,8 @@ struct
       (fun v ->
          G.iter_succ_e
            (fun e ->
-              HVV.replace msp (v, (dst e)) (W.weight e)
+              HVV.replace msp (v, (dst e)) (W.weight e);
+              HVV.replace psp (v, (dst e)) v
            ) g v
       ) g;
     G.iter_vertex
@@ -250,7 +251,20 @@ struct
       (fun i ->
          let m = HVV.find msp (i, i) in
              if m < W.zero then raise NegativeCycle) g;
-    msp
+    (msp,psp)
+
+  let shortest_path p vs ve =
+    let rec loop acc p vs ve =
+      let vp = HVV.find p (vs,ve) in
+      if vs = vp then
+          vs::acc
+      else
+        loop (vp::acc) p vs vp
+    in
+    loop (ve::[]) p vs ve
+
+
+
 
 end
 
