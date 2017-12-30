@@ -43,10 +43,11 @@ let test has_cycle tab =
 end
 
 let () =
+  printf "Test N°1 same data as the test of Johnson's algorithm :";
   test false [1, 3, 2; 1, (-4), 5; 1, 8, 3; 2, 7, 5; 2, 1, 4;
               3, 4, 2; 4, (-5), 3;
               4, 2, 1; 5, 6, 4];
-  printf "\nWith negative cycle :\n";
+  printf "\nTest N° 2 negative cycle :\n";
   test true [1, 3, 2 ;  1, 3, 4 ; 2, 2, 1 ;  2, 2, 3 ; 2, 2, 4 ;  3, (-6), 1;
   3, 1, 4;  4, 4, 2; 4, 4, 3];
   printf "All tests succeeded.\n"

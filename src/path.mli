@@ -124,7 +124,8 @@ sig
       [NegativeCycle].*)
   val shortest_path : G.V.t HVV.t -> G.V.t -> G.V.t -> G.V.t list
   (**[shortest_path p vs ve] from a hash table of predecessors return the list of
-   vertex that are reachable from vertex [vs] to [ve]*)
+     vertex that are reachable from vertex [vs] to [ve]. Be careful the hash table
+     must be obtained by all_pairs_shortest_paths*)
 end
 
 
