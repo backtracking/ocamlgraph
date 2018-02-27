@@ -2,6 +2,22 @@
 FREQUENTLY ASKED QUESTIONS
 ==========================
 
+
+==========
+Q: Is it possible to update imperative graph during traversal
+   done by |fold_vertex| or |iter_vertex|?
+A: Imperative graphs being implemented with hash tables, the answer is no.
+
+   Workarounds include
+   - storing update information on the side, then apply it in a second step;
+   - mutate a second graph instead.
+
+   Regarding the latter, it is worth pointing out OCamlgraph also
+   provides immutable graphs that could make it more efficient (free
+   ``copy'' and possible sharing between the two graphs, at the extra
+   cost of logarithmic operations instead of constant-time
+   operations).
+==========
 ==========
 Q: I need to store some information into vertices and/or edges
    I need several kind of labels on the edges
