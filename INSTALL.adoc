@@ -5,10 +5,8 @@ You need Objective Caml >= 3.10.2 to compile this library.
 
 Configure with 
 
+        autoconf
 	./configure
-
-(If the `./configure` file does not exist,
-run `autoconf` first.)
 
 Compile with
 
