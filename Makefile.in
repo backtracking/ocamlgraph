@@ -397,10 +397,11 @@ else
 endif
 endif
 
-install-byte:
+install-byte: META
 	mkdir -p $(INSTALL_LIBDIR)
 	cp -f graph.cmo graph.cmi $(CMA) $(INSTALL_LIBDIR)
 	cp -f $(OCAMLGRAPH_SRCDIR)/*.mli $(INSTALL_LIBDIR)
+	cp -f META $(INSTALL_LIBDIR)
 ifeq (@LABLGNOMECANVAS@,yes)
 	mkdir -p $(BINDIR)
 	cp -f $(ED_DIR)/editor.byte $(BINDIR)/graph-editor.byte
