@@ -169,7 +169,6 @@ struct
   type graph = G.t
   type vertex = G.V.t
   type edge = G.E.t
-  module TreeModel = T
   module Tree = T.Tree
 
   module HE(E: sig type t val compare: t -> t -> int end) = struct

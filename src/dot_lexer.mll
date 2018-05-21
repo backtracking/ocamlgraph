@@ -25,7 +25,7 @@
 
   let keyword =
     let h = Hashtbl.create 17 in
-    List.iter 
+    List.iter
       (fun (s,k) -> Hashtbl.add h s k)
       [
 	"strict", STRICT;
@@ -35,7 +35,7 @@
 	"node", NODE;
 	"edge", EDGE;
       ];
-    fun s -> let s = String.lowercase s in Hashtbl.find h s
+    fun s -> let s = String.lowercase_ascii s in Hashtbl.find h s
 
 }
 
@@ -53,21 +53,21 @@ rule token = parse
       { token lexbuf }
   | "/*"
       { comment lexbuf; token lexbuf }
-  | ":" 
+  | ":"
       { COLON }
-  | "," 
+  | ","
       { COMMA }
-  | ";" 
+  | ";"
       { SEMICOLON }
-  | "=" 
+  | "="
       { EQUAL }
-  | "{" 
+  | "{"
       { LBRA }
-  | "}" 
+  | "}"
       { RBRA }
-  | "[" 
+  | "["
       { LSQ }
-  | "]" 
+  | "]"
       { RSQ }
   | "--" | "->"
       { EDGEOP }
@@ -76,12 +76,12 @@ rule token = parse
   | number as s
       { ID (Number s) }
   | "\""
-      { Buffer.clear string_buf; 
+      { Buffer.clear string_buf;
 	let s = string lexbuf in
 	ID (String s) }
   | "<"
-      { Buffer.clear string_buf; 
-	html lexbuf; 
+      { Buffer.clear string_buf;
+	html lexbuf;
 	ID (Html (Buffer.contents string_buf)) }
   | eof
       { EOF }
@@ -89,7 +89,7 @@ rule token = parse
       { failwith ("Dot_lexer: invalid character " ^ String.make 1 c) }
 
 and string = parse
-  | "\"" 
+  | "\""
       { Buffer.contents string_buf }
   | "\\" "\""
       { Buffer.add_char string_buf '"';
@@ -115,7 +115,7 @@ and html = parse
 and comment = parse
   | "*/"
       { () }
-  | _ 
+  | _
       { comment lexbuf }
   | eof
       { failwith "Dot_lexer: unterminated comment" }

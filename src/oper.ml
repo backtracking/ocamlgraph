@@ -49,8 +49,6 @@ module Make(B : Builder.S) = struct
   let transitive_closure ?(reflexive=false) g0 =
     add_transitive_closure ~reflexive (B.copy g0)
 
-  module H = Hashtbl.Make(G.V)
-
   let mirror g =
     if G.is_directed then begin
       let g' =

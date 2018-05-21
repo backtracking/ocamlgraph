@@ -72,8 +72,8 @@ let set_style st s = st.style <- s
 
 (* STRING OPERATIONS *)
 
-let suffix s i = try String.sub s i ((String.length s)-i)
-  with Invalid_argument("String.sub") -> ""
+let suffix s i =
+  try String.sub s i (String.length s - i) with Invalid_argument _ -> ""
 
 (** Splits a string with a separator
     returns a list of strings *)
@@ -208,8 +208,7 @@ let get_int state =
   | Some w -> begin
       (*let w' = filter_int w in*)
       try int_of_string w
-      with Failure "int_of_string" ->
-        raise (ParseError "Cannot parse int")
+      with Failure _ -> raise (ParseError "Cannot parse int")
     end
   | None -> raise (ParseError "Cannot parse int")
 
@@ -217,8 +216,7 @@ let get_float state =
   match get_word state with
   | Some w -> begin
       try float_of_string w
-      with Failure "float_of_string" ->
-        raise (ParseError "Cannot parse float")
+      with Failure _ -> raise (ParseError "Cannot parse float")
     end
   | None -> raise (ParseError "Cannot parse float")
 

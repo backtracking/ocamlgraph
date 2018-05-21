@@ -17,9 +17,7 @@
 
 module P(G : Sig.P) = struct
 
-  module VertexSet = Set.Make(G.V)
   module CT = Cliquetree.CliqueTree(G)
-  module Choose = Oper.Choose(G)
 
   type edgeset = (G.V.t * G.V.t) list
 
@@ -85,9 +83,7 @@ end
 
 module I(G : Sig.I) = struct
 
-  module VertexSet = Set.Make(G.V)
   module CT = Cliquetree.CliqueTree(G)
-  module Choose = Oper.Choose(G)
 
   type edgeset = (G.V.t * G.V.t) list
 
