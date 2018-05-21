@@ -31,11 +31,11 @@ module type GM = sig
   end
 end
 
+exception NoColoring
+
 (** Graph coloring with marking.
     Only applies to imperative graphs with marks. *)
 module Mark(G : GM) = struct
-
-  exception NoColoring
 
   module Bfs = Traverse.Bfs(G)
 

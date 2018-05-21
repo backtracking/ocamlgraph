@@ -20,6 +20,8 @@
     A [k]-coloring of a graph [g] is a mapping [c] from nodes to [\{1,...,k\}]
     such that [c(u) <> c(v)] for any edge [u-v] in [g]. *)
 
+exception NoColoring
+
 (** {2 Graph coloring for graphs without marks} *)
 
 (** Minimal graph signature for {!Make}.
@@ -44,7 +46,10 @@ module Make(G: G) : sig
 
   val coloring : G.t -> int -> int H.t
   (** [coloring g k] colors the graph [g] with [k] colors and returns the
-      coloring as a hash table mapping nodes to their colors. *)
+      coloring as a hash table mapping nodes to their colors.
+      Colors are integers from 1 to [k].
+
+      @raise NoColoring if [g] cannot be [k]-colored. *)
 
 end
 
@@ -68,23 +73,20 @@ module type GM = sig
   end
 end
 
-(** Provide a function for [k]-coloring a graph with integer marks. 
+(** Provide a function for [k]-coloring a graph with integer marks.
     The provided function is more efficient that the one provided by functor
     {!Make} above. *)
 module Mark(G : GM) : sig
 
-  exception NoColoring
-
   val coloring : G.t -> int -> unit
-  (** [coloring g k] colors the nodes of graph [g] using k colors,
-      assigning the marks integer values between 1 and k.
-      raises [NoColoring] when there is no possible coloring.
+  (** [coloring g k] colors the nodes of graph [g] using [k] colors,
+      assigning the marks integer values between 1 and [k].
 
       The graph marks may be partially set before starting; the meaning of
       initial values is as follows:
       - 0: a node to be colored
-      - any value between 1 and k: a color already assigned
-      - any value greater than k: a node to be ignored 
+      - any value between 1 and [k]: a color already assigned
+      - any value greater than [k]: a node to be ignored
 
       @raise NoColoring if [g] cannot be [k]-colored. *)
 
