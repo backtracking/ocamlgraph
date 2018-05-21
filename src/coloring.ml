@@ -40,6 +40,7 @@ module Mark(G : GM) = struct
   module Bfs = Traverse.Bfs(G)
 
   let coloring g k =
+    if G.is_directed then invalid_arg "coloring: directed graph";
     (* first step: we eliminate vertices with less than [k] successors *)
     let stack = Stack.create () in
     let nb_to_color = ref (G.nb_vertex g) in
@@ -88,9 +89,21 @@ module Mark(G : GM) = struct
          with Exit -> ())
       stack
 
+  let two_color g =
+    if G.is_directed then invalid_arg "coloring: directed graph";
+    (* first, set all colors to 0 *)
+    let erase v = G.Mark.set v 0 in
+    G.iter_vertex erase g;
+    (* then, use dfs to color the nodes *)
+    let rec dfs c v = match G.Mark.get v with
+      | 1 | 2 as cv -> if cv <> c then raise NoColoring (* check for cycles *)
+      | _ -> G.Mark.set v c; G.iter_succ (dfs (1-c)) g v in
+    let start v = match G.Mark.get v with 1 | 2 -> () | _ -> dfs 1 v in
+    G.iter_vertex start g
+
 end
 
-(** Graph coloring for graphs without marks: we use an external hashtbl *)
+(** Graph coloring for graphs without marks: we use an external hash table *)
 
 module type G = sig
   val is_directed : bool
@@ -108,18 +121,25 @@ module Make(G: G) = struct
 
   module H = Hashtbl.Make(G.V)
 
-  let coloring g k =
+  let add_marks () =
     let h = H.create 97 in
-    let module M =
-      Mark(struct
-        include G
-        module Mark = struct
-          let get v = try H.find h v with Not_found -> 0
-          let set v n = H.replace h v n
-        end
-      end )
-    in
+    h, (module struct
+         include G
+         module Mark = struct
+           let get v = try H.find h v with Not_found -> 0
+           let set v n = H.replace h v n end end :
+         GM with type t = G.t and type V.t = G.V.t)
+
+  let coloring g k =
+    let h, (module GM) = add_marks () in
+    let module M = Mark(GM) in
     M.coloring g k;
+    h
+
+  let two_color g =
+    let h, (module GM) = add_marks () in
+    let module M = Mark(GM) in
+    M.two_color g;
     h
 
 end

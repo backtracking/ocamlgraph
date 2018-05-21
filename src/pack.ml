@@ -35,6 +35,7 @@ struct
   module Dfs = Traverse.Dfs(G)
   module Bfs = Traverse.Bfs(G)
   module Marking = Traverse.Mark(G)
+  module Coloring = Coloring.Mark(G)
 
   module Classic = Classic.I(G)
 

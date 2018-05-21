@@ -1,6 +1,10 @@
 
 * marks some incompatible change
 
+ * [Coloring] functions now fail if the graph is directed
+ * [Coloring] now uses a single, global exception [NoColoring]
+ o [Coloring] new function two_color to 2-color a graph (or fail)
+
 version 1.8.8, October 17, 2017
 -------------------------------
  o fixed installation (Virgile Prevosto, Jacques-Pascal Deplaix)

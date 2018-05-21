@@ -22,38 +22,7 @@
 
 exception NoColoring
 
-(** {2 Graph coloring for graphs without marks} *)
-
-(** Minimal graph signature for {!Make}.
-    Sub-signature of {!Sig.G}. *)
-module type G = sig
-  val is_directed : bool
-  type t
-  val nb_vertex : t -> int
-  module V : Sig.COMPARABLE
-  val out_degree : t -> V.t -> int
-  val iter_vertex : (V.t -> unit) -> t -> unit
-  val fold_vertex : (V.t -> 'a -> 'a) -> t  -> 'a -> 'a
-  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
-  val fold_succ : (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
-end
-
-(** Provide a function for [k]-coloring a graph. *)
-module Make(G: G) : sig
-
-  module H : Hashtbl.S with type key = G.V.t
-  (** Hash tables used to store the coloring *)
-
-  val coloring : G.t -> int -> int H.t
-  (** [coloring g k] colors the graph [g] with [k] colors and returns the
-      coloring as a hash table mapping nodes to their colors.
-      Colors are integers from 1 to [k].
-
-      @raise NoColoring if [g] cannot be [k]-colored. *)
-
-end
-
-(** {2 Graph coloring for graph with integer marks} *)
+(** {2 Graph coloring for graphs with integer marks} *)
 
 (** Minimal graph signature for {!Mark}.
     Sub-signature of {!Sig.IM}. *)
@@ -88,6 +57,49 @@ module Mark(G : GM) : sig
       - any value between 1 and [k]: a color already assigned
       - any value greater than [k]: a node to be ignored
 
-      @raise NoColoring if [g] cannot be [k]-colored. *)
+      @raise [NoColoring] if [g] cannot be [k]-colored.
+
+      Worst-case time complexity is exponential. Space complexity is O(V). *)
+
+  val two_color: G.t -> unit
+  (** [two_color g] attemps to color [g] with colors 1 and 2.
+      Raises [NoColoring] if this is not possible (i.e., if the graph
+      is not bipartite). Runs in O(V+E). *)
 
 end
+
+(** {2 Graph coloring for graphs without marks} *)
+
+(** Minimal graph signature for {!Make}.
+    Sub-signature of {!Sig.G}. *)
+module type G = sig
+  val is_directed : bool
+  type t
+  val nb_vertex : t -> int
+  module V : Sig.COMPARABLE
+  val out_degree : t -> V.t -> int
+  val iter_vertex : (V.t -> unit) -> t -> unit
+  val fold_vertex : (V.t -> 'a -> 'a) -> t  -> 'a -> 'a
+  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
+  val fold_succ : (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
+end
+
+(** Provide a function for [k]-coloring a graph. *)
+module Make(G: G) : sig
+
+  module H : Hashtbl.S with type key = G.V.t
+  (** Hash tables used to store the coloring *)
+
+  val coloring : G.t -> int -> int H.t
+  (** [coloring g k] colors the graph [g] with [k] colors and returns the
+      coloring as a hash table mapping nodes to their colors.
+      Colors are integers from 1 to [k].
+
+      @raise [NoColoring] if [g] cannot be [k]-colored.
+
+      Worst-case time complexity is exponential. Space complexity is O(V). *)
+
+  val two_color : G.t -> int H.t
+
+end
+
