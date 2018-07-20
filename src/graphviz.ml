@@ -71,11 +71,12 @@ let fprint_square_not_empty printer ppf = function
   | l -> fprintf ppf " [%a]" printer l
 
 type arrow_style =
-  [ `None | `Normal | `Inv | `Dot | `Odot | `Invdot | `Invodot ]
+  [ `None | `Normal | `Onormal | `Inv | `Dot | `Odot | `Invdot | `Invodot ]
 
 let fprint_arrow_style ppf = function
     `None -> fprintf ppf "none"
   | `Normal -> fprintf ppf "normal"
+  | `Onormal -> fprintf ppf "onormal"
   | `Inv -> fprintf ppf "inv"
   | `Dot -> fprintf ppf "dot"
   | `Odot -> fprintf ppf "odot"
