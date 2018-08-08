@@ -57,13 +57,13 @@ module Mark(G : GM) : sig
       - any value between 1 and [k]: a color already assigned
       - any value greater than [k]: a node to be ignored
 
-      @raise [NoColoring] if [g] cannot be [k]-colored.
+      @raise NoColoring if [g] cannot be [k]-colored.
 
       Worst-case time complexity is exponential. Space complexity is O(V). *)
 
   val two_color: G.t -> unit
   (** [two_color g] attemps to color [g] with colors 1 and 2.
-      Raises [NoColoring] if this is not possible (i.e., if the graph
+      @raise NoColoring if this is not possible (i.e., if the graph
       is not bipartite). Runs in O(V+E). *)
 
 end
@@ -95,7 +95,7 @@ module Make(G: G) : sig
       coloring as a hash table mapping nodes to their colors.
       Colors are integers from 1 to [k].
 
-      @raise [NoColoring] if [g] cannot be [k]-colored.
+      @raise NoColoring if [g] cannot be [k]-colored.
 
       Worst-case time complexity is exponential. Space complexity is O(V). *)
 

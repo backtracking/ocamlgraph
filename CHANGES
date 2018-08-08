@@ -1,6 +1,8 @@
 
 * marks some incompatible change
 
+ o [Coloring] fixed generation of OCamlDoc documentation
+   (contributed by Earnestly)
  * [Coloring] functions now fail if the graph is directed
  * [Coloring] now uses a single, global exception [NoColoring]
  o [Coloring] new function two_color to 2-color a graph (or fail)
