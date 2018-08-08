@@ -264,7 +264,7 @@ $(OCAMLGRAPH_SRCDIR)/blocks.cmx: | graph.cmo
 
 EXAMPLESBIN=bin/demo.$(OCAMLBEST) bin/demo_planar.$(OCAMLBEST) \
   bin/bench.$(OCAMLBEST) bin/color.$(OCAMLBEST) bin/sudoku.$(OCAMLBEST) \
-  bin/test.$(OCAMLBEST)
+  bin/test.$(OCAMLBEST) bin/compare_prim_kruskal.$(OCAMLBEST)
 
 .PHONY: examples
 examples: $(EXAMPLESBIN)

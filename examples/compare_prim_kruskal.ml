@@ -48,9 +48,6 @@ let () = Format.printf "seed = %d@." seed; Random.init seed
 
 (* undirected graphs with integer coordinates and integer labels on edges *)
 
-module IntInt = struct 
-  type t = int * int 
-end
 module Int = struct 
   type t = int 
   let compare = compare 
@@ -67,8 +64,9 @@ module R = Rand.I(G)
 
 module W = struct 
   type label = G.E.label
+  type edge = G.E.t
   type t = int
-  let weight x = x
+  let weight x = G.E.label x
   let zero = 0
   let add = (+)
   let compare = compare
