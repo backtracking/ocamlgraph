@@ -6,6 +6,7 @@
  * [Coloring] functions now fail if the graph is directed
  * [Coloring] now uses a single, global exception [NoColoring]
  o [Coloring] new function two_color to 2-color a graph (or fail)
+ * [Fixpoint] Take initial labeling of nodes into account (Johannes Kloos)
 
 version 1.8.8, October 17, 2017
 -------------------------------
