@@ -96,10 +96,7 @@ struct
 
     let rec worklist (data : A.data M.t) (wl : N.t) =
       (* 'meet' an arbitrary number of data-sets *)
-      let meet ~default = function
-        | [] -> default
-        | [x] -> x
-        | x::xs -> List.fold_left (fun a b -> A.join a b) x xs
+      let meet initial xs = List.fold_left A.join initial xs
       in
 
       (* analyze one node, creating a new data-set and node-worklist
@@ -133,7 +130,7 @@ struct
                   (fun (f, src) -> f (M.find src data)) edges
               in
               let node_data = M.find node data in
-              let node_data' = meet ~default:node_data analysis in
+              let node_data' = meet (initial node) analysis in
               if A.equal node_data node_data' then None
               else Some (M.add node node_data' data)
             in
@@ -149,7 +146,7 @@ struct
                   (fun (f, dst) -> f (M.find dst data)) edges
               in
               let node_data = M.find node data in
-              let node_data' = meet ~default:node_data analysis in
+              let node_data' = meet (initial node) analysis in
               if A.equal node_data node_data' then None
               else Some (M.add node node_data' data)
             in
