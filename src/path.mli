@@ -62,7 +62,9 @@ module BellmanFord
     (W: Sig.WEIGHT with type edge = G.E.t) :
 sig
 
-  module H : Hashtbl.S with type key = G.V.t
+  module H : Hashtbl.S
+    with type key = G.V.t
+     and type 'a t = 'a Hashtbl.Make(G.V).t
 
   exception NegativeCycle of G.E.t list
 
