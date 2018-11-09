@@ -87,7 +87,9 @@ end
 (** Provide a function for [k]-coloring a graph. *)
 module Make(G: G) : sig
 
-  module H : Hashtbl.S with type key = G.V.t
+  module H : Hashtbl.S
+    with type key = G.V.t
+     and type 'a t = 'a Hashtbl.Make(G.V).t
   (** Hash tables used to store the coloring *)
 
   val coloring : G.t -> int -> int H.t

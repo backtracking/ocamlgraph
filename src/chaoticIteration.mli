@@ -128,7 +128,7 @@ module Make
     (G : G)
     (D : Data with type edge = G.E.t) :
 sig
-  module M : Map.S with type key = G.V.t
+  module M : Map.S with type key = G.V.t and type 'a t = 'a Map.Make(G.V).t
   (** Map used to store the result of the analysis *)
 
   val recurse :
