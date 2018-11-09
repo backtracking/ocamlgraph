@@ -684,7 +684,7 @@ struct
       Mark.clear ();
       Mark.set s None Mark.Plus;
       let a' = internal_loop a in
-      if a = a' then a else external_loop a'
+      if F.compare a a' = 0 then a else external_loop a'
     in
     let a = external_loop F.zero in
     (fun e -> try Result.find r e with Not_found -> F.flow (G.E.label e)), a

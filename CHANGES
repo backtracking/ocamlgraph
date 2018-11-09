@@ -1,6 +1,7 @@
 
 * marks some incompatible change
 
+ o fix incorrect uses of polymorphic equality (Steffen Smolka, Boris Yakobowski)
  o [Coloring] fixed generation of OCamlDoc documentation
    (contributed by Earnestly)
  * [Coloring] functions now fail if the graph is directed

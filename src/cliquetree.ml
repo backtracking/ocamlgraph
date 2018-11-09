@@ -101,8 +101,8 @@ module CliqueTree(Gr : Sig.G) = struct
       (struct
         type t = int
         let compare : t -> t -> int = Pervasives.compare
-        let hash = Hashtbl.hash
-        let equal x y = x = y
+        let hash (x:t) = Hashtbl.hash x
+        let equal (x:int) (y:int) = x = y
       end)
 
   module CliqueTreeE = struct

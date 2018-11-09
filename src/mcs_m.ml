@@ -42,9 +42,9 @@ module MaximalCardinalitySearch = struct
         if H.mem h x then
           false
         else
-        if x = v then true
+        if G.V.equal x v then true
         else
-        if NewV.weight x < maxw || x = u then
+        if NewV.weight x < maxw || G.V.equal x u then
           begin
             H.add h x ();
             G.fold_succ
@@ -80,7 +80,7 @@ module MaximalCardinalitySearch = struct
                let s =
                  G.fold_vertex
                    (fun x s ->
-                      if x = v then s
+                      if G.V.equal x v then s
                       else
                       if check_path g' x v then
                         VerticesSet.add x s
@@ -128,9 +128,9 @@ module MaximalCardinalitySearch = struct
         if H.mem h x then
           false
         else
-        if x = v then true
+        if G.V.equal x v then true
         else
-        if NewV.weight x < maxw || x = u then begin
+        if NewV.weight x < maxw || G.V.equal x u then begin
           H.add h x ();
           G.fold_succ
             (fun x found ->
@@ -156,7 +156,7 @@ module MaximalCardinalitySearch = struct
         let s =
           G.fold_vertex
             (fun x s ->
-               if x = v then s
+               if G.V.equal x v then s
                else
                if check_path g' x v then
                  VerticesSet.add x s

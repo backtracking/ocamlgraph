@@ -74,7 +74,7 @@ struct
   module H = Hashtbl.Make(G.V)
   module C = Path.Check(G)
 
-  let choose ~old (v, n) =
+  let choose ~old (v, n: G.V.t * int) =
     let l, min = old in
     if n = min then v :: l, n
     else if n < min then [ v ], n

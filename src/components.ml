@@ -40,7 +40,7 @@ module Make(G: G) = struct
     let numdfs = ref 0 in
     let numcomp = ref 0 in
     let rec pop x = function
-      | (y, w) :: l when y > x ->
+      | ((y: int), w) :: l when y > x ->
         H.add hashcomp w !numcomp;
         pop x l
       | l -> l

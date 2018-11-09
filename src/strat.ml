@@ -103,14 +103,14 @@ end = struct
   let rec eq l1 l2 = match l1, l2 with
       [], [] -> true
     | e1 :: l1', e2 :: l2' ->
-      (e1 = e2) && (eq l1' l2')
+      (G.V.compare e1 e2 = 0) && (eq l1' l2')
     | _ -> false
 
   let rec eq_mem i l1 l2 = match l1, l2 with
       [], [] -> (true, false)
     | e1 :: l1', e2 :: l2' ->
-      if e1 = e2 then
-        if e1 = i then (eq l1' l2', true)
+      if G.V.compare e1 e2 = 0 then
+        if G.V.compare e1 i = 0 then (eq l1' l2', true)
         else eq_mem i l1' l2'
       else (false, false)
     | _ -> (false, false)
