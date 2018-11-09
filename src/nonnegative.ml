@@ -45,7 +45,7 @@ module Imperative
         let v = G.E.dst e in
         print_string ("-(" ^ (sov v) ^ ")");
         v) v0 cycle in
-    assert (v0 = v1);
+    assert (G.V.equal v0 v1);
     print_string "\n"
   let dump_set = S.iter (fun x -> print_string ((sov x) ^ ", "))
   let dump (src, dist) =

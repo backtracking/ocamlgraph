@@ -99,7 +99,6 @@ end
 module Make_Map(X: COMPARABLE) = struct
   include Map.Make(X)
   type 'a return = 'a t
-  let is_empty m = (m = empty)
   let create ?size:_ () = assert false
   (* never call and not visible for the user thank's to
      signature constraints *)
