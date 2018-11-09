@@ -45,7 +45,7 @@ struct
 
     (* predicate to determine if a node is a leader *)
     let is_leader n =
-      if n = root then true (* the root node is always a leader *)
+      if G.V.equal n root then true (* the root node is always a leader *)
       else
         match G.pred g n with
         | [] ->
