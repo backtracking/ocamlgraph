@@ -42,8 +42,8 @@ end
 
 module type I = sig
   include G
-  val create: ?size:int -> unit -> t
-  val add_edge: t -> V.t -> V.t -> unit
+  val empty: unit -> t
+  val add_edge: t -> V.t -> V.t -> t
 end
 
 module type S = sig
@@ -369,13 +369,11 @@ module Make_graph(G: I) = struct
   }
 
   let compute_dom_graph cfg dom_tree =
-    let g = G.create ~size:(G.nb_vertex cfg) () in
-    G.iter_vertex (fun p ->
+    G.fold_vertex (fun p g ->
         try
-          List.iter (G.add_edge g p) (dom_tree p)
-        with Not_found -> ()
-      ) cfg;
-    g
+          List.fold_left (fun g u -> (G.add_edge g p u)) g (dom_tree p)
+        with Not_found -> g
+      ) cfg (G.empty ())
 
   (** Computes all dominance functions.
       This function computes some things eagerly and some lazily, so don't
