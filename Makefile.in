@@ -317,7 +317,7 @@ bin/sudoku.opt: $(CMXA) examples/sudoku.cmx
 	$(OCAMLOPT) -o $@ graphics.cmxa unix.cmxa $^
 
 test: $(CMA) tests/test.ml
-	ocaml unix.cma graphics.cma $^
+	ocaml -I . unix.cma graphics.cma $^
 
 test-bf: $(CMA) tests/test_bf.ml
 	ocaml unix.cma graphics.cma $^
