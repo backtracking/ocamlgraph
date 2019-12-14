@@ -67,7 +67,7 @@ endif
 OCAMLGRAPH_LIB= unionfind heap bitv persistentQueue
 OCAMLGRAPH_LIB:=$(patsubst %, $(OCAMLGRAPH_LIBDIR)/%.cmo, $(OCAMLGRAPH_LIB))
 
-CMO =	version util blocks persistent imperative \
+CMO =	util blocks persistent imperative \
 	delaunay builder classic rand oper \
 	components path nonnegative traverse coloring topological kruskal flow \
 	prim dominator graphviz gml dot_parser dot_lexer dot pack \
@@ -86,8 +86,7 @@ CMI = sig sig_pack dot_ast
 CMI := $(patsubst %, src/%.cmi, $(CMI))
 
 GENERATED = META \
-	src/gml.ml src/version.ml \
-	src/dot_parser.ml src/dot_parser.mli src/dot_lexer.ml
+	src/gml.ml src/dot_parser.ml src/dot_parser.mli src/dot_lexer.ml
 
 $(CMX): OFLAGS += -for-pack Graph
 
@@ -113,17 +112,6 @@ graph.cmx: $(CMI) $(CMX)
 	$(OCAMLOPT) $(INCLUDES) -pack -o $@ $^
 
 VERSION=1.8.8
-
-ifdef SOURCE_DATE_EPOCH
-BUILD_DATE=$(shell date -u -d "@$(SOURCE_DATE_EPOCH)" 2>/dev/null || date -u -r "$(SOURCE_DATE_EPOCH)" 2>/dev/null || date)
-else
-BUILD_DATE=$(shell date)
-endif
-
-src/version.ml: Makefile
-	rm -f $@
-	echo "let version = \""$(VERSION)"\"" > $@
-	echo 'let date = "'"$(BUILD_DATE)"'"' >> $@
 
 # gtk2 graph editor
 ###################
@@ -472,7 +460,7 @@ META: META.in Makefile
 
 DOCFILES=$(NAME).ps $(NAME).html
 
-NODOC	= blocks dot_parser dot_lexer version
+NODOC	= blocks dot_parser dot_lexer
 NODOC	:= $(patsubst %, $(OCAMLGRAPH_SRCDIR)/%.cmo, $(NODOC))
 DOC_CMO	= $(filter-out $(NODOC) $(OCAMLGRAPH_LIB), $(CMO))
 DOC_SRC	= $(CMI:.cmi=.mli) $(DOC_CMO:.cmo=.mli) $(DOC_CMO:.cmo=.ml)
