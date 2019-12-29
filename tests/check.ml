@@ -441,6 +441,7 @@ module Traversal = struct
   open Format
   let pre v = printf "pre %d@." (G.V.label v)
   let post v = printf "post %d@." (G.V.label v)
+  (*
   let () = printf "iter:@."; Dfs.iter_component ~pre ~post g w
   let () = printf "prefix:@."; Dfs.prefix_component pre g w
   let () =
@@ -451,6 +452,7 @@ module Traversal = struct
       visit (Dfs.step it)
     in
     try visit (Dfs.start g) with Exit -> ()
+   *)
 
 end
 
@@ -488,7 +490,7 @@ module FF_Goldberg = struct
   end
 
   module FF = Flow.Ford_Fulkerson(G)(F)
-  module Gold = Flow.Goldberg(G)(F)
+  module Gold = Flow.Goldberg_Tarjan(G)(F)
 
   let () =
     assert (snd (FF.maxflow g 1 6) = 23);
@@ -523,11 +525,11 @@ module FF_Goldberg = struct
   end
 
   module FF2 = Flow.Ford_Fulkerson(G2)(F2)
-  module Gold2 = Flow.Goldberg(G2)(F2)
+  module Gold2 = Flow.Goldberg_Tarjan(G2)(F2)
 
   let () =
-    assert (snd (FF2.maxflow g 1 4) = 2);
-    assert (snd (Gold2.maxflow g 1 4) = 2)
+    assert (snd (FF2.maxflow g 1 4) = 2); (* growth of the flow *)
+    assert (snd (Gold2.maxflow g 1 4) = 3) (* max flow *)
 
 end
 
@@ -679,7 +681,7 @@ module type RightSigPack = sig
   end
   val shortest_path : t -> V.t -> V.t -> E.t list * int
   val ford_fulkerson : t -> V.t -> V.t -> (E.t -> int) * int
-  val goldberg : t -> V.t -> V.t -> (E.t -> int) * int
+  val goldberg_tarjan : t -> V.t -> V.t -> (E.t -> int) * int
   val dot_output : t -> string -> unit
 end
 
@@ -688,7 +690,89 @@ module TestSigPack : RightSigPack = struct
   type g = t
 end
 
-include Test_clique
+module Test_clique = struct
+  (* Test file for Brom-Kerbosch *)
+
+  open Graph
+
+  module G = Persistent.Graph.Concrete (struct
+    type t = int
+    let compare = compare
+    let hash = Hashtbl.hash
+    let equal = (=)
+  end)
+
+  module BK = Clique.Bron_Kerbosch(G)
+
+  let () =
+    let vertices = [1;2;3;4;5;6;7] in
+    let edges = [(1,2);(1,5);(2,5);(2,3);(4,5);(3,4);(4,6)] in
+    let g = List.fold_left (fun graph v -> G.add_vertex graph v) G.empty vertices in
+    let g = List.fold_left (fun graph (v1, v2) -> G.add_edge graph v1 v2) g edges in
+    let cliques = BK.maximalcliques g in
+    (* The cliques of this graph should be: [2, 3], [3, 4], [1, 2, 5], [4, 5], [4, 6], [7] *)
+    assert (List.length cliques == 6);
+    assert (List.exists (fun cl -> List.length cl == 2 && List.mem 2 cl && List.mem 3 cl) cliques);
+    assert (List.exists (fun cl -> List.length cl == 2 && List.mem 3 cl && List.mem 4 cl) cliques);
+    assert (List.exists (fun cl -> List.length cl == 3 && List.mem 1 cl && List.mem 2 cl && List.mem 5 cl) cliques);
+    assert (List.exists (fun cl -> List.length cl == 2 && List.mem 4 cl && List.mem 5 cl) cliques);
+    assert (List.exists (fun cl -> List.length cl == 2 && List.mem 4 cl && List.mem 6 cl) cliques);
+    assert (List.exists (fun cl -> List.length cl == 1 && List.mem 7 cl) cliques)
+end
+
+module Test_reduction = struct
+
+  open Graph
+
+  module G = Imperative.Digraph.Concrete(struct
+                 type t = int
+                 let compare = compare
+                 let hash = Hashtbl.hash
+                 let equal = (=) end)
+  open G
+
+  module R = Rand.I(G)
+  module O = Oper.I(G)
+
+  let check_included g1 g2 =
+    iter_vertex (fun v -> assert (mem_vertex g2 v)) g1;
+    iter_edges (fun u v -> assert (mem_edge g1 u v)) g1
+
+  let check_same_graph g1 g2 =
+    check_included g1 g2;
+    check_included g2 g1
+
+  let test v e =
+    let g = R.graph ~loops:true ~v ~e () in
+    let t = O.transitive_closure g in
+    check_included g t;
+    let r = O.transitive_reduction g in
+    check_included r g;
+    check_same_graph (O.transitive_closure r) t
+
+  let () =
+    for v = 1 to 10 do
+      for e = 0 to v * (v-1) / 2 do
+        test v e
+      done
+    done
+
+  (* issue #91 *)
+  let () =
+    let g = create () in
+    for v = 1 to 5 do add_vertex g v done;
+    add_edge g 1 2; add_edge g 2 3; add_edge g 3 4; add_edge g 4 5;
+    add_edge g 2 5;
+    let r = O.transitive_reduction g in
+    check_included r g;
+    assert (nb_edges r = 4);
+    assert (not (mem_edge r 2 5));
+    ()
+
+end
+
+let () = Format.printf "check: all tests succeeded@."
+
 
 (*
 Local Variables:

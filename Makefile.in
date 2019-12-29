@@ -68,8 +68,9 @@ OCAMLGRAPH_LIB= unionfind heap bitv persistentQueue
 OCAMLGRAPH_LIB:=$(patsubst %, $(OCAMLGRAPH_LIBDIR)/%.cmo, $(OCAMLGRAPH_LIB))
 
 CMO =	util blocks persistent imperative \
-	delaunay builder classic rand oper \
-	components path nonnegative traverse coloring topological kruskal flow \
+	delaunay builder classic rand \
+	components path nonnegative traverse oper \
+	coloring topological kruskal flow \
 	prim dominator graphviz gml dot_parser dot_lexer dot pack \
 	gmap minsep cliquetree mcs_m md strat fixpoint leaderlist contraction \
 	graphml merge mincut clique weakTopological chaoticIteration
@@ -351,7 +352,7 @@ bin/testunix.opt: $(CMXA) myTest/testunix.ml
 	$(OCAMLOPT) -unsafe -inline 100 -o $@ unix.cmxa $^
 
 check: $(CMA) tests/check.ml bin/test-ts
-	ocaml -I . $(CMA) tests/test_clique.ml tests/check.ml
+	ocaml -I . $(CMA) tests/check.ml
 	bin/test-ts 10
 
 # Additional rules

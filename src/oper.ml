@@ -89,6 +89,7 @@ module Make(B : Builder.S) = struct
          with Invalid_argument _ ->
            (* [v] not in [g2] *)
            g)
+
       g1 (B.empty ())
 
   let union g1 g2 =
@@ -102,14 +103,25 @@ module Make(B : Builder.S) = struct
     add g1 (B.copy g2)
 
   let replace_by_transitive_reduction ?(reflexive=false) g0 =
+    (* first compute reachability in g0 using a DFS from each vertex *)
+    let module H = Hashtbl.Make(G.V) in
+    let module D = Traverse.Dfs(G) in
+    let reachable = H.create (G.nb_vertex g0) in
+    let path_from v =
+      let s = H.create 8 in
+      H.add reachable v s;
+      D.prefix_component (fun w -> H.add s w ()) g0 v in
+    G.iter_vertex path_from g0;
+    let path u v = H.mem (H.find reachable u) v in
+    (* then remove redundant edges *)
     let phi v g =
       let g = if reflexive then B.remove_edge g v v else g in
       G.fold_succ
         (fun sv g ->
-           G.fold_pred
-             (fun pv g ->
-                if G.V.equal pv v || G.V.equal sv v then g
-                else B.remove_edge g pv sv)
+           G.fold_succ
+             (fun sv' g ->
+                if not (G.V.equal sv sv') && path sv sv'
+                then B.remove_edge g v sv' else g)
              g v g)
         g v g
     in

@@ -67,4 +67,3 @@ let n, f = Comp.scc g
 let () = G.iter_edges (fun u v -> printf "%d -> %d@." u v) g
 let () = printf "%d components@." n
 let () = G.iter_vertex (fun v -> printf "  %d -> %d@." v (f v)) g
-
