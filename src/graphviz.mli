@@ -272,7 +272,7 @@ module DotAttributes : sig
     | `Quantum of float
     (** If not [0.0], node label dimensions will be rounded to integral
         multiples of it.  Default value is [0.0]. *)
-    | `Rankdir of [ `TopToBottom | `LeftToRight ]
+    | `Rankdir of [ `TopToBottom | `BottomToTop | `LeftToRight | `RightToLeft ]
     (** Direction of rank ordering.  Default value is [`TopToBottom]. *)
     | `Ratio of [ `Float of float | `Fill | `Compress| `Auto ]
     (** Sets the aspect ratio. *)
