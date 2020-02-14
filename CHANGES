@@ -1,6 +1,7 @@
 
 * marks some incompatible change
 
+ o [Oper] fixed transitive_reduction (#91)
  o fix incorrect uses of polymorphic equality (Steffen Smolka, Boris Yakobowski)
  o [Coloring] fixed generation of OCamlDoc documentation
    (contributed by Earnestly)
