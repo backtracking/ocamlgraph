@@ -43,26 +43,28 @@ let fold_left = List.fold_left
 
 module Make (G : G) = struct
 
+  module HT = Hashtbl.Make(G.V)
+
   let recursive_scc g root_g =
     (* Straight OCaml implementation of the Section 4.3,
        fig. 4 algorithm in Bourdoncle's paper *)
     let stack = Stack.create () in
-    let dfn = Hashtbl.create 1024 in
+    let dfn = HT.create 1024 in
     let num = ref 0 in
     let partition = ref [] in
 
-    G.iter_vertex (fun v -> Hashtbl.add dfn v 0) g;
+    G.iter_vertex (fun v -> HT.add dfn v 0) g;
 
     let rec visit vertex partition =
       let head = ref 0 in
       let loop = ref false in
       Stack.push vertex stack;
       incr num;
-      Hashtbl.replace dfn vertex !num;
+      HT.replace dfn vertex !num;
       head := !num;
       G.iter_succ
         (fun succ ->
-           let dfn_succ = Hashtbl.find dfn succ in
+           let dfn_succ = HT.find dfn succ in
            let min =
              if dfn_succ = 0
              then visit succ partition
@@ -72,13 +74,13 @@ module Make (G : G) = struct
              loop := true
            end)
         g vertex;
-      if !head = Hashtbl.find dfn vertex
+      if !head = HT.find dfn vertex
       then begin
-        Hashtbl.replace dfn vertex max_int;
+        HT.replace dfn vertex max_int;
         let element = ref (Stack.pop stack) in
         if !loop then begin
           while G.V.compare !element vertex <> 0 do
-            Hashtbl.replace dfn !element 0;
+            HT.replace dfn !element 0;
             element := Stack.pop stack;
           done;
           partition := component vertex :: !partition;
@@ -91,7 +93,7 @@ module Make (G : G) = struct
       let partition = ref [] in
       G.iter_succ
         (fun succ ->
-           if Hashtbl.find dfn succ = 0
+           if HT.find dfn succ = 0
            then ignore (visit succ partition : int))
         g vertex;
       Component (vertex, !partition)
