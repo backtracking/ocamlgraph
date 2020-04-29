@@ -70,13 +70,13 @@ module G = struct
 
   module IntInt = struct
     type t = int * int
-    let compare = Pervasives.compare
+    let compare = Stdlib.compare
     let equal = (=)
     let hash = Hashtbl.hash
   end
   module Int = struct
     type t = int
-    let compare = Pervasives.compare
+    let compare = Stdlib.compare
     let hash = Hashtbl.hash
     let equal = (=)
     let default = 0

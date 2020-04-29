@@ -28,7 +28,7 @@ let utime f x =
 
 let print_utime f x =
   let (y,ut) = utime f x in
-  Printf.printf "user time: %2.2f\n" ut; flush Pervasives.stdout;
+  Printf.printf "user time: %2.2f\n" ut; flush Stdlib.stdout;
   y
 
 let () =

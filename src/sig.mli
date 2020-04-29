@@ -76,6 +76,7 @@ module type EDGE = sig
 
   val src : t -> vertex
   (** Edge origin. *)
+
   val dst : t -> vertex
   (** Edge destination. *)
 
@@ -84,6 +85,7 @@ module type EDGE = sig
   type label
   val create : vertex -> label -> vertex -> t
   (** [create v1 l v2] creates an edge from [v1] to [v2] with label [l] *)
+
   val label : t -> label
   (** Get the label of an edge. *)
 
@@ -331,14 +333,19 @@ end
 module type WEIGHT = sig
   type edge
   (** Type for graph edges. *)
+
   type t
   (** Type of edges' weights. *)
+
   val weight : edge -> t
   (** Get the weight of an edge. *)
+
   val compare : t -> t -> int
   (** Weights must be ordered. *)
+
   val add : t -> t -> t
   (** Addition of weights. *)
+
   val zero : t
   (** Neutral element for {!add}. *)
 end
@@ -347,12 +354,16 @@ end
 module type MARK = sig
   type graph
   (** Type of graphs. *)
+
   type vertex
   (** Type of graph vertices. *)
+
   val clear : graph -> unit
   (** [clear g] sets all the marks to 0 for all the vertices of [g]. *)
+
   val get : vertex -> int
   (** Mark value (in O(1)). *)
+
   val set : vertex -> int -> unit
   (** Set the mark of the given vertex. *)
 end

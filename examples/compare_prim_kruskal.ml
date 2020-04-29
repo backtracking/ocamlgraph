@@ -87,7 +87,7 @@ module Time = struct
   let time5 f x = 
     let t = Array.init 5 (fun _ -> snd (utime f x)) in
     if debug then Array.iter (fun x -> Printf.printf "%2.2f\n" x) t;
-    Array.sort Pervasives.compare t;
+    Array.sort Stdlib.compare t;
     (t.(1) +. t.(2) +. t.(3)) /. 3.
         
   let print f x = 

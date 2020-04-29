@@ -58,7 +58,7 @@ struct
       Map.Make
         (struct
           type t = id
-          let compare : t -> t -> int = Pervasives.compare
+          let compare : t -> t -> int = Stdlib.compare
         end)
     let empty = M.empty
     let add = List.fold_left (fun a (x,v) -> M.add x v a)

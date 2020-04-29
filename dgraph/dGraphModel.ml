@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -159,7 +159,7 @@ module Edge = struct
   type t = XDot.edge_layout
   let default = XDot.mk_edge_layout
       ~draw:[] ~ldraw:[] ~hdraw:[] ~tdraw:[] ~hldraw:[] ~tldraw:[]
-  let compare : t -> t -> int = Pervasives.compare
+  let compare : t -> t -> int = Stdlib.compare
 end
 
 module DotG = Imperative.Digraph.AbstractLabeled(Vertex)(Edge)

@@ -10,7 +10,7 @@ open Graph
 
 module Vertex = struct
   type t = string
-  let compare = Pervasives.compare
+  let compare = Stdlib.compare
   let hash = Hashtbl.hash
   let equal = ( = )
 end

@@ -65,7 +65,7 @@ end
 module AbstractVertex(V: sig type t end) = struct
   type label = V.t
   type t = label abstract_vertex
-  let compare x y = Pervasives.compare x.tag y.tag
+  let compare x y = Stdlib.compare x.tag y.tag
   let hash x = x.tag
   let equal x y = x.tag = y.tag
   let label x = x.label
@@ -153,7 +153,7 @@ module Digraph = struct
 
     let add_vertex g v =
       if not (HM.mem v g.edges) then begin
-        g.size <- Pervasives.succ g.size;
+        g.size <- Stdlib.succ g.size;
         ignore (G.unsafe_add_vertex g.edges v)
       end
 
@@ -169,7 +169,7 @@ module Digraph = struct
         let e = g.edges in
         ignore (HM.remove v e);
         HM.iter (fun k s -> ignore (HM.add k (S.remove v s) e)) e;
-        g.size <- Pervasives.pred g.size
+        g.size <- Stdlib.pred g.size
 
     module Mark =
       Make_Mark
@@ -190,7 +190,7 @@ module Digraph = struct
 
     let add_vertex g v =
       if not (HM.mem v g.edges) then begin
-        g.size <- Pervasives.succ g.size;
+        g.size <- Stdlib.succ g.size;
         ignore (G.unsafe_add_vertex g.edges v)
       end
 
@@ -211,7 +211,7 @@ module Digraph = struct
         let e = g.edges in
         ignore (HM.remove v e);
         HM.iter (fun k s -> ignore (HM.add k (remove s) e)) e;
-        g.size <- Pervasives.pred g.size
+        g.size <- Stdlib.pred g.size
 
     module Mark =
       Make_Mark
@@ -359,7 +359,7 @@ module Matrix = struct
     module V = struct
       type t = int
       type label = int
-      let compare : t -> t -> int = Pervasives.compare
+      let compare : t -> t -> int = Stdlib.compare
       let hash = Hashtbl.hash
       let equal = (==)
       let create i = i
@@ -369,7 +369,7 @@ module Matrix = struct
     module E = struct
       type t = V.t * V.t
       type vertex = V.t
-      let compare : t -> t -> int = Pervasives.compare
+      let compare : t -> t -> int = Stdlib.compare
       type label = unit
       let create v1 _ v2 = (v1, v2)
       let src = fst
@@ -599,7 +599,7 @@ end
       module E = struct
    type t = V.t * V.t
    type vertex = V.t
-   let compare = Pervasives.compare
+   let compare = Stdlib.compare
    type label = unit
    let create v1 _ v2 = (v1, v2)
    let src = fst

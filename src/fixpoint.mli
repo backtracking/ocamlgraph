@@ -91,18 +91,25 @@ type direction = Forward | Backward
 module type Analysis = sig
   type data
   (** information stored at each vertex *)
+
   type edge
   (** type of edges of the underlying graph *)
+
   type vertex
   (** type of vertices of the underlying graph *)
+
   type g
   (** type of the underlying graph *)
+
   val direction : direction
   (** the direction of the analysis *)
+
   val join : data -> data -> data
   (** operation how to join data when paths meet *)
+
   val equal : data -> data -> bool
   (** predicate to determine the fixpoint *)
+
   val analyze : edge -> data -> data
   (** the actual analysis of one edge; provided the edge and the incoming
       data, it needs to compute the outgoing data *)

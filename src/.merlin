@@ -1,0 +1,8 @@
+EXCLUDE_QUERY_DIR
+B /Users/sacha/.opam/4.08.1/lib/stdlib-shims
+B ../_build/default/lib/.lib.objs/byte
+B ../_build/default/src/.ocamlgraph.objs/byte
+S /Users/sacha/.opam/4.08.1/lib/stdlib-shims
+S ../lib
+S .
+FLG -open Ocamlgraph -open Lib
