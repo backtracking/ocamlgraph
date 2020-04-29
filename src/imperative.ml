@@ -233,7 +233,7 @@ module Graph = struct
   module Concrete(V: COMPARABLE) = struct
 
     module G = struct include Digraph.Concrete(V) type return = unit end
-    include Graph(G)
+    include Blocks.Graph(G)
 
     (* Redefine the [add_edge] and [remove_edge] operations *)
 
@@ -261,7 +261,7 @@ module Graph = struct
       include Digraph.ConcreteLabeled(V)(Edge)
       type return = unit
     end
-    include Graph(G)
+    include Blocks.Graph(G)
 
     (* Redefine the [add_edge] and [remove_edge] operations *)
 
@@ -289,7 +289,7 @@ module Graph = struct
   module Abstract(V: sig type t end) = struct
 
     module G = struct include Digraph.Abstract(V) type return = unit end
-    include Graph(G)
+    include Blocks.Graph(G)
 
     (* Export some definitions of [G] *)
     module Mark = G.Mark
@@ -318,7 +318,7 @@ module Graph = struct
       include Digraph.AbstractLabeled(V)(Edge)
       type return = unit
     end
-    include Graph(G)
+    include Blocks.Graph(G)
 
     (* Export some definitions of [G] *)
     module Mark = G.Mark

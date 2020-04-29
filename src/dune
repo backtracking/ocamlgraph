@@ -1,6 +1,6 @@
 (library
-  (name graph)
-  (public_name ocamlgraph.graph)
+  (name graphlib)
+  (public_name ocamlgraph.graphlib)
   (libraries stdlib-shims lib)
   (flags -open Lib)
   (modules_without_implementation dot_ast sig sig_pack))

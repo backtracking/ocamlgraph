@@ -1,6 +1,7 @@
 *.cm*
 *.annot
 *.o
+.merlin
 /.depend
 /META
 /Makefile
