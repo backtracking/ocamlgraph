@@ -5,7 +5,7 @@
 
 (executable
   (name editor)
-  (modules  editor gtree htree dirTree)
+  (modules  editor gtree htree)
   (libraries graph lablgtk2 lablgtk2.gnomecanvas)
   (flags -w -32))
 
