@@ -1,12 +1,9 @@
 
-test: editor.opt
-	./editor.opt  -rr 15 tests/divisors12.gml
+test:
+	make -C .. editor-test
 
 editor.opt: ed_*.ml
 	make -C .. editor/editor.opt
-
-editor.byte: ed_*.ml
-	make -C .. editor/editor.byte
 
 # tortuegpoint: tortue.ml 
 #	ocamlopt outils_math.ml

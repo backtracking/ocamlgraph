@@ -1,1 +1,1 @@
-(dirs src lib examples dgraph benchs tests)
+(dirs src examples dgraph benchs tests editor)
