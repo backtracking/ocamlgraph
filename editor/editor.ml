@@ -20,7 +20,7 @@ open Format
 let _ = GMain.Main.init ()
 
 
-let print msg () = ()
+let print _ () = ()
 (*  print_endline msg;
     flush stdout*)
 
@@ -58,7 +58,7 @@ let main () =
   let v_box =
     GPack.vbox ~homogeneous:false ~spacing:30  ~packing:window#add () in
 
-  (* la barre de Menu ajoutée dans la V_box *)
+  (* la barre de Menu ajoutï¿½e dans la V_box *)
   let menu_bar =
     GMenu.menu_bar ~packing:v_box#pack () in
 

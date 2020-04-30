@@ -15,7 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open Graphics
 open Outils_math
 
 let debug_outil_tort =  ref false
@@ -102,7 +101,7 @@ let tdraw_string_gtk tor (ellipse : GnoCanvas.ellipse) =
   ellipse#parent#set  [`X (float x); `Y (float y)]
 
 
-(* avance la tortue en traçant, d'une distance d, en un certain nombre d'etapes,
+(* avance la tortue en traï¿½ant, d'une distance d, en un certain nombre d'etapes,
    et retourne la nouvelle position de la tortue *)
 let tdraw_edge_gtk tor d etapes line =
   let d = d /. (float etapes) in

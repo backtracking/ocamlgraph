@@ -1,7 +1,28 @@
 (executable
   (name ed_main)
-  (modules  ed_main)
-  (libraries graph))
+  (modules  ed_main ed_display ed_graph ed_hyper ed_draw)
+  (libraries graph lablgtk2 lablgtk2.gnomecanvas))
+
+(executable
+  (name editor)
+  (modules  editor gtree htree dirTree)
+  (libraries graph lablgtk2 lablgtk2.gnomecanvas)
+  (flags -w -32))
+
+(executable
+  (name graphEdGTK)
+  (modules  graphEdGTK outils_tort outils_math)
+  (libraries graph lablgtk2 lablgtk2.gnomecanvas)
+  (flags -w -32))
+
+
+
+;; FIXME: graphEd cannot be built because tmoveto / tlineto don't exist (anymore ?)
+
+; (executable
+;   (name graphEd)
+;   (modules graphEd outils_math outils_tort)
+;   (libraries graph lablgtk2 lablgtk2.gnomecanvas))
 
 ;; This was commented in the old makefile that was here before :
 
