@@ -773,7 +773,6 @@ end
 
 let () = Format.printf "check: all tests succeeded@."
 
-
 (*
 Local Variables:
 compile-command: "make -C .. check"

@@ -1,0 +1,28 @@
+(test
+  (name check)
+  (libraries graph)
+  (modules check))
+
+
+
+;; Rules for the Bellman-Ford tests
+(rule
+  (with-stdout-to test_bf.output (run ./test_bf.exe)))
+(rule
+ (alias runtest)
+ (action (diff test_bf.expected test_bf.output)))
+(executable
+  (name test_bf)
+  (modules test_bf)
+  (libraries graph))
+
+;; Rules for the strat test
+(rule
+  (with-stdout-to strat.output (run ./strat.exe)))
+(rule
+ (alias runtest)
+ (action (diff strat.expected strat.output)))
+(executable
+  (name strat)
+  (modules strat)
+  (libraries graph))
