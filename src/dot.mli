@@ -29,8 +29,10 @@ module Parse
     (L : sig
        val node : node_id -> attr list -> B.G.V.label
        (** How to build the node label out of the set of attributes *)
+
        val edge : attr list -> B.G.E.label
        (** How to build the edge label out of the set of attributes *)
+
      end) :
 sig
 

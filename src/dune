@@ -1,8 +1,10 @@
+(include_subdirs unqualified)
+
 (library
-  (name graphlib)
-  (public_name ocamlgraph.graphlib)
-  (libraries stdlib-shims lib)
-  (flags -open Lib)
+  (name graph)
+  (public_name ocamlgraph)
+  (libraries stdlib-shims)
+  (modules :standard)
   (modules_without_implementation dot_ast sig sig_pack))
 
 (ocamlyacc dot_parser)

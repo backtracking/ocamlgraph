@@ -1,6 +1,7 @@
 *.cm*
 *.annot
 *.o
+*.install
 .merlin
 /.depend
 /META

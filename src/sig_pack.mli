@@ -313,8 +313,10 @@ module type S = sig
     val coloring: t -> int -> unit
       (** [coloring g k] colors the nodes of graph [g] using [k] colors,
           assigning the marks integer values between 1 and [k]. *)
+
     val two_color: t -> unit
       (** [two_color g] attemps to color [g] with colors 1 and 2. *)
+
   end
 
   (** {2 Graph generators} *)
