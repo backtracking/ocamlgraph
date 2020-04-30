@@ -129,7 +129,7 @@ exception NoColor
 
 module C = Coloring.Mark(G)
 
-let coloring_a k =
+let coloring_a _ =
   Mark.clear g0;
   C.coloring g0 4;
   iter_vertex (fun v -> color_vertex v cols.(Mark.get v)) g0
@@ -272,10 +272,3 @@ let () =
   print_utime coloring_b ();
   ignore (Graphics.wait_next_event [ Key_pressed ]);
   close_graph ()
-
-
-(*
-Local Variables:
-compile-command: "make -C .. bin/color.opt"
-End:
-*)

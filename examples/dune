@@ -1,0 +1,3 @@
+(executables
+  (names color compare_prim_kruskal demo_planar demo_prim demo sudoku)
+  (libraries graph unix graphics threads))

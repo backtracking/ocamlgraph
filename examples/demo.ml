@@ -15,7 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open Sys
 open Format
 open Graph
 
@@ -291,9 +290,3 @@ let () = match !algo with
 let () =
   ignore (Graphics.wait_next_event [Graphics.Key_pressed ]);
   Graphics.close_graph ()
-
-(*
-Local Variables:
-compile-command: "make -C .. bin/demo.opt"
-End:
-*)

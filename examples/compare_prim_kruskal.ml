@@ -113,9 +113,3 @@ let test nb_v nb_e =
   Printf.printf "KRUSKAL : %2.2fs\n%!" resk
 
 let () = test v e 
-  
-(*
-Local Variables: 
-compile-command: "make -C .. bin/compare_prim_kruskal.opt"
-End: 
-*)

@@ -75,11 +75,5 @@ let () =
 (* We solve the Sudoku by 9-coloring the graph g and we display the solution *)
 module C = Coloring.Mark(G)
 
-let () = C.coloring g 9; display ()
-
-
-(*
-Local Variables: 
-compile-command: "make -C .. bin/sudoku.opt"
-End: 
-*)
+let () =
+  C.coloring g 9; display ()

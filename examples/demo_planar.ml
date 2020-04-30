@@ -280,7 +280,7 @@ let johnson () =
   | _ -> ()
 
 let draw_iteration f =
-  let pause () = for i = 1 to 10000000 do () done in
+  let pause () = for _ = 1 to 10000000 do () done in
   f (fun v -> color_vertex v red; pause ()) !g;
   ignore (Graphics.wait_next_event [ Key_pressed; Button_down ]);
   draw_graph ()
@@ -381,9 +381,3 @@ let () =
     done
   with Exit ->
     close_graph ()
-
-(*
-Local Variables:
-compile-command: "make -C .. bin/demo_planar.opt"
-End:
-*)
