@@ -8,12 +8,26 @@
   (name ocamlgraph)
   (synopsis "A generic graph library for OCaml")
   (depends
-    conf-autoconf
+    ocaml
     stdlib-shims
-    (ocamlfind :build))
-  (depopts
+    (dune (>= "2.0")))
+  (tags (graph library algorithms "directed graph" vertice edge persistent imperative))
+  (license LGPL-2.1-only)
+  (authors "Sylvain Conchon" "Jean-Christophe Filliâtre" "Julien Signoles")
+  (homepage "http://ocamlgraph.lri.fr/")
+  (maintainers "filliatr@lri.fr")
+  (source (github backtracking/ocamlgraph))
+  (bug_reports "https://github.com/backtracking/ocamlgraph/issues/new"))
+
+(package
+  (name ocamlgraph_gtk)
+  (synopsis "Displaying graphs using ocamlgraphs and gtk")
+  (depends
+    ocaml
+    stdlib-shims
     lablgtk
-    conf-gnomecanvas)
+    ocamlgraph
+    (dune (>= "2.0")))
   (tags (graph library algorithms "directed graph" vertice edge persistent imperative))
   (license LGPL-2.1-only)
   (authors "Sylvain Conchon" "Jean-Christophe Filliâtre" "Julien Signoles")
