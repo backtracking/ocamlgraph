@@ -24,7 +24,6 @@ end
 module Fixpoint = Graph.Fixpoint.Make(G)(Analysis)
 
 let pp_int_set pp set =
-  let open Format in
   let first = ref true in
   Format.fprintf pp "@[<hov>";
   IntSet.iter (fun x ->
