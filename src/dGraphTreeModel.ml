@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -22,8 +22,6 @@
 (*    - Benoit Bataille  (benoit.bataille@gmail.com)                      *)
 (*                                                                        *)
 (**************************************************************************)
-
-open Graph
 
 module type S = sig
 
@@ -208,7 +206,7 @@ module SubTreeMake(G: Graphviz.GraphWithDotAttrs) = struct
   let from_graph
       ?(depth_forward=2)
       ?(depth_backward=2)
-      context
+      ~fontMeasure
       g
       v
     =
@@ -217,7 +215,7 @@ module SubTreeMake(G: Graphviz.GraphWithDotAttrs) = struct
     tree_ref := Some t;
     graph_ref := Some g;
     let layout =
-      TreeLayout.from_tree context (TM.get_structure t) (TM.get_root t)
+      TreeLayout.from_tree ~fontMeasure (TM.get_structure t) (TM.get_root t)
     in
     new tree_model layout t
 

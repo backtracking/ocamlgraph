@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -22,8 +22,6 @@
 (*    - Benoit Bataille  (benoit.bataille@gmail.com)                      *)
 (*                                                                        *)
 (**************************************************************************)
-
-open Graph
 
 module type G = sig
   type t
@@ -253,6 +251,7 @@ struct
      Queue.add (root, 0) q;
      loop ()
   *)
+  
   (** Build a tree graph centered on a vertex and containing its
       predecessors and successors *)
   let make src_graph src_vertex depth_forward depth_backward =

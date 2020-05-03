@@ -23,8 +23,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open Graph
-
 let element = function
   | [] -> invalid_arg "empty list in element"
   | l -> 

@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -69,8 +69,12 @@ type operation =
 
 
 
-val string_scale_size: string -> float -> string -> width*height
-(** [string_scale_size font font_size text].
+val string_scale_size: 
+  fontMeasure:(
+    fontName: string -> fontSize:int ->
+      string -> (int * int)
+  ) -> string -> float -> string -> width*height
+(** [string_scale_size ~fontMeasure font font_size text].
     Interpolates the font metrics we have to use to draw the given [text]
     with the given font but preserving the bounding box of the [text] even
     with a proportional font.

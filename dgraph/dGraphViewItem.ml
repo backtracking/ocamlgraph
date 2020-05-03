@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -289,7 +289,9 @@ let text draw_st group (x,y) _align anchor label =
   let anchor =
     if anchor = -. 1. then `WEST else if anchor = 1.0 then `EAST else `CENTER
   in
-  let size_points,height = XDotDraw.string_scale_size font size_points label
+  let size_points,height = XDotDraw.string_scale_size
+    ~fontMeasure:(PangoMeasure.withContext ~context:(Gdk.Screen.get_pango_context ()))
+    font size_points label
   in
   (* y-height/4 because the base line of the text is 1/4th from the bottom *)
   graph_text

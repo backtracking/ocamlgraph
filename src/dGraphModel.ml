@@ -25,7 +25,6 @@
 
 (* This graph model is for now immutable, no adding or removing nodes. *)
 
-open Graph
 open XDot
 
 exception DotError of string

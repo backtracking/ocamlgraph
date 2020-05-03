@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -22,8 +22,6 @@
 (*    - Benoit Bataille  (benoit.bataille@gmail.com)                      *)
 (*                                                                        *)
 (**************************************************************************)
-
-open Graph
 
 let set_if_none field value = match field with
   | None -> Some value
@@ -307,38 +305,26 @@ struct
 
   (* Calculate dimension of a string in pixel *)
   let calc_dimensions
-      family
+      ~fontMeasure
+      font
       ptsize
-      ?(weight=`NORMAL)
-      ?(style=`NORMAL)
       s
-      context_obj
     =
     let width_margin = 20. in
     let height_margin = 0. in
-    let font_description = Pango.Font.from_string "" in
-    Pango.Font.modify font_description
-      ~family:family
-      ~weight
-      ~style
-      ~size:(ptsize * Pango.scale)
-      ();
-    let context = GtkBase.Widget.create_pango_context context_obj in
-    Pango.Context.set_font_description context font_description;
-    let layout = Pango.Layout.create context in
-    Pango.Layout.set_text layout s;
-    let width, height = Pango.Layout.get_pixel_size layout in
+    let width, height = fontMeasure ~fontName:font ~fontSize:ptsize s in
     float width +. width_margin, float height +. height_margin
 
-  let fill_dimensions context tree vattributes geometry_info =
+  let fill_dimensions ~fontMeasure tree vattributes geometry_info =
     let add_vertex_dimensions v =
       let vattrs = try HV.find vattributes v with Not_found -> assert false in
       let minwidth, minheight = the vattrs.width, the vattrs.height in
       let truewidth, trueheight =
         calc_dimensions
+          ~fontMeasure
           (the vattrs.fontname)
           (the vattrs.fontsize)
-          (the vattrs.label) context
+          (the vattrs.label)
       in
       let width = max minwidth truewidth in
       let height = max minheight trueheight in
@@ -600,7 +586,7 @@ struct
     }
 
   (* Graph *)
-  let from_tree context tree root =
+  let from_tree ~fontMeasure tree root =
     let vattributes = HV.create 97 in
     fill_vattributes tree vattributes;
     let geometry_info =
@@ -609,7 +595,7 @@ struct
         x_offset = 0.;
         y_offset = 0 }
     in
-    fill_dimensions context tree vattributes geometry_info;
+    fill_dimensions ~fontMeasure tree vattributes geometry_info;
     set_offset geometry_info;
     fill_position tree root geometry_info;
 
