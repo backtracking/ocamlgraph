@@ -2,6 +2,7 @@ module Sig = Sig
 module Sig_pack = Sig_pack
 module Dot_ast = Dot_ast
 module Util = Util
+module Blocks = Blocks
 module Persistent = Persistent
 module Imperative = Imperative
 module Delaunay = Delaunay
