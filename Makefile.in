@@ -44,7 +44,7 @@ OBJEXT = @OBJEXT@
 
 # Others global variables
 OCAMLGRAPH_SRCDIR	= src
-OCAMLGRAPH_LIBDIR	= lib
+OCAMLGRAPH_LIBDIR	= src/lib
 
 INCLUDES= -I $(OCAMLGRAPH_SRCDIR) -I $(OCAMLGRAPH_LIBDIR)
 BFLAGS = $(INCLUDES) -g -dtypes -w +a -w -4 -w -44 -w -50 -w -48 -w -29
@@ -475,7 +475,7 @@ doc: $(DOC_CMO)
 	mkdir -p doc
 	rm -f doc/*
 	$(OCAMLDOC) -charset $(DOC_CHARSET) -d doc -html $(DGRAPH_INCLUDES) \
-		-I lib -I src $(DOC_SRC)
+		-I src/lib -I src $(DOC_SRC)
 
 # literate programming
 $(NAME).tex: $(DOC_SRC)
@@ -548,7 +548,7 @@ export-web: www/version.prehtml
 
 export-doc: $(DOC_CMO)
 	rm -f $(WWW)/doc/*
-	-$(OCAMLDOC) -d $(WWW)/doc -html $(DGRAPH_INCLUDES) -I lib -I src $(DOC_SRC)
+	-$(OCAMLDOC) -d $(WWW)/doc -html $(DGRAPH_INCLUDES) -I src/lib -I src $(DOC_SRC)
 
 MISCFTP = $(HOME)/WWW/ftp/ocaml/misc
 DELAUNAY=delaunay.ml delaunay.mli
