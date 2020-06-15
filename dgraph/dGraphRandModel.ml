@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -46,7 +46,7 @@ end
 
 module Edge = struct
   type t = int
-  let compare : int -> int -> int = Pervasives.compare
+  let compare : int -> int -> int = Stdlib.compare
   let default = 0
 end
 

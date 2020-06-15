@@ -65,6 +65,7 @@ module type S = sig
     type label = int
     val create : V.t -> label -> V.t -> t
     (** [create v1 l v2] creates an edge from [v1] to [v2] with label [l] *)
+
     val label : t -> label
 
     type vertex = V.t
@@ -131,6 +132,7 @@ module type S = sig
     type vertex = V.t
     val clear : t -> unit
     (** [clear g] sets all marks to 0 from all the vertives of [g]. *)
+
     val get : V.t -> int
     val set : V.t -> int -> unit
   end
@@ -273,10 +275,13 @@ module type S = sig
     (** [iter pre post g] visits all nodes of [g] in depth-first search,
         applying [pre] to each visited node before its successors,
         and [post] after them. Each node is visited exactly once. *)
+
     val prefix : (V.t -> unit) -> t -> unit
     (** applies only a prefix function *)
+
     val postfix : (V.t -> unit) -> t -> unit
     (** applies only a postfix function *)
+
     val fold : (V.t -> 'a -> 'a) -> 'a -> t -> 'a
 
     (** Same thing, but for a single connected component *)
@@ -308,8 +313,10 @@ module type S = sig
     val coloring: t -> int -> unit
       (** [coloring g k] colors the nodes of graph [g] using [k] colors,
           assigning the marks integer values between 1 and [k]. *)
+
     val two_color: t -> unit
       (** [two_color g] attemps to color [g] with colors 1 and 2. *)
+
   end
 
   (** {2 Graph generators} *)
@@ -366,6 +373,7 @@ module type S = sig
   module Components : sig
     val scc : t -> int * (V.t -> int)
     (** strongly connected components *)
+
     val scc_array : t -> V.t list array
     val scc_list : t -> V.t list list
   end

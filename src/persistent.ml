@@ -48,7 +48,7 @@ type 'a abstract_vertex = { tag : int; label : 'a }
 module AbstractVertex(V: sig type t end) = struct
   type label = V.t
   type t = label abstract_vertex
-  let compare x y = Pervasives.compare x.tag y.tag
+  let compare x y = Stdlib.compare x.tag y.tag
   let hash x = x.tag
   let equal x y = x.tag = y.tag
   let label x = x.label
@@ -141,7 +141,7 @@ module Digraph = struct
         g
       else
         { edges = G.unsafe_add_vertex g.edges v;
-          size = Pervasives.succ g.size }
+          size = Stdlib.succ g.size }
 
     let add_edge g v1 v2 =
       let g = add_vertex g v1 in
@@ -154,7 +154,7 @@ module Digraph = struct
       if HM.mem v g.edges then
         let e = HM.remove v g.edges in
         let e = HM.fold (fun k s g -> HM.add k (S.remove v s) g) e HM.empty in
-        { edges = e; size = Pervasives.pred g.size }
+        { edges = e; size = Stdlib.pred g.size }
       else
         g
 
@@ -174,7 +174,7 @@ module Digraph = struct
         g
       else
         { edges = G.unsafe_add_vertex g.edges v;
-          size = Pervasives.succ g.size }
+          size = Stdlib.succ g.size }
 
     let add_edge_e g (v1, l, v2) =
       let g = add_vertex g v1 in
@@ -193,7 +193,7 @@ module Digraph = struct
         let edges = HM.remove v g.edges in
         { edges =
             HM.fold (fun k s g -> HM.add k (remove v s) g) edges HM.empty;
-          size = Pervasives.pred g.size }
+          size = Stdlib.pred g.size }
       else
         g
 
@@ -209,7 +209,7 @@ module Graph = struct
   module Concrete(V: COMPARABLE) = struct
 
     module G = struct include Digraph.Concrete(V) type return = t end
-    include Graph(G)
+    include Blocks.Graph(G)
 
     (* Export some definitions of [G] *)
     let empty = G.empty
@@ -238,7 +238,7 @@ module Graph = struct
       include Digraph.ConcreteLabeled(V)(Edge)
       type return = t
     end
-    include Graph(G)
+    include Blocks.Graph(G)
 
     (* Export some definitions of [G] *)
     let empty = G.empty
@@ -267,7 +267,7 @@ module Graph = struct
   module Abstract(V: sig type t end) = struct
 
     module G = struct include Digraph.Abstract(V) type return = t end
-    include Graph(G)
+    include Blocks.Graph(G)
 
     (* Export some definitions of [G] *)
     let empty = G.empty
@@ -296,7 +296,7 @@ module Graph = struct
       include Digraph.AbstractLabeled(V)(Edge)
       type return = t
     end
-    include Graph(G)
+    include Blocks.Graph(G)
 
     (* Export some definitions of [G] *)
     let empty = G.empty

@@ -103,8 +103,8 @@ let ex2 = ex n2;;
 
 (* Printing on the standard out channel ;
    simply uncomment to see the results. *)
-(*
-let rec couple_of_strat g s =
+
+let couple_of_strat g s =
   let f v l =
     try
       let v' = S.next s v in (v, v') :: l
@@ -130,4 +130,4 @@ print_string ("For " ^ (string_of_int n2) ^ " matches, is there a winning strate
 print_newline();;
 print_string (string_of_bool (fst (fst ex2)));;
 print_newline();; print_newline();;
-*)
+

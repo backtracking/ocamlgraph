@@ -69,6 +69,7 @@ module Dfs(G : G) : sig
   val fold : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> 'a
   (** The function is applied each time a node is reached for the first time,
       before idoterating over its successors. Tail-recursive. *)
+
   val fold_component : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> G.V.t -> 'a
   (** Idem, but limited to a single root vertex. *)
 

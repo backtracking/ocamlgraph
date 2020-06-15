@@ -48,6 +48,7 @@ module Parse
     (L : sig
        val node : node_id -> attr list -> B.G.V.label
        (** how to build the node label out of the set of attributes *)
+
        val edge : attr list -> B.G.E.label
        (** how to build the edge label out of the set of attributes *)
      end) =
@@ -58,7 +59,7 @@ struct
       Map.Make
         (struct
           type t = id
-          let compare : t -> t -> int = Pervasives.compare
+          let compare : t -> t -> int = Stdlib.compare
         end)
     let empty = M.empty
     let add = List.fold_left (fun a (x,v) -> M.add x v a)

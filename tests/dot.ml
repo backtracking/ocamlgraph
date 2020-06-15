@@ -45,10 +45,7 @@ module DotOutput = Graphviz.Dot(Display)
 
 let g = DotInput.parse Sys.argv.(1)
 
-let () =  
-  let oc = open_out "tmp.dot" in
-  DotOutput.output_graph oc g;
-  close_out oc
-
-let _ = Sys.command "dot -Tps tmp.dot | gv -"
-
+let () = 
+  Printf.printf "========= BEGIN output graph =========\n";
+  DotOutput.output_graph stdout g;
+  Printf.printf "========= END output graph ========="

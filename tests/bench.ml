@@ -49,7 +49,7 @@ struct
 
   module Dfs = Traverse.Dfs(G)
 
-  (* détection de cycle *)
+  (* dï¿½tection de cycle *)
 
   let has_cycle v e =
     let g = R.graph ~v ~e () in
@@ -58,13 +58,18 @@ struct
     b
 
   let bench1 () =
-    (* on augmente E jusqu'à trouver un cycle *)
+    (* on augmente E jusqu'ï¿½ trouver un cycle *)
     let v = 20000 in
     let e = ref 1 in
     while not (has_cycle v !e) do e := 2 * !e done
 
-  (* résultats :
-     le temps d'une recherche de cycle négative ne dépend pas de
+  let () =
+    Printf.printf "======== BEGIN bench1 =========\n";
+    bench1();
+    Printf.printf "======== END bench1 =========\n\n"
+
+  (* rï¿½sultats :
+     le temps d'une recherche de cycle nï¿½gative ne dï¿½pend pas de
      E et est d'environ 1s pour 10^6 noeuds *)
 
   (* 2. composantes fortement connexes *)
@@ -78,18 +83,19 @@ struct
       let e = truncate (let x = d *. (float v -. 1.0) in x *. x) in
       let g = R.graph ~v ~e () in
       let _,t = Time.utime C.scc g in
-      printf "v = %d e = %d d = %1.2f time = %2.2f@." v e d t
+      printf "i = %d v = %d e = %d d = %1.2f time = %2.2f@." i v e d t
     done
 
-  (* résultats : voir results.bench2.txt *)
+  (* rï¿½sultats : voir results.bench2.txt *)
 
-  let () = bench2 ()
+   let () =
+    Printf.printf "======== BEGIN bench2 =========\n";
+    bench2();
+    Printf.printf "======== END bench2 =========\n\n"
 
 end
 
 module B1 = Bench(Pack.Digraph)(Builder.I(Pack.Digraph))
-
-
 (*
 Local Variables:
 compile-command: "make -C .. bench"

@@ -17,7 +17,6 @@
 
 (* Demo of Prim's algorithm *)
 
-open Printf
 open Graph
 
 (* command line *)
@@ -47,6 +46,10 @@ let () = Format.printf "seed = %d@." seed; Random.init seed
 
 module IntInt = struct
   type t = int * int
+  let compare = compare
+  let hash = Hashtbl.hash
+  let equal = (=)
+  let default = (0, 0)
 end
 module Int = struct
   type t = int
@@ -55,8 +58,7 @@ module Int = struct
   let equal = (=)
   let default = 0
 end
-module G = Imperative.Graph.AbstractLabeled(IntInt)(Int)
-open G
+module G = Imperative.Graph.ConcreteLabeled(IntInt)(Int)
 
 (* a random graph with n vertices *)
 module R = Rand.Planar.I(G)
@@ -101,9 +103,11 @@ let draw_graph () =
   G.iter_vertex draw_vertex g0;
   G.iter_edges draw_edge g0
 module W = struct
+
+  type edge = G.E.t
   type label = G.E.label
   type t = int
-  let weight x = x
+  let weight (_, x, _: edge) : t = x
   let zero = 0
   let add = (+)
   let compare = compare
@@ -123,10 +127,3 @@ let () =
     ) el;
   ignore (Graphics.wait_next_event [ Key_pressed ]);
   close_graph ()
-
-
-(*
-Local Variables:
-compile-command: "make -C .. bin/demo_prim.opt"
-End:
-*)

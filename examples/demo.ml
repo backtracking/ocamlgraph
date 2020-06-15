@@ -15,7 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open Sys
 open Format
 open Graph
 
@@ -70,13 +69,13 @@ module G = struct
 
   module IntInt = struct
     type t = int * int
-    let compare = Pervasives.compare
+    let compare = Stdlib.compare
     let equal = (=)
     let hash = Hashtbl.hash
   end
   module Int = struct
     type t = int
-    let compare = Pervasives.compare
+    let compare = Stdlib.compare
     let hash = Hashtbl.hash
     let equal = (=)
     let default = 0
@@ -291,9 +290,3 @@ let () = match !algo with
 let () =
   ignore (Graphics.wait_next_event [Graphics.Key_pressed ]);
   Graphics.close_graph ()
-
-(*
-Local Variables:
-compile-command: "make -C .. bin/demo.opt"
-End:
-*)

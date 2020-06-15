@@ -37,6 +37,7 @@ module Parse
        (** How to build the node label out of the set of GML attributes.
            For example {v node [ id 12 label "foo" ] v}  will call this
            function with [["id", Int 12; "label", String "foo"]] *)
+
        val edge : value_list -> B.G.E.label
        (** How to build the edge label out of the set of GML attributes *)
      end) :

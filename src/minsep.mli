@@ -41,15 +41,19 @@ end
 module type MINSEP = sig
   module G : G
   (** Implementation of a graph *)
+
   module Vertex_Set : Set.S with type elt = G.V.t
   (** Implementation of a set of vertex *)
+
   module VSetset : Set.S with type elt = Vertex_Set.t
   (** Implementation of a set of [Vertex_Set] *)
 
   val allminsep : G.t -> Vertex_Set.t list
   (** [allminsep g] computes the list of all minimal separators of g. *)
+
   val list_of_allminsep : G.t -> G.V.t list list
   (** Less efficient that [allminsep] *)
+
   val set_of_allminsep : G.t -> VSetset.t
   (** Less efficient that [allminsep] *)
 end

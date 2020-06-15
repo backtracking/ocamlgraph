@@ -1,7 +1,6 @@
 
 (* Test file for Johnson *)
 
-open Printf
 open Graph
 
 module Int = struct

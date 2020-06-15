@@ -46,6 +46,7 @@ end
 module type S = sig
 
   type t       (** type of graphs *)
+
   type vertex  (** type of vertices *)
 
   module S: Set.S with type elt = vertex

@@ -145,7 +145,7 @@ module Interval = struct
       | Le -> if a >% c then Bottom else Bounded (a, min_ b c)
       | Ge -> if b <% c then Bottom else Bounded (max_ a c, b)
 
-  let analyze (v, op, w) interval = match op with
+  let analyze (_, op, _) interval = match op with
     | Affect e -> abstr_expr interval e
     | Test (test, n) -> abstr_test interval test (Int n)
 

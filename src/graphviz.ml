@@ -24,7 +24,7 @@
       http://www.research.att.com/sw/tools/graphviz/ *)
 
 open Format
-open Pervasives (* for compatibility with ocaml 3.12.0+dev17
+open Stdlib (* for compatibility with ocaml 3.12.0+dev17
                    (incoming ocaml3.12) *)
 
 (***************************************************************************)

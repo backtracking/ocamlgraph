@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -23,7 +23,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open Dgraph
+open Graph_gtk
 open Printf
 
 let ($) f x = f x
@@ -132,6 +132,7 @@ let create_menu state ~packing =
 let main () =
   (* GUI *)
   let state = init_state () in
+
   let vbox =
     GPack.vbox ~border_width:4 ~spacing:4 ~packing:state.window#add ()
   in
