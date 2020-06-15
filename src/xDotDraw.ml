@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -85,18 +85,15 @@ let split c s =
   in if s="" then [] else split_from 0 ;;
 
 
-let string_scale_size font size s = 
-  let context = Gdk.Screen.get_pango_context () in
-  let font_description = Pango.Font.from_string font in
-  Pango.Font.modify font_description
-    ~size:(int_of_float (size *. (float Pango.scale)))
-    ();
-  Pango.Context.set_font_description context font_description;
-  let layout = Pango.Layout.create context in
-  Pango.Layout.set_text layout s;
-  let width, height = Pango.Layout.get_pixel_size layout in
+let string_scale_size
+  ~(fontMeasure:
+    fontName: string -> fontSize:int ->
+      string -> (int * int)
+  )
+  font size s =
+  let width, height = fontMeasure ~fontName:font ~fontSize:(int_of_float size) s in
   let width = float width in
-  let linear_width = size*. (float (String.length s)) in
+  let linear_width = size *. (float (String.length s)) in
   size*.width/.linear_width,
   float height
 
@@ -342,7 +339,7 @@ let parse_with_state state =
   with NoOperationId -> List.rev state.operations
 
 (* Long drawing operation strings sometimes contain useless backslashes
-   We get rid of them to avoid problems with the parser *)
+  We get rid of them to avoid problems with the parser *)
 let remove_backslashes s =
   let buf = Buffer.create 30 in
   let rec loop i =
@@ -389,5 +386,5 @@ let draw_with (f : draw_state -> operation -> unit) operations =
 (* let d7 = parse "S 6 -filled c 7 -salmon2 C 7 -salmon2 P 9 865 1177 877 1193 841 1200 760 1192 695 1178 700 1167 756 1161 810 1160 841 1165 " *)
 (* let d8 = parse "F 14.000000 17 -Helvetica-Outline c 5 -black T 529 1005 0 65 9 -Mini Unix " *)
 (* let d9 = parse "S 6 -filled c 11 -greenyellow C 11 -greenyellow P 10 1254 819 1263 834 1247 843 1197 841 1137 830 1110 817 1131 808 1177 805 121\ *)
-   (* 6 804 1238 809 " *)
+  (* 6 804 1238 809 " *)
 (* let d10 = parse "S 6 -filled c 11 -greenyellow C 11 -greenyellow P 10 255 282 264 297 248 306 198 304 138 293 111 280 132 271 178 268 217 267 239\\\n 272 " *)

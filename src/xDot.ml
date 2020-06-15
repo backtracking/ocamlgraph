@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -25,7 +25,6 @@
 
 (** Reading XDot files *)
 
-open Graph
 open Dot_ast
 open Printf
 
@@ -197,7 +196,7 @@ let read_bounding_box str =
   let lower_left = (x1, -.y2) and upper_right = x2, -.y1 in
   lower_left,upper_right
 
-module Make(G : Graph.Graphviz.GraphWithDotAttrs) = struct
+module Make(G : Graphviz.GraphWithDotAttrs) = struct
 
   module HV = Hashtbl.Make(G.V)
 

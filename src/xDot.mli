@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -24,8 +24,6 @@
 (**************************************************************************)
 
 (** Reads layout information from xdot ASTs *)
-
-open Graph
 
 (** Simple layout types *)
 
@@ -105,7 +103,7 @@ val mk_edge_layout :
 exception ParseError of string
 
 (** Instantiates a module which creates graph layouts from xdot files *)
-module Make(G : Graph.Graphviz.GraphWithDotAttrs) : sig
+module Make(G : Graphviz.GraphWithDotAttrs) : sig
 
   module HV: Hashtbl.S with type key = G.V.t
   module HE: Map.S with type key = G.E.t

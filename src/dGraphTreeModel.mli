@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -23,31 +23,53 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open Graph
+module type S = sig
 
-type cluster = string
+  module Tree: Graphviz.GraphWithDotAttrs
 
-module Make
-    (Tree: Graphviz.GraphWithDotAttrs)
-    (TreeManipulation: sig val is_ghost_node: Tree.V.t -> bool end):
-sig
+  module TreeManipulation : sig
+    type t
+    val get_structure : t -> Tree.t
+    val get_tree_vertices : Tree.V.label -> t -> Tree.V.t list
+    val get_graph_vertex : Tree.V.t -> t -> Tree.V.label
+    val is_ghost_node : Tree.V.t -> t -> bool
+    val is_ghost_edge : Tree.E.t -> t -> bool
+  end
 
-  val from_tree:
-    [> `widget] Gtk.obj -> Tree.t -> Tree.V.t -> XDot.Make(Tree).graph_layout
+  type cluster = string
+  type graph_layout
+
+  class tree_model :
+    graph_layout ->
+    TreeManipulation.t ->
+    [ Tree.V.t, Tree.E.t, cluster ] DGraphModel.abstract_model
+
+  val tree : unit -> TreeManipulation.t
 
 end
 
-module MakeFromDotModel
-    (Tree : Sig.G with type V.label = DGraphModel.DotG.V.t
-                   and type E.label = unit)
-    (TreeManipulation: sig val is_ghost_node: Tree.V.t -> bool end):
-sig
+(** This functor creates a model centered on a vertex from a graph *)
+module SubTreeMake(G : Graphviz.GraphWithDotAttrs) : sig
 
-  module Tree: Graphviz.GraphWithDotAttrs with module V = Tree.V
-                                           and module E = Tree.E
-                                           and type t = Tree.t
+  include S with type Tree.V.label = G.V.t
 
-  val from_model:
-    Tree.t -> Tree.V.t -> DGraphModel.dotg_model -> XDot.Make(Tree).graph_layout
+  val from_graph :
+    ?depth_forward:int -> ?depth_backward:int ->
+    fontMeasure:(
+      fontName:string -> fontSize:int -> string -> int * int
+    ) -> G.t -> G.V.t -> tree_model
+
+end
+
+(** Creates a model centered on a vertex from a dot model *)
+module SubTreeDotModelMake : sig
+
+  include S with type Tree.V.label = DGraphModel.DotG.V.t
+
+  val from_model :
+    ?depth_forward:int -> ?depth_backward:int
+    -> DGraphModel.dotg_model
+    -> DGraphModel.DotG.V.t
+    -> tree_model
 
 end

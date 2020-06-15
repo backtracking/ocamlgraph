@@ -3,7 +3,7 @@
 (*  This file is part of OcamlGraph.                                      *)
 (*                                                                        *)
 (*  Copyright (C) 2009-2010                                               *)
-(*    CEA (Commissariat à l'Énergie Atomique)                             *)
+(*    CEA (Commissariat ï¿½ l'ï¿½nergie Atomique)                             *)
 (*                                                                        *)
 (*  you can redistribute it and/or modify it under the terms of the GNU   *)
 (*  Lesser General Public License as published by the Free Software       *)
@@ -394,8 +394,10 @@ module Make(G: Graphviz.GraphWithDotAttrs) = struct
       ~status
       ~mk_global_view:(fun () -> mk_global_view (GlobalModel.from_graph g))
       ~mk_tree_view:(fun ~depth_backward ~depth_forward w v ->
+          let context = GtkBase.Widget.create_pango_context w in
+          let fontMeasure = PangoMeasure.withContext ~context in
           let model =
-            FullTreeModel.from_graph ~depth_forward ~depth_backward w g v
+            FullTreeModel.from_graph ~depth_forward ~depth_backward ~fontMeasure g v
           in
           mk_tree_view model)
       root
