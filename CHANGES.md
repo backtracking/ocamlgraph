@@ -7,20 +7,20 @@
   - fix incorrect uses of polymorphic equality (Steffen Smolka, Boris Yakobowski)
   - [Coloring] fixed generation of OCamlDoc documentation
     (contributed by Earnestly)
-  - * [Coloring] functions now fail if the graph is directed
-  - * [Coloring] now uses a single, global exception [NoColoring]
+  - :exclamation: [Coloring] functions now fail if the graph is directed
+  - :exclamation: [Coloring] now uses a single, global exception [NoColoring]
   - [Coloring] new function two_color to 2-color a graph (or fail)
-  - * [Fixpoint] Take initial labeling of nodes into account (Johannes Kloos)
+  - :exclamation: [Fixpoint] Take initial labeling of nodes into account (Johannes Kloos)
 
 # 1.8.8, October 17, 2017
 
   - fixed installation (Virgile Prevosto, Jacques-Pascal Deplaix)
   - safe-string compatible (Jacques-Pascal Deplaix)
-  - * fixed method get_edge_layout of class abstract_model of DGraphModel.Make. The
+  - :exclamation: fixed method get_edge_layout of class abstract_model of DGraphModel.Make. The
     bug could have occured when there are several edges between two vertices.
   - [Traverse/Pack] added Dfs.fold and Dfs.fold_component (tail-recursive)
    (contributed by Guillaume Chelfi)
-  - * fixed implementation of Golberg-Tarjan maximal flow algorithm
+  - :exclamation: fixed implementation of Golberg-Tarjan maximal flow algorithm
     (contributed by Guyslain Naves) No more function min_capacity in
     the input interface.  Renaming as follows: Flow.Goldberg ->
     Flow.Goldberg_Tarjan and Pack.goldberg -> Pack.goldberg_tarjan
@@ -38,7 +38,7 @@
   - fixed configuration on Windows (patch by Martin R. Neuhäußer)
   - new functor [Components.Undirected] to compute connected components
   - Graphviz: fixed printing of attribute BgcolorWithTransparency
-  - * Prim, Nonnegative: function weight now has the more general type "edge -> t"
+  - :exclamation: Prim, Nonnegative: function weight now has the more general type "edge -> t"
    (to be consistent with Path)
   - new module type Sig.WEIGHT (used in Path, Prim, and Nonnegative)
   - Fixpoint: do not catch Not_found raised by a user-provided function.
@@ -46,14 +46,14 @@
 
 # 1.8.6, January 23, 2015
 
-  - * Dominator: new functor [Make_graph] with may use graph building operations,
+  - :exclamation: Dominator: new functor [Make_graph] with may use graph building operations,
     while the old functor [Make] now only requires a read-only graph.
     Function [compute_all] and [compute_dom_graph] are now only defined in the
     new [Make_graph] functor.
   - Graphviz: support for additional polygonal-shapes
   - New module Clique (contributed by Giselle Reis)
   - Avoid ocamldoc error with OCaml 4.02
-  - * Path: function weight now has the more general type "edge -> t"
+  - :exclamation: Path: function weight now has the more general type "edge -> t"
     (contributed by Steffen Smolka)
     update your code by turning "weight l" into "weight (G.E.label e)"
   - installation: "make install-findlib" now uses DESTDIR when defined
