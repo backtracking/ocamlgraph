@@ -44,7 +44,7 @@ if test "$OCAMLC" = no ; then
 fi
 
 # we extract Ocaml version number and library path
-OCAMLVERSION=`$OCAMLC -v | sed -n -e 's|.*version *\(.*\)$|\1|p' `
+OCAMLVERSION=`$OCAMLC -v | sed -n -e 's|The O.*, version *\(.*\)$|\1|p' `
 echo "ocaml version is $OCAMLVERSION"
 
 case $OCAMLVERSION in
