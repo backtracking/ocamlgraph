@@ -1,6 +1,8 @@
 
 # 2.0.0
 
+  - port to dune and opam 2.0
+  - :exclamation: opam package now split into two packages: ocamlgraph and ocamlgraph_gtk
   - [WeakTopological] fixed incorrect use of generic hash tables
     (#99, Tomáš Dacík)
   - [Oper] fixed transitive_reduction (#91)
