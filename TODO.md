@@ -10,9 +10,9 @@
   only Imperative.Digraph.ConcreteBidirectional exists at this day.
 - Provide generic marks (instead of only integer marks)
 
-== DGraph
+## DGraph
 
-=== mode Tree:
+### mode Tree
 
 - texte trop bas
 - texte multi-ligne
