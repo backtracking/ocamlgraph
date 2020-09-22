@@ -48,7 +48,7 @@ val color_to_color_with_transparency: color -> color_with_transparency
 
 
 type arrow_style =
-  [ `None | `Normal | `Inv | `Dot | `Odot | `Invdot | `Invodot ]
+  [ `None | `Normal | `Onormal | `Inv | `Dot | `Odot | `Invdot | `Invodot ]
 
 (** The [ATTRIBUTES] module type defines the interface for the engines. *)
 module type ATTRIBUTES = sig
