@@ -1,5 +1,6 @@
 opam-version: "2.0"
-synopsis: "Displaying graphs using ocamlgraphs and gtk"
+synopsis: "Displaying graphs using OCamlGraph and GTK"
+description: "Displaying graphs using OCamlGraph and GTK"
 maintainer: ["filliatr@lri.fr"]
 authors: ["Sylvain Conchon" "Jean-Christophe Filliâtre" "Julien Signoles"]
 license: "LGPL-2.1-only"
