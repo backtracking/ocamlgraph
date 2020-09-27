@@ -317,6 +317,14 @@ test-fixpoint: $(CMA) tests/test_fixpoint.ml
 test-johnson: $(CMA) tests/test_johnson.ml
 	ocaml unix.cma graphics.cma $^
 
+test-floyd: bin/test-floyd.opt
+	
+bin/test-floyd.opt: $(CMXA) tests/test_floydwarshall.ml
+	mkdir -p bin
+	$(OCAMLOPT) -o $@ unix.cmxa $^
+
+test-floyd: bin/test-floyd.opt
+
 bin/test-ts: $(CMXA) tests/test_topsort.ml
 	mkdir -p bin
 	$(OCAMLOPT) -o $@ unix.cmxa $^

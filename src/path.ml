@@ -99,7 +99,6 @@ struct
     loop ()
 
 end
-
 (* The following module is a contribution of Yuto Takei (University of Tokyo) *)
 
 module BellmanFord
@@ -186,6 +185,86 @@ struct
         assert false (* a component is not empty *)
     in
     iter (Comp.scc_list g)
+
+end
+
+(** Weight signature for Floyd's algorithm. *)
+module type WF = sig
+  include Sig.WEIGHT
+  val infinity : t
+  (** Infini value*)
+end
+
+(** The Floyd–Warshall algorithm is an algorithm for finding shortest paths in
+    a weighted graph with positive or negative edge weights
+    (but with no negative cycles)*)
+module FloydWarshall
+    (G: G)
+    (W: WF with type edge = G.E.t) =
+struct
+  open G.E
+  module HVV = Hashtbl.Make(Util.HTProduct(G.V)(G.V))
+
+  exception NegativeCycle
+
+  let all_pairs_shortest_paths g =
+    let add wi wj =
+        let a = W.add wi wj in
+        if a > W.infinity then
+          W.infinity
+        else
+          a in
+    let msp = HVV.create 100 in
+    let psp = HVV.create 100 in
+    (* initialization *)
+    G.iter_vertex
+      (fun v ->
+         G.iter_vertex
+           (fun  u ->
+              HVV.add msp (v,u) W.infinity;
+              HVV.add psp (v,u) u
+           ) g
+      ) g;
+    (*first step*)
+    G.iter_vertex
+      (fun v ->
+         G.iter_succ_e
+           (fun e ->
+              HVV.replace msp (v, (dst e)) (W.weight e);
+              HVV.replace psp (v, (dst e)) v
+           ) g v
+      ) g;
+    G.iter_vertex
+      (fun k ->
+         G.iter_vertex
+           (fun i ->
+              G.iter_vertex
+                (fun j ->
+                   let p = add (HVV.find msp (i,k)) (HVV.find msp (k,j)) in
+                   if p < (HVV.find msp (i,j)) then begin
+                     HVV.replace msp (i,j) p ;
+                     HVV.replace psp (i,j) (HVV.find psp (k,j))
+                   end
+                ) g
+           ) g ) g;
+    G.iter_vertex
+      (fun i ->
+         let m = HVV.find msp (i, i) in
+             if m < W.zero then raise NegativeCycle) g;
+    (msp,psp)
+
+  let shortest_path p vs ve =
+    let rec loop acc p vs ve =
+      let vp = HVV.find p (vs,ve) in
+      if vs = vp then
+          vs::acc
+      else
+        loop (vp::acc) p vs vp
+    in
+    loop (ve::[]) p vs ve
+
+
+
 
 end
 
