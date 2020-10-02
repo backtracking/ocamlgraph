@@ -1,5 +1,5 @@
 
-# 2.0.0
+# 2.0.0 (October 2, 2020)
 
   - port to dune and opam 2.0
   - :exclamation: opam package now split into two packages: ocamlgraph and ocamlgraph_gtk
