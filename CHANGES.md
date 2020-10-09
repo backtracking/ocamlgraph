@@ -2,7 +2,8 @@
 # 2.0.0 (October 2, 2020)
 
   - port to dune and opam 2.0
-  - :exclamation: opam package now split into two packages: ocamlgraph and ocamlgraph_gtk
+  - :exclamation: opam package now split into two packages: ocamlgraph
+    and ocamlgraph_gtk
   - [WeakTopological] fixed incorrect use of generic hash tables
     (#99, Tomáš Dacík)
   - [Oper] fixed transitive_reduction (#91)
@@ -12,7 +13,11 @@
   - :exclamation: [Coloring] functions now fail if the graph is directed
   - :exclamation: [Coloring] now uses a single, global exception [NoColoring]
   - [Coloring] new function two_color to 2-color a graph (or fail)
-  - :exclamation: [Fixpoint] Take initial labeling of nodes into account (Johannes Kloos)
+  - :exclamation: [Fixpoint] Take initial labeling of nodes into
+    account (Johannes Kloos)
+  - :exclamation: [Dominator.Make_graph] now accepts a signature that
+    is Builder-compatible
+
 
 # 1.8.8, October 17, 2017
 
