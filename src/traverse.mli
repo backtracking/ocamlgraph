@@ -17,7 +17,22 @@
 
 (** Graph traversal. *)
 
-(** {2 Dfs and Bfs} *)
+(** {2 Dfs and Bfs}
+
+   In the modules below, the most meaningful functions are the
+   [iter/fold_component] functions, where the starting point of the
+   traversal is user-provided.
+
+   Functions [iter/fold] to traverse the whole graph are also
+   provided, for convenience, and they proceed as follows: they run
+   the user-provided [iter/fold_vertex] functions (from input module
+   [G]) and, for each vertex not yet visited, start a new traversal
+   from this vertex. In particular, each traversal is not necessarily
+   started from a vertex without predecessors. Said otherwise, it is
+   up to you to come up with an [iter_vertex] function that will
+   identify suitable roots, e.g. vertices with no predecessors, if
+   this is really what you want.
+*)
 
 (** Minimal graph signature for {!Dfs} and {!Bfs}.
     Sub-signature of {!Sig.G}. *)
@@ -27,11 +42,13 @@ module type G = sig
   module V : Sig.COMPARABLE
   val iter_vertex : (V.t -> unit) -> t -> unit
   (** It is enough to iter over all the roots (vertices without predecessor) of
-      the graph, even if iterating over the other vertices is correct. *)
+      the graph, even if iterating over the other vertices is correct.
+      (See the comment above.) *)
 
   val fold_vertex : (V.t -> 'a -> 'a) -> t  -> 'a -> 'a
   (** It is enough to fold over all the roots (vertices without predecessor) of
-      the graph, even if folding over the other vertices is correct. *)
+      the graph, even if folding over the other vertices is correct.
+      (See the comment above.) *)
 
   val iter_succ : (V.t -> unit) -> t -> V.t -> unit
   val fold_succ : (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
@@ -68,7 +85,7 @@ module Dfs(G : G) : sig
 
   val fold : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> 'a
   (** The function is applied each time a node is reached for the first time,
-      before idoterating over its successors. Tail-recursive. *)
+      before iterating over its successors. Tail-recursive. *)
 
   val fold_component : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> G.V.t -> 'a
   (** Idem, but limited to a single root vertex. *)
@@ -102,12 +119,20 @@ module Bfs(G : G) : sig
   (** {2 Classical big-step iterators} *)
 
   val iter : (G.V.t -> unit) -> G.t -> unit
+  (** The function is applied each time a node is reached for the first time.
+      Not tail-recursive. *)
+
   val iter_component : (G.V.t -> unit) -> G.t -> G.V.t -> unit
+  (** Idem, but limited to a single root vertex. *)
 
   (** {2 Classical folds} *)
 
   val fold : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> 'a
+  (** The function is applied each time a node is reached for the first time.
+      Not tail-recursive. *)
+
   val fold_component : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> G.V.t -> 'a
+  (** Idem, but limited to a single root vertex. *)
 
   (** {2 Step-by-step iterator}
       See module [Dfs] *)
