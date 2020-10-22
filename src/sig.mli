@@ -189,7 +189,13 @@ module type G = sig
   (** Fold on all edges of a graph. *)
 
   val map_vertex : (vertex -> vertex) -> t -> t
-  (** Map on all vertices of a graph. *)
+  (** Map on all vertices of a graph.
+
+      The current implementation requires the supplied function to be
+      injective. Said otherwise, [map_vertex] cannot be used to contract
+      a graph by mapping several vertices to the same vertex.
+      To contract a graph, use instead [create], [add_vertex],
+      and [add_edge]. *)
 
   (** {2 Vertex iterators}
 

@@ -1,4 +1,6 @@
 
+  - #31: fixed documentation of [map_vertex]: the supplied function
+    must be injective
   - #110: ensure that map_vertex applies the function only once per vertex
 
 # 2.0.0 (October 2, 2020)
