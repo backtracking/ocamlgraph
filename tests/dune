@@ -8,6 +8,11 @@
  (libraries graph)
  (modules test_topsort))
 
+(test
+ (name test_map_vertex)
+ (libraries graph)
+ (modules test_map_vertex))
+
 ;; Rules for the Bellman-Ford tests
 
 (rule

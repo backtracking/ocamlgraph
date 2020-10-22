@@ -48,3 +48,9 @@ module DataV(L : sig type t end)(V : Sig.COMPARABLE) = struct
   let set_data (y, _) = (:=) y
 end
 
+module Memo(X: HASHABLE) = struct
+  module H = Hashtbl.Make(X)
+  let memo ?(size=128) f =
+    let h = H.create size in
+    fun x -> try H.find h x with Not_found -> let y = f x in H.add h x y; y
+end

@@ -477,15 +477,13 @@ module Matrix = struct
     (* map iterator on vertex *)
     let map_vertex f g =
       let n = nb_vertex g in
+      let f i = (* ensures f is applied exactly once for each vertex *)
+        let fi = f i in
+        if fi < 0 || fi >= n then invalid_arg "[ocamlgraph] map_vertex";
+        fi in
+      let v = Array.init n f in
       let g' = make n in
-      iter_edges
-        (fun i j ->
-           let fi = f i in
-           let fj = f j in
-           if fi < 0 || fi >= n || fj < 0 || fj >= n then
-             invalid_arg "[ocamlgraph] map_vertex";
-           Bitv.unsafe_set g'.(fi) fj true)
-        g;
+      iter_edges (fun i j -> Bitv.unsafe_set g'.(v.(i)) v.(j) true) g;
       g'
 
     (* labeled edges going from/to a vertex *)

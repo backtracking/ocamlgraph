@@ -45,3 +45,6 @@ module DataV(L : sig type t end)(V : Sig.COMPARABLE) : sig
   val set_data : t -> data -> unit
 end
 
+module Memo(X: HASHABLE) : sig
+  val memo: ?size:int -> (X.t -> 'a) -> X.t -> 'a
+end

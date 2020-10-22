@@ -1,4 +1,6 @@
 
+  - #110: ensure that map_vertex applies the function only once per vertex
+
 # 2.0.0 (October 2, 2020)
 
   - port to dune and opam 2.0

@@ -235,8 +235,10 @@ module Unlabeled(V: COMPARABLE)(HM: HM with type key = V.t) = struct
   let succ g v = S.elements (HM.find_and_raise v g "[ocamlgraph] succ")
   let succ_e g v = fold_succ_e (fun e l -> e :: l) g v []
 
-  let map_vertex f =
-    HM.map (fun v s -> f v, S.fold (fun v s -> S.add (f v) s) s S.empty)
+  let map_vertex f g =
+    let module MV = Util.Memo(V) in
+    let f = MV.memo f in
+    HM.map (fun v s -> f v, S.fold (fun v s -> S.add (f v) s) s S.empty) g
 
   module I = struct
     type t = S.t HM.t
@@ -348,9 +350,11 @@ struct
   let succ g v = fold_succ (fun w l -> w :: l) g v []
   let succ_e g v = fold_succ_e (fun e l -> e :: l) g v []
 
-  let map_vertex f =
+  let map_vertex f g =
+    let module MV = Util.Memo(V) in
+    let f = MV.memo f in
     HM.map
-      (fun v s -> f v, S.fold (fun (v, l) s -> S.add (f v, l) s) s S.empty)
+      (fun v s -> f v, S.fold (fun (v, l) s -> S.add (f v, l) s) s S.empty) g
 
   module I = struct
     type t = S.t HM.t
@@ -561,12 +565,15 @@ module BidirectionalUnlabeled(V:COMPARABLE)(HM:HM with type key = V.t) = struct
   let succ g v = S.elements (snd (HM.find_and_raise v g "[ocamlgraph] succ"))
   let succ_e g v = fold_succ_e (fun e l -> e :: l) g v []
 
-  let map_vertex f =
+  let map_vertex f g =
+    let module MV = Util.Memo(V) in
+    let f = MV.memo f in
     HM.map
       (fun v (s1,s2) ->
          f v,
          (S.fold (fun v s -> S.add (f v) s) s1 S.empty,
           S.fold (fun v s -> S.add (f v) s) s2 S.empty))
+      g
 
   module I = struct
     (* we keep sets for both incoming and outgoing edges *)
@@ -703,12 +710,15 @@ struct
   let succ g v = fold_succ (fun w l -> w :: l) g v []
   let succ_e g v = fold_succ_e (fun e l -> e :: l) g v []
 
-  let map_vertex f =
+  let map_vertex f g =
+    let module MV = Util.Memo(V) in
+    let f = MV.memo f in
     HM.map
       (fun v (s1,s2) ->
          f v,
          (S.fold (fun (v, l) s -> S.add (f v, l) s) s1 S.empty,
           S.fold (fun (v, l) s -> S.add (f v, l) s) s2 S.empty))
+    g
 
   module I = struct
     type t = (S.t * S.t) HM.t
