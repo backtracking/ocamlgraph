@@ -71,6 +71,8 @@ module type S = sig
   val compute_dom_frontier: t -> dom_tree -> idom -> vertex -> vertex list
   val idom_to_dominators: ('a -> 'a) -> 'a -> 'a list
   val idom_to_dom: (vertex -> vertex) -> vertex -> vertex -> bool
+  val dom_tree_to_nontrivial_dom : vertex -> dom_tree -> vertex list
+  val dom_tree_to_snontrivial_dom : vertex -> dom_tree -> S.t
 end
 
 module Make(G : G) = struct
@@ -348,6 +350,30 @@ module Make(G : G) = struct
       G.V.equal x d || idom_to_dom idom x d
     with Not_found ->
       false
+
+  (* There is a nice description of non-trivial dominators with an example
+     in Section 2 and Figure 2 of Jaberi 2016, "On computing the
+     2-vertex-connected components of directed graphs". *)
+
+  let dom_tree_to_nontrivial_dom v dt =
+    let rec f rs = function
+      | [] -> rs
+      | x::xs ->
+          (match dt x with
+           | [] -> f rs xs
+           | ys -> f (x::rs) (List.rev_append ys xs))
+    in
+    f [] (dt v)
+
+  let dom_tree_to_snontrivial_dom v dt =
+    let rec f rs = function
+      | [] -> rs
+      | x::xs ->
+          (match dt x with
+           | [] -> f rs xs
+           | ys -> f (S.add x rs) (List.rev_append ys xs))
+    in
+    f S.empty (dt v)
 
 end
 

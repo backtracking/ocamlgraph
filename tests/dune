@@ -108,6 +108,25 @@
  (modules test_johnson)
  (libraries graph))
 
+;; Rules for the test_nontrivial_dom test
+
+(rule
+ (with-stdout-to
+  test_nontrivial_dom.output
+  (run ./test_nontrivial_dom.exe)))
+
+(rule
+ (alias runtest)
+ (action
+  (progn
+   (diff test_nontrivial_dom.expected test_nontrivial_dom.output)
+   (echo "test_nontrivial_dom: all tests succeeded.\n"))))
+
+(executable
+ (name test_nontrivial_dom)
+ (modules test_nontrivial_dom)
+ (libraries graph))
+
 ;; Rules for the weak topological test
 
 (rule
