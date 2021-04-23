@@ -127,6 +127,25 @@
  (modules test_nontrivial_dom)
  (libraries graph))
 
+;; Rules for the test_saps test
+
+(rule
+ (with-stdout-to
+  test_saps.output
+  (run ./test_saps.exe)))
+
+(rule
+ (alias runtest)
+ (action
+  (progn
+   (diff test_saps.expected test_saps.output)
+   (echo "test_saps: all tests succeeded.\n"))))
+
+(executable
+ (name test_saps)
+ (modules test_saps)
+ (libraries graph))
+
 ;; Rules for the weak topological test
 
 (rule
