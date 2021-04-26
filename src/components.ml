@@ -96,6 +96,78 @@ module Make(G: G) = struct
 
 end
 
+(** Connectivity in strongly connected directed graphs *)
+
+module Connectivity (GB: Builder.S) = struct
+
+  module MOper = Oper.Make(GB)
+  module Choose = Oper.Choose(GB.G)
+  module Dom = Dominator.Make(GB.G)
+
+  module S = Dom.S
+
+  let sstrong_articulation_points g =
+    let s = Choose.choose_vertex g in
+    let module SCC = Make (struct
+        include GB.G
+        let iter_vertex f =
+          GB.G.iter_vertex (fun v -> if not (V.equal s v) then f v)
+        let iter_succ f =
+          GB.G.iter_succ (fun v -> if not (V.equal s v) then f v)
+      end)
+    in
+    let s_is_sap = fst (SCC.scc g) > 1 in
+    let dt_s = Dom.(idom_to_dom_tree g (compute_idom g s)) in
+    let d_s = Dom.dom_tree_to_snontrivial_dom s dt_s in
+    let g_r = MOper.mirror g in
+    let dtr_s = Dom.(idom_to_dom_tree g_r (compute_idom g_r s)) in
+    let dr_s = Dom.dom_tree_to_snontrivial_dom s dtr_s in
+    let d = Dom.S.union d_s dr_s in
+    if s_is_sap then Dom.S.add s d else d
+
+  let strong_articulation_points g = S.elements (sstrong_articulation_points g)
+
+end
+
+module BiConnectivity (G: Sig.G) = struct
+
+  module Choose = Oper.Choose(G)
+  module Dom = Dominator.Make(G)
+  module RDom = Dominator.Make(
+      struct
+        type t = G.t
+        module V = G.V
+        let pred = G.succ
+        let succ = G.pred
+        let fold_vertex = G.fold_vertex
+        let iter_vertex = G.iter_vertex
+        let iter_succ = G.iter_pred
+        let nb_vertex = G.nb_vertex
+      end)
+
+  module S = Dom.S
+
+  let sstrong_articulation_points g =
+    let s = Choose.choose_vertex g in
+    let module SCC = Make (struct
+        include G
+        let iter_vertex f =
+          G.iter_vertex (fun v -> if not (V.equal s v) then f v)
+        let iter_succ f =
+          G.iter_succ (fun v -> if not (V.equal s v) then f v)
+      end)
+    in
+    let s_is_sap = fst (SCC.scc g) > 1 in
+    let dt_s = Dom.(idom_to_dom_tree g (compute_idom g s)) in
+    let d_s = Dom.dom_tree_to_snontrivial_dom s dt_s in
+    let dtr_s = RDom.(idom_to_dom_tree g (compute_idom g s)) in
+    let dr_s = Dom.dom_tree_to_snontrivial_dom s dtr_s in
+    let d = Dom.S.union d_s dr_s in
+    if s_is_sap then Dom.S.add s d else d
+
+  let strong_articulation_points g = S.elements (sstrong_articulation_points g)
+end
+
 (** Connected components (for undirected graphs) *)
 
 module type U = sig

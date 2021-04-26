@@ -122,6 +122,16 @@ module type S = sig
 
   val idom_to_dom: (vertex -> vertex) -> vertex -> vertex -> bool
 
+  (** Returns a list of the non-trivial dominators of a flowgraph G(v) given
+      the start vertex [v] and the corresponding dominator tree. E.g.,
+      [dom_tree_to_nontrivial_dom v (idom_to_dom_tree g (compute_idom g v))].
+      A vertex u is a non-trivial dominator of G(v) if it dominates some
+      vertex w other than v and u. *)
+  val dom_tree_to_nontrivial_dom : vertex -> dom_tree -> vertex list
+
+  (** As for [dom_tree_to_nontrivial_dom] but returns a set. *)
+  val dom_tree_to_snontrivial_dom : vertex -> dom_tree -> S.t
+
 end
 
 module Make(G : G) : S with type t = G.t and type vertex = G.V.t
