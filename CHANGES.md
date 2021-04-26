@@ -1,4 +1,8 @@
 
+
+  - [Components]: strong articulation points (see functors [Connectivity]
+    and [BiConnectivity]) (Timothy Bourke)
+  - [Dominator]: non-trivial dominators (Timothy Bourke)
   - #31: fixed documentation of [map_vertex]: the supplied function
     must be injective
   - #110: ensure that map_vertex applies the function only once per vertex
