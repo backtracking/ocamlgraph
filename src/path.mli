@@ -55,6 +55,37 @@ sig
 
 end
 
+(** Minimal graph signature for SSSP Dijkstra's algorithm.
+    Sub-signature of {!Sig.G}. *)
+module type G_SSSP = sig
+  include G
+
+  val find_edge : t -> V.t -> V.t -> E.t
+end
+
+module SSSP_Dijkstra
+    (G: G_SSSP)
+    (W: Sig.WEIGHT with type edge = G.E.t) :
+sig
+
+  val all_shortest_paths : G.t -> G.V.t -> (G.V.t * G.V.t list list * W.t) list
+  (** [shortest_path g source] computes the all the shortest paths from
+      vertex [source] to all other vertices in graph [g]. The paths are
+      returned as the list of the destination, a list of equal length
+      paths (traversed vertices), together with the total length of the
+      paths.
+
+      Complexity: at most O((V+E)log(V)) *)
+
+  val all_shortest_paths_e : G.t -> G.V.t -> (G.V.t * G.E.t list list * W.t) list
+  (** [shortest_path_e g source] computes the all the shortest paths from
+      vertex [source] to all other vertices in graph [g]. The paths are
+      returned as the list of the destination, a list of equal length
+      paths (followed edges), together with the total length of the paths.
+
+      Complexity: at most O((V+E)log(V)) *)
+end
+
 (* The following module is a contribution of Yuto Takei (University of Tokyo) *)
 
 module BellmanFord
