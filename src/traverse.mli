@@ -108,7 +108,7 @@ module Dfs(G : G) : sig
 
   (** {2 Cycle detection} *)
 
-  val has_cycle : G.t -> bool
+  val has_cycle : G.t -> G.V.t list
   (** [has_cycle g] checks for a cycle in [g]. Linear in time and space. *)
 
 end

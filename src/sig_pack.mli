@@ -293,7 +293,7 @@ module type S = sig
     val postfix_component : (V.t -> unit) -> t -> V.t -> unit
     val fold_component : (V.t -> 'a -> 'a) -> 'a -> t -> V.t -> 'a
 
-    val has_cycle : t -> bool
+    val has_cycle : t -> V.t list
   end
 
   (** Breadth-first search *)
