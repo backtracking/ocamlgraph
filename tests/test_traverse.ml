@@ -18,7 +18,7 @@ module GG = Imperative.Graph.Concrete(Int)
 module TD = Dfs(GD)
 module TG = Dfs(GG)
 
-let print_list l =  Format.printf "[ " ; List.iter (fun e -> Format.printf "%d " e ) l ; Format.printf "]@."
+let print_list (b, l) =  Format.printf "[ " ; List.iter (fun e -> Format.printf "%d " e ) l ; Format.printf "] : %b@." b
 
 (*Complete, connected digraph with no cycles *)
 let () = 

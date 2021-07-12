@@ -53,15 +53,15 @@ struct
 
   let has_cycle v e =
     let g = R.graph ~v ~e () in
-    let b,t = Time.utime Dfs.has_cycle g in
-    printf "v = %d e = %d cycle = %b time = %2.2f@." v e (b<>[]) t;
+    let (b, _),t = Time.utime Dfs.has_cycle g in
+    printf "v = %d e = %d cycle = %b time = %2.2f@." v e b t;
     b
 
   let bench1 () =
     (* on augmente E jusqu'� trouver un cycle *)
     let v = 20000 in
     let e = ref 1 in
-    while not ((has_cycle v !e) <> []) do e := 2 * !e done
+    while not (has_cycle v !e) do e := 2 * !e done
 
   let () =
     Printf.printf "======== BEGIN bench1 =========\n";
