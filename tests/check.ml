@@ -359,7 +359,7 @@ module Dijkstra = struct
     let () = test g v1 v5 60 3
     let () = test g v1 v1 0 0
     let () = if G.is_directed then test_not_found g v5 v1
-    let () = assert (not (let b, _ = Dfs.has_cycle g in b ))
+    let () = assert (not (Dfs.has_cycle g <> []))
     let gc = B.add_edge_e g (G.E.create v5 10 v1)
     let v6 = G.V.create 6
     let gc = B.add_vertex gc v6
@@ -367,7 +367,7 @@ module Dijkstra = struct
     let () = test gc v5 v1 10 1
     let () = test_not_found gc v1 v6
 
-    let () = assert (let b, _ = Dfs.has_cycle gc in b )
+    let () = assert (Dfs.has_cycle gc <> [])
 
   end
 
@@ -414,11 +414,11 @@ module Traversal = struct
     add_edge g v3 10 v5;
     add_edge g v4 20 v3;
     add_edge g v4 60 v5
-  let () = assert (not (Mark.has_cycle g) && not (let b,_ = Dfs.has_cycle g in b))
+  let () = assert (not (Mark.has_cycle g) && not (Dfs.has_cycle g <> []))
   let v6 = newv g
-  let () = assert (not (Mark.has_cycle g) && not (let b,_ = Dfs.has_cycle g in b))
+  let () = assert (not (Mark.has_cycle g) && not (Dfs.has_cycle g <> []))
   let () = add_edge g v5 10 v1
-  let () = assert (Mark.has_cycle g && let b,_ = Dfs.has_cycle g in b)
+  let () = assert (Mark.has_cycle g && Dfs.has_cycle g <> [])
 
 (* debug dfs / Cormen p 479 *)
 
@@ -652,7 +652,7 @@ module type RightSigPack = sig
     val prefix_component : (V.t -> unit) -> t -> V.t -> unit
     val postfix_component : (V.t -> unit) -> t -> V.t -> unit
 
-    val has_cycle : t -> bool * V.t list
+    val has_cycle : t -> V.t list
   end
   module Bfs : sig
     val iter : (V.t -> unit) -> t -> unit

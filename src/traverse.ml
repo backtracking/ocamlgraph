@@ -128,9 +128,9 @@ module Dfs(G : G) = struct
       in
       try
         G.iter_vertex (fun v -> if not (H.mem h v) then begin Stack.push v stack; loop () end ) g ;
-        (false, [])
+        []
       with CycleExit (w)  ->
-        (true, clean_up !cy w)
+        clean_up !cy w
     
       let has_cycle_undirected g =
         let h = H.create 97 in
@@ -158,9 +158,9 @@ module Dfs(G : G) = struct
         in
         try
           G.iter_vertex (fun v ->  if not (H.mem h v) then begin Stack.push v stack; loop () end) g ;
-          (false, [])
+          []
         with CycleExit (w) ->
-          (true, clean_up !cy w)
+          clean_up !cy w
     
           
          let has_cycle g =
