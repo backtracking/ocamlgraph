@@ -95,76 +95,75 @@ module Dfs(G : G) = struct
 
   module Tail = struct
 
-    let clean_up l v =
-      let rec keep_until acc = function 
-      | [] -> acc
-      | x :: [] -> if G.V.equal x v then x::acc else v::x::acc
-      | x :: xs -> if G.V.equal x v then x::acc else keep_until (x::acc) xs
-      in
-      keep_until [] l
-
-      exception CycleExit of G.V.t
-    
-    (**Result == Exists at least one path from A to A*)
     let has_cycle g =
       let h = H.create 97 in
       let stack = Stack.create () in
-      let cy = ref [] in
       let loop () =
         while not (Stack.is_empty stack) do
           let v = Stack.top stack in
           if H.mem h v then begin
+            (* we are now done with node v *)
+            (* assert (H.find h v = true); *)
             H.replace h v false;
-            cy := [] ;
             ignore (Stack.pop stack)
-
           end else begin
+            (* we start DFS from node v *)
             H.add h v true;
-            cy := v::!cy ;
-            G.iter_succ (fun w -> try if H.find h w then raise (CycleExit (w))
-            with Not_found -> Stack.push w stack ) g v
+            G.iter_succ
+              (fun w ->
+                 try if H.find h w then raise Exit
+                 with Not_found -> Stack.push w stack)
+              g v;
           end
         done
       in
       try
-        G.iter_vertex (fun v -> if not (H.mem h v) then begin Stack.push v stack; loop () end ) g ;
-        []
-      with CycleExit (w)  ->
-        clean_up !cy w
-    
-      let has_cycle_undirected g =
-        let h = H.create 97 in
-        let cy = ref [] in
-        let father = H.create 97 in
-        let is_father u v = (* u is the father of v in the DFS descent *)
-          try G.V.equal (H.find father v) u with Not_found -> false
-        in
-        let stack = Stack.create () in
-        let loop () =
-          while not (Stack.is_empty stack) do
-            let v = Stack.top stack in
-            if H.mem h v then begin
-              H.remove father v;
-              cy := [] ;
-              H.replace h v false;
-              ignore (Stack.pop stack)
-            end else begin
-              H.add h v true;
-              cy := v :: !cy ; 
-              G.iter_succ (fun w -> try if H.find h w && not (is_father w v) then raise (CycleExit (w))
-                                  with Not_found -> H.add father w v; Stack.push w stack ) g v
-            end
-          done
-        in
-        try
-          G.iter_vertex (fun v ->  if not (H.mem h v) then begin Stack.push v stack; loop () end) g ;
-          []
-        with CycleExit (w) ->
-          clean_up !cy w
-    
-          
-         let has_cycle g =
-            if G.is_directed then has_cycle g else has_cycle_undirected g
+        G.iter_vertex
+          (fun v ->
+             if not (H.mem h v) then begin Stack.push v stack; loop () end)
+          g;
+        false
+      with Exit ->
+        true
+
+    let has_cycle_undirected g =
+      let h = H.create 97 in
+      let father = H.create 97 in
+      let is_father u v = (* u is the father of v in the DFS descent *)
+        try G.V.equal (H.find father v) u with Not_found -> false
+      in
+      let stack = Stack.create () in
+      let loop () =
+        while not (Stack.is_empty stack) do
+          let v = Stack.top stack in
+          if H.mem h v then begin
+            (* we are now done with node v *)
+            (* assert (H.find h v = true); *)
+            H.remove father v;
+            H.replace h v false;
+            ignore (Stack.pop stack)
+          end else begin
+            (* we start DFS from node v *)
+            H.add h v true;
+            G.iter_succ
+              (fun w ->
+                 try if H.find h w && not (is_father w v) then raise Exit
+                 with Not_found -> H.add father w v; Stack.push w stack)
+              g v;
+          end
+        done
+      in
+      try
+        G.iter_vertex
+          (fun v ->
+             if not (H.mem h v) then begin Stack.push v stack; loop () end)
+          g;
+        false
+      with Exit ->
+        true
+
+    let has_cycle g =
+      if G.is_directed then has_cycle g else has_cycle_undirected g
 
     let iter f g =
       let h = H.create 97 in

@@ -235,22 +235,3 @@
  (name bench)
  (modules bench)
  (libraries graph unix))
-
-;; Traverse Test 
-
-(rule
- (with-stdout-to
-  test_traverse.output
-  (run ./test_traverse.exe)))
-
-(rule
- (alias runtest)
- (action
-  (progn
-   (diff test_traverse.expected test_traverse.output)
-   (echo "test_traverse: all tests succeeded.\n"))))
-
-(executable
- (name test_traverse)
- (modules test_traverse)
- (libraries graph))
