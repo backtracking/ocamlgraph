@@ -1,6 +1,8 @@
 open Graph
 open Traverse
 
+open Graph
+
 module Int = struct
   type t = int
   let compare = compare
