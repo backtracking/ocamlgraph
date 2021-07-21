@@ -235,3 +235,22 @@
  (name bench)
  (modules bench)
  (libraries graph unix))
+
+;; find_cycle rest 
+
+(rule
+ (with-stdout-to
+  test_find_cycle.output
+  (run ./test_find_cycle.exe)))
+
+(rule
+ (alias runtest)
+ (action
+  (progn
+   (diff test_find_cycle.expected test_find_cycle.output)
+   (echo "test_find_cycle: all tests succeeded.\n"))))
+
+(executable
+ (name test_find_cycle)
+ (modules test_find_cycle)
+ (libraries graph))
