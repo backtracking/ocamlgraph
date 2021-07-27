@@ -576,7 +576,7 @@ struct
     fprintf ppf "%t@ " print_nodes;
     fprintf ppf "%t@ " print_subgraphs;
     fprintf ppf "%t@ " print_edges;
-    fprintf ppf "@]}@]"
+    fprintf ppf "@]}@;@]"
 
   (** [output_graph oc graph] pretty prints the graph [graph] in the dot
       language on the channel [oc]. *)
