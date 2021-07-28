@@ -14,4 +14,5 @@ digraph G {
   "task_cook" -> "task_eat" [label=<f&#36;oo>, ];
   "task_table" -> "task_eat" [label=<f&#36;oo>, ];
   
-  }========= END output graph =========
+  }
+========= END output graph =========
