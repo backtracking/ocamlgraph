@@ -142,8 +142,8 @@ sig
 
       Complexity: The path checker contains a cache of all results computed
       so far. This cache is implemented with a hash table so access in this
-      cache is usually O(1). When the result is not in the cache, Dijkstra's
-      algorithm is run to check for the path, and all intermediate results
+      cache is usually O(1). When the result is not in the cache, a BFS
+      is run to check for the path, and all intermediate results
       are cached.
 
       Note: if checks are to be done for almost all pairs of vertices, it
