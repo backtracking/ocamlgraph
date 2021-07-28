@@ -66,7 +66,7 @@ let () = tests Topological.iter
 let rec pow a = function
   | 0 -> 1
   | 1 -> a
-  | n -> 
+  | n ->
     let b = pow a (n / 2) in
     b * b * (if n mod 2 = 0 then 1 else a)
 
@@ -80,4 +80,3 @@ let () =
     el := [n-1,0]; for i = 0 to n-2 do el := (i,i+1) :: !el done;
     test ~check:false Topological.iter n !el
   done
-

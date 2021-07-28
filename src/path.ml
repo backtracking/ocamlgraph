@@ -327,6 +327,9 @@ struct
       (* the path is not in cache; we check it with a BFS *)
       let visited = HV.create 97 in
       let q = Queue.create () in
+      (* [visited] contains exactly the vertices that have been added to [q] *)
+      let push v =
+        if not (HV.mem visited v) then (HV.add visited v (); Queue.add v q) in
       let rec loop () =
         if Queue.is_empty q then begin
           HVV.add pc.cache (v1, v2) false;
@@ -337,15 +340,12 @@ struct
           if G.V.compare v v2 = 0 then
             true
           else begin
-            if not (HV.mem visited v) then begin
-              HV.add visited v ();
-              G.iter_succ (fun v' -> Queue.add v' q) pc.graph v
-            end;
+            G.iter_succ push pc.graph v;
             loop ()
           end
         end
       in
-      Queue.add v1 q;
+      push v1;
       loop ()
 
 end
