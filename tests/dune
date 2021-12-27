@@ -18,6 +18,11 @@
  (libraries graph)
  (modules test_map_vertex))
 
+(test
+ (name test_eulerian)
+ (libraries graph)
+ (modules test_eulerian))
+
 ;; Rules for the Bellman-Ford tests
 
 (rule

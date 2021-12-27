@@ -409,6 +409,16 @@ module type S = sig
     val iter_stable : (V.t -> unit) -> t -> unit
   end
 
+  (** Eulerian path *)
+  module Eulerian : sig
+    val path: t -> E.t list * bool
+      (** [path g] returns an Eulerian path of g. The Boolean indicates
+          whether the path is a cycle. Raises [Invalid_argument] if there is
+          no Eulerian path. *)
+
+    val cycle: t -> E.t list
+  end
+
   val spanningtree : t -> E.t list
   (** Kruskal algorithm *)
 

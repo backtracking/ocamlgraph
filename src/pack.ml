@@ -93,6 +93,10 @@ struct
     let iter_stable = S.iter
   end
 
+  module Eulerian = struct
+    include Eulerian.Make(G)
+  end
+
   module Int = struct
     type t = int
     let compare : t -> t -> int = Stdlib.compare
