@@ -23,6 +23,28 @@ module type G = sig
   val iter_edges_e : (E.t -> unit) -> t -> unit
 end
 
+(** The following implements Hierholzer's algorithm.
+
+    It is sketched as follows:
+
+    1. make a round trip from a random vertex, by following random
+       edges until we get back to the starting point (it will, as we
+       first check that all vertices have even degrees).
+
+    2. if any vertex along this cycle still has outgoing edges, pick one
+       and make another round trip from it, and then join the two cycles
+       into a single one. Repeat step 2 until all edges are exhausted.
+
+    The implementation makes use of the following:
+
+    - A table, called `out` in the following, that maps each vertex to
+      outgoing edges not yet used in the Eulerian path.
+
+    - In order to achieve optimal complexity, paths are built as
+      doubly-linked lists, so that we can merge two cycles with a common
+      vertex in constant time. This is type `dll` below.
+*)
+
 module Make(G: G) = struct
 
   open G
@@ -32,7 +54,10 @@ module Make(G: G) = struct
 
   module H = Hashtbl.Make(V)
 
-  let setup g =
+  type out = E.t H.t H.t
+
+  (** compute the table of outgoing edges *)
+  let setup g : int * out =
     let nbe = ref 0 in
     let out = H.create 16 in
     let add h x y e =
@@ -53,13 +78,9 @@ module Make(G: G) = struct
     try H.iter (fun v _ -> raise (Found v)) h; assert false
     with Found v -> v, H.find h v
 
-  (** in order to achieve optimal complexity, paths are built as
-     doubly-linked lists, so that we can merge two cycles with a
-     common vertex in constant time *)
   type dll = { mutable prev: dll; edge: E.t; mutable next: dll }
 
   let remove_edge out e =
-    (* Format.eprintf "remove_edge %a@." print_edge e; *)
     let remove h x y =
       let s = H.find h x in
       assert (H.mem s y);
@@ -82,7 +103,7 @@ module Make(G: G) = struct
     remove_edge out e;
     e
 
-  (** builds an arbitrary cycle from [start] *)
+  (** build an arbitrary cycle from vertex [start] *)
   let round_trip edges start =
     let e = any_out_edge edges start in
     let rec path = { prev = path; edge = e; next = path } in
@@ -102,9 +123,8 @@ module Make(G: G) = struct
     e.next <- e';
     e'.prev <- e
 
-  (** builds an Eulerian cycle from [v] *)
+  (** build an Eulerian cycle from vertex [start] *)
   let eulerian_cycle out start =
-    (* Format.eprintf "eulerian_cycle from start=%a@." print_vertex start; *)
     let todos = H.create 8 in (* vertex on cycle with out edges -> cycle edge *)
     let todo e =
       let v = E.src e.edge in
@@ -114,17 +134,12 @@ module Make(G: G) = struct
       if not (V.equal (E.dst e.edge) start) then update start e.next in
     let path = round_trip out start in
     update start path;
-    (* H.iter (fun v s -> eprintf "    out %a = %d@." print_vertex v (H.length s)) out;
-     * eprintf "  %d todos@." (H.length todos); *)
     while H.length todos > 0 do
       let v, e = any todos in
-      (* Format.eprintf "  add cycle from %a@." print_vertex v; *)
       H.remove todos v;
       assert (H.mem out v);
       let e' = round_trip out v in
       update v e';
-      (* H.iter (fun v s -> eprintf "    out %a = %d@." print_vertex v (H.length s)) out;
-       * eprintf "  %d todos@." (H.length todos); *)
       let p = e.prev in
       assert (p.next == e);
       let p' = e'.prev in
@@ -174,8 +189,8 @@ module Make(G: G) = struct
           | _, 0 -> rev xy :: list_of (eulerian_cycle out x)
           | 0, _ -> xy :: list_of (eulerian_cycle out y)
           | _ ->
-              (* a bit of a pity to use list concatenation, but this
-                 does not change the complexity *)
+              (* a bit of a pity to use list concatenation here,
+                 but this does not change the complexity *)
               list_of (eulerian_cycle out x) @
                 xy :: list_of (eulerian_cycle out y)
         ) else (
@@ -185,7 +200,7 @@ module Make(G: G) = struct
           H.add (H.find out x) y xy;
           H.add (H.find out y) x (rev xy);
           let p = eulerian_cycle out x in
-          let rec find e =
+          let rec find e = (* lookup for x--y, to break the cycle there *)
             let v = E.src e.edge and w = E.dst e.edge in
             if V.equal v x && V.equal w y ||
                V.equal v y && V.equal w x then e else find e.next in
