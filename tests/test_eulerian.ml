@@ -42,7 +42,6 @@ let () = assert (not (exists_cycle g))
 let () = assert (path_length g = 2)
 
 let () = add_edge g v2 v0
-let p, c = Eulerian.path g
 let () = assert (exists_path g)
 let () = assert (exists_cycle g)
 let () = assert (path_length g = 3)
@@ -97,4 +96,45 @@ let () =
   let p, c = Eulerian.path g in
   assert (not c);
   assert (List.length p = 7)
+
+open Pack.Digraph
+
+let exists_path g =
+  try ignore (Eulerian.path g); true with Invalid_argument _ -> false
+let exists_cycle g =
+  try ignore (Eulerian.cycle g); true with Invalid_argument _ -> false
+
+let () =
+  for n = 0 to 4 do
+    let g, v = Classic.cycle n in
+    let p, c = Eulerian.path g in
+    assert c;
+    assert (List.length p = n);
+    if n > 1 then (
+      remove_edge g v.(0) v.(1);
+      let p, c = Eulerian.path g in
+      assert (not c);
+      assert (List.length p = n - 1);
+    )
+  done
+
+let g, v = Classic.cycle 5
+let () = add_edge g v.(1) v.(4)
+let () = assert (not (exists_cycle g))
+let () = assert (exists_path g)
+let () = add_edge g v.(4) v.(1)
+let () = assert (exists_cycle g)
+
+(*    +------- 2 <----+
+      v               |
+    0(finish) ------> 1(start)
+      ^               |
+      +------- 3 <----+      *)
+
+let g, v = Classic.cycle 3
+let v3 = V.create 3
+let () = add_vertex g v3; add_edge g v.(1) v3; add_edge g v3 v.(0)
+let _, c = Eulerian.path g
+let () = assert (not c)
+
 

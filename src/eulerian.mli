@@ -22,7 +22,6 @@
 
     Limitations:
     - multigraphs are not supported
-    - directed graphs not yet supported
  *)
 
 module type G = sig

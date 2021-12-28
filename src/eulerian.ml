@@ -56,20 +56,21 @@ module Make(G: G) = struct
 
   type out = E.t H.t H.t
 
+  let add_out_edge out x y e =
+    let s = try H.find out x
+            with Not_found -> let s = H.create 4 in H.add out x s; s in
+    H.add s y e
+
   (** compute the table of outgoing edges *)
   let setup g : int * out =
     let nbe = ref 0 in
     let out = H.create 16 in
-    let add h x y e =
-      let s = try H.find h x
-              with Not_found -> let s = H.create 4 in H.add h x s; s in
-      if H.mem s y then invalid_arg "Eulerian.path (multigraphs not allowed)";
-      H.add s y e in
     let add e =
       incr nbe;
       let x = E.src e and y = E.dst e in
-      add out x y e;
-      if not is_directed && not (V.equal x y) then add out y x (rev e) in
+      add_out_edge out x y e;
+      if not is_directed && not (V.equal x y) then
+        add_out_edge out y x (rev e) in
     iter_edges_e add g;
     !nbe, out
 
@@ -180,8 +181,9 @@ module Make(G: G) = struct
         let x, _ = any odds in
         H.remove odds x;
         let y, _ = any odds in
+
         if mem_edge out x y then (
-          (* there is an edge x--y => it connects two Eulerian cycles *)
+          (* there is an edge x--y => it connects 1 or 2 Eulerian cycles *)
           let xy = H.find (H.find out x) y in
           remove_edge out xy;
           match out_degree out x, out_degree out y with
@@ -215,8 +217,46 @@ module Make(G: G) = struct
     if H.length out > 0 then invalid_arg "Eulerian.path (not connected)";
     path, cycle
 
-  let directed _g =
-    invalid_arg "Eulerian.path (directed graphs not yet supported)"
+  let directed g =
+    let delta = H.create 16 in (* out - in *)
+    let add v d =
+      H.replace delta v (d + try H.find delta v with Not_found -> 0) in
+    let add e =
+      add (E.src e) 1; add (E.dst e) (-1) in
+    iter_edges_e add g;
+    let start = ref None and finish = ref None in
+    let check v = function
+      | 1 when !start = None -> start := Some v
+      | -1 when !finish = None -> finish := Some v
+      | 0 -> ()
+      | _ -> invalid_arg "Eulerian.path (bad degrees)" in
+    H.iter check delta;
+    let nbe, out = setup g in
+    let path, cycle = match !start, !finish with
+      | None, None when nbe = 0 ->
+          [], true
+      | None, None ->
+          let v, _ = any out in list_of (eulerian_cycle out v), true
+      | Some s, Some f ->
+          (* add one edge f->s, build a cycle, then remove it
+             note: there may be already an edge f->s
+                   if so, we are adding *a second one* and we are careful
+                   about removing this one, not the other *)
+          let dummy = E.label (snd (any (H.find out s))) in
+          let fs = E.create f dummy s in
+          add_out_edge out f s fs;
+          let p = eulerian_cycle out s in
+          let rec find e = (* lookup for f->s, to break the cycle there *)
+            if e.edge == fs then e else find e.next in
+          let start = find p in
+          List.tl (list_of start), false
+      | Some _, None
+      | None, Some _ ->
+          assert false (* since the sum of all deltas is zero *)
+    in
+    (* check that all edges have been consumed *)
+    if H.length out > 0 then invalid_arg "Eulerian.path (not connected)";
+    path, cycle
 
   let path =
     if is_directed then directed else undirected
