@@ -89,8 +89,12 @@ let () =
     assert (List.length p = (n+1)*(2*n+1))
    done
 
-(* let () =
- *   let g, _ = Classic.grid ~n:2 ~m:3 in
- *   assert (exists_path g);
- *   assert (not (exists_cycle g)) *)
+let () =
+  (* +---x---+  tricky one, as the edge x-y
+     |   |   |  connects two vertices on a cycle
+     +---y---+ *)
+  let g, _ = Classic.grid ~n:2 ~m:3 in
+  let p, c = Eulerian.path g in
+  assert (not c);
+  assert (List.length p = 7)
 

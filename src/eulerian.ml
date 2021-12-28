@@ -189,10 +189,12 @@ module Make(G: G) = struct
           | _, 0 -> rev xy :: list_of (eulerian_cycle out x)
           | 0, _ -> xy :: list_of (eulerian_cycle out y)
           | _ ->
-              (* a bit of a pity to use list concatenation here,
-                 but this does not change the complexity *)
-              list_of (eulerian_cycle out x) @
-                xy :: list_of (eulerian_cycle out y)
+              let py = eulerian_cycle out y in
+              (* caveat: the cycle from y may exhaust edges from x *)
+              if out_degree out x = 0 then xy :: list_of py
+              else list_of (eulerian_cycle out x) @ xy :: list_of py
+                (* a bit of a pity to use list concatenation here,
+                   but this does not change the complexity *)
         ) else (
           (* no edge x--y => add one, build a cycle, then remove it *)
           let dummy = E.label (snd (any (H.find out x))) in
@@ -216,8 +218,8 @@ module Make(G: G) = struct
   let directed _g =
     invalid_arg "Eulerian.path (directed graphs not yet supported)"
 
-  let path g =
-    if is_directed then directed g else undirected g
+  let path =
+    if is_directed then directed else undirected
 
   let cycle g =
     let p, c = path g in
