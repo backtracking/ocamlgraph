@@ -15,13 +15,13 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: classic.mli,v 1.12 2005-02-25 13:54:33 signoles Exp $ *)
-
 (** Some classic graphs *)
 
 module type S = sig
 
   type graph
+
+  type vertex
 
   val divisors : int -> graph
   (** [divisors n] builds the graph of divisors.
@@ -45,10 +45,24 @@ module type S = sig
       The optional argument [self] indicates if loop edges should be added
       (default value is [true]). *)
 
+  val cycle : int -> graph * vertex array
+  (** [cycle n] builds a graph that is a cycle with [n] vertices.
+      Vertices are labelled with [0,1,...,n-1] and there is an edge from
+      vertex [i] to vertex [(i+1) mod n].
+      Vertices are also returned in an array for convenience. *)
+
+  val grid : n:int -> m:int -> graph * vertex array array
+  (** [grid n m] builds a grid graph with [n*m] vertices, with edges
+      from vertex [(i,j)] to vertices [(i+1,j)] and [(i,j+1)] (and no
+      wrapping around). Vertex [(i,j)] is labelled with [i*m+j].
+      Vertices are also returned in a [n*m] matrix for convenience. *)
+
 end
 
-module P (G : Sig.P with type V.label = int) : S with type graph = G.t
+module P (G : Sig.P with type V.label = int) :
+   S with type graph = G.t and type vertex = G.V.t
 (** Classic Persistent Graphs *)
 
-module I (G : Sig.I with type V.label = int) : S with type graph = G.t
+module I (G : Sig.I with type V.label = int) :
+   S with type graph = G.t and type vertex = G.V.t
 (** Classic Imperative Graphs *)

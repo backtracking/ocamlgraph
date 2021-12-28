@@ -1,4 +1,5 @@
 
+  - [Classic]: new functions [cycle] and [grid]
   - [Eulerian]: Eulerian paths (new module)
     currently limited to undirected graphs
   - [Components]: strong articulation points (see functors [Connectivity]

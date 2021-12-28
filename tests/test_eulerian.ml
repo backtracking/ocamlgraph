@@ -88,3 +88,9 @@ let () =
     assert c;
     assert (List.length p = (n+1)*(2*n+1))
    done
+
+(* let () =
+ *   let g, _ = Classic.grid ~n:2 ~m:3 in
+ *   assert (exists_path g);
+ *   assert (not (exists_cycle g)) *)
+

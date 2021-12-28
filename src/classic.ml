@@ -19,15 +19,20 @@
 
 module type S = sig
   type graph
+  type vertex
   val divisors : int -> graph
   val de_bruijn : int -> graph
   val vertex_only : int -> graph
   val full : ?self:bool -> int -> graph
+  val cycle : int -> graph * vertex array
+  val grid : n:int -> m:int -> graph * vertex array array
 end
 
 module Generic(B : Builder.INT) = struct
 
   type graph = B.G.t
+
+  type vertex = B.G.V.t
 
   let divisors n =
     if n < 2 then invalid_arg "divisors";
@@ -77,6 +82,28 @@ module Generic(B : Builder.INT) = struct
            (fun g j -> if self || i <> j then B.add_edge g v.(i) v.(j) else g)
            g)
       (fold_for 1 n (fun g i -> B.add_vertex g v.(i)) (B.empty ()))
+
+  let cycle n =
+    if n < 0 then invalid_arg "cycle";
+    let v = Array.init n (fun i -> B.G.V.create i) in
+    let g = Array.fold_left B.add_vertex (B.empty ()) v in
+    let rec loop g i =
+      if i = n then g
+      else let g = B.add_edge g v.(i) v.((i+1) mod n) in loop g (i+1) in
+    loop g 0, v
+
+  let grid ~n ~m =
+    if n < 0 || m < 0 then invalid_arg "grid";
+    let create i j = B.G.V.create (m * i + j) in
+    let v = Array.init n (fun i -> Array.init m (fun j -> create i j)) in
+    let g = Array.fold_left (Array.fold_left B.add_vertex) (B.empty ()) v in
+    let rec loop g i j =
+      if i = n then g
+      else if j = m then loop g (i+1) 0
+      else let g = if j < m-1 then B.add_edge g v.(i).(j) v.(i).(j+1) else g in
+           let g = if i < n-1 then B.add_edge g v.(i).(j) v.(i+1).(j) else g in
+           loop g i (j+1) in
+    loop g 0 0, v
 
 end
 
