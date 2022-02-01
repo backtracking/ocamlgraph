@@ -38,7 +38,7 @@ module Make (G: G) : sig
       number. In particular, [f u = f v] if and only if [u] and
       [v] are in the same component. Another property of the
       numbering is that components are numbered in a topological
-      order: if there is an arc from [u] to [v], then [f u >= f u]
+      order: if there is an arc from [u] to [v], then [f u >= f v]
 
       Not tail-recursive.
       Complexity: O(V+E)
