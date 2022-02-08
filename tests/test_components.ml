@@ -23,6 +23,7 @@ module C = Components.Undirected(Pack.Graph)
 open Pack.Graph
 
 let () =
+  Random.init 42;
   let g = Rand.graph ~v:10 ~e:3 () in
   let n, f = C.components g in
   printf "%d components@." n;
