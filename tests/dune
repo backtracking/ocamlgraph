@@ -156,6 +156,25 @@
  (modules test_saps)
  (libraries graph))
 
+;; Rules for the test_cycles test
+
+(rule
+ (with-stdout-to
+  test_cycles.output
+  (run ./test_cycles.exe)))
+
+(rule
+ (alias runtest)
+ (action
+  (progn
+   (diff test_cycles.expected test_cycles.output)
+   (echo "test_cycles: all tests succeeded.\n"))))
+
+(executable
+ (name test_cycles)
+ (modules test_cycles)
+ (libraries graph))
+
 ;; Rules for the weak topological test
 
 (rule
