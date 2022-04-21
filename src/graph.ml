@@ -12,6 +12,7 @@ module Rand = Rand
 module Oper = Oper
 module Components = Components
 module Path = Path
+module Cycles = Cycles
 module Nonnegative = Nonnegative
 module Traverse = Traverse
 module Coloring = Coloring
