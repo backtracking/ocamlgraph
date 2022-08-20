@@ -38,7 +38,7 @@ module Display = struct
   let default_vertex_attributes _ = []
   let vertex_attributes _ = []
   let default_edge_attributes _ = []
-  let edge_attributes _ = [ `HtmlLabel "f&#36;oo" ]
+  let edge_attributes _ = [ `HtmlLabel "f&#36;oo"; `Tooltip "description"  ]
   let get_subgraph _ = None
 end
 module DotOutput = Graphviz.Dot(Display)
