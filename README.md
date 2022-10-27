@@ -1,6 +1,6 @@
 # OCamlgraph
 
-OCamlgraph is a graph library for Ocaml. Its contribution is three-fold:
+OCamlgraph is a graph library for OCaml. Its contribution is three-fold:
 
 1. It provides an easy-to-use graph implementation together with several
    operations and algorithms over graphs, in Graph.Pack.Digraph.
