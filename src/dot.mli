@@ -21,7 +21,17 @@ open Dot_ast
 
 val parse_dot_ast : string -> Dot_ast.file
 
+val get_string : Dot_ast.id -> string
+
 type clusters_hash = (string, attr list) Hashtbl.t
+
+type graph = {
+  sg_nodes : string list;
+  sg_attr : attr list;
+  sg_parent : string option;
+}
+
+type graph_hash = (string option, graph) Hashtbl.t
 
 (** Provide a parser for DOT file format. *)
 module Parse
@@ -38,6 +48,11 @@ sig
 
   (** Parses a dot file *)
   val parse : string -> B.G.t
+
+  (** Parses a dot file and returns the graph, its bounding box and
+    a hash table from clusters to dot attributes *)
+  val parse_all :
+    string -> B.G.t * clusters_hash * graph_hash
 
   (** Parses a dot file and returns the graph, its bounding box and
       a hash table from clusters to dot attributes *)

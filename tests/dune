@@ -258,6 +258,26 @@
  (modules dot)
  (libraries graph))
 
+(rule
+ (deps dot_2.dot)
+ (action
+  (with-stdout-to
+   dot_2.output
+   (run ./dot_2.exe %{deps}))))
+
+(rule
+ (alias runtest)
+ (action
+  (progn
+   (diff dot_2.expected dot_2.output)
+   (echo "dot: all tests succeeded.\n"))))
+
+(executable
+ (name dot_2)
+ (modules dot_2)
+ (libraries graph))
+
+
 ;; rules for the running the benchmark
 
 (rule

@@ -37,6 +37,14 @@ let parse_dot_ast f =
 
 type clusters_hash = (string, attr list) Hashtbl.t
 
+type graph = {
+  sg_nodes : string list;
+  sg_attr : attr list;
+  sg_parent : string option;
+}
+
+type graph_hash = (string option, graph) Hashtbl.t
+
 let get_string = function
   | String s -> s
   | Ident s -> s
@@ -67,6 +75,19 @@ struct
     let list a = M.fold (fun x v l -> (x,v) :: l) a []
   end
 
+  module Node_set = Set.Make(
+    (struct
+      type t = string
+      let compare : t -> t -> int = Stdlib.compare
+    end)
+  )
+
+  type graph_working = {
+    nodes : Node_set.t;
+    attr : id option Attr.M.t;
+    parent : string option;
+  }
+
   let create_graph_and_clusters dot =
     (* pass 1*)
 
@@ -79,7 +100,7 @@ struct
     let clust_attr = Hashtbl.create 97 in
 
     (* collect clusters nodes *)
-    let clust_nodes = Hashtbl.create 97 in
+    let graph_hash = Hashtbl.create 97 in
 
     let add_node_attr id al =
       let l = try Hashtbl.find node_attr id
@@ -95,36 +116,75 @@ struct
         Hashtbl.replace clust_attr s (Attr.addl l al)
       | _ -> () in
 
-    let add_clust_node id_cluster id_node =
-      let id_nodes = try Hashtbl.find clust_nodes id_cluster
-        with Not_found -> [] in
-      Hashtbl.add clust_nodes id_cluster (id_node :: id_nodes) in
+    let add_clust_node parent cluster_op (id_node, _) =
+      let strip_cluster_prefix id = 
+        let s = get_string id in
+        if String.starts_with ~prefix:"cluster_" s then 
+          String.sub s 8 (String.length s - 8)
+        else
+          s in
+      let valid_cluster_id_of_cluster_id cluster_id = 
+        match cluster_id with
+        | Some (Some id) -> Some (Some (strip_cluster_prefix id))
+        | Some None -> None
+        | None -> Some None
+      in
+      let string_opt_of_cluster_id cluster_id = 
+        match cluster_id with
+        | Some (Some id) -> Some (strip_cluster_prefix id)
+        | Some None -> (* UNREACHABLE *) None
+        | None -> None
+      in
+      match valid_cluster_id_of_cluster_id cluster_op with
+      | Some s_cluster ->
+        begin
+          let subgraph = try Hashtbl.find graph_hash s_cluster
+            with Not_found -> 
+              { nodes = Node_set.empty;
+                attr = Attr.empty;
+                parent = string_opt_of_cluster_id parent} in
+          let subgraph_new = {
+            subgraph with 
+            nodes = Node_set.add (get_string id_node) subgraph.nodes
+          } in
+          Hashtbl.replace graph_hash s_cluster subgraph_new
+        end
+      | None -> () in
 
-    let rec collect_node_attr cluster_op stmts =
+    let rec collect_attr parent cluster_op stmts =
       List.iter (
         function
         | Node_stmt (id, al) ->
           add_node_attr id al;
-          begin match cluster_op with
-            | Some id_cluster -> add_clust_node id_cluster id
-            | _ -> ()
-          end
-        | Attr_node al -> def_node_attr := Attr.addl !def_node_attr al
+          add_clust_node parent cluster_op id
         | Edge_stmt (NodeId id, nl, _) ->
           add_node_attr id [];
-          List.iter (function | NodeId id -> add_node_attr id []
+          add_clust_node parent cluster_op id;
+          List.iter (function | NodeId id -> 
+                                add_node_attr id [];
+                                add_clust_node parent cluster_op id
                               | _ -> ()) nl
-        | Subgraph (SubgraphDef (id, stmts)) ->
-          collect_node_attr (Some id) stmts
+        | Edge_stmt (NodeSub _, _, _) -> ()
         | Attr_graph al ->
           begin match cluster_op with
             | Some id -> add_clust_attr id al
-            | None -> ()
+            | None -> (* failwith "UNREACHABLE" *) ()
           end
+        | Attr_node al -> def_node_attr := Attr.addl !def_node_attr al
+        | Attr_edge _ -> ()
+        | Equal (al_key, al_val) -> 
+          let al = [[al_key, Some al_val]] in
+          begin match cluster_op with
+          | Some id -> add_clust_attr id al
+          | None -> add_clust_attr None al
+          end
+        | Subgraph (SubgraphDef (id, stmts)) ->
+          collect_attr cluster_op (Some id) stmts
+        (* | Subgraph (SubgraphId _) -> () *)
         | _ -> ()
       ) stmts
     in
-    collect_node_attr None dot.stmts;
+    collect_attr None None dot.stmts;
 
     (* pass 2: build the graph and the clusters *)
     let def_edge_attr = ref Attr.empty in
@@ -171,7 +231,18 @@ struct
       Hashtbl.iter (fun k a -> Hashtbl.add h k [Attr.list a]) clust_attr;
       h in
 
-    graph, clusters_hash
+    let graph_hash_out = 
+      let h = Hashtbl.create 30 in
+      let graph_of_graph_working gw : graph =
+        { sg_nodes = List.of_seq (Node_set.to_seq gw.nodes);
+          sg_attr = [Attr.list gw.attr];
+          sg_parent = gw.parent;
+        }
+      in
+      Hashtbl.iter (fun k gw -> Hashtbl.add h k (graph_of_graph_working gw)) graph_hash;
+      h in
+
+    graph, clusters_hash, graph_hash_out
 
   let get_graph_bb stmts =
     let graph_bb = ref None in
@@ -201,11 +272,15 @@ struct
     parse_dot_from_chan c
 
   let parse f =
-    fst (create_graph_and_clusters (parse_dot f))
+    let fst, _, _ = (create_graph_and_clusters (parse_dot f)) in
+    fst
+
+  let parse_all f =
+    create_graph_and_clusters (parse_dot f)
 
   let parse_bounding_box_and_clusters f =
     let dot = parse_dot f in
-    let graph, clusters = create_graph_and_clusters dot in
+    let graph, clusters, _  = create_graph_and_clusters dot in
     match get_graph_bb dot.stmts with
     | Some bounding_box ->
       graph, bounding_box, clusters
