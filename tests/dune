@@ -4,6 +4,11 @@
  (modules check))
 
 (test
+ (name test_dfs)
+ (libraries graph)
+ (modules test_dfs))
+
+(test
  (name test_topsort)
  (libraries graph)
  (modules test_topsort))

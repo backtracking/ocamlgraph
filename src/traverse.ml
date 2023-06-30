@@ -31,22 +31,23 @@ end
 module Dfs(G : G) = struct
   module H = Hashtbl.Make(G.V)
 
-  let fold f i g =
+  let fold f acc g =
     let h = H.create 97 in
     let s = Stack.create () in
-    let push v =
-      if not (H.mem h v) then begin H.add h v (); Stack.push v s end
-    in
     let rec loop acc =
       if not (Stack.is_empty s) then
         let v = Stack.pop s in
-        let ns = f v acc in
-        G.iter_succ push g v;
-        loop ns
+        if not (H.mem h v) then begin
+          H.add h v ();
+          let acc = f v acc in
+          G.iter_succ (fun w -> Stack.push w s) g v;
+          loop acc
+        end else
+          loop acc
       else
         acc
     in
-    G.fold_vertex (fun v s -> push v; loop s) g i
+    G.fold_vertex (fun v acc -> Stack.push v s; loop acc) g acc
 
   let iter ?(pre=fun _ -> ()) ?(post=fun _ -> ()) g =
     let h = H.create 97 in
@@ -62,24 +63,24 @@ module Dfs(G : G) = struct
 
   let postfix post g = iter ~post g
 
-  let fold_component f i g v0 =
+  let fold_component f acc g v0 =
     let h = H.create 97 in
     let s = Stack.create () in
-    (* invariant: [h] contains exactly the vertices which have been pushed *)
-    let push v =
-      if not (H.mem h v) then begin H.add h v (); Stack.push v s end
-    in
-    push v0;
+    Stack.push v0 s;
     let rec loop acc =
       if not (Stack.is_empty s) then
         let v = Stack.pop s in
-        let ns = f v acc in
-        G.iter_succ push g v;
-        loop ns
+        if not (H.mem h v) then begin
+          H.add h v ();
+          let acc = f v acc in
+          G.iter_succ (fun w -> Stack.push w s) g v;
+          loop acc
+        end else
+          loop acc
       else
         acc
     in
-    loop i
+    loop acc
 
   let iter_component ?(pre=fun _ -> ()) ?(post=fun _ -> ()) g v =
     let h = H.create 97 in

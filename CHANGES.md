@@ -1,4 +1,7 @@
 
+
+  - :exclamation: [Traverse]: fixed [Dfs.fold] and [Dfs.fold_component],
+    which were not implementing a proper DFS
   - [Classic]: new functions [cycle] and [grid]
   - [Eulerian]: Eulerian paths (new module)
   - [Components]: strong articulation points (see functors [Connectivity]
