@@ -187,6 +187,7 @@ struct
      of an obligatory arc. Use the "unbalanced" heuristic impllemented in
      [takemax] to discriminate between competing possibilities. If a vertex
      is found, remove it from the returned delta bins. *)
+(*
   let max_from_deltas g ({ delta_bins; _ } as st) =
     let rec f = function
       | Seq.Nil -> None
@@ -196,6 +197,18 @@ struct
            | Some (_, v) -> Some (v, remove_from_bin v st))
     in
     f (IM.to_rev_seq delta_bins ())
+*)
+  let max_from_deltas g ({ delta_bins; _ } as st) =
+    let rec f im =
+      if IM.is_empty im then
+        None
+      else
+        let k, dbin = IM.max_binding im in
+        (match VS.fold (takemax g) dbin None with
+           | None -> f (IM.remove k im)
+           | Some (_, v) -> Some (v, remove_from_bin v st))
+    in
+    f delta_bins
 
   (* Include any leftward arcs due to the two-cycles that were removed by
      preprocessing. *)
