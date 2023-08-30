@@ -18,7 +18,7 @@ homepage: "https://github.com/backtracking/ocamlgraph/"
 doc: "https://backtracking.github.io/ocamlgraph"
 bug-reports: "https://github.com/backtracking/ocamlgraph/issues/new"
 depends: [
-  "ocaml" {>= "4.03.0"}
+  "ocaml" {>= "4.08.0"}
   "stdlib-shims"
   "dune" {>= "2.0"}
   "graphics" {with-test}
