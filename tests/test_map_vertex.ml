@@ -28,7 +28,10 @@ end
 module TestI(G: Sig.I with type V.label = int) = TestB(Builder.I(G))
 module TestP(G: Sig.P with type V.label = int) = TestB(Builder.P(G))
 
-module Int = struct include Int let hash x = x let default = 42 end
+module Int = struct
+  type t = int let compare = Stdlib.compare let equal = (=)
+  let hash x = x let default = 42
+end
 
 include TestI(Pack.Digraph)
 include TestI(Pack.Graph)

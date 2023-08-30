@@ -22,6 +22,9 @@ module C = Components.Undirected(Pack.Graph)
 
 open Pack.Graph
 
+(* FIXME: do not use Random here, as OCaml 5.0 seems to generate a
+   different graph *)
+
 let () =
   Random.init 42;
   let g = Rand.graph ~v:10 ~e:3 () in

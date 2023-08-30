@@ -14,7 +14,7 @@ struct
 
   exception Stuck of G.vertex list
 
-  module IM = Map.Make (Int)
+  module IM = Map.Make (struct type t = int let compare = Stdlib.compare end)
   module VM = Map.Make (G.V)
   module VS = Set.Make (G.V)
 
