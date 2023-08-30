@@ -1,6 +1,7 @@
 
 # 2.1.0 (August 30, 2023)
 
+  - :exclamation: OCamlGraph now requires OCaml >= 4.08
   - :exclamation: [Traverse]: fixed [Dfs.fold] and [Dfs.fold_component],
     which were not implementing a proper DFS
   - [Classic]: new functions [cycle] and [grid]
