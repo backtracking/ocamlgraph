@@ -1,4 +1,5 @@
 
+# 2.1.0 (August 30, 2023)
 
   - :exclamation: [Traverse]: fixed [Dfs.fold] and [Dfs.fold_component],
     which were not implementing a proper DFS
