@@ -22,19 +22,20 @@ module C = Components.Undirected(Pack.Graph)
 
 open Pack.Graph
 
-(* FIXME: do not use Random here, as OCaml 5.0 seems to generate a
-   different graph *)
+(*         0 -- 2 -- 7   1   3 -- 4   5
+                             \  /
+                               6
+
+component:      0        1     2      3
+*)
 
 let () =
-  Random.init 42;
-  let g = Rand.graph ~v:10 ~e:3 () in
+  let g = create () in
+  let v = Array.init 8 V.create in
+  Array.iter (add_vertex g) v;
+  let add i j = add_edge g v.(i) v.(j) in
+  add 0 2; add 7 2; add 3 4; add 4 6; add 3 6;
   let n, f = C.components g in
   printf "%d components@." n;
   iter_vertex (fun v -> printf "%d -> %d@." (V.label v) (f v)) g
 
-
-(*
-Local Variables:
-compile-command: "ocaml -I .. graph.cma test_components.ml"
-End:
-*)

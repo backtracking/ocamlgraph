@@ -220,22 +220,22 @@
 
 ;; Rules for the test_components test
 
-;; (rule
-;;  (with-stdout-to
-;;   test_components.output
-;;   (run ./test_components.exe)))
+(rule
+ (with-stdout-to
+  test_components.output
+  (run ./test_components.exe)))
 
-;; (rule
-;;  (alias runtest)
-;;  (action
-;;   (progn
-;;    (diff test_components.expected test_components.output)
-;;    (echo "test_components: all tests succeeded.\n"))))
+(rule
+ (alias runtest)
+ (action
+  (progn
+   (diff test_components.expected test_components.output)
+   (echo "test_components: all tests succeeded.\n"))))
 
-;; (executable
-;;  (name test_components)
-;;  (modules test_components)
-;;  (libraries graph))
+(executable
+ (name test_components)
+ (modules test_components)
+ (libraries graph))
 
 ;; rules for the dot test
 
