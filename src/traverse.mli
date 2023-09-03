@@ -111,6 +111,14 @@ module Dfs(G : G) : sig
   val has_cycle : G.t -> bool
   (** [has_cycle g] checks for a cycle in [g]. Linear in time and space. *)
 
+  
+  val find_cycle : G.t -> G.V.t list
+  (** [find_cycle g] will return a cycle in the graph g. If there are no cycles,
+   Not_found will be thrown. If there are multiple cycles, one will be returned
+  with no specific criteria. Cycles come in the form [v0, .., vn]  where there 
+  is an edge vi -> vi + 1 for every i between 0 and length-2 and vn -> v0. 
+  Linear is time and space. *)
+
 end
 
 (** Breadth-first search *)
