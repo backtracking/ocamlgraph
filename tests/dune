@@ -239,6 +239,8 @@
 
 ;; rules for the dot test
 
+; dot has a dot parser and dummy edge attribute display
+
 (rule
  (deps dot.dot)
  (action
@@ -257,6 +259,8 @@
  (name dot)
  (modules dot)
  (libraries graph))
+
+; dot_2.dot has graph and subgraphs attributes
 
 (rule
  (deps dot_2.dot)
@@ -277,6 +281,21 @@
  (modules dot_2)
  (libraries graph))
 
+(rule
+ (alias runtest)
+ (deps
+  (glob_files "../editor/tests/*.dot")
+  (glob_files "../dgraph/examples/*.dot"))
+ (action
+  (ignore-stdout
+   (run ./dot_2.exe %{deps}))))
+
+(rule
+ (alias runtest)
+ (action
+  (progn
+   (diff dot_2.expected dot_2.output)
+   (echo "dot: all tests succeeded.\n"))))
 
 ;; rules for the running the benchmark
 
