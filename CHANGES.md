@@ -1,4 +1,7 @@
 
+  - [Traverse.Bfs]: new function `{fold,iter}_component_dist` to
+    perform a breadth-first traversal with the distance from the source
+
 # 2.1.0 (August 30, 2023)
 
   - :exclamation: OCamlGraph now requires OCaml >= 4.08

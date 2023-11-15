@@ -134,6 +134,12 @@ module Bfs(G : G) : sig
   val fold_component : (G.V.t -> 'a -> 'a) -> 'a -> G.t -> G.V.t -> 'a
   (** Idem, but limited to a single root vertex. *)
 
+  (** {2 With the distance to the source} *)
+
+  val fold_component_dist : (G.V.t -> int -> 'a -> 'a) -> 'a -> G.t -> G.V.t -> 'a
+
+  val iter_component_dist : (G.V.t -> int -> unit) -> G.t -> G.V.t -> unit
+
   (** {2 Step-by-step iterator}
       See module [Dfs] *)
 

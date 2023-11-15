@@ -278,6 +278,31 @@ module Bfs(G : G) = struct
 
   let iter_component f = fold_component (fun v () -> f v) ()
 
+  (* with distance from the source
+
+     instead of using a queue, we use two bags
+     (`todo` with vertices at distance `d`
+      and `next` with vertices at distance `d+1`*)
+
+  let fold_component_dist f acc g v0 =
+    let h = H.create 97 in
+    (* invariant: [h] contains exactly the vertices
+       which have been pushed *)
+    let push v next =
+      if H.mem h v then next
+      else (H.add h v (); v :: next) in
+    let rec loop acc d next = function
+      | [] -> if next = [] then acc
+              else loop acc (d+1) [] next
+      | v :: todo ->
+        let acc = f v d acc in
+        let next = G.fold_succ push g v next in
+        loop acc d next todo in
+    loop acc 0 [] (push v0 [])
+
+  let iter_component_dist f =
+    fold_component_dist (fun v d () -> f v d) ()
+
   (* step-by-step iterator *)
 
   (* simple, yet O(1)-amortized, persistent queues *)

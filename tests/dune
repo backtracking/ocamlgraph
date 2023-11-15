@@ -4,6 +4,11 @@
  (modules check))
 
 (test
+ (name test_bfs)
+ (libraries graph)
+ (modules test_bfs))
+
+(test
  (name test_dfs)
  (libraries graph)
  (modules test_dfs))
