@@ -69,3 +69,36 @@ sig
   val feedback_arc_set : GB.G.t -> GB.G.edge list
 end
 
+(** Minimal graph signature required by {!Johnson}.
+    Sub-signature of {!Sig.G}. *)
+module type G = sig
+  type t
+  module V : Sig.COMPARABLE
+  val nb_vertex : t -> int
+  val iter_vertex : (V.t -> unit) -> t -> unit
+  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
+  val fold_succ : (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
+end
+
+(** Implementation of Johnson's 1975 algoirthm for "Finding all the Elementary
+    Cycles of a Directed Graph". It does not do any preprocessing, i.e., no
+    removal of self-loops and no dissection into strongly connected
+    components.
+
+    Be aware that a graph with n verticies may contain an exponential number
+    of elementary cycles. *)
+module Johnson (G: G) : sig
+
+  (** Calls the callback function for every elemental cycle in the given
+      graph. The argument is the list of vertexes in the cycle in {b reverse
+      order} with no duplicates. For each generated list of vertexes
+      [v0; ...; vi; vj; ...; vn], there exist edges for all [vj] to [vi],
+      and also from [v0] back to [vn]. Use {!Sig.G.find_edge} to recover
+      the edges. *)
+  val iter_cycles : (G.V.t list -> unit) -> G.t -> unit
+
+  (** A functional interface to [iter_cycles]. *)
+  val fold_cycles : (G.V.t list -> 'a -> 'a) -> G.t -> 'a -> 'a
+
+end
+
