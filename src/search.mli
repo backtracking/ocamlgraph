@@ -63,6 +63,7 @@ module DFS(G: G) : sig
   (** [search g start] searches a solution from vertex [start].
       If a solution is found, it is returned as a final vertex [f]
       (for which [success] is true) and a path from [start] to [f].
+
       If no solution exists, exception [Not_found] is raised when all
       reachable vertices are visited. *)
 
@@ -84,6 +85,7 @@ module BFS(G: G) : sig
   (** [search g start] searches a solution from vertex [start].
       If a solution is found, it is returned as a final vertex [f]
       (for which [success] is true) and a path from [start] to [f].
+
       If no solution exists, exception [Not_found] is raised when all
       reachable vertices are visited. *)
 
@@ -106,6 +108,7 @@ module IDS(G: G) : sig
   (** [search g start] searches a solution from vertex [start].
       If a solution is found, it is returned as a final vertex [f]
       (for which [success] is true) and a path from [start] to [f].
+
       If no solution exists, exception [Not_found] is raised when all
       reachable vertices are visited.
 
@@ -125,6 +128,24 @@ end
     a target vertex, but a [success] function. *)
 
 module Dijkstra(G: G)(C: Sig.WEIGHT with type edge = G.E.t): sig
+
+  val search: G.t -> G.vertex -> G.vertex * G.edge list * C.t
+  (** [search g start] searches a solution from vertex [start].
+      If a solution is found, it is returned as a final vertex [f]
+      (for which [success] is true), a path from [start] to [f], and
+      the total cost of that path.
+
+      If no solution exists, exception [Not_found] is raised when all
+      reachable vertices are visited. *)
+
+end
+
+(** {2 Graphs with cost and heuristic} *)
+
+(** A* algorithm *)
+
+module Astar(G: G)(C: Sig.WEIGHT with type edge = G.E.t)
+                  (H: sig val heuristic: G.V.t -> C.t end): sig
 
   val search: G.t -> G.vertex -> G.vertex * G.edge list * C.t
 

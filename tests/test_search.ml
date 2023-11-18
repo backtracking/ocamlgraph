@@ -114,4 +114,61 @@ let () =
   let _, path = I.search g v.(0) in
   assert (List.length path = 3)
 
+(* on a grid *)
+
+let n = 10
+let m = 10
+let g, vm = Classic.grid ~n ~m
+let start = vm.(0).(0)
+let targeti = n-1 and targetj = 5
+let target = vm.(targeti).(targetj)
+let distance = targeti + targetj
+(*
+let () = for i = 0 to n-2 do remove_vertex g vm.(i).(m-2) done
+let () = for i = 1 to n-1 do remove_vertex g vm.(i).(m-4) done
+*)
+module Gr = struct
+  include Pack.Digraph
+  let count = ref 0
+  let reset () = count := 0
+  let print msg = printf "%s: %d@." msg !count; reset ()
+  let fold_succ_e f g v = incr count; fold_succ_e f g v
+  let success _ v = V.compare v target = 0
+end
+module Co = struct
+  include Int type edge = G.E.t
+  let weight _e = 1
+end
+module He = struct
+  let heuristic v =
+    let l = G.V.label v in
+    let i = l / m and j = l mod m in
+    n-1-i + m-1-j
+end
+module Dfs = Search.DFS(Gr)
+module Bfs = Search.BFS(Gr)
+module Ids = Search.BFS(Gr)
+module Dij = Search.Dijkstra(Gr)(Co)
+module Astar = Search.Astar(Gr)(Co)(He)
+
+let () =
+  let _,path = Dfs.search g start in
+  Gr.print "DFS";
+  assert (List.length path = distance);
+  let _,path = Bfs.search g start in
+  Gr.print "BFS";
+  assert (List.length path = distance);
+  let _,path = Ids.search g start in
+  Gr.print "IDS";
+  assert (List.length path = distance);
+  let _,_path,d = Dij.search g start in
+  Gr.print "Dij";
+  assert (List.length path = distance);
+  assert (d = distance);
+  let _,_path,d = Astar.search g start in
+  Gr.print "A* ";
+  assert (List.length path = distance);
+  assert (d = distance);
+  ()
+
 let () = printf "All tests succeeded.@."

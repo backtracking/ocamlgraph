@@ -53,11 +53,11 @@ end
 
 module DFS(G: G) = struct
 
-  module H = Hashtbl.Make(G.V)
+  module T = Hashtbl.Make(G.V)
 
   let search g start =
-    let visited = H.create 128 in
-    let test v = H.mem visited v || (H.add visited v (); false) in
+    let visited = T.create 128 in
+    let test v = T.mem visited v || (T.add visited v (); false) in
     let rec dfs = function
       | [] ->
 	  raise Not_found
@@ -78,14 +78,14 @@ end
 
 module BFS(G: G) = struct
 
-  module H = Hashtbl.Make(G.V)
+  module T = Hashtbl.Make(G.V)
 
   let search g start =
-    let visited = H.create 128 in
+    let visited = T.create 128 in
     let push path e next =
       let v = G.E.dst e in
-      if H.mem visited v then next
-      else (H.add visited v (); (v, e :: path) :: next) in
+      if T.mem visited v then next
+      else (T.add visited v (); (v, e :: path) :: next) in
     let rec loop next = function
       | [] ->
           if next = [] then raise Not_found;
@@ -95,7 +95,7 @@ module BFS(G: G) = struct
       | (v, path) :: todo ->
           let next = G.fold_succ_e (push path) g v next in
           loop next todo in
-    H.add visited start ();
+    T.add visited start ();
     loop [] [start, []]
 
 end
@@ -136,21 +136,26 @@ module Dijkstra
   (G: G)
   (C: Sig.WEIGHT with type edge = G.E.t) =
 struct
-  module H =  Hashtbl.Make(G.V)
+  module T =  Hashtbl.Make(G.V)
 
   module Elt = struct
     type t = C.t * G.V.t * G.E.t list
-    let compare (w1,v1,_) (w2,v2,_) =
-      let cw = C.compare w2 w1 in
-      if cw != 0 then cw else G.V.compare v1 v2
+    let compare (w1,_v1,_) (w2,_v2,_) = C.compare w2 w1
   end
   module PQ = Heap.Imperative(Elt)
 
   let search g start =
-    let closed = H.create 128 in
-    let dist = H.create 128 in
-    let memo v = H.mem closed v || (H.add closed v (); false) in
+    let closed = T.create 128 in
+    let dist = T.create 128 in
+    let memo v = T.mem closed v || (T.add closed v (); false) in
     let q = PQ.create 128 in
+    let relax d path e =
+      let s' = G.E.dst e in
+      let d' = C.add d (C.weight e) in
+      if not (T.mem dist s') || C.compare d' (T.find dist s') < 0 then (
+        T.replace dist s' d';
+	PQ.add q (d', s', e :: path)
+      ) in
     let rec loop () =
       if PQ.is_empty q then raise Not_found;
       let d,s,path = PQ.pop_maximum q in
@@ -158,19 +163,48 @@ struct
         s, List.rev path, d
       else (
         if not (memo s) then
-          G.fold_succ_e
-	    (fun e () ->
-              let s' = G.E.dst e in
-              let d' = C.add d (C.weight e) in
-              if not (H.mem dist s') || C.compare d' (H.find dist s') < 0 then (
-                H.replace dist s' d';
-		PQ.add q (d', s', e :: path)
-            ))
-	    g s ();
+          G.fold_succ_e (fun e () -> relax d path e) g s ();
         loop ()
       ) in
-    H.add dist start C.zero;
+    T.add dist start C.zero;
     PQ.add q (C.zero, start, []);
     loop ()
 
 end
+
+module Astar(G: G)(C: Sig.WEIGHT with type edge = G.E.t)
+                  (H: sig val heuristic: G.V.t -> C.t end) = struct
+
+  module T =  Hashtbl.Make(G.V)
+
+  module Elt = struct
+    type t = C.t * G.V.t * G.E.t list
+    let compare (h1,_,_) (h2,_,_) = C.compare h1 h2
+  end
+  module PQ = Heap.Imperative(Elt)
+
+  let search g start =
+    let dist = T.create 128 in
+    let q = PQ.create 128 in
+    let add v d path =
+      T.replace dist v d;
+      PQ.add q (C.add d (H.heuristic v), v, path) in
+    add start C.zero [];
+    let relax path e =
+      let v = G.E.src e and w = G.E.dst e in
+      let d = C.add (T.find dist v) (C.weight e) in
+      if not (T.mem dist w) || C.compare d (T.find dist w) < 0 then
+        add w d (e :: path) in
+    let rec loop () =
+      if PQ.is_empty q then raise Not_found;
+      let _,s,path = PQ.pop_maximum q in
+      if G.success g s then
+	s, List.rev path, T.find dist s
+      else (
+        G.fold_succ_e (fun e () -> relax path e) g s ();
+	loop ()
+      ) in
+    loop ()
+
+end
+
