@@ -330,3 +330,111 @@ struct
 
 end
 
+module type G = sig
+  type t
+  module V : Sig.COMPARABLE
+  val nb_vertex : t -> int
+  val iter_vertex : (V.t -> unit) -> t -> unit
+  val iter_succ : (V.t -> unit) -> t -> V.t -> unit
+  val fold_succ : (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
+end
+
+
+module Johnson (G: G) : sig
+
+  val iter_cycles : (G.V.t list -> unit) -> G.t -> unit
+
+  val fold_cycles : (G.V.t list -> 'a -> 'a) -> G.t -> 'a -> 'a
+
+end = struct
+
+  module VMap = struct
+    module VH = Hashtbl.Make(G.V)
+
+    let create = VH.create
+    let find = VH.find
+    let add = VH.add
+    let iter = VH.iter
+  end
+
+  (* The algorithm visits each vertex.
+     For each vertex, it does a depth-first search to find all paths back to
+     the same vertex. *)
+
+  type vinfo = {
+    (* records whether the vertex has been visited *)
+    mutable visited : bool;
+
+    (* [blocked] and [blist are used to avoid uselessly iterating over a
+       subgraph from which a cycle can (no longer) be found. *)
+    mutable blocked : bool;
+    mutable blist : G.V.t list;
+  }
+
+  (* map each vertex to the information above *)
+  let find tbl key =
+    try
+      VMap.find tbl key
+    with Not_found ->
+      let info = { visited = false; blocked = false; blist = [] } in
+      VMap.add tbl key info;
+      info
+
+  let iter_cycles f_cycle g =
+    let info = VMap.create (G.nb_vertex g) in
+
+    (* recursively unblock a subgraph *)
+    let rec unblock vi =
+      if vi.blocked then begin
+        vi.blocked <- false;
+        List.iter (fun w -> unblock (find info w)) vi.blist;
+        vi.blist <- [];
+      end
+    in
+
+    let cycles_from_vertex s =
+
+      let rec circuit path v vi =
+
+        let check_succ w cycle_found =
+          if G.V.equal w s (* a cycle is found *)
+          then (f_cycle path; true)
+          else (* keep looking *)
+            let wi = find info w in
+            if not (wi.blocked || wi.visited) then circuit (w::path) w wi
+            else cycle_found
+        in
+
+        (* v should be unblocked if any of its successors are, since a cycle
+           from v may be found via a newly unblocked successor. *)
+        let unblock_on w =
+          let wi = find info w in
+          wi.blist <- v :: wi.blist
+        in
+
+        (* not (yet) interested in cycles back to v that do not pass via s *)
+        vi.blocked <- true;
+        if G.fold_succ check_succ g v false (* DFS on successors *)
+        (* if we found a cycle through v then unblock it *)
+        then (unblock vi; true)
+        (* otherwise there's no reason to try again unless something changes *)
+        else (G.iter_succ unblock_on g v; false)
+      in
+
+      VMap.iter (fun _ info ->
+                  info.blocked <- false;
+                  info.blist <- []) info;
+      let si = find info s in
+      (* look for elementary cycles back to s *)
+      ignore (circuit [s] s si);
+      si.visited <- true
+    in
+    G.iter_vertex cycles_from_vertex g
+
+  let fold_cycles f g i =
+    let acc = ref i in
+    iter_cycles (fun cycle -> acc := f cycle !acc) g;
+    !acc
+
+end
+
