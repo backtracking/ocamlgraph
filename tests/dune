@@ -14,6 +14,11 @@
  (modules test_dfs))
 
 (test
+ (name test_search)
+ (libraries graph)
+ (modules test_search))
+
+(test
  (name test_topsort)
  (libraries graph)
  (modules test_topsort))

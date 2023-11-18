@@ -1,4 +1,6 @@
 
+  - [Search]: path search algorithms (DFS, BFS, iterative deepening
+    DFS, Dijkstra)
   - [Traverse.Bfs]: new function `{fold,iter}_component_dist` to
     perform a breadth-first traversal with the distance from the source
 
