@@ -129,3 +129,48 @@ module IDS(G: G) = struct
     try_depth 0
 
 end
+
+(** Graphs with cost *)
+
+module Dijkstra
+  (G: G)
+  (C: Sig.WEIGHT with type edge = G.E.t) =
+struct
+  module H =  Hashtbl.Make(G.V)
+
+  module Elt = struct
+    type t = C.t * G.V.t * G.E.t list
+    let compare (w1,v1,_) (w2,v2,_) =
+      let cw = C.compare w2 w1 in
+      if cw != 0 then cw else G.V.compare v1 v2
+  end
+  module PQ = Heap.Imperative(Elt)
+
+  let search g start =
+    let closed = H.create 128 in
+    let dist = H.create 128 in
+    let memo v = H.mem closed v || (H.add closed v (); false) in
+    let q = PQ.create 128 in
+    let rec loop () =
+      if PQ.is_empty q then raise Not_found;
+      let d,s,path = PQ.pop_maximum q in
+      if G.success g s then
+        s, List.rev path, d
+      else (
+        if not (memo s) then
+          G.fold_succ_e
+	    (fun e () ->
+              let s' = G.E.dst e in
+              let d' = C.add d (C.weight e) in
+              if not (H.mem dist s') || C.compare d' (H.find dist s') < 0 then (
+                H.replace dist s' d';
+		PQ.add q (d', s', e :: path)
+            ))
+	    g s ();
+        loop ()
+      ) in
+    H.add dist start C.zero;
+    PQ.add q (C.zero, start, []);
+    loop ()
+
+end

@@ -6,7 +6,7 @@
      1---2---3
      |\     /|
      | \   / |
-     |   4   |      7---->8
+     |   4*  |      7---->8
      |  / \  |      ^     |
      v /   \ v      |     v
      5       6     10<----9
@@ -38,7 +38,7 @@ module G = struct
 end
 
 module P = Search.Path(G)
-module D = Search.BFS(G)
+module D = Search.DFS(G)
 module B = Search.BFS(G)
 
 let test search s b =
@@ -64,6 +64,36 @@ let () =
 
 let () = run D.search
 let () = run B.search
+
+(*   0
+     ^
+     |
+     |
+     1---2---3
+     |\   +3/|
+     | \   / |
+     |   4*  |      7---->8
+     |  / \  |      ^     |
+     v /   \ v      |     v
+     5       6     10<----9
+*)
+module C = struct
+  include Int type edge = G.E.t
+  let weight e =
+    let x, y = G.E.src e, G.E.dst e in
+    if V.compare x v.(3) = 0 && V.compare y v.(4) = 0 then 3 else 1
+end
+module Di = Search.Dijkstra(G)(C)
+
+let () =
+  let check (i, di) =
+    let _, path, d = Di.search g v.(i) in
+    assert (List.length path = d);
+    assert (d = di) in
+  List.iter check [1,1; 2,2; 3,2; 4,0; 5,1; 6,1];
+  let check i =
+    try ignore (Di.search g v.(i)); assert false with Not_found -> () in
+  List.iter check [0; 7; 8; 9; 10]
 
 module I = Search.IDS(G)
 

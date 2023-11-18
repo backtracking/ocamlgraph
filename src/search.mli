@@ -15,20 +15,31 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(** Search algorithms to solve one-player games.
+(** {2 Path Search Algorithms}
 
-    Many one-player games can be conveniently seen as graphs, and graph
-    traversal algorithms can then be used to solve them. There is no
-    need to build the entire graph (though we can in some cases, provided
-    it fits in memory), as the graph is implicitely described by a
-    starting vertex (the initial state of the game) and some adjacency
-    function ([fold_succ_e] below).
+    This module implements several algorithms to find paths in graphs,
+    given a source vertex and a set of target vertices (described by
+    a Boolean function [success] below).
 
-    A Boolean function [success] is used to describe winning states.
+    Many one-player games can be conveniently seen as graphs, and
+    these algorithms can then be used to solve them. There is no need
+    to build the entire graph (though we can in some cases, provided
+    it fits in memory), as the graph is implicitely described some
+    adjacency function ([fold_succ_e] below). The graph may even be
+    infinite in some cases.
 *)
 
-(** Minimal graph signature.
-    Everything apart from [success] is compatible with {!Sig.G}. *)
+(** {2 Minimal graph signature}
+
+    Everything apart from [success] is compatible with {!Sig.G}.
+    This way, you can use graph structures from OCamlGraph as follows:
+    {[
+      module G = struct
+        include Pack.Digraph (* or any other *)
+        let success g v = ...
+      end
+    ]}
+*)
 module type G = sig
   type t
   module V : Sig.COMPARABLE
@@ -85,7 +96,8 @@ end
     solution. In graphs that are tress, this can be asymptotically as
     good as breadth-first search, but it uses much less memory.
 
-    Caveat: It runs forever if there are reachable cycles.
+    Caveat: It runs forever if there is no successful path and
+    reachable cycles.
 *)
 
 module IDS(G: G) : sig
@@ -105,7 +117,21 @@ module IDS(G: G) : sig
 
 end
 
-(** Auxiliary functions to manipulate paths. *)
+(** {2 Graphs with cost} *)
+
+(** Dijkstra's algorithm
+
+    This is distinct from {!Path.Dijkstra} in that we do not provide
+    a target vertex, but a [success] function. *)
+
+module Dijkstra(G: G)(C: Sig.WEIGHT with type edge = G.E.t): sig
+
+  val search: G.t -> G.vertex -> G.vertex * G.edge list * C.t
+
+end
+
+(** {2 Auxiliary functions to manipulate paths} *)
+
 module Path(G: G) : sig
 
   (** A valid path is a list of edges where each destination vertex

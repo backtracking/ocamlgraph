@@ -1,7 +1,6 @@
 
-  - [Search]: solve one-player games using graph traversal algorithms
-    (depth-first search, breadth-first search, iterative deepening
-     depth-first search)
+  - [Search]: path search algorithms (DFS, BFS, iterative deepening
+    DFS, Dijkstra)
   - [Traverse.Bfs]: new function `{fold,iter}_component_dist` to
     perform a breadth-first traversal with the distance from the source
 
