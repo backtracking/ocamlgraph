@@ -1,4 +1,6 @@
 
+  - [Cycles.Johnson]: Enumerate elementary cycles (Johnson, 1975)
+    (contributed by Timothy Bourke)
   - [Traverse.Bfs]: new function `{fold,iter}_component_dist` to
     perform a breadth-first traversal with the distance from the source
 

@@ -80,7 +80,7 @@ module type G = sig
   val fold_succ : (V.t -> 'a -> 'a) -> t -> V.t -> 'a -> 'a
 end
 
-(** Implementation of Johnson's 1975 algoirthm for "Finding all the Elementary
+(** Implementation of Johnson's 1975 algorithm for "Finding all the Elementary
     Cycles of a Directed Graph". It does not do any preprocessing, i.e., no
     removal of self-loops and no dissection into strongly connected
     components.
