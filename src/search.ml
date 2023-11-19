@@ -140,7 +140,7 @@ struct
 
   module Elt = struct
     type t = C.t * G.V.t * G.E.t list
-    let compare (w1,_v1,_) (w2,_v2,_) = C.compare w2 w1
+    let compare (w1,_v1,_) (w2,_v2,_) = C.compare w2 w1 (* max heap! *)
   end
   module PQ = Heap.Imperative(Elt)
 
@@ -179,7 +179,7 @@ module Astar(G: G)(C: Sig.WEIGHT with type edge = G.E.t)
 
   module Elt = struct
     type t = C.t * G.V.t * G.E.t list
-    let compare (h1,_,_) (h2,_,_) = C.compare h1 h2
+    let compare (h1,_,_) (h2,_,_) = C.compare h2 h1 (* max heap! *)
   end
   module PQ = Heap.Imperative(Elt)
 
