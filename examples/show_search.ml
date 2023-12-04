@@ -67,7 +67,7 @@ let show (i,j) =
 
 module G = struct
   module I = struct include Int let hash x = x end
-  include Imperative.Digraph.Concrete(Util.CMPProduct(I)(I))
+  include Imperative.Graph.Concrete(Util.CMPProduct(I)(I))
   let fold_succ_e f g v acc = show v; fold_succ_e f g v acc
   let success _ (i,j) = grid.(i).(j) = Target
 end
@@ -85,7 +85,7 @@ module H = struct
           h := min !h (abs (i - si) + abs (j - sj))
       done
     done;
-    Format.eprintf "h(%d,%d) = %d@." si sj !h;
+    (* Format.eprintf "h(%d,%d) = %d@." si sj !h; *)
     !h
 end
 
@@ -112,8 +112,7 @@ let set i j k =
   draw_cell i j;
   match k with
   | Blocked -> G.remove_vertex g (i,j)
-  | _ -> G.add_vertex g (i,j);
-         add_succ (i-1,j); add_succ (i,j-1); add_succ (i,j)
+  | _ -> G.add_vertex g (i,j); add_succ (i,j)
 
 let () = set 0 0 Start
 let () = set (n-1) (m-1) Target
@@ -139,6 +138,6 @@ let () =
     else if st.button then (
       let i = st.mouse_x / step in
       let j = st.mouse_y / step in
-      set i j (rotate grid.(i).(j))
+      if i < n && j < m then set i j (rotate grid.(i).(j))
     )
   done
