@@ -27,6 +27,13 @@
     it fits in memory), as the graph is implicitely described some
     adjacency function ([fold_succ_e] below). The graph may even be
     infinite in some cases.
+
+    See examples/show_search.ml for a small program to visualize
+    these search algorithms on a grid.
+
+    In the following, when the complexity is given, V and E stand for
+    the numbers of reachable vertices and edges from the source
+    vertex.
 *)
 
 (** {2 Minimal graph signature}
@@ -65,18 +72,20 @@ module DFS(G: G) : sig
       (for which [success] is true) and a path from [start] to [f].
 
       If no solution exists, exception [Not_found] is raised when all
-      reachable vertices are visited. *)
+      reachable vertices are visited.
+
+      Complexity: time and space O(E). Constant stack space. *)
 
 end
 
 (** Breadth-First Search
 
     A breadth-first search from the initial vertex guarantees a
-    path of minimal length, if any.
+    path of minimal length (in number of edges), if any.
 
     Caveat: Breadth-first search may require a lot of memory.
     If this is an issue, consider other implementations below,
-    such as Iterative Deepening Search.
+    such as Iterative Deepening DFS.
 *)
 
 module BFS(G: G) : sig
@@ -87,7 +96,9 @@ module BFS(G: G) : sig
       (for which [success] is true) and a path from [start] to [f].
 
       If no solution exists, exception [Not_found] is raised when all
-      reachable vertices are visited. *)
+      reachable vertices are visited.
+
+      Complexity: time O(E) and space O(V). Constant stack space. *)
 
 end
 
@@ -96,7 +107,7 @@ end
     An alternative to breadth-first search is to perform depth-first
     searches with a maximal depth, that is increased until we find a
     solution. In graphs that are tress, this can be asymptotically as
-    good as breadth-first search, but it uses much less memory.
+    good as breadth-first search, while using much less memory.
 
     Caveat: It runs forever if there is no successful path and
     reachable cycles.
@@ -109,14 +120,13 @@ module IDS(G: G) : sig
       If a solution is found, it is returned as a final vertex [f]
       (for which [success] is true) and a path from [start] to [f].
 
-      If no solution exists, exception [Not_found] is raised when all
-      reachable vertices are visited.
+      If no solution exists, and if no cycle is reachable, exception
+      [Not_found] is raised when all reachable vertices are visited.
 
       Note: This implementation is not tail recursive. It uses a stack
       space proportional to the length of the solution.  This is
       usually not an issue, as a solution whose length would exhaust
-      the stack is likely to take too much time to be found.
-*)
+      the stack is likely to take too much time to be found. *)
 
 end
 

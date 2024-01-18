@@ -69,8 +69,8 @@ module DFS(G: G) = struct
 	  else
 	    dfs
 	      (G.fold_succ_e
-		  (fun e stack -> (G.E.dst e, e :: path) :: stack)
-		  g s stack)
+		(fun e stack -> (G.E.dst e, e :: path) :: stack)
+		g s stack)
     in
     dfs [start, []]
 
@@ -108,16 +108,15 @@ module IDS(G: G) = struct
       let rec dfs = function
 	| [] -> raise Not_found
 	| (_, path, s) :: _ when G.success g s -> s, List.rev path
-	| (n, path, s) :: stack ->
+	| (n, path, s) :: stack when n < max ->
 	    dfs
-	      (if n < max then
-		 G.fold_succ_e
-		   (fun e stack -> (n + 1, e :: path, G.E.dst e) :: stack)
-		   g s stack
-	       else (
-		 max_reached := true;
-		 stack
-	      )) in
+	      (G.fold_succ_e
+	        (fun e stack -> (n + 1, e :: path, G.E.dst e) :: stack)
+		g s stack)
+	| _ :: stack ->
+	    max_reached := true;
+	    dfs stack
+      in
       dfs [0, [], start] in
     let rec try_depth d =
       try
