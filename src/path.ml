@@ -337,12 +337,10 @@ struct
         end else begin
           let v = Queue.pop q in
           HVV.add pc.cache (v1, v) true;
-          if G.V.compare v v2 = 0 then
-            true
-          else begin
-            G.iter_succ push pc.graph v;
-            loop ()
-          end
+          G.V.compare v v2 = 0 ||
+          match HVV.find_opt pc.cache (v, v2) with
+          | Some true -> HVV.add pc.cache (v1, v2) true; true
+          | _ -> G.iter_succ push pc.graph v; loop ()
         end
       in
       push v1;

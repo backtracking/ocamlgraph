@@ -1,4 +1,6 @@
 
+  - [Path.Check]: improved efficiency with a better use of the cache
+    (#125 by Paul Patault)
   - [Cycles.Johnson]: Enumerate elementary cycles (Johnson, 1975)
     (contributed by Timothy Bourke)
   - [Traverse.Bfs]: new function `{fold,iter}_component_dist` to
