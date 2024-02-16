@@ -1,4 +1,6 @@
 
+  - [Oper]: improved efficiency of `intersect`
+    (#136, reported by Ion Chirica)
   - [Path.Check]: improved efficiency with a better use of the cache
     (#125 by Paul Patault)
   - [Cycles.Johnson]: Enumerate elementary cycles (Johnson, 1975)
