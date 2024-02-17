@@ -78,18 +78,14 @@ module Make(B : Builder.S) = struct
   let intersect g1 g2 =
     G.fold_vertex
       (fun v g ->
-         try
-           let succ = G.succ_e g2 v in
+         if G.mem_vertex g2 v then
            G.fold_succ_e
              (fun e g ->
-                if List.exists (fun e' -> G.E.compare e e' = 0) succ
-                then B.add_edge_e g e
-                else g)
+                if G.mem_edge_e g2 e then B.add_edge_e g e else g)
              g1 v (B.add_vertex g v)
-         with Invalid_argument _ ->
+         else
            (* [v] not in [g2] *)
            g)
-
       g1 (B.empty ())
 
   let union g1 g2 =
@@ -97,7 +93,8 @@ module Make(B : Builder.S) = struct
       (* add the graph [g1] in [g2] *)
       G.fold_vertex
         (fun v g ->
-           G.fold_succ_e (fun e g -> B.add_edge_e g e) g1 v (B.add_vertex g v))
+           G.fold_succ_e (fun e g -> B.add_edge_e g e)
+             g1 v (B.add_vertex g v))
         g1 g2
     in
     add g1 (B.copy g2)

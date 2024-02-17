@@ -65,6 +65,14 @@ module Generic = struct
 	()
       end
 
+    let test_intersect g =
+      let gg = O.intersect g g in
+      assert (G.nb_vertex gg = G.nb_vertex g);
+      assert (G.nb_edges gg = G.nb_edges g);
+      let g0 = O.intersect g (G.create ()) in
+      assert (G.is_empty g0);
+      ()
+
     let g = G.create ()
     let () =
       let v1 = G.V.create 1 in
@@ -77,6 +85,7 @@ module Generic = struct
       G.add_edge g v2 v2;
       G.add_edge g v2 v2;
       test_mirror g;
+      test_intersect g;
       assert (G.nb_vertex g = V.v && G.nb_edges g = V.e);
       G.remove_vertex g v1;
       assert (G.nb_vertex g = 2 && G.nb_edges g = 1);
@@ -140,7 +149,17 @@ module Generic = struct
     module O = Oper.P(G)
     let test_mirror g =
       let g' = O.mirror g in
-      assert (G.nb_vertex g = G.nb_vertex g')
+      assert (G.nb_vertex g = G.nb_vertex g');
+      G.iter_edges (fun v1 v2 -> assert (G.mem_edge g' v2 v1)) g;
+      G.iter_edges (fun v1 v2 -> assert (G.mem_edge g v2 v1)) g'
+
+    let test_intersect g =
+      let gg = O.intersect g g in
+      assert (G.nb_vertex gg = G.nb_vertex g);
+      assert (G.nb_edges gg = G.nb_edges g);
+      let g0 = O.intersect g G.empty in
+      assert (G.is_empty g0);
+      ()
 
     let () =
       let g = G.empty in
@@ -154,6 +173,7 @@ module Generic = struct
       let g = G.add_edge g v2 v2 in
       let g = G.add_edge g v2 v2 in
       test_mirror g;
+      test_intersect g;
       assert (G.nb_vertex g = V.v && G.nb_edges g = V.e);
       let g = G.remove_vertex g v1 in
       assert (G.nb_vertex g = 2 && G.nb_edges g = 1);
@@ -772,9 +792,3 @@ module Test_reduction = struct
 end
 
 let () = Format.printf "check: all tests succeeded@."
-
-(*
-Local Variables:
-compile-command: "make -C .. check"
-End:
-*)
