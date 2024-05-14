@@ -1,4 +1,5 @@
 
+  - [Graphviz]: added `PosPinned` to type `NeatoAttributes.vertex`
   - [Oper]: improved efficiency of `intersect`
     (#136, reported by Ion Chirica)
   - [Path.Check]: improved efficiency with a better use of the cache
