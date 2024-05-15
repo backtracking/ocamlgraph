@@ -236,8 +236,8 @@ module DotAttributes : sig
   (** Attributes of graphs.  They include all common graph attributes and
       several specific ones.  All attributes described in the "dot User's
       Manual, February 4, 2002" are handled, excepted: clusterank, color,
-      compound, labeljust, labelloc, ordering, rank, remincross, rotate,
-      searchsize and style. *)
+      labeljust, labelloc, ordering, rank, remincross, rotate, searchsize
+      and style. *)
   type graph =
     [ CommonAttributes.graph
     | `Bgcolor of color
@@ -247,6 +247,8 @@ module DotAttributes : sig
         a transparency component. *)
     | `Comment of string
     (** Comment string. *)
+    | `Compound of bool
+    (** If [true], allow edges between clusters.  Default value is [false]. *)
     | `Concentrate of bool
     (** If [true], enables edge concentrators.  Default value is [false]. *)
     | `Fontpath of string
@@ -314,7 +316,7 @@ module DotAttributes : sig
 
   (** Attributes of edges.  They include all common edge attributes and
       several specific ones.  All attributes described in the "dot User's
-      Manual, February 4, 2002" are handled, excepted: lhead and ltail. *)
+      Manual, February 4, 2002" are handled. *)
   type edge =
     [ CommonAttributes.edge
     | `Arrowhead of arrow_style
@@ -345,6 +347,10 @@ module DotAttributes : sig
         Default value is [false]. *)
     | `Layer of string
     (** Overlay. *)
+    | `Lhead of string
+    (** Logical head of an edge. *)
+    | `Ltail of string
+    (** Logical tail of an edge. *)
     | `Minlen of int
     (** Minimum rank distance between head an tail.
         Default value is [1]. *)
