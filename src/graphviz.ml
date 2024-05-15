@@ -887,6 +887,8 @@ module NeatoAttributes = struct
     [ CommonAttributes.vertex
     | `Pos of float * float
       (** Initial coordinates of the node. *)
+    | `PosPinned of float * float
+      (** Initial coordinates of the vertex, pinned. *)
     ]
 
   (** Attributes of edges.  They include all common edge attributes and
@@ -922,6 +924,7 @@ module NeatoAttributes = struct
     #CommonAttributes.vertex as att ->
     CommonAttributes.fprint_vertex ppf att
     | `Pos (f1, f2) -> fprintf ppf "pos=\"%f,%f\"" f1 f2
+    | `PosPinned (f1, f2) -> fprintf ppf "pos=\"%f,%f!\"" f1 f2
 
   let fprint_edge ppf = function
     #CommonAttributes.edge as att -> CommonAttributes.fprint_edge ppf att

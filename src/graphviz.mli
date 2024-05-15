@@ -471,6 +471,8 @@ module NeatoAttributes : sig
     [ CommonAttributes.vertex
     | `Pos of float * float
       (** Initial coordinates of the vertex. *)
+    | `PosPinned of float * float
+      (** Initial coordinates of the vertex, pinned. *)
     ]
 
   (** Attributes of edges.  They include all common edge attributes and
