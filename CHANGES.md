@@ -1,4 +1,8 @@
 
+  - [Oper] fixed transitive reduction (#145, reported by sim642)
+    and tests for transitive reduction!
+  - new example `depend2dot` to turn `make`-like dependencies
+    into a DOT graph, with transitive reduction
   - [Graphviz]: added `PosPinned` to type `NeatoAttributes.vertex`
   - [Oper]: improved efficiency of `intersect`
     (#136, reported by Ion Chirica)

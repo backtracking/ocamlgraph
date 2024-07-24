@@ -99,30 +99,46 @@ module Make(B : Builder.S) = struct
     in
     add g1 (B.copy g2)
 
-  let replace_by_transitive_reduction ?(reflexive=false) g0 =
-    (* first compute reachability in g0 using a DFS from each vertex *)
+  (* source: tred.c from Graphviz
+     time and space O(VE) *)
+  let replace_by_transitive_reduction ?(reflexive=false) g =
     let module H = Hashtbl.Make(G.V) in
-    let module D = Traverse.Dfs(G) in
-    let reachable = H.create (G.nb_vertex g0) in
-    let path_from v =
-      let s = H.create 8 in
-      H.add reachable v s;
-      D.prefix_component (fun w -> H.add s w ()) g0 v in
-    G.iter_vertex path_from g0;
-    let path u v = H.mem (H.find reachable u) v in
-    (* then remove redundant edges *)
-    let phi v g =
-      let g = if reflexive then B.remove_edge g v v else g in
-      G.fold_succ
-        (fun sv g ->
-           G.fold_succ
-             (fun sv' g ->
-                if not (G.V.equal sv sv') && path sv sv'
-                then B.remove_edge g v sv' else g)
-             g v g)
-        g v g
+    let reduce g v0 =
+      (* runs a DFS from v0 and records the length (=1 or >1) of paths from
+         v0 for reachable vertices *)
+      let nv = G.nb_vertex g in
+      let dist = H.create nv in
+      G.iter_vertex (fun w -> H.add dist w 0) g;
+      let update v w = H.replace dist w (1 + min 1 (H.find dist v)) in
+      let onstack = H.create nv in
+      let push v st = H.replace onstack v (); (v, G.succ g v) :: st in
+      let rec dfs = function
+        | [] -> ()
+        | (v, []) :: st ->
+            H.remove onstack v; dfs st
+        | (v, w :: sv) :: st when G.V.equal w v || H.mem onstack w ->
+            dfs ((v, sv) :: st)
+        | (v, w :: sv) :: st ->
+            if H.find dist w = 0 then (
+              update v w;
+              dfs (push w ((v, sv) :: st))
+            ) else (
+              if H.find dist w = 1 then update v w;
+              dfs ((v, sv) :: st)
+            ) in
+      dfs (push v0 []);
+      (* then delete any edge v0->v when the distance for v is >1 *)
+      let delete g v =
+        if G.V.equal v v0 && reflexive || H.find dist v > 1
+        then B.remove_edge g v0 v else g in
+      let sv0 = G.fold_succ (fun v sv0 -> v :: sv0) g v0 [] in
+      (* CAVEAT: iterate *then* modify *)
+      List.fold_left delete g sv0
     in
-    G.fold_vertex phi g0 g0
+    (* run the above from any vertex *)
+    let vl = G.fold_vertex (fun v vl -> v :: vl) g [] in
+    (* CAVEAT: iterate *then* modify *)
+    List.fold_left reduce g vl
 
   let transitive_reduction ?(reflexive=false) g0 =
     replace_by_transitive_reduction ~reflexive (B.copy g0)

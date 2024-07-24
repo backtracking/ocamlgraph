@@ -34,9 +34,14 @@ module type S = sig
       (then acts as [transitive_closure]). *)
 
   val transitive_reduction : ?reflexive:bool -> g -> g
-  (** [transitive_reduction ?reflexive g] returns the transitive reduction
-      of [g] (as a new graph). Loops (i.e. edges from a vertex to itself)
-      are removed only if [reflexive] is [true] (default is [false]). *)
+  (** [transitive_reduction ?reflexive g] returns the transitive
+      reduction of [g] (as a new graph). This is a subgraph of [g]
+      with the same transitive closure as [g]. When [g] is acyclic,
+      its transitive reduction contains as few edges as possible and
+      is unique.
+      Loops (i.e. edges from a vertex to itself) are removed only if
+      [reflexive] is [true] (default is [false]).
+      Note: Only meaningful for directed graphs. *)
 
   val replace_by_transitive_reduction : ?reflexive:bool -> g -> g
   (** [replace_by_transitive_reduction ?reflexive g] replaces [g] by its
