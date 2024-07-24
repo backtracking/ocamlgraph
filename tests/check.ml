@@ -756,17 +756,22 @@ module Test_reduction = struct
 
   let check_included g1 g2 =
     iter_vertex (fun v -> assert (mem_vertex g2 v)) g1;
-    iter_edges (fun u v -> assert (mem_edge g1 u v)) g1
+    iter_edges (fun u v -> assert (mem_edge g2 u v)) g1
 
   let check_same_graph g1 g2 =
     check_included g1 g2;
     check_included g2 g1
 
   let test v e =
+    (* Format.eprintf "v=%d e=%d@." v e; *)
     let g = R.graph ~loops:true ~v ~e () in
+    (* Format.eprintf "g:@."; *)
+    (* iter_edges (fun u v -> Format.eprintf "  %d->%d@." u v) g; *)
     let t = O.transitive_closure g in
     check_included g t;
     let r = O.transitive_reduction g in
+    (* Format.eprintf "r:@."; *)
+    (* iter_edges (fun u v -> Format.eprintf "  %d->%d@." u v) r; *)
     check_included r g;
     check_same_graph (O.transitive_closure r) t
 
@@ -785,9 +790,19 @@ module Test_reduction = struct
     add_edge g 2 5;
     let r = O.transitive_reduction g in
     check_included r g;
+    (* iter_edges (fun u v -> Format.eprintf "  %d->%d@." u v) r; *)
     assert (nb_edges r = 4);
     assert (not (mem_edge r 2 5));
     ()
+
+  (* issue #145 *)
+  let () =
+    let g = create () in
+    for v = 1 to 3 do add_vertex g v done;
+    add_edge g 1 2; add_edge g 2 1;
+    add_edge g 3 1; add_edge g 3 2;
+    let r = O.transitive_reduction g in
+    check_same_graph (O.transitive_closure r) (O.transitive_closure g)
 
 end
 

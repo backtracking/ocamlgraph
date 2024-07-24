@@ -1,5 +1,5 @@
 (executables
- (names color compare_prim_kruskal demo_planar demo_prim demo sudoku)
+ (names color compare_prim_kruskal demo_planar demo_prim demo sudoku depend2dot)
  (libraries graph unix graphics threads))
 
 (alias
