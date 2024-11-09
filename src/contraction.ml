@@ -40,7 +40,7 @@ struct
   module M = Map.Make(G.V)
   module S = Set.Make(G.V)
 
-  let contract prop g =
+  let contract' prop g =
     (* if the edge is to be removed (property = true):
      * make a union of the two union-sets of start and end node;
      * put this set in the map for all nodes in this set *)
@@ -73,7 +73,9 @@ struct
     (* find all closures *)
     let m = G.fold_edges_e f g m in
     (* rewrite the node numbers to close the gaps *)
-    G.fold_edges_e (add m) g G.empty
+    G.fold_edges_e (add m) g G.empty, m
+
+  let contract prop g = fst (contract' prop g)
 
 end
 
