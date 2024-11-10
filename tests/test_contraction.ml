@@ -1,23 +1,32 @@
 (* Test file for Contraction *)
 
+#use "topfind";;
+#require "ocamlgraph";;
+
 open Graph
 
 module Int = struct
-  type t = int
-  let compare = compare
-  let hash = Hashtbl.hash
-  let equal = (=)
-  let default = 0
+    type t = int
+    let compare = compare
+    let hash = Hashtbl.hash
+    let equal = (=)
+    let default = 0
   end
 
-module G = Persistent.Digraph.ConcreteBidirectional(Int)
+module String = struct
+    type t = string
+    let compare = compare
+    let default = ""
+  end
+
+module G = Persistent.Digraph.ConcreteLabeled(Int)(String)
 
 (* Make a persistent graph where:
 
               0---1---6
              /         \
             2---3---7---8
-           /
+           / \
           4---5---9---10---12---11    13
 
    and contract edges linking even numbers.
@@ -25,22 +34,22 @@ module G = Persistent.Digraph.ConcreteBidirectional(Int)
               1---6,8
              /       /
         4,2,0---3---7
-             \
+            \\
               5---9---10,12---11
 
 *)
-let g = List.fold_left (fun g (x, y) ->
-            G.add_edge g x y) (G.add_vertex G.empty 13) [
-    (0, 1); (1, 6);
-    (0, 2); (6, 8);
-    (2, 3); (3, 7); (7, 8);
-    (2, 4);
-    (4, 5); (5, 9); (9, 10); (10, 12); (12, 11)
+let g = List.fold_left (fun g -> G.add_edge_e g) (G.add_vertex G.empty 13) [
+    (0, "0-1", 1); (1, "1-6", 6);
+    (0, "0-2", 2); (6, "6-8", 8);
+    (2, "2-3", 3); (3, "3-7", 7); (7, "7-8", 8);
+    (2, "2-4", 4); (2, "2-5", 5);
+    (4, "4-5", 5); (5, "5-9", 9); (9, "9-10", 10);
+    (10, "10-12", 12); (12, "12-11", 11)
   ]
 
 module C = Contraction.Make(G)
 
-let connects_even (src, dst) = (src mod 2 = 0) && (dst mod 2 = 0)
+let connects_even (src, _, dst) = (src mod 2 = 0) && (dst mod 2 = 0)
 let g', m = C.contract' connects_even g
 
 module Dot = Graphviz.Dot (
@@ -51,7 +60,7 @@ module Dot = Graphviz.Dot (
       let default_vertex_attributes _ = []
       let vertex_attributes _ = []
       let default_edge_attributes _ = []
-      let edge_attributes _ = []
+      let edge_attributes (_, l, _) = [`Taillabel l]
       let get_subgraph _ = None
     end)
 
