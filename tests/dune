@@ -128,6 +128,25 @@
  (modules test_johnson)
  (libraries graph))
 
+;; Rules for the Contraction test
+
+(rule
+ (with-stdout-to
+  test_contraction.output
+  (run ./test_contraction.exe)))
+
+(rule
+ (alias runtest)
+ (action
+  (progn
+   (diff test_contraction.expected test_contraction.output)
+   (echo "test_contraction: all tests succeeded.\n"))))
+
+(executable
+ (name test_contraction)
+ (modules test_contraction)
+ (libraries graph))
+
 ;; Rules for the test_nontrivial_dom test
 
 (rule

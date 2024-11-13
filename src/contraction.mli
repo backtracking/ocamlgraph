@@ -40,10 +40,22 @@ end
 module Make
     (G : G) :
 sig
+  module S : Set.S with type elt = G.vertex
+  module M : Map.S with type key = G.vertex
+
   val contract : (G.E.t -> bool) -> G.t -> G.t
   (** [contract p g] will perform edge contraction on the graph [g].
       The edges for which the property [p] holds/is true will get contracted:
       The resulting graph will not have these edges; the start- and end-node
-      of these edges will get united. *)
+      of these edges will get united. The result graph does not include nodes
+      with no incoming or outgoing edges. *)
+
+  (** As for {!contract} but additionally returns a mapping that associates
+      each node in the original graph to the set of nodes with which it is
+      contracted in the result graph. The minimum element of each such set
+      is used as the representative of the set in the result graph. Nodes
+      with no incoming or outgoing edges are present in the mapping even if
+      they are omitted from the result graph. *)
+  val contract' : (G.E.t -> bool) -> G.t -> G.t * S.t M.t
 end
 
