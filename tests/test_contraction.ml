@@ -1,8 +1,5 @@
 (* Test file for Contraction *)
 
-#use "topfind";;
-#require "ocamlgraph";;
-
 open Graph
 
 module Int = struct
