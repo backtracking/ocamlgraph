@@ -1,4 +1,6 @@
 
+  - [Classic] new functions [kneser] and [petersen] to build Kneser's
+    graphs and the Petersen graph
   - [Oper] fixed transitive reduction (#145, reported by sim642)
     and tests for transitive reduction!
   - new example `depend2dot` to turn `make`-like dependencies

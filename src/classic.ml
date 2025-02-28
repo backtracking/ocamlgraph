@@ -26,6 +26,8 @@ module type S = sig
   val full : ?self:bool -> int -> graph
   val cycle : int -> graph * vertex array
   val grid : n:int -> m:int -> graph * vertex array array
+  val kneser : n:int -> k:int -> graph
+  val petersen : unit -> graph
 end
 
 module Generic(B : Builder.INT) = struct
@@ -104,6 +106,28 @@ module Generic(B : Builder.INT) = struct
            let g = if i < n-1 then B.add_edge g v.(i).(j) v.(i+1).(j) else g in
            loop g i (j+1) in
     loop g 0 0, v
+
+  let kneser ~n ~k =
+    if n < 0 || k > n then invalid_arg "kneser";
+    let vert = Hashtbl.create (1 lsl n) in
+    let add x = Hashtbl.add vert x (B.G.V.create x) in
+    let rec visit mask n k =
+      assert (0 <= k && k <= n);
+      if k = 0 then add mask                      else
+      if k = n then add (mask lor (1 lsl n  - 1)) else (
+      let n = n - 1 in
+      visit mask                 n k      ;
+      visit (mask lor (1 lsl n)) n (k - 1);
+      ) in
+    visit 0 n k;
+    let g = Hashtbl.fold (fun _ v g -> B.add_vertex g v) vert (B.empty ()) in
+    let g = Hashtbl.fold (fun i vi g ->
+            Hashtbl.fold (fun j vj g ->
+            if i land j = 0 then B.add_edge g vi vj else g) vert g) vert g in
+    g
+
+  let petersen () =
+    kneser ~n:5 ~k:2
 
 end
 
