@@ -57,6 +57,16 @@ module type S = sig
       wrapping around). Vertex [(i,j)] is labelled with [i*m+j].
       Vertices are also returned in a [n*m] matrix for convenience. *)
 
+  val kneser : n:int -> k:int -> graph
+  (** [kneser n k] builds the Kneser graph K(n, k), where vertices
+      correspond to the k-element subsets of a set of n elements, and
+      where two vertices are adjacent if and only if the two
+      corresponding sets are disjoint. *)
+
+  val petersen : unit -> graph
+  (** [petersen ()] builds the Petersen graph, that is isomorphic
+      to the Kneser graph K(5,2). It has 10 vertices and 15 edges. *)
+
 end
 
 module P (G : Sig.P with type V.label = int) :

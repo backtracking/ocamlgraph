@@ -9,6 +9,11 @@
  (modules test_bfs))
 
 (test
+ (name test_classic)
+ (libraries graph)
+ (modules test_classic))
+
+(test
  (name test_dfs)
  (libraries graph)
  (modules test_dfs))
