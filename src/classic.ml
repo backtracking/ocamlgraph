@@ -123,7 +123,8 @@ module Generic(B : Builder.INT) = struct
     let g = Hashtbl.fold (fun _ v g -> B.add_vertex g v) vert (B.empty ()) in
     let g = Hashtbl.fold (fun i vi g ->
             Hashtbl.fold (fun j vj g ->
-            if i land j = 0 then B.add_edge g vi vj else g) vert g) vert g in
+            if i <> j && i land j = 0 then B.add_edge g vi vj else g)
+            vert g) vert g in
     g
 
   let petersen () =

@@ -361,11 +361,15 @@ module type S = sig
     (** [kneser n k] builds the Kneser graph K(n, k), where vertices
         correspond to the k-element subsets of a set of n elements, and
         where two vertices are adjacent if and only if the two
-        corresponding sets are disjoint. *)
+        corresponding sets are disjoint.
+
+        Each vertex is labeled with a n-bit integer with exactly k
+        bits set (bit i indicates the selection of the i-th
+        element). *)
 
     val petersen : unit -> t
     (** [petersen ()] builds the Petersen graph, that is isomorphic
-        to the Kneser graph K(5,2). It has 10 vertices and 15 edges. *)
+        to the Kneser graph K(5,2). *)
   end
 
   (** Random graphs *)

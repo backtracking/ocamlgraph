@@ -15,7 +15,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-open Graph.Pack.Graph
+open Graph.Pack.Graph (* undirected graphs *)
 
 let g = Classic.petersen ()
 let () = assert (nb_vertex g = 10)
@@ -24,3 +24,19 @@ let () = dot_output g "petersen.dot"
 
 let g = Classic.kneser ~n:7 ~k:3
 let () = dot_output g "k_7_3.dot"
+
+let g = Classic.kneser ~n:0 ~k:0
+let () = assert (nb_vertex g = 1)
+let () = assert (nb_edges  g = 0)
+
+let g = Classic.kneser ~n:1 ~k:0
+let () = assert (nb_vertex g = 1)
+let () = assert (nb_edges  g = 0)
+
+let g = Classic.kneser ~n:1 ~k:1
+let () = assert (nb_vertex g = 1)
+let () = assert (nb_edges  g = 0)
+
+let g = Classic.kneser ~n:2 ~k:1
+let () = assert (nb_vertex g = 2)
+let () = assert (nb_edges  g = 1)
