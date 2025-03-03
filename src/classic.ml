@@ -108,7 +108,7 @@ module Generic(B : Builder.INT) = struct
     loop g 0 0, v
 
   let kneser ~n ~k =
-    if n < 0 || k > n then invalid_arg "kneser";
+    if n < 0 || n > Sys.int_size || k < 0 || k > n then invalid_arg "kneser";
     let vert = Hashtbl.create (1 lsl n) in
     let add x = Hashtbl.add vert x (B.G.V.create x) in
     let rec visit mask n k =
