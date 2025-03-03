@@ -119,6 +119,17 @@ struct
       H.remove degree x;
       Q.push x todo
     in
+    let add_vertex acc v = 
+        G.iter_succ
+          (fun x->
+             try
+               let d = H.find degree x in
+               if d = 1 then push x else H.replace degree x (d-1)
+             with Not_found ->
+               (* [x] already visited *)
+               ())
+          g v;
+          f v acc in
     let rec walk acc =
       if Q.is_empty todo then
         (* let's find any node of minimal degree *)
@@ -129,21 +140,13 @@ struct
         | [] -> acc
         | _ ->
           let vl = find_top_cycle checker min in
-          List.iter push vl;
+          List.iter (H.remove degree) vl;
+          let acc = List.fold_left add_vertex acc vl in
           (* let v = choose_independent_vertex checker min in push v; *)
           walk acc
       else
         let v = Q.pop todo in
-        let acc = f v acc in
-        G.iter_succ
-          (fun x->
-             try
-               let d = H.find degree x in
-               if d = 1 then push x else H.replace degree x (d-1)
-             with Not_found ->
-               (* [x] already visited *)
-               ())
-          g v;
+        let acc = add_vertex acc v in
         walk acc
     in
     G.iter_vertex
