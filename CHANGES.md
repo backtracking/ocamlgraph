@@ -1,4 +1,5 @@
 
+  - [Path]: new module [Bfs01] to implement 0-1 BFS
   - [Classic] new functions [kneser] and [petersen] to build Kneser's
     graphs and the Petersen graph
   - [Oper] fixed transitive reduction (#145, reported by sim642)

@@ -59,6 +59,9 @@ struct
   module BF = Path.BellmanFord(G)(W)
   let bellman_ford = BF.find_negative_cycle_from
 
+  module Bfs01 = Path.Bfs01(G)
+  let bfs_0_1 = Bfs01.iter
+
   module F = struct
     type label = int
     type t = int
