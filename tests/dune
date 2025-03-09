@@ -24,6 +24,11 @@
  (modules test_topsort))
 
 (test
+ (name test_bfs01)
+ (libraries graph)
+ (modules test_bfs01))
+
+(test
  (name test_check_path)
  (libraries graph)
  (modules test_check_path))

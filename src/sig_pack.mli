@@ -419,6 +419,9 @@ module type S = sig
   (** [bellman_ford g v] finds a negative cycle from [v], and returns it,
       or raises [Not_found] if there is no such cycle *)
 
+  val bfs_0_1: (V.t -> int -> unit) -> t -> zero:(E.t -> bool) -> V.t -> unit
+  (** 0-1 BFS from a given source. Function [zero] indicates 0-edges. *)
+
   (** Path checking *)
   module PathCheck : sig
     type path_checker

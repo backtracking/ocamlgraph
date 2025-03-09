@@ -347,3 +347,36 @@ struct
       loop ()
 
 end
+
+(** 0-1 BFS
+
+    When edge weights are limited to 0 or 1, this is more efficient than
+    running Dijkstra's algorithm. *)
+
+module Bfs01(G: sig
+  type t
+  module V: Sig.COMPARABLE
+  module E: sig type t val dst : t -> V.t end
+  val iter_succ_e : (E.t -> unit) -> t -> V.t -> unit
+end) = struct
+
+  module H = Hashtbl.Make(G.V)
+
+  let iter f g ~zero s =
+    let visited = H.create 16 in
+    let d = Deque.create () in
+    Deque.push_front d (s, 0); H.add visited s ();
+    while Deque.length d > 0 do
+      let v, n = Deque.pop_front d in
+      f v n;
+      G.iter_succ_e (fun e ->
+          let w = G.E.dst e in
+          if not (H.mem visited w) then (
+            H.add visited w ();
+            if zero e then Deque.push_front d (w, n  )
+                      else Deque.push_back  d (w, n+1)
+          )
+        ) g v
+    done
+
+end
