@@ -545,7 +545,7 @@ let of_int32_us i = match Sys.word_size with
             bits = [| (Int32.to_int i) land max_int;
                       let hi = Int32.shift_right_logical i 30 in
                       (Int32.to_int hi) land 1 |] }
-  | 64 -> { length = 31; bits = [| (Int32.to_int i) land 0x7fffffff |] }
+  | 64 -> { length = 31; bits = [| (Int32.to_int i) land (Int32.to_int 0x7fffffffl) |] }
   | _ -> assert false
 let to_int32_us v =
   if v.length < 31 then invalid_arg "Bitv.to_int32_us";
@@ -554,7 +554,7 @@ let to_int32_us v =
         Int32.logor (Int32.of_int v.bits.(0))
                     (Int32.shift_left (Int32.of_int (v.bits.(1) land 1)) 30)
     | 64 ->
-        Int32.of_int (v.bits.(0) land 0x7fffffff)
+        Int32.of_int (v.bits.(0) land (Int32.to_int 0x7fffffffl))
     | _ -> assert false
 
 (* this is 0xffffffff (ocaml >= 3.08 checks for literal overflow) *)
