@@ -2,7 +2,7 @@
  (name graph_gtk)
  (public_name ocamlgraph_gtk)
  (modules :standard \ dGraphViewer)
- (libraries ocamlgraph stdlib-shims lablgtk2.gnomecanvas lablgtk2)
+ (libraries ocamlgraph lablgtk2.gnomecanvas lablgtk2)
  (flags -open Graph))
 
 (executable

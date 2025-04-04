@@ -3,7 +3,6 @@
 (library
  (name graph)
  (public_name ocamlgraph)
- (libraries stdlib-shims)
  (modules_without_implementation dot_ast sig sig_pack))
 
 (ocamlyacc dot_parser)
