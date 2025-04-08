@@ -15,8 +15,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: path.mli,v 1.9 2005-07-18 07:10:35 filliatr Exp $ *)
-
 (** Paths *)
 
 (** Minimal graph signature for Dijkstra's algorithm.
@@ -150,5 +148,28 @@ sig
       may be more efficient to compute the transitive closure of the graph
       (see module [Oper]).
   *)
+
+end
+
+(** 0-1 BFS
+
+    When edge weights are limited to 0 or 1, this is more efficient than
+    running Dijkstra's algorithm. It runs in time and space O(E) in
+    the worst case. *)
+
+module Bfs01(G: sig
+  type t
+  module V: Sig.COMPARABLE
+  module E: sig type t val dst : t -> V.t end
+  val iter_succ_e : (E.t -> unit) -> t -> V.t -> unit
+end) : sig
+
+  val iter: (G.V.t -> int -> unit) ->
+            G.t -> zero:(G.E.t -> bool) -> G.V.t -> unit
+  (** [iter f g zero s] performs a 0-1 BFS on graph [g], from the
+      source vertex [s], and applies [f] to each visited vertex and
+      its distance from the source. Function [zero] indicates 0-edges.
+      All reachable vertices are visited, in increasing order of
+      distance to the source. *)
 
 end
