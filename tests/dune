@@ -43,6 +43,11 @@
  (libraries graph)
  (modules test_eulerian))
 
+(test
+ (name test_149)
+ (libraries graph)
+ (modules test_149))
+
 ;; Rules for the Bellman-Ford tests
 
 (rule

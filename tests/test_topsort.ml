@@ -61,7 +61,7 @@ let tests iter =
   printf "test topsort: all tests succeeded.@."
 
 let () = tests Topological.iter
-(* let () = tests Topological.iter_stable *)
+let () = tests Topological.iter_stable
 
 let rec pow a = function
   | 0 -> 1

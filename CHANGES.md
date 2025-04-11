@@ -1,4 +1,5 @@
 
+  - [Topological]: Fix topological stable sort (#149, Maxime Buyse)
   - [Path]: new module [Bfs01] to implement 0-1 BFS
   - [Classic] new functions [kneser] and [petersen] to build Kneser's
     graphs and the Petersen graph
