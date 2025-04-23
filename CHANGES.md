@@ -1,4 +1,6 @@
 
+  - new example `words` to build and explore a word graph
+
 # 2.2.0 (April 11, 2025)
 
   - [Topological]: Fix topological stable sort (#149, Maxime Buyse)
