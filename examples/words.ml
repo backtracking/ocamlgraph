@@ -1,5 +1,6 @@
 
 (* Word Graph
+   (example taken from The Stanford GraphBase)
 
    Given a number of letters n and a file containing words (one per line),
    this program builds the undirected graph where
@@ -14,9 +15,16 @@
 
 open Format
 open Graph
-module H = Hashtbl.Make(String)
 
-module G = Imperative.Graph.Abstract(String)
+module S = struct
+  type t = string
+  let compare = compare
+  let hash = Hashtbl.hash
+  let equal = (=)
+end
+module H = Hashtbl.Make(S)
+
+module G = Imperative.Graph.Abstract(S)
 let g = G.create ()
 
 let words : G.V.t H.t = H.create 16
