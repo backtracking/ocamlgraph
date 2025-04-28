@@ -1,0 +1,23 @@
+========= BEGIN output graph =========
+digraph G {
+  "before_subgraph";
+  "green";
+  "in_subgraph1";
+  "blue";
+  "after_subgraph";
+  "in_subgraph2";
+  "white";
+  
+  subgraph cluster_1 { "blue";"in_subgraph1";"green";
+     };
+  subgraph cluster_2 { "white";"in_subgraph2";
+     };
+  
+  "before_subgraph" -> "green" [label=<f&#36;oo>, ];
+  "in_subgraph1" -> "green" [label=<f&#36;oo>, ];
+  "in_subgraph1" -> "blue" [label=<f&#36;oo>, ];
+  "after_subgraph" -> "green" [label=<f&#36;oo>, ];
+  "in_subgraph2" -> "white" [label=<f&#36;oo>, ];
+  
+  }
+========= END output graph =========
