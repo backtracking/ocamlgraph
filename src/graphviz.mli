@@ -104,6 +104,8 @@ module CommonAttributes : sig
     | `OrderingOut
       (** Constrains  order of out-edges in a subgraph according to
           their file sequence *)
+    | `Tooltip of string
+      (** Sets the tooltip (mouse hover text) attached to the graph. *)
     ]
 
   (** Attributes of vertices. *)
@@ -178,6 +180,8 @@ module CommonAttributes : sig
         Several styles may be combined simultaneously. *)
     | `Width of float
       (** Sets the minimum width.  Default value is [0.75]. *)
+    | `Tooltip of string
+      (** Sets the tooltip (mouse hover text) attached to the vertex. *)
     ]
 
   (** Attributes of edges. *)
@@ -223,6 +227,8 @@ module CommonAttributes : sig
     | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ]
       (** Sets the layout style of the edge.  Several styles may be combined
           simultaneously. *)
+    | `Tooltip of string
+      (** Sets the tooltip (mouse hover text) attached to the edge. *)
     ]
 
 end
