@@ -591,12 +591,12 @@
             ],
             "id": "1c97d721-cd78-4f20-b53e-967c53d92231",
             "source": {
-              "x": 700,
-              "y": 23
+              "x": 780,
+              "y": 70
             },
             "target": {
-              "x": 800,
-              "y": 123
+              "x": 590,
+              "y": 230
             }
           },
           {
@@ -737,16 +737,12 @@
               "x": 810,
               "y": 370
             },
-            "tools": {
-              "items": [
-                "boundary",
-                "button-remove",
-                "vertices",
-                "source-arrowhead",
-                "target-arrowhead"
-              ],
-              "name": null
-            }
+            "vertices": [
+              {
+                "x": 630,
+                "y": 310
+              }
+            ]
           }
         ]
       }
