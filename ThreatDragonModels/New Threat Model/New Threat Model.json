@@ -448,7 +448,7 @@
             "connector": "smooth",
             "data": {
               "type": "tm.Flow",
-              "name": "Data Flow",
+              "name": "check for login credentials",
               "description": "",
               "outOfScope": false,
               "reasonOutOfScope": "",
@@ -460,7 +460,7 @@
               "threats": []
             },
             "labels": [
-              "Data Flow"
+              "check for login credentials"
             ],
             "id": "a8ce9dad-13f6-4392-b047-10302c8f201f",
             "source": {
@@ -493,7 +493,7 @@
             "connector": "smooth",
             "data": {
               "type": "tm.Flow",
-              "name": "Data Flow",
+              "name": "send request to client phone",
               "description": "",
               "outOfScope": false,
               "reasonOutOfScope": "",
@@ -505,7 +505,7 @@
               "threats": []
             },
             "labels": [
-              "Data Flow"
+              "send request to client phone"
             ],
             "id": "eb8dfe52-bc19-4b2d-9f39-970af3cf35a9",
             "source": {
@@ -516,7 +516,12 @@
               "cell": "1403aa16-1533-412a-beed-ee9b7601d04f",
               "port": "ec34580c-583a-47ef-8914-53bba9d46374"
             },
-            "vertices": []
+            "vertices": [
+              {
+                "x": 670,
+                "y": 280
+              }
+            ]
           },
           {
             "shape": "flow",
@@ -538,7 +543,7 @@
             "connector": "smooth",
             "data": {
               "type": "tm.Flow",
-              "name": "Data Flow",
+              "name": "send sms",
               "description": "",
               "outOfScope": false,
               "reasonOutOfScope": "",
@@ -550,7 +555,7 @@
               "threats": []
             },
             "labels": [
-              "Data Flow"
+              "send sms"
             ],
             "id": "f1126249-fc08-43e4-abef-48471f6d329c",
             "source": {
