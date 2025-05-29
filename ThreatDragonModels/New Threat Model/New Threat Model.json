@@ -574,6 +574,32 @@
             ]
           },
           {
+            "shape": "trust-boundary-curve",
+            "width": 200,
+            "height": 100,
+            "zIndex": 10,
+            "connector": "smooth",
+            "data": {
+              "type": "tm.Boundary",
+              "name": "Trust Boundary",
+              "description": "",
+              "isTrustBoundary": true,
+              "hasOpenThreats": false
+            },
+            "labels": [
+              "Trust Boundary"
+            ],
+            "id": "1c97d721-cd78-4f20-b53e-967c53d92231",
+            "source": {
+              "x": 700,
+              "y": 23
+            },
+            "target": {
+              "x": 800,
+              "y": 123
+            }
+          },
+          {
             "position": {
               "x": 280,
               "y": 60
@@ -684,6 +710,42 @@
               "hasOpenThreats": false,
               "providesAuthentication": false,
               "threats": []
+            }
+          },
+          {
+            "shape": "trust-boundary-curve",
+            "width": 200,
+            "height": 100,
+            "zIndex": 12,
+            "connector": "smooth",
+            "data": {
+              "type": "tm.Boundary",
+              "name": "Trust Boundary",
+              "description": "",
+              "isTrustBoundary": true,
+              "hasOpenThreats": false
+            },
+            "labels": [
+              "Trust Boundary"
+            ],
+            "id": "75b908c4-fa61-4c43-b825-b5c61ee1e5d9",
+            "source": {
+              "x": 595,
+              "y": 240
+            },
+            "target": {
+              "x": 810,
+              "y": 370
+            },
+            "tools": {
+              "items": [
+                "boundary",
+                "button-remove",
+                "vertices",
+                "source-arrowhead",
+                "target-arrowhead"
+              ],
+              "name": null
             }
           }
         ]
