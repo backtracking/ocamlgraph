@@ -27,6 +27,9 @@
               "height": 60
             },
             "attrs": {
+              "text": {
+                "text": "login web server"
+              },
               "body": {
                 "stroke": "#333333",
                 "strokeWidth": 1.5,
@@ -121,7 +124,7 @@
             "zIndex": 1,
             "data": {
               "type": "tm.Process",
-              "name": "Process",
+              "name": "login web server",
               "description": "",
               "outOfScope": false,
               "reasonOutOfScope": "",
@@ -143,6 +146,9 @@
               "height": 60
             },
             "attrs": {
+              "text": {
+                "text": "énd factor 2Auth/SMS"
+              },
               "body": {
                 "stroke": "#333333",
                 "strokeWidth": 1.5,
@@ -237,7 +243,7 @@
             "id": "1403aa16-1533-412a-beed-ee9b7601d04f",
             "data": {
               "type": "tm.Process",
-              "name": "Process",
+              "name": "énd factor 2Auth/SMS",
               "description": "",
               "outOfScope": false,
               "reasonOutOfScope": "",
@@ -259,6 +265,9 @@
               "height": 60
             },
             "attrs": {
+              "text": {
+                "text": "User credentals"
+              },
               "topLine": {
                 "strokeWidth": 1.5,
                 "strokeDasharray": null
@@ -356,7 +365,7 @@
             "zIndex": 4,
             "data": {
               "type": "tm.Store",
-              "name": "Store",
+              "name": "User credentals",
               "description": "",
               "outOfScope": false,
               "reasonOutOfScope": "",
@@ -411,7 +420,13 @@
             "target": {
               "cell": "6df72895-f2b1-4406-a0ac-8819590db1d4",
               "port": "006b6b40-5610-474f-843f-956202690731"
-            }
+            },
+            "vertices": [
+              {
+                "x": 590,
+                "y": 160
+              }
+            ]
           },
           {
             "shape": "flow",
@@ -546,7 +561,12 @@
               "cell": "8310aa7b-5a18-4129-b0fe-158dad4e76cd",
               "port": "1236dfbc-aa13-43e1-a591-edd6f1b95c4e"
             },
-            "vertices": []
+            "vertices": [
+              {
+                "x": 380,
+                "y": 240
+              }
+            ]
           },
           {
             "position": {
