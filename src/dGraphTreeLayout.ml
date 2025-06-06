@@ -504,9 +504,9 @@ struct
       attributes_list_to_eattributes eattrs q
     | (`Arrowhead _ | `Arrowsize _ | `Arrowtail _ | `Comment _  | `Constraint _
       | `Headlabel _ | `Headport _ | `Headurl _ | `Labelangle _
-      |`Labeldistance _ | `Labelfloat _ | `Layer _ | `Minlen _ | `Penwidth _
-      | `Samehead _  | `Sametail _ | `Taillabel _ | `Tailport _ | `Tailurl _
-      | `Weight _ ) :: q ->
+      | `Labeldistance _ | `Labelfloat _ | `Layer _ | `Lhead _ | `Ltail _
+      | `Minlen _ | `Penwidth _ | `Samehead _  | `Sametail _ | `Taillabel _
+      | `Tailport _ | `Tailurl _ | `Weight _ ) :: q ->
       attributes_list_to_eattributes eattrs q
 
   let eattrs_to_operation tree e geometry_info =
