@@ -237,6 +237,7 @@ struct
     mutable style : [ `Rounded | `Filled | `Solid | `Dashed | `Dotted | `Bold
                     | `Invis ] list;
     mutable width : float option;
+    mutable tooltip : string option;
     mutable fillcolor : int32 option;
   }
 
@@ -257,6 +258,7 @@ struct
     | `Shape shape -> vattrs.shape <- set_if_none vattrs.shape shape
     | `Style s -> vattrs.style <- s :: vattrs.style
     | `Width w -> vattrs.width <- set_if_none vattrs.width w
+    | `Tooltip t -> vattrs.tooltip <- set_if_none vattrs.tooltip t
     | `Fillcolor c ->
       vattrs.fillcolor <- set_if_none vattrs.fillcolor
           (Graphviz.color_to_color_with_transparency c)
@@ -285,6 +287,7 @@ struct
         shape = None;
         style = [];
         width = None;
+        tooltip = None;
         fillcolor = None
       } in
       let dgraph_layout_default =
@@ -455,7 +458,8 @@ struct
     mutable labelfontcolor : int option;
     mutable labelfontname : string option;
     mutable labelfontsize : int option;
-    mutable style : [ `Solid | `Dashed | `Dotted | `Bold | `Invis ] list
+    mutable style : [ `Solid | `Dashed | `Dotted | `Bold | `Invis ] list;
+    mutable tooltip : string option
   }
 
   let rec attributes_list_to_eattributes (eattrs:eattributes)
@@ -502,6 +506,9 @@ struct
     | `Style s :: q ->
       eattrs.style <- s :: eattrs.style;
       attributes_list_to_eattributes eattrs q
+    | `Tooltip t :: q ->
+      eattrs.tooltip <- set_if_none eattrs.tooltip t;
+      attributes_list_to_eattributes eattrs q
     | (`Arrowhead _ | `Arrowsize _ | `Arrowtail _ | `Comment _  | `Constraint _
       | `Headlabel _ | `Headport _ | `Headurl _ | `Labelangle _
       |`Labeldistance _ | `Labelfloat _ | `Layer _ | `Minlen _ | `Penwidth _
@@ -522,7 +529,8 @@ struct
       labelfontcolor = None;
       labelfontname = None;
       labelfontsize = None;
-      style = [] }
+      style = [];
+      tooltip = None }
     in
     let dgraph_layout_default =
       [ `Color 0xFF0000; `Decorate false; `Dir `Forward; `Fontcolor 0x00000;

@@ -8,11 +8,11 @@ digraph G {
   "task_eat";
   
   
-  "task_menu" -> "task_ingredients" [label=<f&#36;oo>, ];
-  "task_ingredients" -> "task_cook" [label=<f&#36;oo>, ];
-  "task_invitation" -> "task_cook" [label=<f&#36;oo>, ];
-  "task_cook" -> "task_eat" [label=<f&#36;oo>, ];
-  "task_table" -> "task_eat" [label=<f&#36;oo>, ];
+  "task_menu" -> "task_ingredients" [tooltip="description", label=<f&#36;oo>, ];
+  "task_ingredients" -> "task_cook" [tooltip="description", label=<f&#36;oo>, ];
+  "task_invitation" -> "task_cook" [tooltip="description", label=<f&#36;oo>, ];
+  "task_cook" -> "task_eat" [tooltip="description", label=<f&#36;oo>, ];
+  "task_table" -> "task_eat" [tooltip="description", label=<f&#36;oo>, ];
   
   }
 ========= END output graph =========
