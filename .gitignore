@@ -4,5 +4,6 @@
 /www/index.fr.html
 /www/version.prehtml
 _build
+*.install
 
 _opam

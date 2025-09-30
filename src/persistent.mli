@@ -73,12 +73,12 @@ module Digraph : sig
       standard concrete directional graphs. But accessing predecessors and
       removing a vertex are faster. *)
 
-  (** Imperative Unlabeled, bidirectional graph. *)
+  (** Persistent Unlabeled, bidirectional graph. *)
   module ConcreteBidirectional (V: COMPARABLE) :
     Sig.P with type V.t = V.t and type V.label = V.t and type E.t = V.t * V.t
                                                      and type E.label = unit
 
-  (** Imperative Labeled and bidirectional graph. *)
+  (** Persistent Labeled and bidirectional graph. *)
   module ConcreteBidirectionalLabeled(V:COMPARABLE)(E:ORDERED_TYPE_DFT) :
     Sig.P with type V.t = V.t and type V.label = V.t
                               and type E.t = V.t * E.t * V.t and type E.label = E.t
