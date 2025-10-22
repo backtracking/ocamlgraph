@@ -24,6 +24,7 @@ module Dominator = Dominator
 module Graphviz = Graphviz
 module Gml = Gml
 module Dot = Dot
+module Dot_V1 = Dot_V1
 module Pack = Pack
 module Gmap = Gmap
 module Minsep = Minsep
