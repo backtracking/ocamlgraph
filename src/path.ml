@@ -100,6 +100,114 @@ struct
 
 end
 
+module type G_SSSP = sig
+  include G
+
+  val find_edge : t -> V.t -> V.t -> E.t
+end
+
+module SSSP_Dijkstra
+    (G: G_SSSP)
+    (W: Sig.WEIGHT with type edge = G.E.t) =
+struct
+
+  open G.E
+
+  module H =  Hashtbl.Make(G.V)
+
+  module Elt = struct
+    type t = W.t * G.V.t
+
+    (* weights are compared first, and minimal weights come first in the
+       queue *)
+    let compare (w1,v1) (w2,v2) =
+      let cw = W.compare w2 w1 in
+      if cw != 0 then cw else G.V.compare v1 v2
+  end
+
+  module PQ = Heap.Imperative(Elt)
+
+  let all_shortest_paths (g : G.t) (source : G.V.t) : (G.V.t * G.V.t list list * W.t) list =
+    let visited = H.create 97 in
+    let pred = H.create 97 in
+    let dist = H.create 97 in
+    let q = PQ.create 17 in
+
+    let update ?(replace=true) u v e dv' =
+      H.replace dist v dv';
+      if replace
+      then H.replace pred v (u, e)
+      else H.add pred v (u, e);
+      PQ.add q (dv', v)
+    in
+
+    let relax u v e =
+      let w_uv = W.weight e in
+      let du = H.find dist u in
+      try begin
+        let dv' = W.add du w_uv in
+        let comparison = W.compare dv' (H.find dist v) in
+        match comparison with
+        | c when c < 0 -> update u v e dv'
+        | 0 -> update ~replace:false u v e dv'
+        | _ -> () (* makes the complier happy *)
+      end with Not_found -> update u v e (W.add du w_uv) in
+
+    let rec recreate_path (last_v : G.V.t) (path : G.V.t list) : G.V.t list list =
+      let my_pred = H.find_all pred last_v in
+      if List.length my_pred = 0
+      then [path]
+      else
+        List.fold_left (fun acc (u, _) ->
+          let new_path = recreate_path u (u::path) in
+          List.rev_append new_path acc
+        ) [] my_pred in
+
+    let get_result () =
+      H.remove dist source;
+      H.fold (fun v d a ->
+        (v, recreate_path v [v], d)::a
+      ) dist [] |> List.rev in
+
+    let rec loop () =
+      if PQ.is_empty q then get_result ()
+      else
+        let (_, u) = PQ.pop_maximum q in
+        if not (H.mem visited u) then begin
+          H.add visited u ();
+          G.iter_succ_e
+            (fun e ->
+              let v = dst e in
+              if not (H.mem visited v)
+              then relax u v e)
+            g u
+        end;
+        loop () in
+
+    PQ.add q (W.zero, source);
+    H.add dist source W.zero;
+    loop ()
+
+  let all_shortest_paths_e (g : G.t) (source : G.V.t) : (G.V.t * G.E.t list list * W.t) list =
+    let fold_by_couple f acc lst =
+      let rec inner_aux f acc lst =
+        match lst with
+        | p0::((p1::_) as l) -> inner_aux f (f p0 p1 acc) l
+        | [_] -> acc
+        | [] -> failwith "Impossible pattern!" in
+      inner_aux f acc lst in
+
+    List.rev_map (fun (dest, paths, w) ->
+      let paths' = List.map (fun path ->
+        fold_by_couple (fun u v acc ->
+          (G.find_edge g u v)::acc
+        ) [] path |> List.rev
+      ) paths in
+      (dest, paths', w)
+    ) (all_shortest_paths g source) |> List.rev
+
+end;;
+
 (* The following module is a contribution of Yuto Takei (University of Tokyo) *)
 
 module BellmanFord
