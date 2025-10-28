@@ -49,8 +49,9 @@ module type S = sig
       (then acts as [transitive_reduction]). *)
 
   val mirror : g -> g
-  (** [mirror g] returns a new graph which is the mirror image of [g]:
-      each edge from [u] to [v] has been replaced by an edge from [v] to [u].
+  (** [mirror g] returns a new graph which is the mirror image (also
+      called converse, transpose, or reverse) of [g]: each edge from
+      [u] to [v] has been replaced by an edge from [v] to [u].
       For undirected graphs, it simply returns [g].
       Note: Vertices are shared between [g] and [mirror g]; you may need to
       make a copy of [g] before using [mirror] *)

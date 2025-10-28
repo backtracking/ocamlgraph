@@ -69,8 +69,9 @@ module Connectivity (GB: Builder.S) : sig
       A strong articulation point is a vertex that when removed from the
       original graph disconnects that graph into two or more components.
 
-      The implementation involves constructing the mirror image of the
-      graph; for bidirectional graphs prefer {!module:BiConnectivity}.
+      The implementation involves constructing the mirror image (also
+      called converse, transpose, or reverse) of the graph; for
+      bidirectional graphs prefer {!module:BiConnectivity}.
 
       Implements the algorithm from Italiano, Laura, and Santaroni,
       TCS 447 (2012), "Finding strong bridges and strong articulation points
