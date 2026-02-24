@@ -40,7 +40,7 @@ module Make (G: G) : sig
       numbering is that components are numbered in a topological
       order: if there is an arc from [u] to [v], then [f u >= f v]
 
-      Not tail-recursive.
+      Tail-recursive.
       Complexity: O(V+E)
       The function returned has complexity O(1) *)
 
