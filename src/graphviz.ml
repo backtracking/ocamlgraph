@@ -597,8 +597,8 @@ module DotAttributes = struct
   (** Attributes of graphs.  They include all common graph attributes and
       several specific ones.  All attributes described in the "dot User's
       Manual, February 4, 2002" are handled, excepted: clusterank, color,
-      compound, labeljust, labelloc, ordering, rank, remincross, rotate,
-      searchsize and style.
+      labeljust, labelloc, ordering, rank, remincross, rotate, searchsize
+      and style.
   *)
   type graph =
     [ CommonAttributes.graph
@@ -609,6 +609,8 @@ module DotAttributes = struct
         a transparency component. *)
     | `Comment of string
     (** Comment string. *)
+    | `Compound of bool
+    (** If [true], allow edges between clusters.  Default value is [false]. *)
     | `Concentrate of bool
     (** If [true], enables edge concentrators.  Default value is [false]. *)
     | `Fontpath of string
@@ -677,7 +679,7 @@ module DotAttributes = struct
 
   (** Attributes of edges.  They include all common edge attributes and
       several specific ones.  All attributes described in the "dot User's
-      Manual, February 4, 2002" are handled, excepted: lhead and ltail.
+      Manual, February 4, 2002" are handled.
   *)
   type edge =
     [ CommonAttributes.edge
@@ -709,6 +711,10 @@ module DotAttributes = struct
         Default value is [false]. *)
     | `Layer of string
     (** Overlay. *)
+    | `Lhead of string
+    (** Logical head of an edge. *)
+    | `Ltail of string
+    (** Logical tail of an edge. *)
     | `Minlen of int
     (** Minimum rank distance between head an tail.  Default value is [1]. *)
     | `Samehead of string
@@ -753,6 +759,7 @@ module DotAttributes = struct
     | `BgcolorWithTransparency a ->
       fprintf ppf "bgcolor=%a" fprint_color_with_transparency a
     | `Comment s -> fprintf ppf "comment=%a" fprint_string s
+    | `Compound b -> fprintf ppf "compound=%b" b
     | `Concentrate b -> fprintf ppf "concentrate=%b" b
     | `Fontpath s -> fprintf ppf "fontpath=%a" fprint_string s
     | `Layers s -> fprintf ppf "layers=%a" fprint_string_list s
@@ -805,6 +812,8 @@ module DotAttributes = struct
     | `Labeldistance f -> fprintf ppf "labeldistance=%f" f
     | `Labelfloat b -> fprintf ppf "labelfloat=%b" b
     | `Layer s -> fprintf ppf "layer=%a" fprint_string s
+    | `Lhead s -> fprintf ppf "lhead=cluster_%a" fprint_string s
+    | `Ltail s -> fprintf ppf "ltail=cluster_%a" fprint_string s
     | `Minlen i -> fprintf ppf "minlen=%i" i
     | `Samehead s -> fprintf ppf "samehead=%a" fprint_string s
     | `Sametail s -> fprintf ppf "sametail=%a" fprint_string s
