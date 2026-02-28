@@ -491,7 +491,7 @@ struct
       eattrs.html_label <- set_if_none eattrs.html_label l;
       attributes_list_to_eattributes eattrs q
     | `Labelfontcolor c :: q ->
-      eattrs.fontcolor <- set_if_none eattrs.fontcolor c;
+      eattrs.labelfontcolor <- set_if_none eattrs.labelfontcolor c;
       attributes_list_to_eattributes eattrs q
     | `Labelfontname n :: q ->
       eattrs.labelfontname <- set_if_none eattrs.labelfontname n;
