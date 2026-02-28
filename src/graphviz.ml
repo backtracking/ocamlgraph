@@ -141,6 +141,8 @@ module CommonAttributes = struct
     | `OrderingOut
       (** Constrains  order of out-edges in a subgraph according to
           their file sequence *)
+    | `Tooltip of string
+      (** Sets the tooltip (mouse hover text) attached to the graph. *)
     ]
 
   (** Attributes of nodes. *)
@@ -205,6 +207,8 @@ module CommonAttributes = struct
         simultaneously. *)
     | `Width of float
       (** Sets the minimum width.  Default value is [0.75]. *)
+    | `Tooltip of string
+      (** Sets the tooltip (mouse hover text) attached to the vertex. *)
     ]
 
   (** Attributes of edges. *)
@@ -245,6 +249,8 @@ module CommonAttributes = struct
     | `Style of [ `Solid | `Dashed | `Dotted | `Bold | `Invis ]
       (** Sets the layout style of the edge.  Several styles may be combined
           simultaneously. *)
+    | `Tooltip of string
+      (** Sets the tooltip (mouse hover text) attached to the edge. *)
     ]
 
   (** Pretty-print. *)
@@ -265,6 +271,7 @@ module CommonAttributes = struct
     | `Pagedir a -> fprintf ppf "pagedir=%a" fprint_dir a
     | `Size (x, y) -> fprintf ppf "size=\"%f,%f\"" x y
     | `OrderingOut -> fprintf ppf "ordering=out"
+    | `Tooltip s -> fprintf ppf "tooltip=%a" fprint_string s
 
   let fprint_shape ppf = function
     | `Ellipse -> fprintf ppf "ellipse"
@@ -353,6 +360,7 @@ module CommonAttributes = struct
     | `Shape a -> fprintf ppf "shape=%a" fprint_shape a
     | `Style _ -> assert false
     | `Width f -> fprintf ppf "width=%f" f
+    | `Tooltip s -> fprintf ppf "tooltip=%a" fprint_string s
 
   let fprint_arrow_direction ppf = function
       `Forward -> fprintf ppf "forward"
@@ -377,6 +385,7 @@ module CommonAttributes = struct
     | `Labelfontsize i -> fprintf ppf "labelfontsize=%i" i
     | `Penwidth f -> fprintf ppf "penwidth=%f" f
     | `Style _ -> assert false
+    | `Tooltip s -> fprintf ppf "tooltip=%a" fprint_string s
 
   let rec filter_style al sl l = match l with
     | [] -> al, sl
