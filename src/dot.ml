@@ -184,27 +184,11 @@ struct
     List.iter read_stmt stmts;
     !graph_bb
 
-  let parse_dot_from_chan c =
-    let lb = Lexing.from_channel c in
-    let dot =
-      try
-        Dot_parser.file Dot_lexer.token lb
-      with Parsing.Parse_error ->
-        let n = Lexing.lexeme_start lb in
-        failwith (Printf.sprintf "Dot.parse: parse error character %d" n)
-    in
-    close_in c;
-    dot
-
-  let parse_dot f =
-    let c = open_in f in
-    parse_dot_from_chan c
-
   let parse f =
-    fst (create_graph_and_clusters (parse_dot f))
+    fst (create_graph_and_clusters (parse_dot_ast f))
 
   let parse_bounding_box_and_clusters f =
-    let dot = parse_dot f in
+    let dot = parse_dot_ast f in
     let graph, clusters = create_graph_and_clusters dot in
     match get_graph_bb dot.stmts with
     | Some bounding_box ->
