@@ -43,6 +43,8 @@ module Parse
      end) :
 sig
   val parse : string -> B.G.t
+
+  val parse_from_chan : in_channel -> B.G.t
 end
 
 (** {2 Pretty-printer} *)
