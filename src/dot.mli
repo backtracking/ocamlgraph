@@ -20,6 +20,7 @@
 open Dot_ast
 
 val parse_dot_ast : string -> Dot_ast.file
+val parse_dot_ast_from_chan : in_channel -> Dot_ast.file
 
 type clusters_hash = (string, attr list) Hashtbl.t
 
