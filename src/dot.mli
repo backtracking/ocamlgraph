@@ -19,7 +19,10 @@
 
 open Dot_ast
 
+(** Parses a dot file AST *)
 val parse_dot_ast : string -> Dot_ast.file
+
+(** Parses dot AST from input channel *)
 val parse_dot_ast_from_chan : in_channel -> Dot_ast.file
 
 type clusters_hash = (string, attr list) Hashtbl.t
@@ -40,6 +43,7 @@ sig
   (** Parses a dot file *)
   val parse : string -> B.G.t
 
+  (** Parses dot from input channel *)
   val parse_from_chan : in_channel -> B.G.t
 
   (** Parses a dot file and returns the graph, its bounding box and
@@ -47,6 +51,8 @@ sig
   val parse_bounding_box_and_clusters :
     string -> B.G.t * string * clusters_hash
 
+  (** Parses dot from input channel and returns the graph, its bounding box and
+      a hash table from clusters to dot attributes *)
   val parse_bounding_box_and_clusters_from_chan :
     in_channel -> B.G.t * string * clusters_hash
 
