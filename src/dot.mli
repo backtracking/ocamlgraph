@@ -40,9 +40,14 @@ sig
   (** Parses a dot file *)
   val parse : string -> B.G.t
 
+  val parse_from_chan : in_channel -> B.G.t
+
   (** Parses a dot file and returns the graph, its bounding box and
       a hash table from clusters to dot attributes *)
   val parse_bounding_box_and_clusters :
     string -> B.G.t * string * clusters_hash
+
+  val parse_bounding_box_and_clusters_from_chan :
+    in_channel -> B.G.t * string * clusters_hash
 
 end
