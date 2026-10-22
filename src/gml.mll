@@ -76,8 +76,7 @@ and value = parse
 
 {
 
-  let parse f =
-    let c = open_in f in
+  let parse_from_chan c =
     let lb = from_channel c in
     let v = file lb in
     close_in c;
@@ -127,10 +126,14 @@ and value = parse
 	       g)
 	g l
 
+    let parse_from_chan c =
+      match parse_from_chan c with
+      | ["graph", List l] -> create_graph l
+      | _ -> invalid_arg "Gml.Parse.parse_from_chan: not a graph file"
+
     let parse f =
-      match parse f with
-	| ["graph", List l] -> create_graph l
-	| _ -> invalid_arg "Gml.Parse.parse: not a graph file"
+      let c = open_in f in
+      parse_from_chan c
 
   end
 

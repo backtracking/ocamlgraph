@@ -42,7 +42,11 @@ module Parse
        (** How to build the edge label out of the set of GML attributes *)
      end) :
 sig
+  (** Parses a GML file*)
   val parse : string -> B.G.t
+
+  (** Parses GML from input channel *)
+  val parse_from_chan : in_channel -> B.G.t
 end
 
 (** {2 Pretty-printer} *)
