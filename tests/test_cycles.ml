@@ -19,29 +19,74 @@ let pp_cycle p i cycle =
             (pp_print_list ~pp_sep:pp_comma pp_vertex)
             (List.rev cycle))
 
-module GP = Persistent.Digraph.Concrete(Int)
+module DG1 = struct
 
-module GPDFS = Traverse.Dfs (GP)
+  module GP = Persistent.Digraph.Concrete(Int)
 
-module GPJ = Cycles.Johnson (GP)
+  module GPDFS = Traverse.Dfs (GP)
 
-module GPC = Classic.P (GP)
+  module GPJ = Cycles.Johnson (GP)
 
-let pp_has_cycles p g =
-  if GPDFS.has_cycle g
-  then Format.pp_print_string p "cycles"
-  else Format.pp_print_string p "no cycles"
+  module GPC = Classic.P (GP)
 
-let pp_cycles g_name g =
-  Format.printf "@\n%s cycles =@\n@[<v>" g_name;
-  ignore (GPJ.fold_cycles
-    (fun c i -> pp_cycle Format.std_formatter i c; i + 1) g 0);
-  Format.printf "@]"
+  let pp_has_cycles p g =
+    if GPDFS.has_cycle g
+    then Format.pp_print_string p "cycles"
+    else Format.pp_print_string p "no cycles"
 
-module FW = Cycles.Fashwo(struct
-    include Builder.P(GP)
-    let weight _ = Cycles.Normal 1
-  end)
+  let pp_cycles g_name g =
+    Format.printf "@\n%s cycles =@\n@[<v>" g_name;
+    ignore (GPJ.fold_cycles
+      (fun c i -> pp_cycle Format.std_formatter i c; i + 1) g 0);
+    Format.printf "@]"
+
+  module FW = Cycles.Fashwo(struct
+      include Builder.P(GP)
+      let weight _ = Cycles.Normal 1
+    end)
+
+end
+
+module DG2 = struct
+
+  module GP = Persistent.Digraph.ConcreteLabeled (Int) (Cycles.Weight)
+
+  module GPDFS = Traverse.Dfs (GP)
+
+  module GPJ = Cycles.Johnson (GP)
+
+  module GPC = Classic.P (GP)
+
+  let pp_has_cycles p g =
+    if GPDFS.has_cycle g
+    then Format.pp_print_string p "cycles"
+    else Format.pp_print_string p "no cycles"
+
+  let pp_cycles g_name g =
+    Format.printf "@\n%s cycles =@\n@[<v>" g_name;
+    ignore (GPJ.fold_cycles
+      (fun c i -> pp_cycle Format.std_formatter i c; i + 1) g 0);
+    Format.printf "@]"
+
+  module FW = Cycles.Fashwo(struct
+      include Builder.P(GP)
+      let weight (_, w, _) = w
+    end)
+
+  open Cycles.Weight
+
+  let pp_weight p = function
+    | Normal i -> Format.pp_print_int p i
+    | Obligatory i -> Format.(pp_print_int p i; pp_print_char p '!')
+
+  let pp_edge_e p (s, w, d) =
+    Format.fprintf p "%d -%a> %d" s pp_weight w d
+
+end
+
+(* * * * Unlabelled graphs * * * *)
+
+open DG1
 
 (* Eades and Linh, "A Heuristic for the Feedback Arc Set Problem", Fig. 1 *)
 let g1 =
@@ -124,6 +169,38 @@ let () =
     pp_has_cycles g3')
 
 let _ = pp_cycles "g3'" g3'
+
+(* * * * Labelled graphs * * * *)
+
+open DG2
+
+(* An example with 2-cycles *)
+let g4 =
+  List.fold_left GP.add_edge_e GP.empty
+    [ (1, Obligatory 1, 2);
+      (2, Normal 1, 1);
+      (2, Normal 1, 3);
+      (3, Normal 1, 1);
+      (3, Normal 1, 4);
+      (4, Normal 1, 5);
+      (5, Normal 1, 4); ]
+let cycles4 = FW.feedback_arc_set g4
+let g4' = List.fold_left
+            (fun g ((s, w, d) as edge) ->
+              GP.add_edge_e (GP.remove_edge_e g edge) (d, w, s))
+            g4 cycles4
+
+let _ = pp_cycles "g4" g4
+
+let () =
+  Format.(printf "cycles4 = @[<hv 2>{ %a }@] (%a to %a)@."
+    (pp_print_list ~pp_sep:pp_comma pp_edge_e) cycles4
+    pp_has_cycles g4
+    pp_has_cycles g4')
+
+let _ = pp_cycles "g4'" g4'
+
+(* Other examples *)
 
 let _ = pp_cycles "cycle_5" (fst (GPC.cycle 5))
 let _ = pp_cycles "cycle_10" (fst (GPC.cycle 10))

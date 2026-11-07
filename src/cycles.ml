@@ -1,12 +1,29 @@
 
-type weight =
-  | Normal of int
-  | Obligatory of int
+module Weight =
+struct
+
+  type t =
+    | Normal of int
+    | Obligatory of int
+
+  let compare w1 w2 =
+    match w1, w2 with
+    | Normal i1, Normal i2
+    | Obligatory i1, Obligatory i2 -> Int.compare i1 i2
+    | Normal _, Obligatory _ -> -1
+    | Obligatory _, Normal _ -> 1
+
+  (** The default weight is [Normal 1]. *)
+  let default = Normal 1
+
+end
+
+type weight = Weight.t = Normal of int | Obligatory of int
 
 module Fashwo
  (GB : sig
          include Builder.S
-         val weight : G.edge -> weight
+         val weight : G.edge -> Weight.t
        end)
 =
 struct
