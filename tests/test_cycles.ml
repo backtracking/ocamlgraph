@@ -14,10 +14,9 @@ end
 let pp_comma p () = Format.(pp_print_char p ','; pp_print_space p ())
 let pp_edge p (s, d) = Format.fprintf p "%d -> %d" s d
 let pp_vertex p v = Format.fprintf p "%d" v
+let pp_vertexes = Format.pp_print_list ~pp_sep:pp_comma pp_vertex
 let pp_cycle p i cycle =
-  Format.(fprintf p "@[<hv 2>cycle %d: %a@]@," i
-            (pp_print_list ~pp_sep:pp_comma pp_vertex)
-            (List.rev cycle))
+  Format.(fprintf p "@[<hv 2>cycle %d: %a@]@," i pp_vertexes (List.rev cycle))
 
 module DG1 = struct
 
@@ -199,6 +198,33 @@ let () =
     pp_has_cycles g4')
 
 let _ = pp_cycles "g4'" g4'
+
+(* An example that should fail *)
+let g5 =
+  List.fold_left GP.add_edge_e GP.empty
+    [ (1, Obligatory 1, 2);
+      (2, Obligatory 1, 1); ]
+let _ = match FW.feedback_arc_set g5 with
+        | cycles5 ->
+            pp_cycles "g5" g5;
+            Format.(printf "fas5 = %a!@." (pp_print_list pp_edge_e) cycles5)
+        | exception FW.Stuck vs ->
+            Format.printf "fas5 empty due to obligatory arcs between:@ @[<h>%a@]@." pp_vertexes vs
+
+(* Another example that should fail *)
+let g6 =
+  List.fold_left GP.add_edge_e GP.empty
+    [ (1, Normal 1, 2);
+      (2, Obligatory 1, 1);
+      (3, Obligatory 1, 2);
+      (1, Obligatory 1, 3);
+    ]
+let _ = match FW.feedback_arc_set g6 with
+        | cycles6 ->
+            pp_cycles "g6" g6;
+            Format.(printf "fas6 = %a!@." (pp_print_list pp_edge_e) cycles6)
+        | exception FW.Stuck vs ->
+            Format.printf "fas6 empty due to obligatory arcs between:@ @[<h>%a@]@." pp_vertexes vs
 
 (* Other examples *)
 

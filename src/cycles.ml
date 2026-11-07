@@ -336,9 +336,8 @@ struct
       | Some (v, st') when G.mem_vertex g v -> loop (remove_vertex g v st')
       | Some (_, st') -> loop (g, st')
       | None ->
-          let remaining = IM.fold (Fun.const VS.union) st.delta_bins VS.empty in
-          if VS.is_empty remaining then st.fas
-          else raise (Stuck (VS.elements remaining))
+          if G.is_empty g then st.fas
+          else raise (Stuck (G.fold_vertex List.cons g []))
     in
     let g1 = disconnect_sccs g0 in
     let g2, fas = remove_self_loops g1 in
