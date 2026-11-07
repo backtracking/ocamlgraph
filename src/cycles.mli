@@ -17,18 +17,36 @@
 
 (** Algorithms related to cycles in directed graphs. *)
 
-type weight =
-  | Normal of int
-    (** Weighted arc that can be included in the feedback set. The
-        weight must be zero (not normally a good choice) or positive
-        (1 may be a good choice). *)
-  | Obligatory of int
-    (** Obligatory arc that cannot be returned in the feedback set.
-        Set the weight to zero to completely ignore obligatory arcs
-        when choosing which vertex to schedule. Set it to a positive
-        value (1 may be a good choice) to adjust the preference for
-        choosing vertexes that may "unblock" other vertexes by
-        removing their incoming obligatory arcs. *)
+(** Weights specify a preference or interdiction for including edges in a
+    feedback arc set. This module provides a {!Sig.ORDERED_TYPE_DFT} that
+    can be used to instantiate a labelled graph. *)
+module Weight :
+sig
+
+  type t =
+    | Normal of int
+      (** Weighted arc that can be included in the feedback set. The
+          weight must be zero (not normally a good choice) or positive
+          (1 may be a good choice). *)
+    | Obligatory of int
+      (** Obligatory arc that cannot be returned in the feedback set.
+          Set the weight to zero to completely ignore obligatory arcs
+          when choosing which vertex to schedule. Set it to a positive
+          value (1 may be a good choice) to adjust the preference for
+          choosing vertexes that may "unblock" other vertexes by
+          removing their incoming obligatory arcs. *)
+
+  (** Normal arcs are smaller than Obligatory arcs, and otherwise arcs are
+     ordered by their weights. *)
+  val compare : t -> t -> int
+
+  (** The default weight is [Normal 1]. *)
+  val default : t
+
+end
+
+type weight = Weight.t = Normal of int | Obligatory of int
+  [@@deprecated "Please use Weight module instead."]
 
 (** Adaptation of the FASH algorithm of Eades and Lin (1995) to handle
     edge weights and obligatory arcs. The algorithm tries to minimize the
@@ -51,7 +69,7 @@ module Fashwo
          include Builder.S
 
          (** Assign weights to edges. *)
-         val weight : G.edge -> weight
+         val weight : G.edge -> Weight.t
        end) :
 sig
   (** Raised if cycles remain and all the remaining vertexes are obligatory.
